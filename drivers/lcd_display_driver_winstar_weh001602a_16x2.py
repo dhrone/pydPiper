@@ -105,6 +105,9 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         self.pin_rs = rs
         self.pin_e = e
 
+        self.rows = rows
+        self.cols = cols
+
         # Sets the values to offset into DDRAM for different display lines
         self.row_offsets = [ 0x00, 0x40 ]
 
