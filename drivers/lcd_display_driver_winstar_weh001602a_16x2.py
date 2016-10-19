@@ -321,7 +321,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
                 if c > 255: c = 32
                 self.write4bits(self.character_translation[c], True)
 
-    def msgtest(self, text, wait):
+    def msgtest(self, text, wait=1.5):
         self.clear()
         lcd.message(text)
         time.sleep(wait)
@@ -353,16 +353,24 @@ if __name__ == '__main__':
     time.sleep(2)
     lcd.clear()
 
-    lcd.msgtest("\x00 Stop", 1.5)
-    lcd.msgtest("\x01 Play", 1.5)
-    lcd.msgtest("\x02 Pause", 1.5)
-    lcd.msgtest("\x03 Ethernet", 1.5)
-    lcd.msgtest("\x04 Wireless", 1.5)
-    lcd.msgtest("\x05 Music", 1.5)
-    lcd.msgtest("\x06 Power", 1.5)
-    lcd.clear()
-
+    lcd.msgtest("\x00 Stop")
+    lcd.msgtest("\x01 Play")
+    lcd.msgtest("\x02 Pause")
+    lcd.msgtest("\x03 Ethernet")
+    lcd.msgtest("\x04 Wireless")
+    lcd.msgtest("\x05 Music")
+    lcd.msgtest("\x06 Power")
     time.sleep(2)
+    lcd.clear()
+    lcd.switchcustomchars(lcd.FONT_SPEAKER)
+    lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
+    lcd.switchcustomchars(lcd.FONT_SHUFFLE)
+    lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
+    lcd.switchcustomchars(lcd.FONT_REPEATALL)
+    lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
+    lcd.switchcustomchars(lcd.FONT_REPEATSINGLE)
+    lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
+    lcd.switchcustomchars(lcd.FONT_ICONS)
 
 
 

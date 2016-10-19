@@ -53,28 +53,28 @@ class lcd_display_driver:
 			[ 0b00000, 0b00000, 0b00010, 0b00100, 0b11000, 0b00000, 0b00000, 0b00000 ]
 	]
 
+	FONT_ICONS = 0
+	FONT_SPEAKER = 1
+	FONT_SHUFFLE = 2
+	FONT_REPEATALL = 3
+	FONT_REPEATSINGLE = 4
+	FONTSETS = [ display_icons, speaker_icon, shuffle_icon, repeat_all_icon, repeat_single_icon ]
+
 	def __init__(self, rows, columns):
 		self.rows = rows
 		self.columns = columns
 		# Write custom fonts if the display supports them
 		# Fonts are currenty 5x8
 		try:
-			fontpos = 0
-			self.loadcustomchars(fontpos, self.display_icons)
-			#fontpos = fontpos + len(self.display_icons)
-			#self.loadcustomchars(fontpos, self.speaker_icon)
-			#fontpos = fontpos + len(self.speaker_icon)
-			#self.loadcustomchars(fontpos, self.shuffle_icon)
-			#fontpos = fontpos + len(self.shuffle_icon)
-			#self.loadcustomchars(fontpos, self.repeat_all_icon)
-			#fontpos = fontpos + len(self.repeat_all_icon)
-			#self.loadcustomchars(fontpos, self.repeat_single_icon)
+			self.loadcustomchars(0, self.display_icons)
 		except:
 			# Custom fonts not supported
 			pass
 
 
 
+	def switchcustomchars(self, index):
+		self.loadcustomchars(0, self.FONTSETS[index])
 
 	@abc.abstractmethod
 	def message(self, message, row, col):
