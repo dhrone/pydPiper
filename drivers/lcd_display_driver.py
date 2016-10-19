@@ -5,12 +5,12 @@ import abc
 class lcd_display_driver:
 	__metaclass__ = abc.ABCMeta
 
-    # Need to decide whether custom fonts live in the driver or the display.
-    # THinking right now, they should live in the base driver class.
+	# Need to decide whether custom fonts live in the driver or the display.
+	# THinking right now, they should live in the base driver class.
 
-    # Taken from https://github.com/RandyCupic/RuneAudioLCD/blob/master/display.py
+	# Taken from https://github.com/RandyCupic/RuneAudioLCD/blob/master/display.py
 
-    # 1x1 characters.  Can be displayed directly
+	# 1x1 characters.  Can be displayed directly
 	# Icons for display (5x8)
 	self.display_icons = [
 			[ 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b00000 ], # Stop
@@ -22,9 +22,9 @@ class lcd_display_driver:
 			[ 0b00000, 0b00100, 0b00100, 0b10101, 0b10101, 0b10001, 0b01110, 0b00000 ]  # Power
 	]
 
-    # 2x2 characters.  Must be displayed in the following pattern
-    # "01"
-    # "23"
+	# 2x2 characters.  Must be displayed in the following pattern
+	# "01"
+	# "23"
 	self.speaker_icon = [
 			[ 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b10001, 0b10001, 0b10001 ],
 			[ 0b00001, 0b00011, 0b00101, 0b01001, 0b10001, 0b00001, 0b00001, 0b00001 ],
@@ -76,43 +76,43 @@ class lcd_display_driver:
 
 
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def message(self, message, row, col):
 		# Sends a message for the dispay to show on row at col
 		# Messages must be UTF-8 encoded
 		# Must throw IndexError if row or col is out of range for the display
 		return
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def clear(self):
 		# clears the display
 		return
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def displayon(self):
 		# turns the display on
 		return
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def displayoff(self):
 		# turns the display off
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def cursoron(self):
 		# turns the cursor on
 		return
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def cursoroff(self):
 		# turns the cursor off
 		return
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def blinkon(self):
 		# turns blnking on
 		return
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def blinkoff(self):
 		# turns blinking off
 		return
@@ -146,7 +146,7 @@ class lcd_display_driver:
 				raise RuntimeError('Command {0} not supported'.format(cmd))
 		return
 
-    @abc.abstractmethod
+	@abc.abstractmethod
 	def loadcustomchars(self, char, fontdata):
 		# Write an array of custom characters starting at position char within
 		# the CGRAM region.
