@@ -216,7 +216,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         self.displaycontrol |= self.LCD_BLINKON
         self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
 
-     def write4bits(self, bits, char_mode=False):
+    def write4bits(self, bits, char_mode=False):
 
         ''' Send command to LCD '''
         #self.delayMicroseconds(1000) # 1000 microsecond sleep
@@ -291,7 +291,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         self.write4bits(LCD_SETCGRAMADDR)
 
         # For each font in fontdata
-		for font in fontdata:
+        for font in fontdata:
 			for data in font:
 				self.write4bits(data)
 
