@@ -61,7 +61,7 @@ class lcd_display_driver:
 		try:
 			fontpos = 0
 			self.loadcustomchars(fontpos, self.display_icons)
-			fontpos = fontpos + len(self.display_icons)
+			#fontpos = fontpos + len(self.display_icons)
 			#self.loadcustomchars(fontpos, self.speaker_icon)
 			#fontpos = fontpos + len(self.speaker_icon)
 			#self.loadcustomchars(fontpos, self.shuffle_icon)

@@ -46,6 +46,7 @@
 
 
 import time
+import RPi.GPIO as GPIO
 
 
 # Make sure to set your pin mappings to the correct wiring for your display!!

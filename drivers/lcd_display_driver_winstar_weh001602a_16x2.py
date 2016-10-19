@@ -69,7 +69,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
     LCD_5x10s = 0x04
     LCD_5x8DOTS = 0x00
 
-    character_translation = [   0,0,0,0,0,0,0,0,0,32,                        #0
+    character_translation = [   0,1,2,3,4,5,6,7,0,32,                        #0
                                 0,0,0,0,0,0,0,0,0,0,                        #10
                                 0,0,0,0,0,0,0,0,0,0,                        #20
                                 0,0,32,33,34,35,36,37,38,39,                #30
@@ -291,12 +291,15 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         # Load custom characters
 
         # Set pointer to position char in CGRAM
-        self.write4bits(self.LCD_SETCGRAMADDR+char)
+        self.write4bits(self.LCD_SETCGRAMADDR+(char*8))
+
+	# Need a short sleep for display to stablize
+	time.sleep(.1)
 
         # For each font in fontdata
         for font in fontdata:
-			for data in font:
-				self.write4bits(data, True)
+		for data in font:
+			self.write4bits(data, True)
 
 
     def message(self, text, row=0, col=0):
@@ -318,6 +321,10 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
                 if c > 255: c = 32
                 self.write4bits(self.character_translation[c], True)
 
+    def msgtest(self, text, wait):
+        self.clear()
+        lcd.message(text)
+        time.sleep(wait)
 
 if __name__ == '__main__':
 
@@ -328,7 +335,7 @@ if __name__ == '__main__':
     lcd.clear()
 
     lcd.message("Winstar OLED\nPi Powered")
-    time.sleep(4)
+    time.sleep(2)
 
     lcd.clear()
 
@@ -346,11 +353,13 @@ if __name__ == '__main__':
     time.sleep(2)
     lcd.clear()
 
-    special_chars = u"\x00\x01\x02\x03\x04\x05\x06"
-    lcd.message(special_chars)
-
-    time.sleep(4)
+    for i in range(0,12):
+        special_chars = chr(i) + " {0}".format(i)
+	lcd.msgtest(special_chars, 1.5)
     lcd.clear()
+
+    time.sleep(2)
+
 
 
   except KeyboardInterrupt:
