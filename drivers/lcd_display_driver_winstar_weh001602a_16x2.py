@@ -172,8 +172,8 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         if row > self.rows or col > self.cols:
             raise IndexError
 
-        if (row > self.numlines):
-            row = self.numlines - 1 # we count rows starting w/0
+        if (row > self.rows):
+            row = self.rows - 1 # we count rows starting w/0
 
         self.write4bits(self.LCD_SETDDRAMADDR | (col + self.row_offsets[row]))
 
