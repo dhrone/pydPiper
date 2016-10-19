@@ -12,7 +12,7 @@ class lcd_display_driver:
 
 	# 1x1 characters.  Can be displayed directly
 	# Icons for display (5x8)
-	self.display_icons = [
+	display_icons = [
 			[ 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b00000 ], # Stop
 			[ 0b00000, 0b01000, 0b01100, 0b01110, 0b01110, 0b01100, 0b01000, 0b00000 ], # Play
 			[ 0b00000, 0b01010, 0b01010, 0b01010, 0b01010, 0b01010, 0b01010, 0b00000 ], # Pause
@@ -25,28 +25,28 @@ class lcd_display_driver:
 	# 2x2 characters.  Must be displayed in the following pattern
 	# "01"
 	# "23"
-	self.speaker_icon = [
+	speaker_icon = [
 			[ 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b10001, 0b10001, 0b10001 ],
 			[ 0b00001, 0b00011, 0b00101, 0b01001, 0b10001, 0b00001, 0b00001, 0b00001 ],
 			[ 0b10001, 0b10001, 0b10001, 0b11111, 0b00000, 0b00000, 0b00000, 0b00000 ],
 			[ 0b00001, 0b00001, 0b00001, 0b10001, 0b01001, 0b00101, 0b00011, 0b00001 ]
 	]
 
-	self.shuffle_icon = [
+	shuffle_icon = [
 			[ 0b00000, 0b00000, 0b00000, 0b11100, 0b00010, 0b00010, 0b00010, 0b00001 ],
 			[ 0b00000, 0b00000, 0b00010, 0b00111, 0b01010, 0b01000, 0b01000, 0b10000 ],
 			[ 0b00001, 0b00010, 0b00010, 0b00010, 0b11100, 0b00000, 0b00000, 0b00000 ],
 			[ 0b10000, 0b01000, 0b01000, 0b01010, 0b00111, 0b00010, 0b00000, 0b00000 ]
 	]
 
-	self.repeat_all_icon = [
+	repeat_all_icon = [
 			[ 0b00000, 0b00000, 0b00000, 0b00011, 0b00100, 0b01000, 0b10000, 0b10000 ],
 			[ 0b00000, 0b00000, 0b00000, 0b11000, 0b00101, 0b00011, 0b00111, 0b00000 ],
 			[ 0b10000, 0b10000, 0b01000, 0b00100, 0b00011, 0b00000, 0b00000, 0b00000 ],
 			[ 0b00000, 0b00000, 0b00010, 0b00100, 0b11000, 0b00000, 0b00000, 0b00000 ]
 	]
 
-	self.repeat_single_icon = [
+	repeat_single_icon = [
 			[ 0b00000, 0b00000, 0b00000, 0b00011, 0b00100, 0b01000, 0b00000, 0b00000 ],
 			[ 0b00000, 0b00000, 0b00000, 0b11000, 0b00101, 0b00011, 0b00111, 0b00000 ],
 			[ 0b00000, 0b11100, 0b11000, 0b10100, 0b00011, 0b00000, 0b00000, 0b00000 ],
@@ -56,7 +56,6 @@ class lcd_display_driver:
 	def __init__(self, rows, columns):
 		self.rows = rows
 		self.columns = columns
-
 		# Write custom fonts if the display supports them
 		# Fonts are currenty 5x8
 		try:
@@ -72,6 +71,7 @@ class lcd_display_driver:
 			loadcustomchars(self, fontpos, self.repeat_single_icon)
 		except:
 			# Custom fonts not supported
+			pass
 
 
 
@@ -96,6 +96,7 @@ class lcd_display_driver:
 	@abc.abstractmethod
 	def displayoff(self):
 		# turns the display off
+		return
 
 	@abc.abstractmethod
 	def cursoron(self):
@@ -128,23 +129,22 @@ class lcd_display_driver:
 			# BLINKON - Turns blinking on
 			# BLINKOFF - Turns blinking off
 
-			if cmd == "CLEAR":
-				self.clear()
-			elif cmd == "DISPLAYON":
-				self.displayon()
-			elif cmd == "DISPLAYOFF":
-				self.displayoff()
-			elif cmd == "CURSORON":
-				self.cursoron()
-			elif cmd == "CURSOROFF":
-				self.cursoroff()
-			elif cmd == "BLINKON":
-				self.blinkon()
-			elif cmd == "BLINKOFF":
-				self.blinkoff()
-			else:
-				raise RuntimeError('Command {0} not supported'.format(cmd))
-		return
+		if cmd == "CLEAR":
+			self.clear()
+		elif cmd == "DISPLAYON":
+			self.displayon()
+		elif cmd == "DISPLAYOFF":
+			self.displayoff()
+		elif cmd == "CURSORON":
+			self.cursoron()
+		elif cmd == "CURSOROFF":
+			self.cursoroff()
+		elif cmd == "BLINKON":
+			self.blinkon()
+		elif cmd == "BLINKOFF":
+			self.blinkoff()
+		else:
+			raise RuntimeError('Command {0} not supported'.format(cmd))
 
 	@abc.abstractmethod
 	def loadcustomchars(self, char, fontdata):
