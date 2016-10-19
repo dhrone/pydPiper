@@ -296,7 +296,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         # For each font in fontdata
         for font in fontdata:
 			for data in font:
-				self.write4bits(data)
+				self.write4bits(data, True)
 
 
     def message(self, text, row=0, col=0):
