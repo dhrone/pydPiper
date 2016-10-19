@@ -115,8 +115,8 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         for pin in self.pins_db:
            GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
 
-        GPIO.setup(OLED_E, GPIO.OUT, initial=GPIO.LOW)
-        GPIO.setup(OLED_RS, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(self.pin_e, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(self.pin_rs, GPIO.OUT, initial=GPIO.LOW)
 
         # initialization sequence taken from audiophonics.fr site
         # there is a good writeup on the HD44780 at Wikipedia
