@@ -60,15 +60,15 @@ class lcd_display_driver:
 		# Fonts are currenty 5x8
 		try:
 			fontpos = 0
-			loadcustomchars(self, fontpos, self.display_icons)
-			fontpos = fontpos + len(self.display_icon)
-			loadcustomchars(self, fontpos, self.speaker_icon)
-			fontpos = fontpos + len(self.speaker_icon)
-			loadcustomchars(self, fontpos, self.shuffle_icon)
-			fontpos = fontpos + len(self.shuffle_icon)
-			loadcustomchars(self, fontpos, self.repeat_all_icon)
-			fontpos = fontpos + len(self.repeat_all_icon)
-			loadcustomchars(self, fontpos, self.repeat_single_icon)
+			self.loadcustomchars(fontpos, self.display_icons)
+			fontpos = fontpos + len(self.display_icons)
+			#self.loadcustomchars(fontpos, self.speaker_icon)
+			#fontpos = fontpos + len(self.speaker_icon)
+			#self.loadcustomchars(fontpos, self.shuffle_icon)
+			#fontpos = fontpos + len(self.shuffle_icon)
+			#self.loadcustomchars(fontpos, self.repeat_all_icon)
+			#fontpos = fontpos + len(self.repeat_all_icon)
+			#self.loadcustomchars(fontpos, self.repeat_single_icon)
 		except:
 			# Custom fonts not supported
 			pass

@@ -291,7 +291,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         # Load custom characters
 
         # Set pointer to position char in CGRAM
-        self.write4bits(LCD_SETCGRAMADDR)
+        self.write4bits(self.LCD_SETCGRAMADDR+char)
 
         # For each font in fontdata
         for font in fontdata:
