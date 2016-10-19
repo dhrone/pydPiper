@@ -294,7 +294,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         self.write4bits(self.LCD_SETCGRAMADDR+(char*8))
 
 	# Need a short sleep for display to stablize
-	time.sleep(.1)
+	time.sleep(.01)
 
         # For each font in fontdata
         for font in fontdata:
@@ -353,9 +353,13 @@ if __name__ == '__main__':
     time.sleep(2)
     lcd.clear()
 
-    for i in range(0,12):
-        special_chars = chr(i) + " {0}".format(i)
-	lcd.msgtest(special_chars, 1.5)
+    lcd.msgtest("\x00 Stop", 1.5)
+    lcd.msgtest("\x01 Play", 1.5)
+    lcd.msgtest("\x02 Pause", 1.5)
+    lcd.msgtest("\x03 Ethernet", 1.5)
+    lcd.msgtest("\x04 Wireless", 1.5)
+    lcd.msgtest("\x05 Music", 1.5)
+    lcd.msgtest("\x06 Power", 1.5)
     lcd.clear()
 
     time.sleep(2)
