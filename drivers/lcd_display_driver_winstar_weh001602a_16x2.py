@@ -335,7 +335,7 @@ if __name__ == '__main__':
     accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
     #for char in accent_min: print char, ord(char)
     lcd.message(accent_min)
-    time.sleep(5)
+    time.sleep(4)
 
     lcd.clear()
 
@@ -343,7 +343,12 @@ if __name__ == '__main__':
     #for char in accent_maj: print char, ord(char)
     lcd.message(accent_maj)
 
-    time.sleep(5)
+    time.sleep(4)
+
+    special_chars = u"\x00\x01\x02\x03\x04\x05\x06"
+    lcd.message(special_chars)
+
+    time.sleep(4)
     lcd.clear()
 
 
