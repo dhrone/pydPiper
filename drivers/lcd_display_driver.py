@@ -77,47 +77,47 @@ class lcd_display_driver:
 
 
     @abc.abstractmethod
-  	def message(self, message, row, col):
+	def message(self, message, row, col):
 		# Sends a message for the dispay to show on row at col
 		# Messages must be UTF-8 encoded
 		# Must throw IndexError if row or col is out of range for the display
 		return
 
     @abc.abstractmethod
-  	def clear(self):
+	def clear(self):
 		# clears the display
 		return
 
     @abc.abstractmethod
-  	def displayon(self):
+	def displayon(self):
 		# turns the display on
 		return
 
     @abc.abstractmethod
-  	def displayoff(self):
+	def displayoff(self):
 		# turns the display off
 
     @abc.abstractmethod
-  	def cursoron(self):
+	def cursoron(self):
 		# turns the cursor on
 		return
 
     @abc.abstractmethod
-  	def cursoroff(self):
+	def cursoroff(self):
 		# turns the cursor off
 		return
 
     @abc.abstractmethod
-  	def blinkon(self):
+	def blinkon(self):
 		# turns blnking on
 		return
 
     @abc.abstractmethod
-  	def blinkoff(self):
+	def blinkoff(self):
 		# turns blinking off
 		return
 
-  	def command(self, cmd):
+	def command(self, cmd):
 		# Sends a command to the display
 		# Must support the following commands...
 			# CLEAR - Clears the display
@@ -147,7 +147,7 @@ class lcd_display_driver:
 		return
 
     @abc.abstractmethod
-  	def loadcustomchars(self, char, fontdata):
+	def loadcustomchars(self, char, fontdata):
 		# Write an array of custom characters starting at position char within
 		# the CGRAM region.
 		# Char should be an integer between 0 and 255
