@@ -39,7 +39,7 @@ class musicdata:
         'type':u""
     }
 
-    def __init(self, q)__:
+    def __init__(self, q):
         self.musicdata = self.musicdata_init
         self.musicdata_prev = self.musicdata
         self.dataqueue = q
@@ -57,6 +57,9 @@ class musicdata:
         # Send md to queue if anything has changed
         if len(md) > 0:
             dataqueue.put(md)
+
+            # Update musicdata_prev
+            musicdata_prev = musicdata
 
 
     def clear(self):
