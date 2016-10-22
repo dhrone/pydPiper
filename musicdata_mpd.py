@@ -130,7 +130,7 @@ class musicdata_mpd(musicdata.musicdata):
 				if playlist_info[0]['file'][:4] == "http":
 					self.musicdata['playlist_display'] = "Streaming"
 					if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
-						self.musicdata['artist'] = status['name'] if 'name' in current_song else u""
+						self.musicdata['artist'] = current_song['name'] if 'name' in current_song else u""
 				else:
 					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
 			else:
