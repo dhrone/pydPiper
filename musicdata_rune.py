@@ -73,8 +73,7 @@ class musicdata_rune(musicdata.musicdata):
 
 	def run(self):
 
-		while self.running:
-
+		while True:
 			try:
 				item = None
 				# Wait for notice that key has changed
@@ -192,22 +191,23 @@ if __name__ == '__main__':
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_rune.log', level=logging.DEBUG)
 
-	try:
-		import sys
-		q = Queue.Queue()
-		mdr = musicdata_rune(q)
+	import sys
+	q = Queue.Queue()
+	mdr = musicdata_rune(q)
 
+	try:
 		start = time.time()
 		while True:
-			if start+20 < time.time():
-				print "Exiting..."
-				mdr.running = False
-				sys.exit(0)
-
-			item = q.get()
-			q.task_done()
-
-			print item
+			if start+60 < time.time():
+				break;
+			try:
+				item = q.get(timeout=1000)
+				print item
+				q.task_done()
+			except Queue.Empty:
+				pass	
 	except KeyboardInterrupt:
-		mdr.running = False
-		print "Exiting..."
+		print ''
+		pass
+
+	print "Exiting..."
