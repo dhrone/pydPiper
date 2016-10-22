@@ -38,7 +38,7 @@ class musicdata_mpd(musicdata.musicdata):
 			# Generate a noidle event every timeout seconds
 			time.sleep(self.timeout)
 
-			if idle_state:
+			if self.idle_state:
 				try:
 					#self.dataclient.noidle()
 					self.dataclient._write_command("noidle")

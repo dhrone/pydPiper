@@ -4,12 +4,12 @@
 # musicdata service to read from SPOP
 # Written by: Ron Ritchey
 
-import threading, logging, Queue, musicdata, time, sys, telnetlib
+import threading, logging, Queue, musicdata, time, sys, telnetlib, json
 
 class musicdata_spop(musicdata.musicdata):
 
 
-	def __init__(self, q, server='localhost', port=6600, pwd=''):
+	def __init__(self, q, server='localhost', port=6602, pwd=''):
 		super(musicdata_spop, self).__init__(q)
 		self.server = server
 		self.port = port
@@ -38,10 +38,11 @@ class musicdata_spop(musicdata.musicdata):
 			time.sleep(self.timeout)
 
 			# If blocked waiting for a response then allow idleaert to issue notify to unblock the service
-			if idle_state:
+			if self.idle_state:
 				try:
 					#self.dataclient.noidle()
-					self.dataclient.write("notify")
+					self.dataclient.write("notify\n")
+					self.dataclient.read_until("\n")
 				except (IOError, AttributeError):
 					# If not idle (or not created yet) return to sleeping
 					pass
@@ -90,7 +91,7 @@ class musicdata_spop(musicdata.musicdata):
 			try:
 				# Wait for notice that state has changed
 				self.idle_state = True
-				self.dataclient.write("idle")
+				self.dataclient.write("idle\n")
 				msg = self.dataclient.read_until("\n")
 				self.idle_state = False
 				self.status()
@@ -107,10 +108,14 @@ class musicdata_spop(musicdata.musicdata):
 		# Read musicplayer status and update musicdata
 
 		self.dataclient.write("status\n")
-		status = json.load(self.dataclient.read_until("\n").strip())
+		msg = self.dataclient.read_until("\n").strip()
+		try:
+			status = json.loads(msg)
+		except ValueError:
+			logging.debug("Value error with msg={0}".format(msg))
 
-		state = status.get('state')
-		if state != "play":
+		state = status.get('status')
+		if state != "playing":
 			self.musicdata['state'] = u"stop"
 		else:
 			self.musicdata['state'] = u"play"
@@ -151,6 +156,7 @@ class musicdata_spop(musicdata.musicdata):
 if __name__ == '__main__':
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_spop.log', level=logging.DEBUG)
+	logging.getLogger().addHandler(logging.StreamHandler())
 
 	import sys
 	q = Queue.Queue()
