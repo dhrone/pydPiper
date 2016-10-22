@@ -185,7 +185,7 @@ if __name__ == '__main__':
 	try:
 		start = time.time()
 		while True:
-			if start+60 < time.time():
+			if start+120 < time.time():
 				break;
 			try:
 				item = q.get(timeout=1000)
