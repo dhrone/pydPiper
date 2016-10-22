@@ -77,3 +77,4 @@ class musicdata:
 	def command(cmd):
 		# Send command to music service
 		# Throws NotImplementedError if music service does not support commands
+        return
