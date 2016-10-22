@@ -9,12 +9,16 @@ import json, redis, threading, logging, Queue, musicdata, time
 class musicdata_rune(musicdata.musicdata):
 
 
+
 	def __init__(self, q, server='localhost', port=6379, pwd=''):
 		super(musicdata_rune, self).__init__(q)
 		self.server = server
 		self.port = port
 		self.pwd = pwd
 		self.connection_failed = 0
+
+        # Used to break out of threads upon exit
+        self.running = True
 
 		self.dataclient = self.connect()
 
@@ -69,7 +73,7 @@ class musicdata_rune(musicdata.musicdata):
 
 	def run(self):
 
-		while True:
+		while self.running:
 
 			try:
 				item = None
@@ -97,7 +101,10 @@ class musicdata_rune(musicdata.musicdata):
 		status = json.loads(self.dataclient.get('act_player_info'))
 
 		state = status.get('state')
-		if state == "play":
+		if state != "play":
+            self.musicdata['state'] = u"stop"
+        else:
+            self.musicdata['state'] = u"play"
 			self.musicdata['artist'] = status['currentartist'] if 'currentartist' in status else u""
 			self.musicdata['title'] = status['currentsong'] if 'currentsong' in status else u""
 			self.musicdata['album'] = status['currentalbum'] if 'currentalbum' in status else u""
@@ -192,6 +199,7 @@ if __name__ == '__main__':
 		while True:
 			if start+20 < time.time():
 				print "Exiting..."
+                mdr.running = False
 				sys.exit(0)
 
 			item = q.get()
@@ -199,4 +207,5 @@ if __name__ == '__main__':
 
 			print item
 	except KeyboardInterrupt:
+        mdr.running = False
 		print "Exiting..."
