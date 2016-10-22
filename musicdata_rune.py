@@ -190,7 +190,7 @@ class musicdata_rune(musicdata.musicdata):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_rune.log', level=logging.DEBUG)
+	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_rune.log', level=logging.DEBUG)
 
 	try:
 		import sys
