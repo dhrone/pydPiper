@@ -8,8 +8,6 @@ import json, redis, threading, logging, Queue, musicdata, time
 
 class musicdata_rune(musicdata.musicdata):
 
-
-
 	def __init__(self, q, server='localhost', port=6379, pwd=''):
 		super(musicdata_rune, self).__init__(q)
 		self.server = server
@@ -17,13 +15,7 @@ class musicdata_rune(musicdata.musicdata):
 		self.pwd = pwd
 		self.connection_failed = 0
 
-		# Used to break out of threads upon exit
-		self.running = True
-
-		self.dataclient = self.connect()
-
-		# Now that we have a good connection, subscribe to the channels we need
-		self.subscribe()
+		self.dataclient = None
 
 		# Now set up a thread to listen to the channel and update our data when
 		# the channel indicates a relevant key has changed
@@ -38,6 +30,7 @@ class musicdata_rune(musicdata.musicdata):
 		self.connection_failed = 0
 		while True:
 			if self.connection_failed >= 10:
+				logging.debug("Could not connect to REDIS")
 				raise RuntimeError("Could not connect to REDIS")
 			try:
 				# Connection to REDIS
@@ -45,8 +38,9 @@ class musicdata_rune(musicdata.musicdata):
 
 				# Configure REDIS to send keyspace messages for set events
 				client.config_set('notify-keyspace-events', 'KEA')
-				return client
+				self.dataclient = client
 			except:
+				self.dataclient = None
 				self.connection_failed += 1
 				time.sleep(1)
 
@@ -62,7 +56,7 @@ class musicdata_rune(musicdata.musicdata):
 			# Subscribe to act_player_info keyspace events
 			self.pubsub.psubscribe('__key*__:act_player_info')
 		except redis.ConnectionError:
-			self.dataclient = self.connect()
+			self.connect()
 
 			# Try again to subscribe
 			# Create a pubsub to receive messages
@@ -74,8 +68,17 @@ class musicdata_rune(musicdata.musicdata):
 	def run(self):
 
 		while True:
+			if self.dataclient is None:
+				try:
+					# Try to connect
+					self.connect()
+					self.subscribe()
+				except redis.ConnectionError, RuntimeError:
+					self.dataclient = None
+					# On connection error, sleep 5 and then return to top and try again
+					time.sleep(5)
+					continue
 			try:
-				item = None
 				# Wait for notice that key has changed
 				msg = self.pubsub.get_message()
 				if msg:
@@ -84,14 +87,11 @@ class musicdata_rune(musicdata.musicdata):
 					self.sendUpdate()
 				time.sleep(.01)
 			except RuntimeError, redis.ConnectionError:
+				# if we lose our connection while trying to query DB
+				# sleep 5 and then return to top to try again
 				logging.debug("Could not get status from REDIS")
-				time.sleep(10)
-				try:
-					self.connect()
-					self.subscribe()
-				except RuntimeError, redis.ConnectionError:
-					logging.debug("Failed reconnect to REDIS")
-					time.sleep(30)
+				time.sleep(5)
+				continue
 
 
 	def status(self):
@@ -108,9 +108,10 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['title'] = status['currentsong'] if 'currentsong' in status else u""
 			self.musicdata['album'] = status['currentalbum'] if 'currentalbum' in status else u""
 			self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
-			self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
 			self.musicdata['duration'] = int(status['time']) if 'time' in status else 0
 			self.musicdata['current'] = int(status['elapsed']) if 'elapsed' in status else 0
+			self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
+			self.musicdata['musicdatasource'] = "Rune"
 
 			if self.musicdata['actPlayer'] == 'Spotify':
 				self.musicdata['bitrate'] = "320 kbps"
@@ -122,6 +123,7 @@ class musicdata_rune(musicdata.musicdata):
 			elif self.musicdata['actPlayer'] == 'MPD':
 				plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
 				plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
+
 				self.musicdata['bitrate'] = "{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
 
 				# if radioname is None then this is coming from a playlist (e.g. not streaming)
@@ -205,7 +207,7 @@ if __name__ == '__main__':
 				print item
 				q.task_done()
 			except Queue.Empty:
-				pass	
+				pass
 	except KeyboardInterrupt:
 		print ''
 		pass
