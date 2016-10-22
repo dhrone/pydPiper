@@ -99,6 +99,7 @@ class musicdata_rune(musicdata.musicdata):
 	def status(self):
 		# Read musicplayer status and update musicdata
 
+		logging.debug("Getting status")
 		status = json.loads(self.dataclient.get('act_player_info'))
 
 		state = status.get('state')

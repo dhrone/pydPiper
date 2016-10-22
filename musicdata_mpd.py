@@ -110,21 +110,21 @@ class musicdata_mpd(musicdata.musicdata):
 			self.musicdata['actPlayer'] = "MPD"
 			self.musicdata['musicdatasource'] = "MPD"
 
+			self.musicdata['bitrate'] = "{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
+
 			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
 			plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
 
-			self.musicdata['bitrate'] = "{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
-
 			# If playlist is length 1 and the song playing is from an http source it is streaming
-			if playlist_count == 1:
+			if plc == 1:
 				if playlist_info[0]['file'][:4] == "http":
-					playlist_display = "Streaming"
+					self.musicdata['playlist_display'] = "Streaming"
 					if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
 						self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
 				else:
-					playlist_display = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
+					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
 			else:
-					playlist_display = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
+					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
 \
 			if status.get('radioname') == None:
 				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
