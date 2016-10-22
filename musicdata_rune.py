@@ -39,6 +39,7 @@ class musicdata_rune(musicdata.musicdata):
 				# Configure REDIS to send keyspace messages for set events
 				client.config_set('notify-keyspace-events', 'KEA')
 				self.dataclient = client
+				break
 			except:
 				self.dataclient = None
 				self.connection_failed += 1

@@ -11,11 +11,12 @@ class musicdata_mpd(musicdata.musicdata):
 
 
 	def __init__(self, q, server='localhost', port=6600, pwd=''):
-		super(musicdata_rune, self).__init__(q)
+		super(musicdata_mpd, self).__init__(q)
 		self.server = server
 		self.port = port
 		self.pwd = pwd
 		self.connection_failed = 0
+		self.timeout = 20
 
 		self.dataclient = None
 
@@ -26,15 +27,15 @@ class musicdata_mpd(musicdata.musicdata):
 		data_t.start()
 
 		# Start the idle timer
-		idle_t = threading.Threat(target=self.idlealert)
-		idle_t.daemon = true
+		idle_t = threading.Thread(target=self.idlealert)
+		idle_t.daemon = True
 		idle_t.start()
 
-	def idlealert(timeout=20):
+	def idlealert(self):
 
 		while True:
 			# Generate a noidle event every timeout seconds
-			time.sleep(timeout)
+			time.sleep(self.timeout)
 
 			try:
 				self.dataclient.noidle()
@@ -46,20 +47,25 @@ class musicdata_mpd(musicdata.musicdata):
 
 		# Try up to 10 times to connect to REDIS
 		self.connection_failed = 0
+		self.dataclient = None
 		while True:
 			if self.connection_failed >= 10:
 				logging.debug("Could not connect to MPD")
-				raise RuntimeError("Could not connect to MPD")
+				break
 			try:
 				# Connection to MPD
 				client = mpd.MPDClient(use_unicode=True)
 				client.connect(self.server, self.port)
 
 				self.dataclient = client
+				break
 			except:
 				self.dataclient = None
 				self.connection_failed += 1
 				time.sleep(1)
+		if self.dataclient is None:
+			raise mpd.ConnectionError("Could not connect to MPD")
+
 
 
 	def run(self):
@@ -71,7 +77,7 @@ class musicdata_mpd(musicdata.musicdata):
 				try:
 					# Try to connect
 					self.connect()
-				except mpd.ConnectionError, RuntimeError:
+				except mpd.ConnectionError:
 					self.dataclient = None
 					# On connection error, sleep 5 and then return to top and try again
 					time.sleep(5)
@@ -83,7 +89,7 @@ class musicdata_mpd(musicdata.musicdata):
 				self.status()
 				self.sendUpdate()
 				time.sleep(.01)
-			except RuntimeError, mpd.ConnectionError:
+			except mpd.ConnectionError:
 				logging.debug("Could not get status from MPD")
 				time.sleep(5)
 				continue
@@ -105,8 +111,12 @@ class musicdata_mpd(musicdata.musicdata):
 			self.musicdata['title'] = current_song['title'] if 'title' in current_song else u""
 			self.musicdata['album'] = current_song['album'] if 'album' in current_song else u""
 			self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
-			self.musicdata['duration'] = int(status['time']) if 'time' in status else 0
-			self.musicdata['current'] = int(status['elapsed']) if 'elapsed' in status else 0
+
+			# status['time'] is formatted as "current:duration" e.g. "24:243"
+			# split time into current and duration
+			temptime = status['time'] if 'time' in status else u'0:0'
+			(self.musicdata['current'], self.musicdata['duration']) = temptime.split(':')
+
 			self.musicdata['actPlayer'] = "MPD"
 			self.musicdata['musicdatasource'] = "MPD"
 
@@ -125,7 +135,6 @@ class musicdata_mpd(musicdata.musicdata):
 					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
 			else:
 					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
-\
 			if status.get('radioname') == None:
 				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
 			else:
