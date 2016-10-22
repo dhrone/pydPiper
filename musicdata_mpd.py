@@ -130,18 +130,11 @@ class musicdata_mpd(musicdata.musicdata):
 				if playlist_info[0]['file'][:4] == "http":
 					self.musicdata['playlist_display'] = "Streaming"
 					if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
-						self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
+						self.musicdata['artist'] = status['name'] if 'name' in status else u""
 				else:
 					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
 			else:
 					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
-			if status.get('radioname') == None:
-				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
-			else:
-				self.musicdata['playlist_display'] = "Streaming"
-				# if artist is empty, place name in artist field
-				if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
-					self.musicdata['artist'] = status['name'] if 'name' in current_song else u""
 
 			audio = status['audio'] if 'audio' in status else None
 			if audio is None:
