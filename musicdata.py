@@ -40,31 +40,31 @@ class musicdata:
 	}
 
 	def __init__(self, q):
-		self.musicdata = self.musicdata_init
-		self.musicdata_prev = self.musicdata
+		self.musicdata = self.musicdata_init.copy()
+		self.musicdata_prev = self.musicdata.copy()
 		self.dataqueue = q
 
 
 	def sendUpdate(self):
 		# Figure out what has changed and then send just those values across dataqueue
 		md = { }
-		for k, v in musicdata.iteritems():
-			pv = musicdata_prev[k] if k in musicdata_prev else None
-			if pv == v:
+		for k, v in self.musicdata.iteritems():
+			pv = self.musicdata_prev[k] if k in self.musicdata_prev else None
+			if pv != v:
 				md[k] = v
 
 
 		# Send md to queue if anything has changed
 		if len(md) > 0:
-			dataqueue.put(md)
+			self.dataqueue.put(md)
 
 			# Update musicdata_prev
-			musicdata_prev = musicdata
+			self.musicdata_prev = self.musicdata.copy()
 
 
 	def clear(self):
 		# revert data back to init state
-		self.musicdata = self.musicdata_init
+		self.musicdata = self.musicdata_init.copy()
 
 	@abc.abstractmethod
 	def run():
@@ -73,8 +73,8 @@ class musicdata:
 		# Future state: start thread to issue commands to music source
 		return
 
-	@abc.abstractmethod
-	def command(cmd):
+	#@abc.abstractmethod
+	#def command(cmd):
 		# Send command to music service
 		# Throws NotImplementedError if music service does not support commands
-        return
+	#	return

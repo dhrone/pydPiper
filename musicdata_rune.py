@@ -4,13 +4,13 @@
 # musicdata service to read from RuneAudio
 # Written by: Ron Ritchey
 
-import json, redis, threading, logging, Queue, musicdata
+import json, redis, threading, logging, Queue, musicdata, time
 
 class musicdata_rune(musicdata.musicdata):
 
 
 	def __init__(self, q, server='localhost', port=6379, pwd=''):
-		super(musicdata_rune, self).__init__(self.q)
+		super(musicdata_rune, self).__init__(q)
 		self.server = server
 		self.port = port
 		self.pwd = pwd
@@ -23,8 +23,8 @@ class musicdata_rune(musicdata.musicdata):
 
 		# Now set up a thread to listen to the channel and update our data when
 		# the channel indicates a relevant key has changed
-		data_t = Thread(target=self.run)
-		data_t = setDaemon(True)
+		data_t = threading.Thread(target=self.run)
+		data_t.daemon = True
 		data_t.start()
 
 
@@ -44,7 +44,7 @@ class musicdata_rune(musicdata.musicdata):
 				return client
 			except:
 				self.connection_failed += 1
-				sleep(1)
+				time.sleep(1)
 
 
 	def subscribe(self):
@@ -74,21 +74,21 @@ class musicdata_rune(musicdata.musicdata):
 			try:
 				item = None
 				# Wait for notice that key has changed
-				for item in self.pubsub.listen():
+				msg = self.pubsub.get_message()
+				if msg:
 					# act_player_info key event occured
 					self.status()
 					self.sendUpdate()
-				# Hmmm.  We have executed the for loop.  This means that the connection has failed
-				raise redis.ConnectionError
+				time.sleep(.01)
 			except RuntimeError, redis.ConnectionError:
 				logging.debug("Could not get status from REDIS")
-				sleep(10)
+				time.sleep(10)
 				try:
 					self.connect()
 					self.subscribe()
 				except RuntimeError, redis.ConnectionError:
 					logging.debug("Failed reconnect to REDIS")
-					sleep(30)
+					time.sleep(30)
 
 
 	def status(self):
@@ -120,7 +120,7 @@ class musicdata_rune(musicdata.musicdata):
 
 				# if radioname is None then this is coming from a playlist (e.g. not streaming)
 				if status.get('radioname') == None:
-					self.musicdata['playlist_display'] = "{0}/{1}".format(playlist_position, playlist_count)
+					self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
 				else:
 					self.musicdata['playlist_display'] = "Streaming"
 					# if artist is empty, place radioname in artist field
@@ -172,10 +172,10 @@ class musicdata_rune(musicdata.musicdata):
 
 			# if duration is not available, then suppress its display
 			if int(self.musicdata['duration']) > 0:
-				timepos = time.strftime("%M:%S", time.gmtime(int(current))) + "/" + time.strftime("%M:%S", time.gmtime(int(duration)))
-				remaining = time.strftime("%M:%S", time.gmtime( int(duration) - int(current) ) )
+				timepos = time.strftime("%M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%M:%S", time.gmtime(int(self.musicdata['duration'])))
+				remaining = time.strftime("%M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
 			else:
-				timepos = time.strftime("%M:%S", time.gmtime(int(current)))
+				timepos = time.strftime("%M:%S", time.gmtime(int(self.musicdata['current'])))
 				remaining = timepos
 
 			self.musicdata['remaining'] = remaining
@@ -183,15 +183,20 @@ class musicdata_rune(musicdata.musicdata):
 
 if __name__ == '__main__':
 
-	q = Queue.Queue()
-	mdr = musicdata_rune(q)
+	try:
+		import sys
+		q = Queue.Queue()
+		mdr = musicdata_rune(q)
 
-	start = time.time()
-	while True:
-		if start+20 < time.time():
-			sys.exit(0)
+		start = time.time()
+		while True:
+			if start+20 < time.time():
+				print "Exiting..."
+				sys.exit(0)
 
-		item = q.get()
-		q.task_done()
+			item = q.get()
+			q.task_done()
 
-		print q
+			print item
+	except KeyboardInterrupt:
+		print "Exiting..."
