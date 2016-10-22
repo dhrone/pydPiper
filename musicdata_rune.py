@@ -76,6 +76,8 @@ class musicdata_rune(musicdata.musicdata):
 					# Try to connect
 					self.connect()
 					self.subscribe()
+					self.status()
+					self.sendUpdate()
 				except redis.ConnectionError, RuntimeError:
 					self.dataclient = None
 					# On connection error, sleep 5 and then return to top and try again
@@ -89,9 +91,10 @@ class musicdata_rune(musicdata.musicdata):
 					self.status()
 					self.sendUpdate()
 				time.sleep(.01)
-			except RuntimeError, redis.ConnectionError:
+			except (RuntimeError, redis.ConnectionError):
 				# if we lose our connection while trying to query DB
 				# sleep 5 and then return to top to try again
+				self.dataclient = None
 				logging.debug("Could not get status from REDIS")
 				time.sleep(5)
 				continue
@@ -204,11 +207,14 @@ if __name__ == '__main__':
 	try:
 		start = time.time()
 		while True:
-			if start+60 < time.time():
+			if start+120 < time.time():
 				break;
 			try:
 				item = q.get(timeout=1000)
+				print "++++++++++"
 				print item
+				print "++++++++++"
+				print
 				q.task_done()
 			except Queue.Empty:
 				pass

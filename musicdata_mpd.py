@@ -17,6 +17,7 @@ class musicdata_mpd(musicdata.musicdata):
 		self.pwd = pwd
 		self.connection_failed = 0
 		self.timeout = 20
+		self.idle_state = False
 
 		self.dataclient = None
 
@@ -37,12 +38,13 @@ class musicdata_mpd(musicdata.musicdata):
 			# Generate a noidle event every timeout seconds
 			time.sleep(self.timeout)
 
-			try:
-				#self.dataclient.noidle()
-				self.dataclient._write_command("noidle")
-			except (mpd.CommandError, NameError, mpd.ConnectionError, AttributeError):
-				# If not idle (or not created yet) return to sleeping
-				pass
+			if idle_state:
+				try:
+					#self.dataclient.noidle()
+					self.dataclient._write_command("noidle")
+				except (mpd.CommandError, NameError, mpd.ConnectionError, AttributeError):
+					# If not idle (or not created yet) return to sleeping
+					pass
 
 	def connect(self):
 
@@ -87,7 +89,9 @@ class musicdata_mpd(musicdata.musicdata):
 
 			try:
 				# Wait for notice that state has changed
+				self.idle_state = True
 				msg = self.dataclient.idle()
+				self.idle_state = False
 				self.status()
 				self.sendUpdate()
 				time.sleep(.01)
@@ -182,6 +186,10 @@ if __name__ == '__main__':
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_mpd.log', level=logging.DEBUG)
 
+	# Suppress MPD libraries INFO messages
+	loggingMPD = logging.getLogger("mpd")
+	loggingMPD.setLevel( logging.WARN )
+
 	import sys
 	q = Queue.Queue()
 	mdr = musicdata_mpd(q)
@@ -196,6 +204,7 @@ if __name__ == '__main__':
 				print "+++++++++"
 				print item
 				print "+++++++++"
+				print
 				q.task_done()
 			except Queue.Empty:
 				pass
