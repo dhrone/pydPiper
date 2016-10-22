@@ -45,6 +45,8 @@ class musicdata_mpd(musicdata.musicdata):
 
 	def connect(self):
 
+		global mpd.ConnectionError
+		
 		# Try up to 10 times to connect to REDIS
 		self.connection_failed = 0
 		self.dataclient = None
@@ -71,6 +73,7 @@ class musicdata_mpd(musicdata.musicdata):
 	def run(self):
 
 		logging.debug("MPD musicdata service starting")
+		global mpd.ConnectionError
 
 		while True:
 			if self.dataclient is None:
