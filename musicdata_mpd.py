@@ -4,7 +4,7 @@
 # musicdata service to read from MPD
 # Written by: Ron Ritchey
 
-import json, mpd, threading, logging, Queue, musicdata, time
+import json, mpd, threading, logging, Queue, musicdata, time, sys
 
 class musicdata_mpd(musicdata.musicdata):
 
@@ -38,8 +38,9 @@ class musicdata_mpd(musicdata.musicdata):
 			time.sleep(self.timeout)
 
 			try:
-				self.dataclient.noidle()
-			except mpd.CommandError, NameError:
+				#self.dataclient.noidle()
+				self.dataclient._write_command("noidle")
+			except (mpd.CommandError, NameError, mpd.ConnectionError, AttributeError):
 				# If not idle (or not created yet) return to sleeping
 				pass
 
@@ -67,7 +68,6 @@ class musicdata_mpd(musicdata.musicdata):
 			raise mpd.ConnectionError("Could not connect to MPD")
 
 
-
 	def run(self):
 
 		logging.debug("MPD musicdata service starting")
@@ -77,6 +77,8 @@ class musicdata_mpd(musicdata.musicdata):
 				try:
 					# Try to connect
 					self.connect()
+					self.status()
+					self.sendUpdate()
 				except mpd.ConnectionError:
 					self.dataclient = None
 					# On connection error, sleep 5 and then return to top and try again
@@ -90,6 +92,7 @@ class musicdata_mpd(musicdata.musicdata):
 				self.sendUpdate()
 				time.sleep(.01)
 			except mpd.ConnectionError:
+				self.dataclient = None
 				logging.debug("Could not get status from MPD")
 				time.sleep(5)
 				continue
@@ -174,6 +177,7 @@ class musicdata_mpd(musicdata.musicdata):
 			self.musicdata['remaining'] = remaining
 			self.musicdata['position'] = timepos
 
+
 if __name__ == '__main__':
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_mpd.log', level=logging.DEBUG)
@@ -189,7 +193,9 @@ if __name__ == '__main__':
 				break;
 			try:
 				item = q.get(timeout=1000)
+				print "+++++++++"
 				print item
+				print "+++++++++"
 				q.task_done()
 			except Queue.Empty:
 				pass
