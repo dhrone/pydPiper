@@ -67,6 +67,8 @@ class musicdata_rune(musicdata.musicdata):
 
 	def run(self):
 
+		logging.debug("RUNE musicdata service starting")
+
 		while True:
 			if self.dataclient is None:
 				try:

@@ -64,6 +64,8 @@ class musicdata_mpd(musicdata.musicdata):
 
 	def run(self):
 
+		logging.debug("MPD musicdata service starting")
+
 		while True:
 			if self.dataclient is None:
 				try:
