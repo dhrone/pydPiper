@@ -235,9 +235,38 @@ if __name__ == '__main__':
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_lms.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w",["server=","port=","user","pwd"])
+	except getopt.GetoptError:
+		print 'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
+		sys.exit(2)
+
+	# Set defaults
+	server = 'localhost'
+	port = 9090
+	user = ''
+	pwd= ''
+	player = ''
+
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
+			sys.exit()
+		elif opt in ("-s", "--server"):
+			server = arg
+		elif opt in ("-p", "--port"):
+			port = arg
+		elif opt in ("-u", "--user"):
+			user = arg
+		elif opt in ("-w", "--pwd"):
+			pwd = arg
+		elif opt in ("-l", "--player"):
+			pwd = arg
+
+
 	import sys
 	q = Queue.Queue()
-	mdr = musicdata_lms(q)
+	mdr = musicdata_lms(q, server, port, user, pwd, player)
 
 	try:
 		start = time.time()
