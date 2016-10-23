@@ -66,7 +66,7 @@ class musicdata_lms(musicdata.musicdata):
 				# Subscribe to notification events that should wake up the system to collect data
 				self.rawserver.write("subscribe pause,play,mixer,playlist\n")
 				break
-			except (socket_error, IOError):
+			except IOError:
 				self.rawserver = None
 				connection_failed += 1
 				time.sleep(1)
@@ -89,7 +89,7 @@ class musicdata_lms(musicdata.musicdata):
 
 				players = self.dataserver.get_players()
 				for p in players:
-					if p.get_ref() == self.player
+					if p.get_ref() == self.player:
 						self.dataplayer = p
 						break
 				if self.dataplayer is None:
@@ -99,7 +99,7 @@ class musicdata_lms(musicdata.musicdata):
 					self.player = str(self.dataplayer)
 
 				break
-			except (socket_error, AttributeError, IndexError):
+			except (IOError, AttributeError, IndexError):
 				self.dataserver = None
 				self.dataplayer = None
 				self.connection_failed += 1
