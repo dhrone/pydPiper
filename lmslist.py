@@ -14,10 +14,10 @@ def connect(server, port, user, pwd):
 		dataserver = pylms.server.Server(server, port, user, pwd)
 		dataserver.connect()
 
-		players = self.dataserver.get_players()
+		players = dataserver.get_players()
 		for p in players:
-			print "{0} is at address {1}".format(str(p), p.get_name())
-	except (socket_error, AttributeError, IndexError):
+			print "{0} is at address {1}".format(p.get_name(), str(p)[8:])
+	except (IOError, AttributeError, IndexError):
 		print "Error trying to get player data"
 
 
@@ -27,7 +27,7 @@ def connect(server, port, user, pwd):
 
 if __name__ == "__main__":
 	try:
-		opts, args = getopt.getopt(argv,"hs:p:u:w",["server=","port=","user","pwd"])
+		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w",["server=","port=","user","pwd"])
 	except getopt.GetoptError:
 		print 'lmslist.py -s <server> -p <port> -u <user> -w <password>'
 		sys.exit(2)
