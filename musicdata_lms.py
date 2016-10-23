@@ -4,7 +4,7 @@
 # musicdata service to read from LMS
 # Written by: Ron Ritchey
 
-import json, threading, logging, Queue, musicdata, time, sys, urllib, pylms
+import json, threading, logging, Queue, musicdata, time, sys, urllib, pylms, getopt, telnetlib
 from pylms import server
 
 class musicdata_lms(musicdata.musicdata):
@@ -61,7 +61,7 @@ class musicdata_lms(musicdata.musicdata):
 				break
 			try:
 				# Connection to LMS
-				self.rawserver = telnet.telnetlib(self.server, self.port)
+				self.rawserver = telnetlib.Telnet(self.server, self.port)
 
 				# Subscribe to notification events that should wake up the system to collect data
 				self.rawserver.write("subscribe pause,play,mixer,playlist\n")
@@ -83,6 +83,7 @@ class musicdata_lms(musicdata.musicdata):
 				logging.debug("Could not connect to LMS")
 				break
 			try:
+				logging.debug("Trying to connect to {0} on port {1} with username={2}, password={3}, and player = {4}".format(self.server, self.port, self.user, self.pwd, self.player))
 				# Connection to LMS
 				self.dataserver = pylms.server.Server(self.server, self.port, self.user, self.pwd)
 				self.dataserver.connect()
@@ -130,7 +131,7 @@ class musicdata_lms(musicdata.musicdata):
 			if self.rawserver is None:
 				try:
 					# Try to connect
-					self.rawconnect()
+					self.connectraw()
 				except IOError:
 					self.rawserver = None
 					# On connection error, sleep 5 and then return to top and try again
@@ -173,7 +174,7 @@ class musicdata_lms(musicdata.musicdata):
 			self.musicdata['title'] = urllib.unquote(str(self.dataplayer.request("title ?", True))).decode('utf-8')
 			self.musicdata['album'] = urllib.unquote(str(self.dataplayer.request("album ?", True))).decode('utf-8')
 			self.musicdata['volume'] = self.dataplayer.get_volume()
-			self.musicdata['current'] = self.dataplayer.get_time_elapsed()
+			self.musicdata['current'] = int(self.dataplayer.get_time_elapsed())
 			self.musicdata['duration'] = self.dataplayer.get_track_duration()
 
 			plp = self.musicdata['playlist_position'] = int(self.dataplayer.request("playlist index ?"))+1
@@ -236,7 +237,7 @@ if __name__ == '__main__':
 	logging.getLogger().addHandler(logging.StreamHandler())
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w",["server=","port=","user","pwd"])
+		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w:l:",["server=","port=","user=","pwd=","player="])
 	except getopt.GetoptError:
 		print 'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
 		sys.exit(2)
@@ -261,7 +262,7 @@ if __name__ == '__main__':
 		elif opt in ("-w", "--pwd"):
 			pwd = arg
 		elif opt in ("-l", "--player"):
-			pwd = arg
+			player = arg
 
 
 	import sys
