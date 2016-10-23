@@ -4,7 +4,7 @@
 # musicdata service to read from MPD
 # Written by: Ron Ritchey
 
-import json, mpd, threading, logging, Queue, musicdata, time, sys
+import json, mpd, threading, logging, Queue, musicdata, time, sys, getopt
 
 class musicdata_mpd(musicdata.musicdata):
 
@@ -51,6 +51,12 @@ class musicdata_mpd(musicdata.musicdata):
 		# Try up to 10 times to connect to MPD
 		self.connection_failed = 0
 		self.dataclient = None
+
+		if self.pwd:
+			logging.debug("Connecting to MPD service on {0}:{1} pwd {2}".format(self.server, self.port, self.pwd))
+		else:
+			logging.debug("Connecting to MPD service on {0}:{1}".format(self.server, self.port))
+
 		while True:
 			if self.connection_failed >= 10:
 				logging.debug("Could not connect to MPD")
@@ -68,6 +74,8 @@ class musicdata_mpd(musicdata.musicdata):
 				time.sleep(1)
 		if self.dataclient is None:
 			raise mpd.ConnectionError("Could not connect to MPD")
+		else:
+			logging.debug("Connected to MPD")
 
 
 	def run(self):
@@ -86,6 +94,7 @@ class musicdata_mpd(musicdata.musicdata):
 					# On connection error, sleep 5 and then return to top and try again
 					time.sleep(5)
 					continue
+
 
 			try:
 				# Wait for notice that state has changed
@@ -191,9 +200,30 @@ if __name__ == '__main__':
 	loggingMPD = logging.getLogger("mpd")
 	loggingMPD.setLevel( logging.WARN )
 
-	import sys
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],"hs:p:w:",["server=","port=","pwd="])
+	except getopt.GetoptError:
+		print 'musicdata_mpd.py -s <server> -p <port> -w <password>'
+		sys.exit(2)
+
+	# Set defaults
+	server = 'localhost'
+	port = 6600
+	pwd= ''
+
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'musicdata_mpd.py -s <server> -p <port> -w <password>'
+			sys.exit()
+		elif opt in ("-s", "--server"):
+			server = arg
+		elif opt in ("-p", "--port"):
+			port = arg
+		elif opt in ("-w", "--pwd"):
+			pwd = arg
+
 	q = Queue.Queue()
-	mdr = musicdata_mpd(q)
+	mdr = musicdata_mpd(q, server, port, pwd)
 
 	try:
 		start = time.time()

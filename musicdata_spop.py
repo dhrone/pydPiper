@@ -4,7 +4,7 @@
 # musicdata service to read from SPOP
 # Written by: Ron Ritchey
 
-import threading, logging, Queue, musicdata, time, sys, telnetlib, json
+import threading, logging, Queue, musicdata, time, sys, telnetlib, json, getopt
 
 class musicdata_spop(musicdata.musicdata):
 
@@ -52,6 +52,13 @@ class musicdata_spop(musicdata.musicdata):
 		# Try up to 10 times to connect to REDIS
 		self.connection_failed = 0
 		self.dataclient = None
+
+		if self.pwd:
+			logging.debug("Connecting to SPOP service on {0}:{1} pwd {2}".format(self.server, self.port, self.pwd))
+		else:
+			logging.debug("Connecting to SPOP service on {0}:{1}".format(self.server, self.port))
+
+
 		while True:
 			if self.connection_failed >= 10:
 				logging.debug("Could not connect to SPOP")
@@ -69,6 +76,8 @@ class musicdata_spop(musicdata.musicdata):
 				time.sleep(1)
 		if self.dataclient is None:
 			raise IOError("Could not connect to SPOP")
+		else:
+			logging.debug("Connected to SPOP service")
 
 
 	def run(self):
@@ -158,9 +167,32 @@ if __name__ == '__main__':
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_spop.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],"hs:p:w:",["server=","port=","pwd="])
+	except getopt.GetoptError:
+		print 'musicdata_spop.py -s <server> -p <port> -w <password>'
+		sys.exit(2)
+
+	# Set defaults
+	server = 'localhost'
+	port = 6602
+	pwd= ''
+
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'musicdata_spop.py -s <server> -p <port> -w <password>'
+			sys.exit()
+		elif opt in ("-s", "--server"):
+			server = arg
+		elif opt in ("-p", "--port"):
+			port = arg
+		elif opt in ("-w", "--pwd"):
+			pwd = arg
+
+
 	import sys
 	q = Queue.Queue()
-	mds = musicdata_spop(q)
+	mds = musicdata_spop(q, server, port, pwd)
 
 	try:
 		start = time.time()

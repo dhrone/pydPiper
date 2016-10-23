@@ -4,7 +4,7 @@
 # musicdata service to read from RuneAudio
 # Written by: Ron Ritchey
 
-import json, redis, threading, logging, Queue, musicdata, time
+import json, redis, threading, logging, Queue, musicdata, time, getopt
 
 class musicdata_rune(musicdata.musicdata):
 
@@ -28,10 +28,16 @@ class musicdata_rune(musicdata.musicdata):
 
 		# Try up to 10 times to connect to REDIS
 		self.connection_failed = 0
+
+		if self.pwd:
+			logging.debug("Connecting to Rune Redis service on {0}:{1} pwd {2}".format(self.server, self.port, self.pwd))
+		else:
+			logging.debug("Connecting to Rune Redis service on {0}:{1}".format(self.server, self.port))
+
 		while True:
 			if self.connection_failed >= 10:
-				logging.debug("Could not connect to REDIS")
-				raise RuntimeError("Could not connect to REDIS")
+				logging.debug("Could not connect to Rune Redis service")
+				raise RuntimeError("Could not connect to Rune Redis service")
 			try:
 				# Connection to REDIS
 				client = redis.StrictRedis(self.server, self.port, self.pwd)
@@ -39,6 +45,7 @@ class musicdata_rune(musicdata.musicdata):
 				# Configure REDIS to send keyspace messages for set events
 				client.config_set('notify-keyspace-events', 'KEA')
 				self.dataclient = client
+				logging.debug("Connected to Rune Redis service")
 				break
 			except:
 				self.dataclient = None
@@ -95,7 +102,7 @@ class musicdata_rune(musicdata.musicdata):
 				# if we lose our connection while trying to query DB
 				# sleep 5 and then return to top to try again
 				self.dataclient = None
-				logging.debug("Could not get status from REDIS")
+				logging.debug("Could not get status from Rune Redis service")
 				time.sleep(5)
 				continue
 
@@ -201,9 +208,32 @@ if __name__ == '__main__':
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_rune.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],"hs:p:w:",["server=","port=","pwd="])
+	except getopt.GetoptError:
+		print 'musicdata_rune.py -s <server> -p <port> -w <password>'
+		sys.exit(2)
+
+	# Set defaults
+	server = 'localhost'
+	port = 6379
+	pwd= ''
+
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'musicdata_rune.py -s <server> -p <port> -w <password>'
+			sys.exit()
+		elif opt in ("-s", "--server"):
+			server = arg
+		elif opt in ("-p", "--port"):
+			port = arg
+		elif opt in ("-w", "--pwd"):
+			pwd = arg
+
+
 	import sys
 	q = Queue.Queue()
-	mdr = musicdata_rune(q)
+	mdr = musicdata_rune(q, server, port, pwd)
 
 	try:
 		start = time.time()

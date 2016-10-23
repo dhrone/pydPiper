@@ -55,9 +55,11 @@ class musicdata_lms(musicdata.musicdata):
 		# Try up to 10 times to connect to LMS
 		connection_failed = 0
 		self.rawserver = None
+
+		logging.debug("Connecting to LMS raw service on {0}:{1}".format(self.server, self.port))
 		while True:
 			if connection_failed >= 10:
-				logging.debug("Could not connect raw to LMS")
+				logging.debug("Could not connect to raw LMS service")
 				break
 			try:
 				# Connection to LMS
@@ -78,12 +80,17 @@ class musicdata_lms(musicdata.musicdata):
 		# Try up to 10 times to connect to LMS
 		self.connection_failed = 0
 		self.dataserver = None
+
+		if self.pwd:
+			logging.debug("Connecting to LMS service on {0}:{1} pwd {2}".format(self.server, self.port, self.pwd))
+		else:
+			logging.debug("Connecting to LMS service on {0}:{1}".format(self.server, self.port))
+
 		while True:
 			if self.connection_failed >= 10:
-				logging.debug("Could not connect to LMS")
+				logging.debug("Could not connect to LMS service")
 				break
 			try:
-				logging.debug("Trying to connect to {0} on port {1} with username={2}, password={3}, and player = {4}".format(self.server, self.port, self.user, self.pwd, self.player))
 				# Connection to LMS
 				self.dataserver = pylms.server.Server(self.server, self.port, self.user, self.pwd)
 				self.dataserver.connect()
@@ -96,6 +103,7 @@ class musicdata_lms(musicdata.musicdata):
 				if self.dataplayer is None:
 					self.dataplayer = self.lmsserver.get_players()[0]
 					if self.dataplayer is None:
+						logging.critical("Could not find any LMS Players")
 						raise RuntimeError("Could not find any LMS Players")
 					self.player = str(self.dataplayer)
 
@@ -107,6 +115,8 @@ class musicdata_lms(musicdata.musicdata):
 				time.sleep(1)
 		if self.dataserver is None:
 			raise IOError("Could not connect to LMS")
+		else:
+			logging.debug("Connected to LMS using player {0}".format(self.dataplayer.get_name()))
 
 
 	def run(self):

@@ -4,7 +4,7 @@
 # Get's players from LMS server
 # Written by: Ron Ritchey
 
-import logging, time, sys, pylms, getopt
+import time, sys, pylms, getopt
 from pylms import server
 
 def connect(server, port, user, pwd):
@@ -21,13 +21,10 @@ def connect(server, port, user, pwd):
 		print "Error trying to get player data"
 
 
-	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_lms.log', level=logging.DEBUG)
-	logging.getLogger().addHandler(logging.StreamHandler())
-
 
 if __name__ == "__main__":
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w",["server=","port=","user","pwd"])
+		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w:",["server=","port=","user","pwd"])
 	except getopt.GetoptError:
 		print 'lmslist.py -s <server> -p <port> -u <user> -w <password>'
 		sys.exit(2)
@@ -52,4 +49,3 @@ if __name__ == "__main__":
 			pwd = arg
 
 	connect(server,port,user,pwd)
-	
