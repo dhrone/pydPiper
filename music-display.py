@@ -7,11 +7,11 @@
 import json, threading, logging, Queue, time, sys, getopt, moment
 import musicdata_mpd, musicdata_lms, musicdata_spop, musicdata_rune
 import pages
-import music-display-config
+import music_display_config
 
 
-class display-controller(threading.Thread):
-	# Receives updates from music-controller and places them onto displays
+class display_controller(threading.Thread):
+	# Receives updates from music_controller and places them onto displays
 	def __init__(self, displayqueue, lcd):
 		threading.Thread.__init__(self)
 
@@ -50,8 +50,8 @@ class display-controller(threading.Thread):
 			short_lines=True
 
 			# Smooth animation
-			if time.time() - prev_time < music-display-config.ANIMATION_SMOOTHING:
-				time.sleep(music-display-config.ANIMATION_SMOOTHING-(time.time()-prev_time))
+			if time.time() - prev_time < music_display_config.ANIMATION_SMOOTHING:
+				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-prev_time))
 			try:
 				# Determine if any lines have been updated and if yes display them
 				for i in range(len(item)):
@@ -106,10 +106,10 @@ class display-controller(threading.Thread):
 				prev_time = time.time()
 				pass
 
-class music-controller(threading.Thread):
+class music_controller(threading.Thread):
 	# Receives updates from music services
 	# Determines what page to displays
-	# Sends relevant updates to display-controller
+	# Sends relevant updates to display_controller
 
 	# musicdata variables.
 	# Includes all from musicdata class plus environmentals
@@ -168,18 +168,18 @@ class music-controller(threading.Thread):
 		# Make sure that if rune is selected that is is the only service that is selected
 		if "rune" in servicelist and len(servicelist) > 1:
 			logging.critical("Rune service can only be used alone")
-			throw RuntimeError("Rune service can only be used alone")
+			raise RuntimeError("Rune service can only be used alone")
 
 		for s in self.servicelist:
 			s = s.lower()
 			if s == "mpd":
-				musicservice = musicdata_mpd(self.musicqueue, music-display-config.MPD_SERVER, music-display-config.MPD_PORT, music-display-config.MPD_PASSWORD)
+				musicservice = musicdata_mpd(self.musicqueue, music_display_config.MPD_SERVER, music_display_config.MPD_PORT, music_display_config.MPD_PASSWORD)
 			elif s == "spop":
-				musicservice = musicdata_spop(self.musicqueue, music-display-config.SPOP_SERVER, music-display-config.SPOP_PORT, music-display-config.SPOP_PASSWORD)
+				musicservice = musicdata_spop(self.musicqueue, music_display_config.SPOP_SERVER, music_display_config.SPOP_PORT, music_display_config.SPOP_PASSWORD)
 			elif s == "lms":
-				musicservice = musicdata_lms(self.musicqueue, music-display-config.LMS_SERVER, music-display-config.LMS_PORT, music-display-config.LMS_USER, music-display-config.LMS_PASSWORD, music-display-config.LMS_PLAYER)
+				musicservice = musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
 			elif s == "rune":
-				musicservice = musicdata_rune(self.musicqueue, music-display-config.RUNE_SERVER, music-display-config.RUNE_PORT, music-display-config.RUNE_PASSWORD)
+				musicservice = musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
 			else:
 				logging.debug("Unsupported music service {0} requested".format(s))
 				continue
@@ -314,7 +314,7 @@ class music-controller(threading.Thread):
 						try:
 							pl['cooling_expires'] = time.time() + pl['alert']['coolingperiod']
 						except KeyError:
-							pl['cooling_expires'] = time.time() + music-display-config.COOLING_PERIOD
+							pl['cooling_expires'] = time.time() + music_display_config.COOLING_PERIOD
 
 						# if an alert has been found, break out of the loop
 						# this has the effect of making the order of the list the priority of the messages
@@ -435,7 +435,7 @@ class music-controller(threading.Thread):
 									break
 
 							# if the value is 0 consider it empty
-						elif type(self.musicdata[v]) is int:
+							elif type(self.musicdata[v]) is int:
 								if self.musicdata[v] == 0:
 									anyempty = True
 									break
@@ -548,7 +548,7 @@ class music-controller(threading.Thread):
 				# Use 12 hour clock as default
 				strftime = "%-I:%M %p"
 
-			while self.musicdatalock
+			while self.musicdatalock:
 				sleep(.001)
 			self.musicdatalock = True
 			self.musicdata['current_time_formatted'] = moment.utcnow().timezone(TIMEZONE).strftime(strftime).strip()
@@ -592,7 +592,7 @@ class music-controller(threading.Thread):
 				self.curlines[i] = lines[i]
 				try:
 					if current_line['scroll']:
-						self.hesitate_expires[i] = time.time() + music-display-config.HESITATION_TIME
+						self.hesitate_expires[i] = time.time() + music_display_config.HESITATION_TIME
 					else:
 						self.hesitate_expires[i] = time.time() + 86400 # Do not scroll
 				except KeyError:
@@ -612,12 +612,12 @@ class music-controller(threading.Thread):
 	def updatesystemvars(self):
 		while True:
 			try:
-				if music-display-config.TIME24HOUR == True:
-					current_time = moment.utcnow().timezone(music-display-config.TIMEZONE).strftime("%H:%M").strip()
-					current_time_sec = moment.utcnow().timezone(music-display-config.TIMEZONE).strftime("%H:%M:%S").strip()
+				if music_display_config.TIME24HOUR == True:
+					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M").strip()
+					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M:%S").strip()
 				else:
-					current_time = moment.utcnow().timezone(music-display-config.TIMEZONE).strftime("%-I:%M %p").strip()
-					current_time_sec = moment.utcnow().timezone(music-display-config.TIMEZONE).strftime("%-I:%M:%S %p").strip()
+					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M %p").strip()
+					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M:%S %p").strip()
 			except ValueError:
 				# Don't know why but on exit, the moment code is occasionally throwing a ValueError
 				current_time = "00:00"
@@ -700,7 +700,7 @@ def sigterm_handler(_signo, _stack_frame):
 if __name__ == '__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
 
-	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=music-display-config.LOGFILE, level=music-display-config.LOGLEVEL)
+	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
 
@@ -753,15 +753,15 @@ if __name__ == '__main__':
 		logging.critical("Must have at least one music service to monitor")
 		sys.exit()
 
-	logging.info(music-display-config.STARTUP_MSG)
+	logging.info(music_display_config.STARTUP_MSG)
 
 	dq = Queue.Queue()
-    lcd = lcd_display_driver_winstar_weh001602a()
+	lcd = lcd_display_driver_winstar_weh001602a()
 	lcd.clear()
-	lcd.message(music-display-config.STARTUP_MSG)
+	lcd.message(music_display_config.STARTUP_MSG)
 
-	dc = display-controller(dq, lcd)
-	mc = music-controller(dq, services, lcd.rows, lcd.cols)
+	dc = display_controller(dq, lcd)
+	mc = music_controller(dq, services, lcd.rows, lcd.cols)
 
 	try:
 		while True:
