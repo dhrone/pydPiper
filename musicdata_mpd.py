@@ -48,7 +48,7 @@ class musicdata_mpd(musicdata.musicdata):
 
 	def connect(self):
 
-		# Try up to 10 times to connect to REDIS
+		# Try up to 10 times to connect to MPD
 		self.connection_failed = 0
 		self.dataclient = None
 		while True:
@@ -185,6 +185,7 @@ class musicdata_mpd(musicdata.musicdata):
 if __name__ == '__main__':
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_mpd.log', level=logging.DEBUG)
+	logging.getLogger().addHandler(logging.StreamHandler())
 
 	# Suppress MPD libraries INFO messages
 	loggingMPD = logging.getLogger("mpd")
