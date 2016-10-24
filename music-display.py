@@ -5,9 +5,9 @@
 # Written by: Ron Ritchey
 
 import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os
-import musicdata
-import displays
 import pages
+import displays
+import sources
 import music_display_config
 
 
@@ -170,6 +170,7 @@ class music_controller(threading.Thread):
 			logging.critical("Rune service can only be used alone")
 			raise RuntimeError("Rune service can only be used alone")
 
+		musicservice = None
 		for s in self.servicelist:
 			s = s.lower()
 			try:
@@ -186,14 +187,14 @@ class music_controller(threading.Thread):
 					continue
 			except NameError:
 				# Missing dependency for requested servicelist
-				debug.warning("Request for {0} failed due to missing dependencies".format(s))
+				logging.warning("Request for {0} failed due to missing dependencies".format(s))
 				pass
-			if musicservice not None:
+			if musicservice != None:
 				self.services[s] = musicservice
 
-	if len(services) == 0:
-		logging.critical("No music services succeeded in initializing")
-		raise RuntimeError("No music services succeeded in initializing")
+		if len(self.services) == 0:
+			logging.critical("No music services succeeded in initializing")
+			raise RuntimeError("No music services succeeded in initializing")
 
 
 	def run(self):

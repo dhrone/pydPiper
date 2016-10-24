@@ -20,3 +20,9 @@ try:
 	import musicdata_rune
 except ImportError:
 	pass
+
+try:
+	import musicdata
+except ImportError:
+	pass
+

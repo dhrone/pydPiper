@@ -1,17 +1,13 @@
+import logging
+
 STARTUP_MSG = "Raspdac\nStarting"
+STARTUP_LOGMSG = "Raspdac Starting"
 
 HESITATION_TIME = 2.5 # Amount of time in seconds to hesistate before scrolling
 ANIMATION_SMOOTHING = .15 # Amount of time in seconds before repainting display
 
 COOLING_PERIOD = 15 # Default amount of time in seconds before an alert message can be redisplayed
 
-# The Winstar display shipped with the RaspDac is capable of two lines of display
-# when the 5x8 font is used.  This code assumes that is what you will be using.
-# The display logic would need significant rework to support a different number
-# of display lines!
-
-DISPLAY_WIDTH = 16 # the character width of the display
-DISPLAY_HEIGHT = 2 # the number of lines on the display
 
 # This is where the log file will be written
 LOGFILE='/var/log/RaspDacDisplay.log'
@@ -63,3 +59,11 @@ RUNE_ENABLED = True
 REDIS_SERVER = "localhost"
 REDIS_PORT = 6379
 REDIS_PASSWORD = ""
+
+
+# DISPLAY Settings
+DISPLAY_WIDTH = 16 # the character width of the display
+DISPLAY_HEIGHT = 2 # the number of lines on the display
+DISPLAY_PIN_RS = 7 
+DISPLAY_PIN_E =  8
+DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] 
