@@ -331,7 +331,12 @@ if __name__ == '__main__':
   try:
 
     print "Winstar OLED Display Test"
-    lcd = lcd_display_driver_winstar_weh001602a()
+
+    # For V3 of the Raspdac
+    #lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 27])
+
+    # For V2 of the Raspdac
+    lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 15])
     lcd.clear()
 
     lcd.message("Winstar OLED\nPi Powered")
@@ -360,7 +365,6 @@ if __name__ == '__main__':
     lcd.msgtest("\x04 Wireless")
     lcd.msgtest("\x05 Music")
     lcd.msgtest("\x06 Power")
-    time.sleep(2)
     lcd.clear()
     lcd.switchcustomchars(lcd.FONT_SPEAKER)
     lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")

@@ -4,10 +4,12 @@
 # musicctrl service to manage reading from active services
 # Written by: Ron Ritchey
 
-import json, threading, logging, Queue, time, sys, getopt, moment
+import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os
 import musicdata_mpd, musicdata_lms, musicdata_spop, musicdata_rune
 import pages
 import music_display_config
+
+from drivers import lcd_display_driver_winstar_weh001602a
 
 
 class display_controller(threading.Thread):
@@ -19,7 +21,6 @@ class display_controller(threading.Thread):
 
 		self.displayqueue = displayqueue
 		self.lcd = lcd
-		self.lcd.clear()
 		self.lcd.switchcustomchars(lcd.FONT_ICONS)
 
 	def run(self):
@@ -33,7 +34,7 @@ class display_controller(threading.Thread):
 
 		# Get first display update off of the queue
 		item = self.displayqueue.get()
-		displayqueue.task_done()
+		self.displayqueue.task_done()
 
 		self.lcd.clear()
 
@@ -78,8 +79,8 @@ class display_controller(threading.Thread):
 
 				# If lines all fit on display then we can wait for new input
 				if short_lines:
-					item=displayqueue.get()
-					displayqueue.task_done()
+					item=self.displayqueue.get()
+					self.displayqueue.task_done()
 				else:
 					# Update all long lines
 					for i in range(len(lines)):
@@ -157,7 +158,7 @@ class music_controller(threading.Thread):
 		self.services = { }
 
 		# Attempt to initialize services
-		initservices()
+		self.initservices()
 
 		# Lock used to prevent simultaneous update of the musicdata dictionary
 		self.musicdatalock = False
@@ -166,20 +167,20 @@ class music_controller(threading.Thread):
 	def initservices(self):
 
 		# Make sure that if rune is selected that is is the only service that is selected
-		if "rune" in servicelist and len(servicelist) > 1:
+		if "rune" in self.servicelist and len(self.servicelist) > 1:
 			logging.critical("Rune service can only be used alone")
 			raise RuntimeError("Rune service can only be used alone")
 
 		for s in self.servicelist:
 			s = s.lower()
 			if s == "mpd":
-				musicservice = musicdata_mpd(self.musicqueue, music_display_config.MPD_SERVER, music_display_config.MPD_PORT, music_display_config.MPD_PASSWORD)
+				musicservice = musicdata_mpd.musicdata_mpd(self.musicqueue, music_display_config.MPD_SERVER, music_display_config.MPD_PORT, music_display_config.MPD_PASSWORD)
 			elif s == "spop":
-				musicservice = musicdata_spop(self.musicqueue, music_display_config.SPOP_SERVER, music_display_config.SPOP_PORT, music_display_config.SPOP_PASSWORD)
+				musicservice = musicdata_spop.musicdata_spop(self.musicqueue, music_display_config.SPOP_SERVER, music_display_config.SPOP_PORT, music_display_config.SPOP_PASSWORD)
 			elif s == "lms":
-				musicservice = musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
+				musicservice = musicdata_lms.musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
 			elif s == "rune":
-				musicservice = musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
+				musicservice = musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
 			else:
 				logging.debug("Unsupported music service {0} requested".format(s))
 				continue
@@ -193,7 +194,7 @@ class music_controller(threading.Thread):
 
 		# Start the thread that updates the system variables
 		sv_t = threading.Thread(target=self.updatesystemvars)
-		sv_t.daemon = true
+		sv_t.daemon = True
 		sv_t.start()
 		timesongstarted = 0
 
@@ -216,9 +217,13 @@ class music_controller(threading.Thread):
 
 		while True:
 
+			updates = { }
 			# Attempt to get an update from the queue
-			updates = self.musicqueue.get_nowait()
-			self.musicqueue.task_done()
+			try:
+				updates = self.musicqueue.get_nowait()
+				self.musicqueue.task_done()
+			except Queue.Empty:
+				pass
 
 			while self.musicdatalock:
 				sleep(.001)
@@ -250,7 +255,7 @@ class music_controller(threading.Thread):
 
 			# If anything has changed, update pages
 			if self.musicdata != self.musicdata_prev:
-				updatepages()
+				self.updatepages()
 			else:
 				# Update musicdata_prev with anything that has changed
 				for item, value in updates.iteritems():
@@ -335,7 +340,7 @@ class music_controller(threading.Thread):
 					self.alert_mode = False
 					self.musicdata_prev['state'] = ""
 			else:
-				interruptible = self.current_pages['interruptible']
+				interruptible = current_pages['interruptible']
 		except KeyError:
 			interruptible = True
 
@@ -517,8 +522,8 @@ class music_controller(threading.Thread):
 
 			# make sure curlines is big enough.  curlines is used to detect when the display has changed
 			# if not expanded here it will cause an IndexError later if it has not already been initialized
-			while len(curlines) < len(current_page['lines']):
-				curlines.append("")
+			while len(self.curlines) < len(current_page['lines']):
+				self.curlines.append("")
 
 			# make sure hesitate_expires is big enough as well
 			while len(self.hesitate_expires) < len(current_page['lines']):
@@ -551,7 +556,7 @@ class music_controller(threading.Thread):
 			while self.musicdatalock:
 				sleep(.001)
 			self.musicdatalock = True
-			self.musicdata['current_time_formatted'] = moment.utcnow().timezone(TIMEZONE).strftime(strftime).strip()
+			self.musicdata['current_time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
 			self.musicdatalock = False
 
 			format = current_line['format']
@@ -679,12 +684,12 @@ class music_controller(threading.Thread):
 				availp = 0
 
 			while self.musicdatalock:
-				sleep(.001)
+				time.sleep(.001)
 			self.musicdatalock = True
-			self.musicdata['current_tempc'] = self.tempc
-			self.musicdata['current_tempf'] = self.tempf
-			self.musicdata['disk_avail'] = self.avail
-			self.musicdata['disk_availp'] = self.availp
+			self.musicdata['current_tempc'] = tempc
+			self.musicdata['current_tempf'] = tempf
+			self.musicdata['disk_avail'] = avail
+			self.musicdata['disk_availp'] = availp
 			self.musicdata['current_time'] = current_time
 			self.musicdata['current_time_sec'] = current_time
 			self.musicdata['current_ip'] = current_ip
@@ -753,15 +758,33 @@ if __name__ == '__main__':
 		logging.critical("Must have at least one music service to monitor")
 		sys.exit()
 
-	logging.info(music_display_config.STARTUP_MSG)
+	logging.info(music_display_config.STARTUP_LOGMSG)
 
 	dq = Queue.Queue()
-	lcd = lcd_display_driver_winstar_weh001602a()
+
+
+	pin_rs = music_display_config.DISPLAY_PIN_RS
+	pin_e = music_display_config.DISPLAY_PIN_E
+	pins_data = music_display_config.DISPLAY_PINS_DATA
+	rows = music_display_config.DISPLAY_HEIGHT
+	cols = music_display_config.DISPLAY_WIDTH
+
+	# Choose display from config file
+	if music_display_config.DISPLAY_DRIVER == "lcd_display_driver_winstar_weh001602a":
+		lcd = lcd_display_driver_winstar_weh001602a.lcd_display_driver_winstar_weh001602a(rows, cols, pin_rs, pin_e, pins_data)
+	else:
+		logging.critical("No valid display found")
+		sys.exit()
+
 	lcd.clear()
 	lcd.message(music_display_config.STARTUP_MSG)
 
 	dc = display_controller(dq, lcd)
 	mc = music_controller(dq, services, lcd.rows, lcd.cols)
+
+
+	dc.start()
+	mc.start()
 
 	try:
 		while True:

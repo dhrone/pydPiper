@@ -1,17 +1,12 @@
+import logging
+
 STARTUP_MSG = "Raspdac\nStarting"
+STARTUP_LOGMSG = "Raspdac Starting"
 
 HESITATION_TIME = 2.5 # Amount of time in seconds to hesistate before scrolling
 ANIMATION_SMOOTHING = .15 # Amount of time in seconds before repainting display
 
 COOLING_PERIOD = 15 # Default amount of time in seconds before an alert message can be redisplayed
-
-# The Winstar display shipped with the RaspDac is capable of two lines of display
-# when the 5x8 font is used.  This code assumes that is what you will be using.
-# The display logic would need significant rework to support a different number
-# of display lines!
-
-DISPLAY_WIDTH = 16 # the character width of the display
-DISPLAY_HEIGHT = 2 # the number of lines on the display
 
 # This is where the log file will be written
 LOGFILE='/var/log/RaspDacDisplay.log'
@@ -36,15 +31,14 @@ LOGLEVEL=logging.DEBUG
 #Configure which music services to monitor
 # For Volumio and RuneAudio MPD and SPOP should be enabled and LMS disabled
 # for Max2Play if you are using the Logitech Music Service, then LMS should be enabled
-MPD_ENABLED = False
 MPD_SERVER = "localhost"
 MPD_PORT = 6600
+MPD_PASSWORD = ""
 
-SPOP_ENABLED = False
 SPOP_SERVER = "localhost"
 SPOP_PORT = 6602
+SPOP_PASSWORD = ""
 
-LMS_ENABLED = False
 LMS_SERVER = "localhost"
 LMS_PORT = 9090
 LMS_USER = ""
@@ -60,7 +54,25 @@ LMS_PLAYER = "00:01:02:aa:bb:cc"
 
 
 # If you are using RuneAudio you can pull the information from the REDIS database that RuneAudio maintains
-RUNE_ENABLED = True
-REDIS_SERVER = "localhost"
-REDIS_PORT = 6379
-REDIS_PASSWORD = ""
+RUNE_SERVER = "localhost"
+RUNE_PORT = 6379
+RUNE_PASSWORD = ""
+
+
+# Display Configuration
+# The Winstar display shipped with the RaspDac is capable of two lines of display
+# when the 5x8 font is used.  This code assumes that is what you will be using.
+# The display logic would need significant rework to support a different number
+# of display lines!
+
+DISPLAY_WIDTH = 16 # the character width of the display
+DISPLAY_HEIGHT = 2 # the number of lines on the display
+
+DISPLAY_DRIVER = 'lcd_display_driver_winstar_weh001602a'
+DISPLAY_PIN_RS = 7
+DISPLAY_PIN_E = 8
+
+# DISPLAY_PINS_DATA is an array organized from the lowest order pin to the highest
+# for displays wired with 4 pins, this order is pin 4, 5, 6, 7
+DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # For Raspdac V2
+#DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # For Raspdac V3
