@@ -812,4 +812,12 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:
 		pass
 
-	logging.debug("Exiting...")
+	finally:
+		try:
+			lcd.clear()
+			lcd.message("Exiting...")
+			sleep(1)
+			lcd.clear()
+		except:
+			pass
+		logging.info("Existing...)

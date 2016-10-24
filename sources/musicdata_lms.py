@@ -82,10 +82,7 @@ class musicdata_lms(musicdata.musicdata):
 		self.connection_failed = 0
 		self.dataserver = None
 
-		if self.pwd:
-			logging.debug("Connecting to LMS service on {0}:{1} pwd {2}".format(self.server, self.port, self.pwd))
-		else:
-			logging.debug("Connecting to LMS service on {0}:{1}".format(self.server, self.port))
+		logging.debug("Connecting to LMS service on {0}:{1}".format(self.server, self.port))
 
 		while True:
 			if self.connection_failed >= 10:
@@ -110,11 +107,16 @@ class musicdata_lms(musicdata.musicdata):
 
 				break
 			except (IOError, AttributeError, IndexError):
+				### Trying to debug services
+				logging.error("LMS connect failure", exc_info=sys.exc_info())
+
 				self.dataserver = None
 				self.dataplayer = None
 				self.connection_failed += 1
 				time.sleep(1)
 		if self.dataserver is None:
+				### Trying to debug services
+				logging.error("LMS dataserver is None", exc_info=sys.exc_info())
 			raise IOError("Could not connect to LMS")
 		else:
 			logging.debug("Connected to LMS using player {0}".format(self.dataplayer.get_name()))
