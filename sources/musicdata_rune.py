@@ -4,7 +4,8 @@
 # musicdata service to read from RuneAudio
 # Written by: Ron Ritchey
 
-import json, redis, threading, logging, Queue, musicdata, time, getopt, sys
+import json, redis, threading, logging, Queue, time, getopt, sys
+import musicdata
 
 class musicdata_rune(musicdata.musicdata):
 

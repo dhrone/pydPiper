@@ -4,7 +4,8 @@
 # musicdata service to read from SPOP
 # Written by: Ron Ritchey
 
-import threading, logging, Queue, musicdata, time, sys, telnetlib, json, getopt
+import threading, logging, Queue, time, sys, telnetlib, json, getopt
+import musicdata
 
 class musicdata_spop(musicdata.musicdata):
 

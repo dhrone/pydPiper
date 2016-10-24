@@ -4,7 +4,8 @@
 # musicdata service to read from MPD
 # Written by: Ron Ritchey
 
-import json, mpd, threading, logging, Queue, musicdata, time, sys, getopt
+import json, mpd, threading, logging, Queue, time, sys, getopt
+import musicdata
 
 class musicdata_mpd(musicdata.musicdata):
 

@@ -167,7 +167,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display
         self.delayMicroseconds(2000) # 2000 microsecond sleep, clearing the display takes a long time
 
-    def setCursor(self, col, row):
+    def setCursor(self, row, col):
 
         if row > self.rows or col > self.cols:
             raise IndexError
@@ -308,7 +308,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         if row > self.rows or col > self.cols:
             raise IndexError
 
-        self.setCursor(col,row)
+        self.setCursor(row, col)
 
         for char in text:
             if char == '\n':

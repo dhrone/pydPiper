@@ -5,11 +5,10 @@
 # Written by: Ron Ritchey
 
 import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os
-import musicdata_mpd, musicdata_lms, musicdata_spop, musicdata_rune
+import musicdata
+import displays
 import pages
 import music_display_config
-
-from drivers import lcd_display_driver_winstar_weh001602a
 
 
 class display_controller(threading.Thread):
@@ -72,7 +71,6 @@ class display_controller(threading.Thread):
 						# Reset cursor to beginning of changed line and then display the change
 						#self.lcd.setCursor(0,i)
 						self.lcd.message(buf[0:self.lcd.cols], i, 0)
-						print "sending {0} at position {1}:{2}".format(buf[0:self.lcd.cols], 0, i)
 
 						# Update the local line data and reset the column position for the line
 						lines[i] = item[i]
@@ -85,7 +83,7 @@ class display_controller(threading.Thread):
 				else:
 					# Update all long lines
 					for i in range(len(lines)):
-						if len(lines[i])>lcd.cols:
+						if len(lines[i])>c:
 							buf = "%s          %s" % (lines[i], lines[i][0:self.lcd.cols-1])
 							#buf = "{}		{}".format(lines[i],lines[i][0:DISPLAY_WIDTH-1])
 							#buf = lines[i]+"		  "+lines[i][0:c]
@@ -95,13 +93,12 @@ class display_controller(threading.Thread):
 								columns[i]=0
 
 							#self.lcd.setCursor(0,i)
-							print "sending {0} at position {1}:{2}".format(buf[columns[i]:columns[i]+self.lcd.cols], 0, i)
 
 							# Print the portion of the string that is currently visible
 							self.lcd.message(buf[columns[i]:columns[i]+self.lcd.cols], i, 0)
 					# Since we have to continue updating the display, check for a new update but don't block
-					item=self.displayqueue.get_nowait()
-					self.displayqueue.task_done()
+					item=displayqueue.get_nowait()
+					displayqueue.task_done()
 
 
 				prev_time = time.time()
@@ -123,14 +120,14 @@ class music_controller(threading.Thread):
 		'artist':u"",
 		'title':u"",
 		'album':u"",
-		'current':0,
+		'current':-1,
 		'remaining':u"",
-		'duration':0,
+		'duration':-1,
 		'position':u"",
-		'volume':0,
+		'volume':-1,
 		'playlist_display':u"",
-		'playlist_position':0,
-		'playlist_count':0,
+		'playlist_position':-1,
+		'playlist_count':-1,
 		'bitrate':u"",
 		'type':u"",
 		'current_tempc':0,
@@ -175,19 +172,28 @@ class music_controller(threading.Thread):
 
 		for s in self.servicelist:
 			s = s.lower()
-			if s == "mpd":
-				musicservice = musicdata_mpd.musicdata_mpd(self.musicqueue, music_display_config.MPD_SERVER, music_display_config.MPD_PORT, music_display_config.MPD_PASSWORD)
-			elif s == "spop":
-				musicservice = musicdata_spop.musicdata_spop(self.musicqueue, music_display_config.SPOP_SERVER, music_display_config.SPOP_PORT, music_display_config.SPOP_PASSWORD)
-			elif s == "lms":
-				musicservice = musicdata_lms.musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
-			elif s == "rune":
-				musicservice = musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
-			else:
-				logging.debug("Unsupported music service {0} requested".format(s))
-				continue
-			self.services[s] = musicservice
+			try:
+				if s == "mpd":
+					musicservice = sources.musicdata_mpd.musicdata_mpd(self.musicqueue, music_display_config.MPD_SERVER, music_display_config.MPD_PORT, music_display_config.MPD_PASSWORD)
+				elif s == "spop":
+					musicservice = sources.musicdata_spop.musicdata_spop(self.musicqueue, music_display_config.SPOP_SERVER, music_display_config.SPOP_PORT, music_display_config.SPOP_PASSWORD)
+				elif s == "lms":
+					musicservice = sources.musicdata_lms.musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
+				elif s == "rune":
+					musicservice = sources.musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
+				else:
+					logging.debug("Unsupported music service {0} requested".format(s))
+					continue
+			except NameError:
+				# Missing dependency for requested servicelist
+				debug.warning("Request for {0} failed due to missing dependencies".format(s))
+				pass
+			if musicservice not None:
+				self.services[s] = musicservice
 
+	if len(services) == 0:
+		logging.critical("No music services succeeded in initializing")
+		raise RuntimeError("No music services succeeded in initializing")
 
 
 	def run(self):
@@ -202,6 +208,7 @@ class music_controller(threading.Thread):
 
 		self.current_page_number = -1
 		self.current_line_number = 0
+		self.current_pages = pages.PAGES_Stop
 		self.page_expires = 0
 		self.hesitation_expires = 0
 		self.curlines = []
@@ -238,12 +245,12 @@ class music_controller(threading.Thread):
 			if 'current' in updates:
 				self.musicdata['current'] = updates['current']
 				timesongstarted = time.time() - self.musicdata['current']
-				print "Setting timesongstarted to {0}".format(timesongstarted)
-				print "current = {0}".format(self.musicdata['current'])
 			else:
 				if timesongstarted > 0:
 					self.musicdata['current'] = time.time() - timesongstarted
-					print "current = :{0}:".format(self.musicdata['current'])
+				else:
+					# We got here without timesongstarted being set which is a problem...
+					logging.debug("Trying to update current song position with an uninitialized start time")
 
 			# If the value of current has changed then update the other related timing variables
 			if self.musicdata['current'] != self.musicdata_prev['current']:
@@ -254,7 +261,7 @@ class music_controller(threading.Thread):
 				else:
 					timepos = time.strftime("%M:%S", time.gmtime(self.musicdata['current']))
 					remaining = timepos
-				print "In music-display current = {0}".format(self.musicdata['current'])
+
 				self.musicdata['remaining'] = remaining
 				self.musicdata['position'] = timepos
 			self.musicdatalock = False
@@ -262,7 +269,7 @@ class music_controller(threading.Thread):
 			# If anything has changed, update pages
 			if self.musicdata != self.musicdata_prev:
 				self.updatepages()
-			else:
+
 				# Update musicdata_prev with anything that has changed
 				for item, value in updates.iteritems():
 					self.musicdata_prev[item] = value
@@ -279,18 +286,8 @@ class music_controller(threading.Thread):
 		# Using PAGES variables, compute what to display
 		state = self.musicdata.get('state')
 
-
-		if state != 'play':
-			current_pages = pages.PAGES_Stop
-		else:
-			current_pages = pages.PAGES_Play
-
-		self.alert_check = False
-
 		# Check to see if any alerts are triggered
 		for pl in pages.ALERT_LIST:
-
-
 			# Check to see if alert is in its cooling period
 			if pl['cooling_expires'] < time.time():
 
@@ -322,10 +319,10 @@ class music_controller(threading.Thread):
 						self.alert_mode = True
 
 						# Set current_pages to the alert page
-						current_pages = pl
+						self.current_pages = pl
 						self.current_page_number = 0
 						self.current_line_number = 0
-						self.page_expires = time.time() + current_pages['pages'][self.current_page_number]['duration']
+						self.page_expires = time.time() + self.current_pages['pages'][current_page_number]['duration']
 						self.curlines = []
 						self.hesitate_expires = []
 
@@ -354,7 +351,7 @@ class music_controller(threading.Thread):
 					self.alert_mode = False
 					self.musicdata_prev['state'] = ""
 			else:
-				interruptible = current_pages['interruptible']
+				interruptible = self.current_pages['interruptible']
 		except KeyError:
 			interruptible = True
 
@@ -372,25 +369,25 @@ class music_controller(threading.Thread):
 
 				# Set to new display page
 				if state != "play":
-					current_pages = pages.PAGES_Stop
+					self.current_pages = pages.PAGES_Stop
 				# else display the PAGES_Playing pages
 				else:
-					current_pages = pages.PAGES_Play
+					self.current_pages = pages.PAGES_Play
 
 		# if page has expired then move to the next page
 		if self.page_expires < time.time():
 
 			# Move to next page and check to see if it should be displayed or hidden
-			for i in range(len(current_pages['pages'])):
+			for i in range(len(self.current_pages['pages'])):
 				self.current_page_number = self.current_page_number + 1
 
 				# if on last page, return to first page
-				if self.current_page_number > len(current_pages['pages'])-1:
+				if self.current_page_number > len(self.current_pages['pages'])-1:
 					self.current_page_number = 0
 
-				self.page_expires = time.time() + current_pages['pages'][self.current_page_number]['duration']
+				self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
 
-				cp = current_pages['pages'][self.current_page_number]
+				cp = self.current_pages['pages'][self.current_page_number]
 
 				try:
 					hwe = cp['hidewhenempty']
@@ -528,7 +525,7 @@ class music_controller(threading.Thread):
 
 
 		# Set current_page
-		current_page = current_pages['pages'][self.current_page_number]
+		current_page = self.current_pages['pages'][self.current_page_number]
 
 		# Now display the lines from the current page
 		lines = []
@@ -626,7 +623,6 @@ class music_controller(threading.Thread):
 				dispval.append(lines[i][0:self.cols])
 
 		# Send dispval to the queue
-		print lines
 		self.displayqueue.put(dispval)
 
 	def updatesystemvars(self):
@@ -754,29 +750,28 @@ if __name__ == '__main__':
 		print 'musicdata_mpd.py --mpd --spop --lms --rune'
 		sys.exit(2)
 
-	services = [ ]
+	services_list = [ ]
 
 	for opt, arg in opts:
 		if opt == '-h':
 			print 'musicdata_mpd.py --mpd --spop --lms --rune'
 			sys.exit()
 		elif opt in ("--mpd"):
-			services.append('mpd')
+			services_list.append('mpd')
 		elif opt in ("--spop"):
-			services.append('spop')
+			services_list.append('spop')
 		elif opt in ("--lms"):
-			services.append('lms')
+			services_list.append('lms')
 		elif opt in ("--rune"):
-			services.append('rune')
+			services_list.append('rune')
 
-	if len(services) == 0:
+	if len(services_list) == 0:
 		logging.critical("Must have at least one music service to monitor")
 		sys.exit()
 
 	logging.info(music_display_config.STARTUP_LOGMSG)
 
 	dq = Queue.Queue()
-
 
 	pin_rs = music_display_config.DISPLAY_PIN_RS
 	pin_e = music_display_config.DISPLAY_PIN_E
@@ -786,7 +781,9 @@ if __name__ == '__main__':
 
 	# Choose display from config file
 	if music_display_config.DISPLAY_DRIVER == "lcd_display_driver_winstar_weh001602a":
-		lcd = lcd_display_driver_winstar_weh001602a.lcd_display_driver_winstar_weh001602a(rows, cols, pin_rs, pin_e, pins_data)
+		lcd = displays.lcd_display_driver_winstar_weh001602a.lcd_display_driver_winstar_weh001602a(rows, cols, pin_rs, pin_e, pins_data)
+	elif music_display_config.DISPLAY_DRIVER == "lcd_display_driver_curses":
+		lcd = displays.lcd_display_driver_curses.lcd_display_driver_curses(rows, cols)
 	else:
 		logging.critical("No valid display found")
 		sys.exit()
@@ -795,8 +792,7 @@ if __name__ == '__main__':
 	lcd.message(music_display_config.STARTUP_MSG)
 
 	dc = display_controller(dq, lcd)
-	mc = music_controller(dq, services, lcd.rows, lcd.cols)
-
+	mc = music_controller(dq, services_list, lcd.rows, lcd.cols)
 
 	dc.start()
 	mc.start()

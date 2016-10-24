@@ -4,8 +4,9 @@
 # musicdata service to read from LMS
 # Written by: Ron Ritchey
 
-import json, threading, logging, Queue, musicdata, time, sys, urllib, pylms, getopt, telnetlib
+import json, threading, logging, Queue, time, sys, urllib, pylms, getopt, telnetlib
 from pylms import server
+import musicdata
 
 class musicdata_lms(musicdata.musicdata):
 

@@ -60,6 +60,8 @@ class lcd_display_driver:
 	FONT_REPEATSINGLE = 4
 	FONTSETS = [ display_icons, speaker_icon, shuffle_icon, repeat_all_icon, repeat_single_icon ]
 
+	FONTS_SUPPORTED = True
+
 	def __init__(self, rows, columns):
 		self.rows = rows
 		self.columns = columns
@@ -67,14 +69,20 @@ class lcd_display_driver:
 		# Fonts are currenty 5x8
 		try:
 			self.loadcustomchars(0, self.display_icons)
-		except:
+		except RuntimeError:
 			# Custom fonts not supported
+			self.FONTS_SUPPORTED = False
 			pass
 
 
 
 	def switchcustomchars(self, index):
-		self.loadcustomchars(0, self.FONTSETS[index])
+		if self.FONTS_SUPPORTED:
+			try:
+				self.loadcustomchars(0, self.FONTSETS[index])
+			except RuntimeError:
+				self.FONTS_SUPPORTED = False
+				pass
 
 	@abc.abstractmethod
 	def message(self, message, row, col):
