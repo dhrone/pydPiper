@@ -745,17 +745,20 @@ if __name__ == '__main__':
 	loggingMPD.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"",["lms","mpd","spop","rune"])
+		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune"])
 	except getopt.GetoptError:
-		print 'musicdata_mpd.py --mpd --spop --lms --rune'
+		print 'music-display.py -d <driver> --mpd --spop --lms --rune'
 		sys.exit(2)
 
 	services_list = [ ]
+	driver = ''
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'musicdata_mpd.py --mpd --spop --lms --rune'
+			print 'music-display.py -d <driver> --mpd --spop --lms --rune'
 			sys.exit()
+		elif opt in ("-d", "--driver"):
+			driver = arg
 		elif opt in ("--mpd"):
 			services_list.append('mpd')
 		elif opt in ("--spop"):
@@ -779,10 +782,15 @@ if __name__ == '__main__':
 	rows = music_display_config.DISPLAY_HEIGHT
 	cols = music_display_config.DISPLAY_WIDTH
 
-	# Choose display from config file
-	if music_display_config.DISPLAY_DRIVER == "lcd_display_driver_winstar_weh001602a":
+	# Choose display
+
+	if not driver:
+		driver = music_display_config.DISPLAY_DRIVER
+
+
+	if driver == "lcd_display_driver_winstar_weh001602a":
 		lcd = displays.lcd_display_driver_winstar_weh001602a.lcd_display_driver_winstar_weh001602a(rows, cols, pin_rs, pin_e, pins_data)
-	elif music_display_config.DISPLAY_DRIVER == "lcd_display_driver_curses":
+	elif driver == "lcd_display_driver_curses":
 		lcd = displays.lcd_display_driver_curses.lcd_display_driver_curses(rows, cols)
 	else:
 		logging.critical("No valid display found")
