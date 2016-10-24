@@ -308,7 +308,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
         if row > self.rows or col > self.cols:
             raise IndexError
 
-        self.setCursor(row,col)
+        self.setCursor(col,row)
 
         for char in text:
             if char == '\n':

@@ -42,8 +42,8 @@ class display_controller(threading.Thread):
 		  # Convert from Unicode to UTF-8
 		  #item[i] = item[i].encode("utf-8")
 		  lines[i] = item[i]
-		  self.lcd.setCursor(0,i)
-		  self.lcd.message( lines[i][0:self.lcd.cols] )
+		  #self.lcd.setCursor(0,i)
+		  self.lcd.message( lines[i][0:self.lcd.cols], i, 0 )
 
 		prev_time = time.time()
 
@@ -70,8 +70,9 @@ class display_controller(threading.Thread):
 						buf = item[i].ljust(len(lines[i]))
 
 						# Reset cursor to beginning of changed line and then display the change
-						self.lcd.setCursor(0,i)
-						self.lcd.message(buf[0:self.lcd.cols])
+						#self.lcd.setCursor(0,i)
+						self.lcd.message(buf[0:self.lcd.cols], i, 0)
+						print "sending {0} at position {1}:{2}".format(buf[0:self.lcd.cols], 0, i)
 
 						# Update the local line data and reset the column position for the line
 						lines[i] = item[i]
@@ -84,7 +85,7 @@ class display_controller(threading.Thread):
 				else:
 					# Update all long lines
 					for i in range(len(lines)):
-						if len(lines[i])>c:
+						if len(lines[i])>lcd.cols:
 							buf = "%s          %s" % (lines[i], lines[i][0:self.lcd.cols-1])
 							#buf = "{}		{}".format(lines[i],lines[i][0:DISPLAY_WIDTH-1])
 							#buf = lines[i]+"		  "+lines[i][0:c]
@@ -93,13 +94,14 @@ class display_controller(threading.Thread):
 							if columns[i] > len(buf)-self.lcd.cols:
 								columns[i]=0
 
-							self.lcd.setCursor(0,i)
+							#self.lcd.setCursor(0,i)
+							print "sending {0} at position {1}:{2}".format(buf[columns[i]:columns[i]+self.lcd.cols], 0, i)
 
 							# Print the portion of the string that is currently visible
-							self.lcd.message(buf[columns[i]:columns[i]+self.lcd.cols])
+							self.lcd.message(buf[columns[i]:columns[i]+self.lcd.cols], i, 0)
 					# Since we have to continue updating the display, check for a new update but don't block
-					item=displayqueue.get_nowait()
-					displayqueue.task_done()
+					item=self.displayqueue.get_nowait()
+					self.displayqueue.task_done()
 
 
 				prev_time = time.time()
@@ -236,8 +238,12 @@ class music_controller(threading.Thread):
 			if 'current' in updates:
 				self.musicdata['current'] = updates['current']
 				timesongstarted = time.time() - self.musicdata['current']
+				print "Setting timesongstarted to {0}".format(timesongstarted)
+				print "current = {0}".format(self.musicdata['current'])
 			else:
-				self.musicdata['current'] = time.time() - timesongstarted
+				if timesongstarted > 0:
+					self.musicdata['current'] = time.time() - timesongstarted
+					print "current = :{0}:".format(self.musicdata['current'])
 
 			# If the value of current has changed then update the other related timing variables
 			if self.musicdata['current'] != self.musicdata_prev['current']:
@@ -248,7 +254,7 @@ class music_controller(threading.Thread):
 				else:
 					timepos = time.strftime("%M:%S", time.gmtime(self.musicdata['current']))
 					remaining = timepos
-
+				print "In music-display current = {0}".format(self.musicdata['current'])
 				self.musicdata['remaining'] = remaining
 				self.musicdata['position'] = timepos
 			self.musicdatalock = False
@@ -272,6 +278,14 @@ class music_controller(threading.Thread):
 
 		# Using PAGES variables, compute what to display
 		state = self.musicdata.get('state')
+
+
+		if state != 'play':
+			current_pages = pages.PAGES_Stop
+		else:
+			current_pages = pages.PAGES_Play
+
+		self.alert_check = False
 
 		# Check to see if any alerts are triggered
 		for pl in pages.ALERT_LIST:
@@ -311,7 +325,7 @@ class music_controller(threading.Thread):
 						current_pages = pl
 						self.current_page_number = 0
 						self.current_line_number = 0
-						self.page_expires = time.time() + current_pages['pages'][current_page_number]['duration']
+						self.page_expires = time.time() + current_pages['pages'][self.current_page_number]['duration']
 						self.curlines = []
 						self.hesitate_expires = []
 
@@ -612,6 +626,7 @@ class music_controller(threading.Thread):
 				dispval.append(lines[i][0:self.cols])
 
 		# Send dispval to the queue
+		print lines
 		self.displayqueue.put(dispval)
 
 	def updatesystemvars(self):
