@@ -293,8 +293,8 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		# Set pointer to position char in CGRAM
 		self.write4bits(self.LCD_SETCGRAMADDR+(char*8))
 
-	# Need a short sleep for display to stablize
-	time.sleep(.01)
+		# Need a short sleep for display to stablize
+		time.sleep(.01)
 
 		# For each font in fontdata
 		for font in fontdata:
