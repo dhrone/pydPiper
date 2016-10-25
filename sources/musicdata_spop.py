@@ -149,11 +149,11 @@ class musicdata_spop(musicdata.musicdata):
 			plc = self.musicdata['playlist_count']
 
 			if self.musicdata['duration'] > 0:
-				timepos = time.strftime("%M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%M:%S", time.gmtime(self.musicdata['duration']))
-				remaining = time.strftime("%M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
+				timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['duration']))
+				remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
 
 			else:
-				timepos = time.strftime("%M:%S", time.gmtime(self.musicdata['current']))
+				timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
 				remaining = timepos
 
 			self.musicdata['remaining'] = remaining

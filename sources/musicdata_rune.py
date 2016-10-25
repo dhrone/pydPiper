@@ -196,10 +196,10 @@ class musicdata_rune(musicdata.musicdata):
 
 			# if duration is not available, then suppress its display
 			if int(self.musicdata['duration']) > 0:
-				timepos = time.strftime("%M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%M:%S", time.gmtime(int(self.musicdata['duration'])))
-				remaining = time.strftime("%M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
+				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
+				remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
 			else:
-				timepos = time.strftime("%M:%S", time.gmtime(int(self.musicdata['current'])))
+				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
 				remaining = timepos
 
 			print "In rune current = {0}".format(self.musicdata['current'])
