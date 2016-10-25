@@ -99,7 +99,7 @@ class musicdata_lms(musicdata.musicdata):
 						self.dataplayer = p
 						break
 				if self.dataplayer is None:
-					self.dataplayer = self.lmsserver.get_players()[0]
+					self.dataplayer = self.dataserver.get_players()[0]
 					if self.dataplayer is None:
 						logging.critical("Could not find any LMS Players")
 						raise RuntimeError("Could not find any LMS Players")
@@ -115,8 +115,8 @@ class musicdata_lms(musicdata.musicdata):
 				self.connection_failed += 1
 				time.sleep(1)
 		if self.dataserver is None:
-				### Trying to debug services
-				logging.error("LMS dataserver is None", exc_info=sys.exc_info())
+			### Trying to debug services
+			logging.error("LMS dataserver is None", exc_info=sys.exc_info())
 			raise IOError("Could not connect to LMS")
 		else:
 			logging.debug("Connected to LMS using player {0}".format(self.dataplayer.get_name()))

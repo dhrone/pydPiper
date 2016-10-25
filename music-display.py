@@ -83,7 +83,7 @@ class display_controller(threading.Thread):
 				else:
 					# Update all long lines
 					for i in range(len(lines)):
-						if len(lines[i])>c:
+						if len(lines[i])>self.lcd.cols:
 							buf = "%s          %s" % (lines[i], lines[i][0:self.lcd.cols-1])
 							#buf = "{}		{}".format(lines[i],lines[i][0:DISPLAY_WIDTH-1])
 							#buf = lines[i]+"		  "+lines[i][0:c]
@@ -97,8 +97,8 @@ class display_controller(threading.Thread):
 							# Print the portion of the string that is currently visible
 							self.lcd.message(buf[columns[i]:columns[i]+self.lcd.cols], i, 0)
 					# Since we have to continue updating the display, check for a new update but don't block
-					item=displayqueue.get_nowait()
-					displayqueue.task_done()
+					item=self.displayqueue.get_nowait()
+					self.displayqueue.task_done()
 
 
 				prev_time = time.time()
@@ -242,16 +242,17 @@ class music_controller(threading.Thread):
 			for item, value in updates.iteritems():
 				self.musicdata[item] = value
 
-			# Update song timing variables
-			if 'current' in updates:
-				self.musicdata['current'] = updates['current']
-				timesongstarted = time.time() - self.musicdata['current']
-			else:
-				if timesongstarted > 0:
-					self.musicdata['current'] = time.time() - timesongstarted
+			if self.musicdata['state'] == 'play':
+				# Update song timing variables
+				if 'current' in updates:
+					self.musicdata['current'] = updates['current']
+					timesongstarted = time.time() - self.musicdata['current']
 				else:
-					# We got here without timesongstarted being set which is a problem...
-					logging.debug("Trying to update current song position with an uninitialized start time")
+					if timesongstarted > 0:
+						self.musicdata['current'] = time.time() - timesongstarted
+					else:
+						# We got here without timesongstarted being set which is a problem...
+						logging.debug("Trying to update current song position with an uninitialized start time")
 
 			# If the value of current has changed then update the other related timing variables
 			if self.musicdata['current'] != self.musicdata_prev['current']:
@@ -286,6 +287,8 @@ class music_controller(threading.Thread):
 
 		# Using PAGES variables, compute what to display
 		state = self.musicdata.get('state')
+
+		self.alert_check = False
 
 		# Check to see if any alerts are triggered
 		for pl in pages.ALERT_LIST:
@@ -323,7 +326,7 @@ class music_controller(threading.Thread):
 						self.current_pages = pl
 						self.current_page_number = 0
 						self.current_line_number = 0
-						self.page_expires = time.time() + self.current_pages['pages'][current_page_number]['duration']
+						self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
 						self.curlines = []
 						self.hesitate_expires = []
 
@@ -648,10 +651,10 @@ class music_controller(threading.Thread):
 				tempc = int(file.read())
 
 				# Convert value to float and correct decimal place
-				tempc = round(float(self.tempc) / 1000,1)
+				tempc = round(float(tempc) / 1000,1)
 
 				# convert to fahrenheit
-				tempf = round(self.tempc*9/5+32,1)
+				tempf = round(tempc*9/5+32,1)
 
 				file.close()
 			except IOError:
@@ -707,8 +710,8 @@ class music_controller(threading.Thread):
 			self.musicdata['current_ip'] = current_ip
 			self.musicdatalock = False
 
-		# Read environmentals every 20 seconds
-		time.sleep(20)
+			# Read environmentals every 20 seconds
+			time.sleep(20)
 
 
 def sigterm_handler(_signo, _stack_frame):
@@ -816,8 +819,8 @@ if __name__ == '__main__':
 		try:
 			lcd.clear()
 			lcd.message("Exiting...")
-			sleep(1)
+			time.sleep(1)
 			lcd.clear()
 		except:
 			pass
-		logging.info("Existing...)
+		logging.info("Exiting...")
