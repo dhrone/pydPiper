@@ -301,6 +301,8 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		for data in font:
 			self.write4bits(data, True)
 
+	def cleanup(self):
+		GPIO.cleanup()
 
     def message(self, text, row=0, col=0):
         ''' Send string to LCD. Newline wraps to second line'''

@@ -818,6 +818,7 @@ if __name__ == '__main__':
 			lcd.message("Exiting...")
 			sleep(1)
 			lcd.clear()
+			lcd.cleanup()
 		except:
 			pass
 		logging.info("Existing...)

@@ -68,6 +68,9 @@ class lcd_display_driver_curses(lcd_display_driver.lcd_display_driver):
 		# Load custom characters
 		RuntimeError('Command loadcustomchars not supported')
 
+	def cleanup(self):
+		curses.endwin()
+
 	def message(self, text, row=0, col=0):
 		''' Send string to LCD. Newline wraps to second line'''
 

@@ -155,6 +155,11 @@ class lcd_display_driver:
 			raise RuntimeError('Command {0} not supported'.format(cmd))
 
 	@abc.abstractmethod
+	def cleanup(self):
+		# If there are any steps needed to restore system state on exit, this is the place to do it.
+		return
+
+	@abc.abstractmethod
 	def loadcustomchars(self, char, fontdata):
 		# Write an array of custom characters starting at position char within
 		# the CGRAM region.
