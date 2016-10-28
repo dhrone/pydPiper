@@ -23,6 +23,7 @@
 import time
 import RPi.GPIO as GPIO
 import lcd_display_driver
+import fonts
 
 
 class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_driver):
@@ -378,16 +379,16 @@ if __name__ == '__main__':
 	lcd.msgtest("\x05 Music")
 	lcd.msgtest("\x06 Power")
 	lcd.clear()
-	lcd.switchcustomchars(lcd.FONT_SPEAKER)
-	lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
-	lcd.switchcustomchars(lcd.FONT_SHUFFLE)
-	lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
-	lcd.switchcustomchars(lcd.FONT_REPEATALL)
-	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
-	lcd.switchcustomchars(lcd.FONT_REPEATSINGLE)
-	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
-	lcd.switchcustomchars(lcd.FONT_ICONS)
 
+	lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
+	lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
+	lcd.switchcustomchars(fonts.size5x8.shuffle.fontpkg)
+	lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
+	lcd.switchcustomchars(fonts.size5x8.repeat_all.fontpkg)
+	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
+	lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
+	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
+	lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 
 
   except KeyboardInterrupt:

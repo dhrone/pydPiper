@@ -40,7 +40,7 @@ class display_controller(threading.Thread):
 
 			# if the first item is a font change request, process that and then try again
 			if qitem['type'] == 'font':
-				self.lcd.switchcustomchars(qitem['font'])
+				self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
 			elif qitem['type'] = 'display':
 				item = qitem['lines']
 				break
@@ -92,7 +92,7 @@ class display_controller(threading.Thread):
 						self.displayqueue.task_done()
 
 						if qitem['type'] == 'font':
-							self.lcd.switchcustomchars(qitem['font'])
+							self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
 						elif qitem['type'] = 'display':
 							item = qitem['lines']
 							break
@@ -121,7 +121,7 @@ class display_controller(threading.Thread):
 						self.displayqueue.task_done()
 
 						if qitem['type'] == 'font':
-							self.lcd.switchcustomchars(qitem['font'])
+							self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
 						elif qitem['type'] = 'display':
 							item = qitem['lines']
 							break
