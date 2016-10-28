@@ -340,7 +340,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		time.sleep(wait)
 
 if __name__ == '__main__':
-	def volume_bar(self,vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
+	def volume_bar(vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
 		# Algorithm for computing the volume lines
 		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
 		ppb = percentperblock = 100.0 / chars
@@ -385,78 +385,80 @@ if __name__ == '__main__':
 
 		return buffer
 
-  try:
+	try:
 
-	print "Winstar OLED Display Test"
+		print "Winstar OLED Display Test"
 
-	# For V3 of the Raspdac
-	#lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 27])
+		# For V3 of the Raspdac
+		#lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 27])
 
-	# For V2 of the Raspdac
-	lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 15])
-	lcd.clear()
-
-	lcd.message("Winstar OLED\nPi Powered")
-	time.sleep(2)
-
-	lcd.clear()
-
-	accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
-	#for char in accent_min: print char, ord(char)
-	lcd.message(accent_min)
-	time.sleep(2)
-
-	lcd.clear()
-
-	accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
-	#for char in accent_maj: print char, ord(char)
-	lcd.message(accent_maj)
-
-	time.sleep(2)
-	lcd.clear()
-
-	lcd.msgtest("\x00 Stop")
-	lcd.msgtest("\x01 Play")
-	lcd.msgtest("\x02 Pause")
-	lcd.msgtest("\x03 Ethernet")
-	lcd.msgtest("\x04 Wireless")
-	lcd.msgtest("\x05 Music")
-	lcd.msgtest("\x06 Power")
-	lcd.clear()
-
-	lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
-	lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
-	lcd.switchcustomchars(fonts.size5x8.shuffle.fontpkg)
-	lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
-	lcd.switchcustomchars(fonts.size5x8.repeat_all.fontpkg)
-	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
-	lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
-	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
-	lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
-
-	for i in range (0,101):
-		volbar = volume_bar(i,
-			self.cols-2,
-			displays.fonts.size5x8.volume.e,
-			displays.fonts.size5x8.volume.h,
-			displays.fonts.size5x8.volume.f,
-			displays.fonts.size5x8.volume.el,
-			displays.fonts.size5x8.volume.er,
-			displays.fonts.size5x8.volume.hr )
+		# For V2 of the Raspdac
+		lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 15])
 		lcd.clear()
-		lcd.message("Volume {0}".format(i),0,0)
-		lcd.message("\x06 {0}".format(volbar),1,0)
+		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 
-	time.sleep(2)
+		lcd.message("Winstar OLED\nPi Powered")
+		time.sleep(2)
+
+		lcd.clear()
+
+		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
+		#for char in accent_min: print char, ord(char)
+		lcd.message(accent_min)
+		time.sleep(2)
+
+		lcd.clear()
+
+		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
+		#for char in accent_maj: print char, ord(char)
+		lcd.message(accent_maj)
+
+		time.sleep(2)
+		lcd.clear()
+
+		lcd.msgtest("\x00 Stop")
+		lcd.msgtest("\x01 Play")
+		lcd.msgtest("\x02 Pause")
+		lcd.msgtest("\x03 Ethernet")
+		lcd.msgtest("\x04 Wireless")
+		lcd.msgtest("\x05 Music")
+		lcd.msgtest("\x06 Power")
+		lcd.clear()
+
+		lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
+		lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
+		lcd.switchcustomchars(fonts.size5x8.shuffle.fontpkg)
+		lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
+		lcd.switchcustomchars(fonts.size5x8.repeat_all.fontpkg)
+		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
+		lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
+		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
+		lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
+
+		for i in range (0,101):
+			volbar = volume_bar(i,
+				14,
+				fonts.size5x8.volume.e,
+				fonts.size5x8.volume.h,
+				fonts.size5x8.volume.f,
+				fonts.size5x8.volume.el,
+				fonts.size5x8.volume.er,
+				fonts.size5x8.volume.hr )
+			lcd.clear()
+			lcd.message("Volume {0}".format(i),0,0)
+			lcd.message("\x06 {0}".format(volbar),1,0)
+			time.sleep(.25)
+
+		time.sleep(2)
 
 
-  except KeyboardInterrupt:
-	pass
+	except KeyboardInterrupt:
+		pass
 
-  finally:
-	lcd.clear()
-	lcd.message("Goodbye!")
-	time.sleep(2)
-	lcd.clear()
-	GPIO.cleanup()
-	print "Winstar OLED Display Test Complete"
+	finally:
+		lcd.clear()
+		lcd.message("Goodbye!")
+		time.sleep(2)
+		lcd.clear()
+		GPIO.cleanup()
+		print "Winstar OLED Display Test Complete"
