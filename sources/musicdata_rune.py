@@ -111,9 +111,7 @@ class musicdata_rune(musicdata.musicdata):
 	def status(self):
 		# Read musicplayer status and update musicdata
 
-		logging.debug("Getting status")
 		status = json.loads(self.dataclient.get('act_player_info'))
-		print "in rune status = {0}".format(status)
 
 		state = status.get('state')
 		if state != "play":
@@ -202,7 +200,6 @@ class musicdata_rune(musicdata.musicdata):
 				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
 				remaining = timepos
 
-			print "In rune current = {0}".format(self.musicdata['current'])
 			self.musicdata['remaining'] = remaining
 			self.musicdata['position'] = timepos
 

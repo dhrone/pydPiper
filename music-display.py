@@ -322,7 +322,7 @@ class music_controller(threading.Thread):
 					timesongstarted = time.time() - self.musicdata['current']
 				else:
 					if timesongstarted > 0:
-						self.musicdata['current'] = time.time() - timesongstarted
+						self.musicdata['current'] = int(time.time() - timesongstarted)
 					else:
 						# We got here without timesongstarted being set which is a problem...
 						logging.debug("Trying to update current song position with an uninitialized start time")
@@ -362,11 +362,16 @@ class music_controller(threading.Thread):
 #					self.musicdata_prev['current'] = self.musicdata['current']
 #					self.musicdata_prev['remaining'] = self.musicdata['remaining']
 #					self.musicdata_prev['position'] = self.musicdata['position']
-				for item, value in updates.iteritems():
-					self.musicdata_prev[item] = value
+				
+				for item, value in self.musicdata.iteritems():
+					try:
+						if self.musicdata_prev[item] != value:
+							self.musicdata_prev[item] = value
+					except KeyError:
+						self.musicdata_prev[item] = value
 
 			# Update display data every 1/4 second
-			time.sleep(.25)
+#			time.sleep(.25)
 
 	def updatepages(self):
 
@@ -620,7 +625,6 @@ class music_controller(threading.Thread):
 		if 'font' in current_page:
 			if self.current_font != current_page['font']:
 				self.current_font = current_page['font']
-				print "Changing font"
 
 				dispval = { 'type': 'font', 'font': current_page['font'] }
 
