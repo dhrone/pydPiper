@@ -191,15 +191,15 @@ ALERT_Volume = {
         	'lines': [
           		{
             		'name':"top",
-            		'variables': [ ],
-            		'format':"Volume",
+            		'variables': ["volume" ],
+            		'format':"Volume {0}",
             		'justification':"center",
             		'scroll':False
           		},
           		{
             		'name':"bottom",
             		'variables': [ "volume_bar_fancy" ],
-            		'format':"{0}",
+            		'format':"\x06 {0}",
             		'justification':"center",
             		'scroll':False
           		}

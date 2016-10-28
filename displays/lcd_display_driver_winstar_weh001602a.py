@@ -340,6 +340,50 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		time.sleep(wait)
 
 if __name__ == '__main__':
+	def volume_bar(self,vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
+		# Algorithm for computing the volume lines
+		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
+		ppb = percentperblock = 100.0 / chars
+
+		buffer = ''
+		i = 0
+		if vol_per <= (i+.25)*ppb:
+			buffer += chr(vle)
+		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
+			buffer += chr(fh)
+		elif (i+.75)*ppb < vol_per:
+			buffer += chr(ff)
+		else:
+			# Shouldnt be here
+			logging.debug("Bad value in volume_bar")
+			buffer += 'Y'
+
+		for i in range(1, chars-1):
+			if vol_per <= (i+.25)*ppb:
+				buffer += chr(fe)
+			elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
+				buffer += chr(fh)
+			elif (i+.75)*ppb < vol_per:
+				buffer += chr(ff)
+			else:
+				# Shouldnt be here
+				logging.debug("Bad value in volume_bar")
+				buffer += 'Y'
+
+		i = chars - 1
+		if vol_per <= (i+.25)*ppb:
+			buffer += chr(vre)
+		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
+			buffer += chr(vrh)
+		elif (i+.75)*ppb < vol_per:
+			buffer += chr(ff)
+		else:
+			# Shouldnt be here
+			logging.debug("Bad value in volume_bar")
+			buffer += 'Y'
+
+
+		return buffer
 
   try:
 
@@ -388,7 +432,22 @@ if __name__ == '__main__':
 	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
 	lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
 	lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
-	lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
+	lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
+
+	for i in range (0,101):
+		volbar = volume_bar(i,
+			self.cols-2,
+			displays.fonts.size5x8.volume.e,
+			displays.fonts.size5x8.volume.h,
+			displays.fonts.size5x8.volume.f,
+			displays.fonts.size5x8.volume.el,
+			displays.fonts.size5x8.volume.er,
+			displays.fonts.size5x8.volume.hr )
+		lcd.clear()
+		lcd.message("Volume {0}".format(i),0,0)
+		lcd.message("\x06 {0}".format(volbar),1,0)
+
+	time.sleep(2)
 
 
   except KeyboardInterrupt:
