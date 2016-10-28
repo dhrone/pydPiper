@@ -1,64 +1,12 @@
 # lcd_display_driver - base class for lcd or oled 16x2 or 20x4 displays
 
-import abc
+import abc, fonts
 
 class lcd_display_driver:
 	__metaclass__ = abc.ABCMeta
 
 	# Need to decide whether custom fonts live in the driver or the display.
 	# THinking right now, they should live in the base driver class.
-
-	# Taken from https://github.com/RandyCupic/RuneAudioLCD/blob/master/display.py
-
-	# 1x1 characters.  Can be displayed directly
-	# Icons for display (5x8)
-	display_icons = [
-			[ 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b00000 ], # Stop
-			[ 0b00000, 0b01000, 0b01100, 0b01110, 0b01110, 0b01100, 0b01000, 0b00000 ], # Play
-			[ 0b00000, 0b01010, 0b01010, 0b01010, 0b01010, 0b01010, 0b01010, 0b00000 ], # Pause
-			[ 0b00000, 0b11111, 0b11011, 0b10001, 0b10001, 0b10001, 0b11111, 0b00000 ], # Ethernet
-			[ 0b00000, 0b00000, 0b00001, 0b00001, 0b00101, 0b00101, 0b10101, 0b00000 ], # Wireless
-			[ 0b00000, 0b01111, 0b01001, 0b01001, 0b01001, 0b11011, 0b11011, 0b00000 ], # Music note
-			[ 0b00000, 0b00100, 0b00100, 0b10101, 0b10101, 0b10001, 0b01110, 0b00000 ]  # Power
-	]
-
-	# 2x2 characters.  Must be displayed in the following pattern
-	# "01"
-	# "23"
-	speaker_icon = [
-			[ 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b10001, 0b10001, 0b10001 ],
-			[ 0b00001, 0b00011, 0b00101, 0b01001, 0b10001, 0b00001, 0b00001, 0b00001 ],
-			[ 0b10001, 0b10001, 0b10001, 0b11111, 0b00000, 0b00000, 0b00000, 0b00000 ],
-			[ 0b00001, 0b00001, 0b00001, 0b10001, 0b01001, 0b00101, 0b00011, 0b00001 ]
-	]
-
-	shuffle_icon = [
-			[ 0b00000, 0b00000, 0b00000, 0b11100, 0b00010, 0b00010, 0b00010, 0b00001 ],
-			[ 0b00000, 0b00000, 0b00010, 0b00111, 0b01010, 0b01000, 0b01000, 0b10000 ],
-			[ 0b00001, 0b00010, 0b00010, 0b00010, 0b11100, 0b00000, 0b00000, 0b00000 ],
-			[ 0b10000, 0b01000, 0b01000, 0b01010, 0b00111, 0b00010, 0b00000, 0b00000 ]
-	]
-
-	repeat_all_icon = [
-			[ 0b00000, 0b00000, 0b00000, 0b00011, 0b00100, 0b01000, 0b10000, 0b10000 ],
-			[ 0b00000, 0b00000, 0b00000, 0b11000, 0b00101, 0b00011, 0b00111, 0b00000 ],
-			[ 0b10000, 0b10000, 0b01000, 0b00100, 0b00011, 0b00000, 0b00000, 0b00000 ],
-			[ 0b00000, 0b00000, 0b00010, 0b00100, 0b11000, 0b00000, 0b00000, 0b00000 ]
-	]
-
-	repeat_single_icon = [
-			[ 0b00000, 0b00000, 0b00000, 0b00011, 0b00100, 0b01000, 0b00000, 0b00000 ],
-			[ 0b00000, 0b00000, 0b00000, 0b11000, 0b00101, 0b00011, 0b00111, 0b00000 ],
-			[ 0b00000, 0b11100, 0b11000, 0b10100, 0b00011, 0b00000, 0b00000, 0b00000 ],
-			[ 0b00000, 0b00000, 0b00010, 0b00100, 0b11000, 0b00000, 0b00000, 0b00000 ]
-	]
-
-	FONT_ICONS = 0
-	FONT_SPEAKER = 1
-	FONT_SHUFFLE = 2
-	FONT_REPEATALL = 3
-	FONT_REPEATSINGLE = 4
-	FONTSETS = [ display_icons, speaker_icon, shuffle_icon, repeat_all_icon, repeat_single_icon ]
 
 	FONTS_SUPPORTED = True
 
@@ -67,19 +15,19 @@ class lcd_display_driver:
 		self.columns = columns
 		# Write custom fonts if the display supports them
 		# Fonts are currenty 5x8
-		try:
-			self.loadcustomchars(0, self.display_icons)
-		except RuntimeError:
-			# Custom fonts not supported
-			self.FONTS_SUPPORTED = False
-			pass
+#		try:
+#			self.loadcustomchars(0, fonts.size5x8.player.fontpkg)
+#		except RuntimeError:
+#			# Custom fonts not supported
+#			self.FONTS_SUPPORTED = False
+#			pass
 
 
 
-	def switchcustomchars(self, index):
+	def switchcustomchars(self, fontpkg):
 		if self.FONTS_SUPPORTED:
 			try:
-				self.loadcustomchars(0, self.FONTSETS[index])
+				self.loadcustomchars(0, fontpkg)
 			except RuntimeError:
 				self.FONTS_SUPPORTED = False
 				pass

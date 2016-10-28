@@ -20,7 +20,9 @@ class display_controller(threading.Thread):
 
 		self.displayqueue = displayqueue
 		self.lcd = lcd
-		self.lcd.switchcustomchars(lcd.FONT_ICONS)
+
+		# Load default font
+		self.lcd.switchcustomchars(displays.fonts.map.map('default'))
 
 	def run(self):
 
@@ -31,17 +33,24 @@ class display_controller(threading.Thread):
 		  lines.append("")
 		  columns.append(0)
 
-		# Get first display update off of the queue
-		item = self.displayqueue.get()
-		self.displayqueue.task_done()
+		while True:
+			# Get first display update off of the queue
+			qitem = self.displayqueue.get()
+			self.displayqueue.task_done()
+
+			# if the first item is a font change request, process that and then try again
+			if qitem['type'] == 'font':
+				self.lcd.switchcustomchars(qitem['font'])
+			elif qitem['type'] = 'display':
+				item = qitem['lines']
+				break
+			else:
+				logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
 
 		self.lcd.clear()
 
 		for i in range(len(item)):
-		  # Convert from Unicode to UTF-8
-		  #item[i] = item[i].encode("utf-8")
 		  lines[i] = item[i]
-		  #self.lcd.setCursor(0,i)
 		  self.lcd.message( lines[i][0:self.lcd.cols], i, 0 )
 
 		prev_time = time.time()
@@ -78,8 +87,18 @@ class display_controller(threading.Thread):
 
 				# If lines all fit on display then we can wait for new input
 				if short_lines:
-					item=self.displayqueue.get()
-					self.displayqueue.task_done()
+					while True:
+						qitem=self.displayqueue.get()
+						self.displayqueue.task_done()
+
+						if qitem['type'] == 'font':
+							self.lcd.switchcustomchars(qitem['font'])
+						elif qitem['type'] = 'display':
+							item = qitem['lines']
+							break
+						else:
+							logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
+
 				else:
 					# Update all long lines
 					for i in range(len(lines)):
@@ -97,8 +116,17 @@ class display_controller(threading.Thread):
 							# Print the portion of the string that is currently visible
 							self.lcd.message(buf[columns[i]:columns[i]+self.lcd.cols], i, 0)
 					# Since we have to continue updating the display, check for a new update but don't block
-					item=self.displayqueue.get_nowait()
-					self.displayqueue.task_done()
+					while True:
+						qitem=self.displayqueue.get_nowait()
+						self.displayqueue.task_done()
+
+						if qitem['type'] == 'font':
+							self.lcd.switchcustomchars(qitem['font'])
+						elif qitem['type'] = 'display':
+							item = qitem['lines']
+							break
+						else:
+							logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
 
 
 				prev_time = time.time()
@@ -150,6 +178,7 @@ class music_controller(threading.Thread):
 		self.musicqueue = Queue.Queue()
 		self.rows = rows
 		self.cols = cols
+		self.current_font = ''
 
 		self.musicdata = self.musicdata_init.copy()
 		self.musicdata_prev = self.musicdata.copy()
@@ -196,6 +225,45 @@ class music_controller(threading.Thread):
 			logging.critical("No music services succeeded in initializing")
 			raise RuntimeError("No music services succeeded in initializing")
 
+	def volume_bar(self,vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
+		# Algorithm for computing the volume lines
+		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
+		ppb = percentperblock = 100.0 / chars
+
+		buffer = '['
+		i = 0
+		if vol_per <= (i+.25)*ppb:
+			buffer += vle
+		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
+			buffer += fh
+		elif (i+.75)*ppb < vol_per:
+			buffer += ff
+		else:
+			buffer += 'Y'
+
+		for i in range(1, chars-1):
+			if vol_per <= (i+.25)*ppb:
+				buffer += fe
+			elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
+				buffer += fh
+			elif (i+.75)*ppb < vol_per:
+				buffer += ff
+			else:
+				buffer += 'Y'
+
+		i = chars - 1
+		if vol_per <= (i+.25)*ppb:
+			buffer += vre
+		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
+			buffer += vrh
+		elif (i+.75)*ppb < vol_per:
+			buffer += ff
+		else:
+			buffer += 'Y'
+
+
+		buffer += ']'
+		return buffer
 
 	def run(self):
 
@@ -257,11 +325,11 @@ class music_controller(threading.Thread):
 			# If the value of current has changed then update the other related timing variables
 			if self.musicdata['current'] != self.musicdata_prev['current']:
 				if self.musicdata['duration'] > 0:
-					timepos = time.strftime("%M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%M:%S", time.gmtime(self.musicdata['duration']))
-					remaining = time.strftime("%M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
+					timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%-S", time.gmtime(self.musicdata['duration']))
+					remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
 
 				else:
-					timepos = time.strftime("%M:%S", time.gmtime(self.musicdata['current']))
+					timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
 					remaining = timepos
 
 				self.musicdata['remaining'] = remaining
@@ -279,6 +347,17 @@ class music_controller(threading.Thread):
 					self.musicdata_prev['current'] = self.musicdata['current']
 					self.musicdata_prev['remaining'] = self.musicdata['remaining']
 					self.musicdata_prev['position'] = self.musicdata['position']
+
+				# if volume has changed, update volume_bar_fancy
+				if 'volume' in updates:
+					self.musicdata['volume_bar_fancy'] = volume_bar(self.musicdata['volume'],
+					self.cols-2,
+					displays.fonts.size5x8.volume.e,
+					displays.fonts.size5x8.volume.h,
+					displays.fonts.size5x8.volume.f,
+					displays.fonts.size5x8.volume.el,
+					displays.fonts.size5x8.volume.er,
+					displays.fonts.size5x8.volume.hr )
 
 			# Update display data every 1/4 second
 			time.sleep(.25)
@@ -531,6 +610,16 @@ class music_controller(threading.Thread):
 		# Set current_page
 		current_page = self.current_pages['pages'][self.current_page_number]
 
+		# Change the font if requested
+		if 'font' in current_page:
+			if self.current_font != current_page['font']:
+				self.current_font = current_page['font']
+
+				display = { 'type': 'font', 'font': current_page['font'] }
+
+				# Send font update to the queue
+				self.displayqueue.put(dispval)
+
 		# Now display the lines from the current page
 		lines = []
 		for i in range(len(current_page['lines'])):
@@ -619,12 +708,12 @@ class music_controller(threading.Thread):
 					self.hesitate_expires[i] = time.time() + 86400 # Do not scroll
 
 		# Determine if the display should hesitate before scrolling
-		dispval = []
+		dispval = { 'type': 'display', 'lines': [] }
 		for i in range(len(lines)):
 			if self.hesitate_expires[i] < time.time():
-				dispval.append(lines[i])
+				dispval['lines'].append(lines[i])
 			else:
-				dispval.append(lines[i][0:self.cols])
+				dispval['lines'].append(lines[i][0:self.cols])
 
 		# Send dispval to the queue
 		self.displayqueue.put(dispval)

@@ -108,6 +108,9 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		self.rows = rows
 		self.cols = cols
 
+		self.FONTS_SUPPORTED = True
+
+
 		# Sets the values to offset into DDRAM for different display lines
 		self.row_offsets = [ 0x00, 0x40 ]
 
@@ -290,16 +293,23 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 	def loadcustomchars(self, char, fontdata):
 		# Load custom characters
 
+		# Verify that there is room in the display
+		# Only 8 special characters allowed with the Winstar
+
+		if len(fontdata) + char > 8:
+			logging.debug("Can not load fontset at position {0}.  Not enough room left".format(char))
+			raise IndexError
+
 		# Set pointer to position char in CGRAM
 		self.write4bits(self.LCD_SETCGRAMADDR+(char*8))
 
-	# Need a short sleep for display to stablize
-	time.sleep(.01)
+		# Need a short sleep for display to stablize
+		time.sleep(.01)
 
 		# For each font in fontdata
 		for font in fontdata:
-			for data in font:
-				self.write4bits(data, True)
+			for byte in font:
+				self.write4bits(byte, True)
 
 	def message(self, text, row=0, col=0):
 		''' Send string to LCD. Newline wraps to second line'''

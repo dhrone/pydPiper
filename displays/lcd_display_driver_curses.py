@@ -14,6 +14,8 @@ class lcd_display_driver_curses(lcd_display_driver.lcd_display_driver):
 
 	def __init__(self, rows=2, cols=16 ):
 
+		self.FONTS_SUPPORTED = False
+
 		self.rows = rows
 		self.cols = cols
 
