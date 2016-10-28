@@ -339,6 +339,18 @@ class music_controller(threading.Thread):
 
 				self.musicdata['remaining'] = remaining
 				self.musicdata['position'] = timepos
+
+			# if volume has changed, update volume_bar_fancy
+			if 'volume' in updates:
+				self.musicdata['volume_bar_fancy'] = self.volume_bar(self.musicdata['volume'],
+				self.cols-2,
+				displays.fonts.size5x8.volume.e,
+				displays.fonts.size5x8.volume.h,
+				displays.fonts.size5x8.volume.f,
+				displays.fonts.size5x8.volume.el,
+				displays.fonts.size5x8.volume.er,
+				displays.fonts.size5x8.volume.hr )
+
 			self.musicdatalock = False
 
 			# If anything has changed, update pages
@@ -346,23 +358,12 @@ class music_controller(threading.Thread):
 				self.updatepages()
 
 				# Update musicdata_prev with anything that has changed
+#				if self.musicdata['current'] != self.musicdata_prev['current']:
+#					self.musicdata_prev['current'] = self.musicdata['current']
+#					self.musicdata_prev['remaining'] = self.musicdata['remaining']
+#					self.musicdata_prev['position'] = self.musicdata['position']
 				for item, value in updates.iteritems():
 					self.musicdata_prev[item] = value
-				if self.musicdata['current'] != self.musicdata_prev['current']:
-					self.musicdata_prev['current'] = self.musicdata['current']
-					self.musicdata_prev['remaining'] = self.musicdata['remaining']
-					self.musicdata_prev['position'] = self.musicdata['position']
-
-				# if volume has changed, update volume_bar_fancy
-				if 'volume' in updates:
-					self.musicdata['volume_bar_fancy'] = self.volume_bar(self.musicdata['volume'],
-					self.cols-2,
-					displays.fonts.size5x8.volume.e,
-					displays.fonts.size5x8.volume.h,
-					displays.fonts.size5x8.volume.f,
-					displays.fonts.size5x8.volume.el,
-					displays.fonts.size5x8.volume.er,
-					displays.fonts.size5x8.volume.hr )
 
 			# Update display data every 1/4 second
 			time.sleep(.25)
