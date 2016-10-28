@@ -56,9 +56,9 @@ LMS_PLAYER = "00:01:02:aa:bb:cc"
 
 # If you are using RuneAudio you can pull the information from the REDIS database that RuneAudio maintains
 RUNE_ENABLED = True
-REDIS_SERVER = "localhost"
-REDIS_PORT = 6379
-REDIS_PASSWORD = ""
+RUNE_SERVER = "localhost"
+RUNE_PORT = 6379
+RUNE_PASSWORD = ""
 
 
 # DISPLAY Settings
@@ -66,4 +66,5 @@ DISPLAY_WIDTH = 16 # the character width of the display
 DISPLAY_HEIGHT = 2 # the number of lines on the display
 DISPLAY_PIN_RS = 7 
 DISPLAY_PIN_E =  8
-DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] 
+#DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
+DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2 

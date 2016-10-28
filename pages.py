@@ -143,7 +143,7 @@ PAGES_Stop = {
           {
             'name':"bottom",
             'variables': [ "current_time_formatted" ],
-            'strftime':"%a %b %-m %H:%M",
+            'strftime':"%a %b %-d %H:%M",
             'format':"{0}",
             'justification':"center",
             'scroll':False
@@ -164,7 +164,7 @@ PAGES_Stop = {
           {
             'name':"bottom",
             'variables': [ "current_time_formatted" ],
-            'strftime':"%a %b %-m %H:%M",
+            'strftime':"%a %b %-d %H:%M",
             'format':"{0}",
             'justification':"center",
             'scroll':False
@@ -185,7 +185,8 @@ ALERT_Volume = {
 	'interruptible':False,
 	'pages': [
 		{
-			'name':"Volume",
+		'name':"Volume",
+		'font':'size5x8.volume',
         	'duration':2,
         	'lines': [
           		{
@@ -197,7 +198,7 @@ ALERT_Volume = {
           		},
           		{
             		'name':"bottom",
-            		'variables': [ "volume" ],
+            		'variables': [ "volume_bar_fancy" ],
             		'format':"{0}",
             		'justification':"center",
             		'scroll':False

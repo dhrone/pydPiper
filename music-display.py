@@ -41,7 +41,7 @@ class display_controller(threading.Thread):
 			# if the first item is a font change request, process that and then try again
 			if qitem['type'] == 'font':
 				self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
-			elif qitem['type'] = 'display':
+			elif qitem['type'] == 'display':
 				item = qitem['lines']
 				break
 			else:
@@ -93,7 +93,7 @@ class display_controller(threading.Thread):
 
 						if qitem['type'] == 'font':
 							self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
-						elif qitem['type'] = 'display':
+						elif qitem['type'] == 'display':
 							item = qitem['lines']
 							break
 						else:
@@ -122,7 +122,7 @@ class display_controller(threading.Thread):
 
 						if qitem['type'] == 'font':
 							self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
-						elif qitem['type'] = 'display':
+						elif qitem['type'] == 'display':
 							item = qitem['lines']
 							break
 						else:
@@ -230,39 +230,44 @@ class music_controller(threading.Thread):
 		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
 		ppb = percentperblock = 100.0 / chars
 
-		buffer = '['
+		buffer = ''
 		i = 0
 		if vol_per <= (i+.25)*ppb:
-			buffer += vle
+			buffer += chr(vle)
 		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-			buffer += fh
+			buffer += chr(fh)
 		elif (i+.75)*ppb < vol_per:
-			buffer += ff
+			buffer += chr(ff)
 		else:
+			# Shouldnt be here
+			logging.debug("Bad value in volume_bar")
 			buffer += 'Y'
 
 		for i in range(1, chars-1):
 			if vol_per <= (i+.25)*ppb:
-				buffer += fe
+				buffer += chr(fe)
 			elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-				buffer += fh
+				buffer += chr(fh)
 			elif (i+.75)*ppb < vol_per:
-				buffer += ff
+				buffer += chr(ff)
 			else:
+				# Shouldnt be here
+				logging.debug("Bad value in volume_bar")
 				buffer += 'Y'
 
 		i = chars - 1
 		if vol_per <= (i+.25)*ppb:
-			buffer += vre
+			buffer += chr(vre)
 		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-			buffer += vrh
+			buffer += chr(vrh)
 		elif (i+.75)*ppb < vol_per:
-			buffer += ff
+			buffer += chr(ff)
 		else:
+			# Shouldnt be here
+			logging.debug("Bad value in volume_bar")
 			buffer += 'Y'
 
 
-		buffer += ']'
 		return buffer
 
 	def run(self):
@@ -350,7 +355,7 @@ class music_controller(threading.Thread):
 
 				# if volume has changed, update volume_bar_fancy
 				if 'volume' in updates:
-					self.musicdata['volume_bar_fancy'] = volume_bar(self.musicdata['volume'],
+					self.musicdata['volume_bar_fancy'] = self.volume_bar(self.musicdata['volume'],
 					self.cols-2,
 					displays.fonts.size5x8.volume.e,
 					displays.fonts.size5x8.volume.h,
@@ -614,8 +619,9 @@ class music_controller(threading.Thread):
 		if 'font' in current_page:
 			if self.current_font != current_page['font']:
 				self.current_font = current_page['font']
+				print "Changing font"
 
-				display = { 'type': 'font', 'font': current_page['font'] }
+				dispval = { 'type': 'font', 'font': current_page['font'] }
 
 				# Send font update to the queue
 				self.displayqueue.put(dispval)
