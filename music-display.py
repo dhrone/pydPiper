@@ -351,6 +351,15 @@ class music_controller(threading.Thread):
 				displays.fonts.size5x8.volume.er,
 				displays.fonts.size5x8.volume.hr )
 
+				self.musicdata['volume_bar_big'] = self.volume_bar(self.musicdata['volume'],
+				self.cols-3,
+				displays.fonts.size5x8.speaker.e,
+				displays.fonts.size5x8.speaker.h,
+				displays.fonts.size5x8.speaker.f,
+				displays.fonts.size5x8.speaker.el,
+				displays.fonts.size5x8.speaker.er,
+				displays.fonts.size5x8.speaker.hr )
+
 			self.musicdatalock = False
 
 			# If anything has changed, update pages
@@ -362,7 +371,7 @@ class music_controller(threading.Thread):
 #					self.musicdata_prev['current'] = self.musicdata['current']
 #					self.musicdata_prev['remaining'] = self.musicdata['remaining']
 #					self.musicdata_prev['position'] = self.musicdata['position']
-				
+
 				for item, value in self.musicdata.iteritems():
 					try:
 						if self.musicdata_prev[item] != value:
