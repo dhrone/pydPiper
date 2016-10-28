@@ -186,13 +186,13 @@ ALERT_Volume = {
 	'pages': [
 		{
 		'name':"Volume",
-		'font':'size5x8.volume',
+		'font':'size5x8.speaker',
         	'duration':2,
         	'lines': [
           		{
             		'name':"top",
             		'variables': ["volume" ],
-            		'format':"\x00\x01 Volume {0}",
+            		'format':"\x00\x01   Volume {0}",
             		'justification':"left",
             		'scroll':False
           		},
