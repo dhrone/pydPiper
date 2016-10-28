@@ -405,7 +405,16 @@ class music_controller(threading.Thread):
 							# should be suppressed
 							try:
 								if self.musicdata_prev['state'] == state or not pl['alert']['suppressonstatechange']:
-									self.alert_check = True
+									if 'values' in self.pl['alert']:
+										if len(self.pl['alert']['values']) > 0:
+											for v in self.pl['alert']['values']:
+												if v == self.musicdata[pl['alert']['variable']]:
+													self.alert_check = True
+													break
+										else:
+											self.alert_check = True
+									else:
+										self.alert_check = True
 							except KeyError:
 								pass
 					elif pl['alert']['type'] == "above":

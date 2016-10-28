@@ -208,6 +208,39 @@ ALERT_Volume = {
     ]
 }
 
+ALERT_Play = {
+ 	'name':"Play",
+	'alert': {
+  		'variable': "state",
+		'type': "equals",
+		'values': [ 'play' ]
+		'suppressonstatechange':False,
+		'coolingperiod': 99999
+	},
+	'interruptible':False,
+	'pages': [
+		{
+		'name':"Play",
+		'font':'size5x8.player',
+        	'duration':2,
+        	'lines': [
+          		{
+            		'name':"top",
+            		'format':"\x01 Play",
+            		'justification':"center",
+            		'scroll':False
+          		},
+          		{
+            		'name':"bottom",
+					'format':''
+            		'justification':"left",
+            		'scroll':False
+          		}
+        	]
+      	}
+    ]
+}
+
 ALERT_TempTooHigh = {
  	'name':"TempTooHigh",
 	'alert': {
