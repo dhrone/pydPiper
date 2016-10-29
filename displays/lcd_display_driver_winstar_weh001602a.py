@@ -293,15 +293,17 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		GPIO.output(self.pin_e, False)
 
 	def setsize(self, size):
-		if self.currentsize = size:
+		if self.currentsize == size:
 			return
 		if size > self.sizes:
-			logging.debug("Requested size {0} not supported".format(size))
+			return
 
 		if size == 0:
 			self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+			print "Setting to small"
 		elif size == 1:
-			self.write4bits(0x25, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+			self.write4bits(0x25, False) # Function set for 4 bits, 1 lines, 5x10 font, Western European font table
+			print "Setting to big"
 		else:
 			self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
 			self.currentsize = 0
@@ -406,10 +408,10 @@ if __name__ == '__main__':
 		print "Winstar OLED Display Test"
 
 		# For V3 of the Raspdac
-		#lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 27])
+		#lcd = lcd_display_driver_winstar_weh001602a(2,16,0,7,8,[25, 24, 23, 27])
 
 		# For V2 of the Raspdac
-		lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 15])
+		lcd = lcd_display_driver_winstar_weh001602a(2,16,1,7,8,[25, 24, 23, 15])
 		lcd.clear()
 		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 
@@ -463,7 +465,7 @@ if __name__ == '__main__':
 			lcd.clear()
 			lcd.message("Volume {0}".format(i),0,0)
 			lcd.message("\x06 {0}".format(volbar),1,0)
-			time.sleep(.15)
+			time.sleep(.05)
 
 		time.sleep(2)
 
