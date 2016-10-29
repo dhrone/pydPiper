@@ -99,7 +99,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 
 
 
-	def __init__(self, rows=2, cols=16, rs=7, e=8, datalines=[25, 24, 23, 27]):
+	def __init__(self, rows=2, cols=16, sizes=0, rs=7, e=8, datalines=[25, 24, 23, 27]):
 		# Default arguments are appropriate for Raspdac V3 only!!!
 
 		self.pins_db = datalines
@@ -108,6 +108,8 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 
 		self.rows = rows
 		self.cols = cols
+		self.sizes = sizes
+		self.currentsize = 0
 
 		self.FONTS_SUPPORTED = True
 
@@ -290,6 +292,20 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
 		GPIO.output(self.pin_e, False)
 
+	def setsize(self, size):
+		if self.currentsize = size:
+			return
+		if size > self.sizes:
+			logging.debug("Requested size {0} not supported".format(size))
+
+		if size == 0:
+			self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+		elif size == 1:
+			self.write4bits(0x25, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+		else:
+			self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+			self.currentsize = 0
+
 
 	def loadcustomchars(self, char, fontdata):
 		# Load custom characters
@@ -450,6 +466,11 @@ if __name__ == '__main__':
 			time.sleep(.15)
 
 		time.sleep(2)
+
+		lcd.setsize(1)
+		lcd.msgtest("Big Test")
+		lcd.setsize(0)
+		lcd.msgtest("Small Test")
 
 
 	except KeyboardInterrupt:
