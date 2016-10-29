@@ -298,9 +298,11 @@ class music_controller(threading.Thread):
 		#####  Need to determine how to force a display update on start-up #####
 		self.musicdata_prev['state'] = ""
 
+		lastupdate = 0 # Initialize variable to be used to force updates every second regardless of the receipt of a source update
 		while True:
 
 			updates = { }
+			
 			# Attempt to get an update from the queue
 			try:
 				updates = self.musicqueue.get_nowait()
@@ -363,7 +365,8 @@ class music_controller(threading.Thread):
 			self.musicdatalock = False
 
 			# If anything has changed, update pages
-			if self.musicdata != self.musicdata_prev:
+			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
+				lastupdate = time.time()+1
 				self.updatepages()
 
 				# Update musicdata_prev with anything that has changed
@@ -399,15 +402,14 @@ class music_controller(threading.Thread):
 					# Check to see what type of monitoring to perform
 					if pl['alert']['type'] == "change":
 						if self.musicdata[pl['alert']['variable']] != self.musicdata_prev[pl['alert']['variable']]:
-							self.musicdata_prev[pl['alert']['variable']] = self.musicdata[pl['alert']['variable']]
 							# Some state changes cause variable changes like volume
 							# Check to see if these dependent variable changes
 							# should be suppressed
 							try:
 								if self.musicdata_prev['state'] == state or not pl['alert']['suppressonstatechange']:
-									if 'values' in self.pl['alert']:
-										if len(self.pl['alert']['values']) > 0:
-											for v in self.pl['alert']['values']:
+									if 'values' in pl['alert']:
+										if len(pl['alert']['values']) > 0:
+											for v in pl['alert']['values']:
 												if v == self.musicdata[pl['alert']['variable']]:
 													self.alert_check = True
 													break
@@ -455,6 +457,7 @@ class music_controller(threading.Thread):
 		# Set interruptible value.  If value not present, set to default value of True
 		try:
 			# interruptible is only an override until the page expires.  If page expires, allow page updates to continue.
+			interruptible = self.current_pages['interruptible']
 			if self.page_expires < time.time():
 				interruptible = True
 

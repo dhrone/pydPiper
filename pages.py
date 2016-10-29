@@ -212,27 +212,92 @@ ALERT_Play = {
  	'name':"Play",
 	'alert': {
   		'variable': "state",
-		'type': "equals",
-		'values': [ 'play' ]
+		'type': "change",
+		'values': [ 'play' ],
 		'suppressonstatechange':False,
-		'coolingperiod': 99999
+		'coolingperiod': 0
 	},
 	'interruptible':False,
 	'pages': [
 		{
 		'name':"Play",
 		'font':'size5x8.player',
-        	'duration':2,
+        	'duration':1.5,
         	'lines': [
           		{
             		'name':"top",
             		'format':"\x01 Play",
-            		'justification':"center",
+            		'justification':"left",
             		'scroll':False
           		},
           		{
             		'name':"bottom",
-					'format':''
+			'format':'',
+            		'justification':"left",
+            		'scroll':False
+          		}
+        	]
+      	}
+    ]
+}
+
+ALERT_Stop = {
+ 	'name':"Stop",
+	'alert': {
+  		'variable': "state",
+		'type': "change",
+		'values': [ 'stop' ],
+		'suppressonstatechange':False,
+		'coolingperiod': 0
+	},
+	'interruptible':False,
+	'pages': [
+		{
+		'name':"Stop",
+		'font':'size5x8.player',
+        	'duration':1.5,
+        	'lines': [
+          		{
+            		'name':"top",
+            		'format':"\x00 Stop",
+            		'justification':"left",
+            		'scroll':False
+          		},
+          		{
+            		'name':"bottom",
+			'format':'',
+            		'justification':"left",
+            		'scroll':False
+          		}
+        	]
+      	}
+    ]
+}
+
+ALERT_RepeatOnce = {
+ 	'name':"RepeatOnce",
+	'alert': {
+  		'variable': "single",
+		'type': "change",
+		'suppressonstatechange':False,
+		'coolingperiod': 0
+	},
+	'interruptible':False,
+	'pages': [
+		{
+		'name':"Stop",
+		'font':'size5x8.repeat_once',
+        	'duration':1.5,
+        	'lines': [
+          		{
+            		'name':"top",
+            		'format':"\x00\x01 Repeat",
+            		'justification':"left",
+            		'scroll':False
+          		},
+          		{
+            		'name':"bottom",
+            		'format':"\x02\x03 Once",
             		'justification':"left",
             		'scroll':False
           		}
@@ -276,4 +341,4 @@ ALERT_TempTooHigh = {
 }
 
 
-ALERT_LIST = [ ALERT_Volume, ALERT_TempTooHigh ]
+ALERT_LIST = [ ALERT_Volume, ALERT_Play, ALERT_Stop, ALERT_RepeatOnce, ALERT_TempTooHigh ]

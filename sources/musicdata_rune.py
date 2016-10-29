@@ -125,6 +125,9 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['duration'] = int(status['time']) if 'time' in status else 0
 			self.musicdata['current'] = int(status['elapsed']) if 'elapsed' in status else 0
 			self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
+			self.musicdata['single'] = int(status['single']) if 'single' in status else 0
+			self.musicdata['random'] = int(status['random']) if 'random' in status else 0
+			self.musicdata['repeat'] = int(status['repeat']) if 'random' in status else 0
 			self.musicdata['musicdatasource'] = "Rune"
 
 			if self.musicdata['actPlayer'] == 'Spotify':
