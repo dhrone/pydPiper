@@ -128,6 +128,10 @@ class musicdata_mpd(musicdata.musicdata):
 			self.musicdata['title'] = current_song['title'] if 'title' in current_song else u""
 			self.musicdata['album'] = current_song['album'] if 'album' in current_song else u""
 			self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
+			self.musicdata['repeat'] = int(status['repeat']) if 'repeat' in status else 0
+			self.musicdata['random'] = int(status['random']) if 'random' in status else 0
+			self.musicdata['single'] = int(status['single']) if 'single' in status else 0
+
 
 			# status['time'] is formatted as "current:duration" e.g. "24:243"
 			# split time into current and duration

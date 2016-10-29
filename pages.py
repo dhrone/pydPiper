@@ -279,6 +279,7 @@ ALERT_RepeatOnce = {
 	'alert': {
   		'variable': "single",
 		'type': "change",
+		'values': [ 1 ],
 		'suppressonstatechange':False,
 		'coolingperiod': 0
 	},
@@ -298,6 +299,72 @@ ALERT_RepeatOnce = {
           		{
             		'name':"bottom",
             		'format':"\x02\x03 Once",
+            		'justification':"left",
+            		'scroll':False
+          		}
+        	]
+      	}
+    ]
+}
+
+ALERT_RepeatAll = {
+ 	'name':"RepeatAll",
+	'alert': {
+  		'variable': "repeat",
+		'type': "change",
+		'values': [ 1 ],
+		'suppressonstatechange':False,
+		'coolingperiod': 0
+	},
+	'interruptible':False,
+	'pages': [
+		{
+		'name':"Stop",
+		'font':'size5x8.repeat_all',
+        	'duration':1.5,
+        	'lines': [
+          		{
+            		'name':"top",
+            		'format':"\x00\x01 Repeat",
+            		'justification':"left",
+            		'scroll':False
+          		},
+          		{
+            		'name':"bottom",
+            		'format':"\x02\x03 All",
+            		'justification':"left",
+            		'scroll':False
+          		}
+        	]
+      	}
+    ]
+}
+
+ALERT_Shuffle = {
+ 	'name':"Shuffle",
+	'alert': {
+  		'variable': "random",
+		'type': "change",
+		'values': [ 1 ],
+		'suppressonstatechange':False,
+		'coolingperiod': 0
+	},
+	'interruptible':False,
+	'pages': [
+		{
+		'name':"Stop",
+		'font':'size5x8.shuffle',
+        	'duration':1.5,
+        	'lines': [
+          		{
+            		'name':"top",
+            		'format':"\x00\x01 Random",
+            		'justification':"left",
+            		'scroll':False
+          		},
+          		{
+            		'name':"bottom",
+            		'format':"\x02\x03 Play",
             		'justification':"left",
             		'scroll':False
           		}
@@ -341,4 +408,4 @@ ALERT_TempTooHigh = {
 }
 
 
-ALERT_LIST = [ ALERT_Volume, ALERT_Play, ALERT_Stop, ALERT_RepeatOnce, ALERT_TempTooHigh ]
+ALERT_LIST = [ ALERT_Volume, ALERT_Play, ALERT_Stop, ALERT_RepeatOnce, ALERT_RepeatAll, ALERT_Shuffle, ALERT_TempTooHigh ]

@@ -302,7 +302,7 @@ class music_controller(threading.Thread):
 		while True:
 
 			updates = { }
-			
+
 			# Attempt to get an update from the queue
 			try:
 				updates = self.musicqueue.get_nowait()
@@ -332,7 +332,7 @@ class music_controller(threading.Thread):
 			# If the value of current has changed then update the other related timing variables
 			if self.musicdata['current'] != self.musicdata_prev['current']:
 				if self.musicdata['duration'] > 0:
-					timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%-S", time.gmtime(self.musicdata['duration']))
+					timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['duration']))
 					remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
 
 				else:

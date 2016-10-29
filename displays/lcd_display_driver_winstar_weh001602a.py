@@ -447,7 +447,7 @@ if __name__ == '__main__':
 			lcd.clear()
 			lcd.message("Volume {0}".format(i),0,0)
 			lcd.message("\x06 {0}".format(volbar),1,0)
-			time.sleep(.25)
+			time.sleep(.15)
 
 		time.sleep(2)
 

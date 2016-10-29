@@ -186,9 +186,33 @@ class musicdata_lms(musicdata.musicdata):
 			self.musicdata['artist'] = urllib.unquote(str(self.dataplayer.request("artist ?", True))).decode('utf-8')
 			self.musicdata['title'] = urllib.unquote(str(self.dataplayer.request("title ?", True))).decode('utf-8')
 			self.musicdata['album'] = urllib.unquote(str(self.dataplayer.request("album ?", True))).decode('utf-8')
+
 			self.musicdata['volume'] = self.dataplayer.get_volume()
 			self.musicdata['current'] = int(self.dataplayer.get_time_elapsed())
 			self.musicdata['duration'] = self.dataplayer.get_track_duration()
+
+			playlist_mode = int(self.dataplayer.request("playlist repeat ?", True))
+			if playlist_mode == 0:
+				self.musicdata['single'] = self.musicdata['repeat'] = 0
+			elif playlist_mode == 1:
+				self.musicdata['single'] = 1
+				self.musicdata['repeat'] = 0
+			else playlist_mode = 2:
+				self.musicdata['single'] = 0
+				self.musicdata['repeat'] = 1
+			else:
+				logging.debug("Unexpected value received when querying playlist mode status (e.g. single, repeat)")
+				self.musicdata['single'] = self.musicdata['repeat'] = 0
+
+			shuffle_mode = int(self.dataplayer.request("playlist shuffle ?", True))
+			if shuffle_mode == 0:
+				self.musicdata['random'] = 0
+			elif shuffle_mode == 1 or shuffle_mode == 2:
+				self.musicdata['random'] = 1
+			else:
+				logging.debug("Unexpected value received when querying playlist shuffle status")
+				self.musicdata['random'] =  0
+
 
 			plp = self.musicdata['playlist_position'] = int(self.dataplayer.request("playlist index ?"))+1
 			plc = self.musicdata['playlist_count'] = self.dataplayer.playlist_track_count()
