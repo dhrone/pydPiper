@@ -26,7 +26,7 @@ import lcd_display_driver
 import fonts
 
 
-class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_driver):
+class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 
 	# commands
 	LCD_CLEARDISPLAY = 0x01
@@ -125,47 +125,30 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		GPIO.setup(self.pin_e, GPIO.OUT, initial=GPIO.LOW)
 		GPIO.setup(self.pin_rs, GPIO.OUT, initial=GPIO.LOW)
 
-		# initialization sequence taken from audiophonics.fr site
 		# there is a good writeup on the HD44780 at Wikipedia
 		# https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller
 
-		# Assuming that the display may already be in 4 bit mode
-		# send five 0000 instructions to resync the display
-		for i in range(1,5):
-			self.writeonly4bits(0x00, False)
-
-		self.delayMicroseconds(1000)
-
 		# Now place in 8 bit mode so that we start from a known state
-		# issuing function set twice in case we are in 4 bit mode
-		self.writeonly4bits(0x03, False)
-		self.writeonly4bits(0x03, False)
-
+		self.write4bits(0x33, False)
 		self.delayMicroseconds(1000)
 
-		# placing display in 4 bit mode
-		self.writeonly4bits(0x02, False)
+		# Now place in 4 bit mode 
+		self.write4bits(0x32, False)
 		self.delayMicroseconds(1000)
 
-		# From this point forward, we need to use write4bits function which
-		# implements the two stage write that 4 bit mode requires
-
-		self.write4bits(0x08, False) # Turn display off
-		self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
 		self.write4bits(0x06, False) # Entry Mode set to increment and no shift
-		self.write4bits(0x17, False) # Set to char mode and turn on power
-		self.write4bits(0x01, False) # Clear display and reset cursor
 		self.write4bits(0x0c, False) # Turn on display
+		self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+		self.write4bits(0x01, False) # Clear display and reset cursor
 
 		# Set up parent class.  Note.  This must occur after display has been
 		# initialized as the parent class may attempt to load custom fonts
-		super(lcd_display_driver_winstar_weh001602a, self).__init__(rows,cols)
+		super(lcd_display_driver_hd44780, self).__init__(rows,cols)
 
 
 	def clear(self):
 		# Set cursor back to 0,0
-		self.write4bits(self.LCD_RETURNHOME) # set cursor position to zero
-		self.delayMicroseconds(2000) # this command takes a long time!
+		self.setCursor(0,0)
 
 		# And then clear the screen
 		self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display
@@ -390,15 +373,15 @@ if __name__ == '__main__':
 		print "Winstar OLED Display Test"
 
 		# For V3 of the Raspdac
-		#lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 27])
+		#lcd = lcd_display_driver_hd44780(2,16,7,8,[25, 24, 23, 27])
 
 		# For V2 of the Raspdac
-		lcd = lcd_display_driver_winstar_weh001602a(2,16,21,20,[16, 12, 25, 24])
+		lcd = lcd_display_driver_hd44780(2,16,21,20,[16, 12, 25, 24])
 		lcd.clear()
 		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 
 		lcd.message("Winstar OLED\nPi Powered")
-		time.sleep(2)
+		time.sleep(4)
 
 		lcd.clear()
 
@@ -451,11 +434,6 @@ if __name__ == '__main__':
 
 		time.sleep(2)
 
-		lcd.setsize(1)
-		lcd.msgtest("Big Test")
-		lcd.setsize(0)
-		lcd.msgtest("Small Test")
-
 
 	except KeyboardInterrupt:
 		pass
@@ -465,5 +443,6 @@ if __name__ == '__main__':
 		lcd.message("Goodbye!")
 		time.sleep(2)
 		lcd.clear()
+		time.sleep(.5)
 		GPIO.cleanup()
 		print "Winstar OLED Display Test Complete"
