@@ -368,9 +368,9 @@ if __name__ == '__main__':
 	cols = 16
 	rs = 7
 	e = 8
-	d4 = 26
-	d5 = 25
-	d6 = 24
+	d4 = 25
+	d5 = 24
+	d6 = 23
 	d7 = 27
 
 	for opt, arg in opts:
@@ -396,7 +396,9 @@ if __name__ == '__main__':
 
 	try:
 
+		pins = [d4, d5, d6, d7]
 		print "HD44780 LCD Display Test"
+		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins) 
 
 		lcd = lcd_display_driver_hd44780(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
