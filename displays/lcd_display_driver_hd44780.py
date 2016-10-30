@@ -265,7 +265,7 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 		# Load custom characters
 
 		# Verify that there is room in the display
-		# Only 8 special characters allowed 
+		# Only 8 special characters allowed
 
 		if len(fontdata) + char > 8:
 			logging.debug("Can not load fontset at position {0}.  Not enough room left".format(char))
@@ -363,6 +363,7 @@ if __name__ == '__main__':
 		sys.exit(2)
 
 	# Set defaults
+	# These are for the wiring used by a Raspdac V3
 	rows = 2
 	cols = 16
 	rs = 7

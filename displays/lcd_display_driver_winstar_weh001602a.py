@@ -385,15 +385,50 @@ if __name__ == '__main__':
 
 		return buffer
 
+	import getopt,sys
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
+	except getopt.GetoptError:
+		print 'lcd_display_driver_winstar_weh001602a.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+		sys.exit(2)
+
+	# Set defaults
+	# These are for the wiring used by a Raspdac V3
+	rows = 2
+	cols = 16
+	rs = 7
+	e = 8
+	d4 = 26
+	d5 = 25
+	d6 = 24
+	d7 = 27
+
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'lcd_display_driver_winstar_weh001602a.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+			sys.exit()
+		elif opt in ("-r", "--rows"):
+			rows = int(arg)
+		elif opt in ("-c", "--cols"):
+			cols = int(arg)
+		elif opt in ("--rs"):
+			rs  = int(arg)
+		elif opt in ("--e"):
+			e  = int(arg)
+		elif opt in ("--d4"):
+			d4  = int(arg)
+		elif opt in ("--d5"):
+			d5  = int(arg)
+		elif opt in ("--d6"):
+			d6  = int(arg)
+		elif opt in ("--d7"):
+			d7  = int(arg)
+
 	try:
 
 		print "Winstar OLED Display Test"
+		lcd = lcd_display_driver_winstar_weh001602a(rows,cols,rs,e,[d4, d5, d6, d7])
 
-		# For V3 of the Raspdac
-		#lcd = lcd_display_driver_winstar_weh001602a(2,16,7,8,[25, 24, 23, 27])
-
-		# For V2 of the Raspdac
-		lcd = lcd_display_driver_winstar_weh001602a(2,16,21,20,[16, 12, 25, 24])
 		lcd.clear()
 		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 

@@ -915,6 +915,8 @@ if __name__ == '__main__':
 
 	if driver == "lcd_display_driver_winstar_weh001602a":
 		lcd = displays.lcd_display_driver_winstar_weh001602a.lcd_display_driver_winstar_weh001602a(rows, cols, pin_rs, pin_e, pins_data)
+	elif driver == "lcd_display_driver_hd44780":
+		lcd = displays.lcd_display_driver_hd44780.lcd_display_driver_hd44780(rows, cols, pin_rs, pin_e, pins_data)
 	elif driver == "lcd_display_driver_curses":
 		lcd = displays.lcd_display_driver_curses.lcd_display_driver_curses(rows, cols)
 	else:
