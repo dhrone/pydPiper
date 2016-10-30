@@ -1,14 +1,12 @@
 #!/usr/bin/python
 # coding: UTF-8
 
-# Driver for Winstar WEH001602A 16x2 OLED display on the RPi
+# Driver for HD44780 LCD display on the RPi
 # Written by: Ron Ritchey
 # Derived from Lardconcepts
 # https://gist.github.com/lardconcepts/4947360
 # Which was also drived from Adafruit
 # http://forums.adafruit.com/viewtopic.php?f=8&t=29207&start=15#p163445
-#
-# Ultimately this is a minor variation of the HD44780 controller
 #
 # Useful references
 # General overview of HD44780 style displays
@@ -17,8 +15,6 @@
 # More detail on initialization and timing
 # http://web.alfredstate.edu/weimandn/lcd/lcd_initialization/lcd_initialization_index.html
 #
-# Documenation for the similar Winstar WS0010 board currently available at
-# http://www.picaxe.com/docs/oled.pdf
 
 import time
 import RPi.GPIO as GPIO
@@ -76,8 +72,8 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 		 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,	#32
 		 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,	#48
 		 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,	#64
-		 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,	#80
-		 96, 92, 98, 99,100,101,102,103,104,105,106,107,108,109,110,111,	#96
+		 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 97, 93, 94, 95,	#80
+		 96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,111,	#96
 		112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,  0,	#112
 		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,	#128
 		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,	#144
@@ -86,7 +82,7 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 		 65, 65, 65, 65, 65, 65, 32, 67, 69, 69, 69, 69, 73, 73, 73, 73,	#192
 		 32, 78, 79, 79, 79, 79, 79,235, 32, 85, 85, 85, 85, 89, 32,226,	#208
 		 97, 97, 97, 97,225, 97, 32, 99,101,101,101,101,105,105,105,105,	#224
-		111,238,111,111,111,111,239,253, 32,117,117,117,245,121, 32,221 ]	#240
+		111,238,111,111,111,111,239,253, 32,117,117,117,245,121, 32,121 ]	#240
 
 
 
@@ -104,7 +100,7 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 
 
 		# Sets the values to offset into DDRAM for different display lines
-		self.row_offsets = [ 0x00, 0x40 ]
+		self.row_offsets = [ 0x00, 0x40, 0x14, 0x54 ]
 
 		# Set GPIO pins to handle communications to display
 		GPIO.setmode(GPIO.BCM)
@@ -129,7 +125,7 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 
 		self.write4bits(0x06, False) # Entry Mode set to increment and no shift
 		self.write4bits(0x0c, False) # Turn on display
-		self.write4bits(0x29, False) # Function set for 4 bits, 2 lines, 5x8 font, Western European font table
+		self.write4bits(0x28, False) # Function set for 4 bits, 2 lines, 5x8 font
 		self.write4bits(0x01, False) # Clear display and reset cursor
 
 		# Set up parent class.  Note.  This must occur after display has been
@@ -269,7 +265,7 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 		# Load custom characters
 
 		# Verify that there is room in the display
-		# Only 8 special characters allowed with the Winstar
+		# Only 8 special characters allowed 
 
 		if len(fontdata) + char > 8:
 			logging.debug("Can not load fontset at position {0}.  Not enough room left".format(char))
@@ -359,19 +355,53 @@ if __name__ == '__main__':
 
 		return buffer
 
+	import getopt,sys
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
+	except getopt.GetoptError:
+		print 'lcd_display_driver_hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+		sys.exit(2)
+
+	# Set defaults
+	rows = 2
+	cols = 16
+	rs = 7
+	e = 8
+	d4 = 26
+	d5 = 25
+	d6 = 24
+	d7 = 27
+
+	for opt, arg in opts:
+		if opt == '-h':
+			print 'lcd_display_driver_hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+			sys.exit()
+		elif opt in ("-r", "--rows"):
+			rows = int(arg)
+		elif opt in ("-c", "--cols"):
+			cols = int(arg)
+		elif opt in ("--rs"):
+			rs  = int(arg)
+		elif opt in ("--e"):
+			e  = int(arg)
+		elif opt in ("--d4"):
+			d4  = int(arg)
+		elif opt in ("--d5"):
+			d5  = int(arg)
+		elif opt in ("--d6"):
+			d6  = int(arg)
+		elif opt in ("--d7"):
+			d7  = int(arg)
+
 	try:
 
-		print "Winstar OLED Display Test"
+		print "HD44780 LCD Display Test"
 
-		# For V3 of the Raspdac
-		#lcd = lcd_display_driver_hd44780(2,16,7,8,[25, 24, 23, 27])
-
-		# For V2 of the Raspdac
-		lcd = lcd_display_driver_hd44780(2,16,21,20,[16, 12, 25, 24])
+		lcd = lcd_display_driver_hd44780(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
 		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 
-		lcd.message("Winstar OLED\nPi Powered")
+		lcd.message("HD44780 LCD\nPi Powered")
 		time.sleep(4)
 
 		lcd.clear()
@@ -384,7 +414,6 @@ if __name__ == '__main__':
 		lcd.clear()
 
 		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
-		#for char in accent_maj: print char, ord(char)
 		lcd.message(accent_maj)
 
 		time.sleep(2)
@@ -409,7 +438,7 @@ if __name__ == '__main__':
 		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
 		lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
 
-		for i in range (0,101):
+		for i in range (0,101,5):
 			volbar = volume_bar(i,
 				14,
 				fonts.size5x8.volume.e,
@@ -421,7 +450,7 @@ if __name__ == '__main__':
 			lcd.clear()
 			lcd.message("Volume {0}".format(i),0,0)
 			lcd.message("\x06 {0}".format(volbar),1,0)
-			time.sleep(.05)
+			time.sleep(.25)
 
 		time.sleep(2)
 
@@ -436,4 +465,4 @@ if __name__ == '__main__':
 		lcd.clear()
 		time.sleep(.5)
 		GPIO.cleanup()
-		print "Winstar OLED Display Test Complete"
+		print "LCD Display Test Complete"
