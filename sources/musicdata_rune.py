@@ -115,93 +115,95 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['state'] = u"stop"
 		else:
 			self.musicdata['state'] = u"play"
-			self.musicdata['artist'] = status['currentartist'] if 'currentartist' in status else u""
-			self.musicdata['title'] = status['currentsong'] if 'currentsong' in status else u""
-			self.musicdata['album'] = status['currentalbum'] if 'currentalbum' in status else u""
-			self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
-			self.musicdata['duration'] = int(status['time']) if 'time' in status else 0
-			self.musicdata['current'] = int(status['elapsed']) if 'elapsed' in status else 0
-			self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
-			self.musicdata['single'] = int(status['single']) if 'single' in status else 0
-			self.musicdata['random'] = int(status['random']) if 'random' in status else 0
-			self.musicdata['repeat'] = int(status['repeat']) if 'random' in status else 0
-			self.musicdata['musicdatasource'] = "Rune"
 
-			if self.musicdata['actPlayer'] == 'Spotify':
-				self.musicdata['bitrate'] = "320 kbps"
-				plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
-				plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
+		# Update remaining variables
+		self.musicdata['artist'] = status['currentartist'] if 'currentartist' in status else u""
+		self.musicdata['title'] = status['currentsong'] if 'currentsong' in status else u""
+		self.musicdata['album'] = status['currentalbum'] if 'currentalbum' in status else u""
+		self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
+		self.musicdata['duration'] = int(status['time']) if 'time' in status else 0
+		self.musicdata['current'] = int(status['elapsed']) if 'elapsed' in status else 0
+		self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
+		self.musicdata['single'] = int(status['single']) if 'single' in status else 0
+		self.musicdata['random'] = int(status['random']) if 'random' in status else 0
+		self.musicdata['repeat'] = int(status['repeat']) if 'random' in status else 0
+		self.musicdata['musicdatasource'] = "Rune"
+
+		if self.musicdata['actPlayer'] == 'Spotify':
+			self.musicdata['bitrate'] = "320 kbps"
+			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
+			plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
+			self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
+			self.musicdata['actPlayer'] = "Spotify"
+
+		elif self.musicdata['actPlayer'] == 'MPD':
+			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
+			plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
+
+			self.musicdata['bitrate'] = "{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
+
+			# if radioname is None then this is coming from a playlist (e.g. not streaming)
+			if status.get('radioname') == None:
 				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
-				self.musicdata['actPlayer'] = "Spotify"
-
-			elif self.musicdata['actPlayer'] == 'MPD':
-				plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
-				plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
-
-				self.musicdata['bitrate'] = "{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
-
-				# if radioname is None then this is coming from a playlist (e.g. not streaming)
-				if status.get('radioname') == None:
-					self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
-				else:
-					self.musicdata['playlist_display'] = "Streaming"
-					# if artist is empty, place radioname in artist field
-					if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
-						self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
-
-				audio = status['audio'] if 'audio' in status else None
-				if audio is None:
-					tracktype = u"MPD"
-				else:
-					audio = audio.split(':')
-					if len(audio) == 3:
-						sample = round(float(audio[0])/1000,1)
-					 	bits = audio[1]
-					 	if audio[2] == '1':
-							channels = 'Mono'
-					 	elif audio[2] == '2':
-						 	channels = 'Stereo'
-					 	elif int(audio[2]) > 2:
-						 	channels = 'Multi'
-					 	else:
-						 	channels = u""
-
-				 	 	if channels == u"":
-						 	tracktype = "{0} bit, {1} kHz".format(bits, sample)
-					 	else:
-					 		tracktype = "{0}, {1} bit, {2} kHz".format(channels, bits, sample)
-					else:
-						# If audio information not available just send that MPD is the source
-						tracktype = u"MPD"
-
-				self.musicdata['tracktype'] = tracktype
-
-			elif self.musicdata['actPlayer'] == 'Airplay':
-				self.musicdata['playlist_position'] = 1
-				self.musicdata['playlist_count'] = 1
-				self.musicdata['bitrate'] = ""
-				self.musicdata['tracktype'] = u"Airplay"
-				self.musicdata['playlist_display'] = "Airplay"
-
 			else:
-				# Unexpected player type
-				logging.debug("Unexpected player type {0} discovered".format(actPlayer))
-				self.musicdata['playlist_position'] = 1
-				self.musicdata['playlist_count'] = 1
-				self.musicdata['bitrate'] = ""
-				self.musicdata['tracktype'] = actPlayer
 				self.musicdata['playlist_display'] = "Streaming"
+				# if artist is empty, place radioname in artist field
+				if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
+					self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
 
-			# if duration is not available, then suppress its display
-			if int(self.musicdata['duration']) > 0:
-				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
-				remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
+			audio = status['audio'] if 'audio' in status else None
+			if audio is None:
+				tracktype = u"MPD"
 			else:
-				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
-				remaining = timepos
+				audio = audio.split(':')
+				if len(audio) == 3:
+					sample = round(float(audio[0])/1000,1)
+				 	bits = audio[1]
+				 	if audio[2] == '1':
+						channels = 'Mono'
+				 	elif audio[2] == '2':
+					 	channels = 'Stereo'
+				 	elif int(audio[2]) > 2:
+					 	channels = 'Multi'
+				 	else:
+					 	channels = u""
 
-			self.musicdata['remaining'] = remaining
-			self.musicdata['position'] = timepos
+			 	 	if channels == u"":
+					 	tracktype = "{0} bit, {1} kHz".format(bits, sample)
+				 	else:
+				 		tracktype = "{0}, {1} bit, {2} kHz".format(channels, bits, sample)
+				else:
+					# If audio information not available just send that MPD is the source
+					tracktype = u"MPD"
+
+			self.musicdata['tracktype'] = tracktype
+
+		elif self.musicdata['actPlayer'] == 'Airplay':
+			self.musicdata['playlist_position'] = 1
+			self.musicdata['playlist_count'] = 1
+			self.musicdata['bitrate'] = ""
+			self.musicdata['tracktype'] = u"Airplay"
+			self.musicdata['playlist_display'] = "Airplay"
+
+		else:
+			# Unexpected player type
+			logging.debug("Unexpected player type {0} discovered".format(actPlayer))
+			self.musicdata['playlist_position'] = 1
+			self.musicdata['playlist_count'] = 1
+			self.musicdata['bitrate'] = ""
+			self.musicdata['tracktype'] = actPlayer
+			self.musicdata['playlist_display'] = "Streaming"
+
+		# if duration is not available, then suppress its display
+		if int(self.musicdata['duration']) > 0:
+			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
+			remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
+		else:
+			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
+			remaining = timepos
+
+		self.musicdata['remaining'] = remaining
+		self.musicdata['position'] = timepos
 
 if __name__ == '__main__':
 

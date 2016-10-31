@@ -126,38 +126,39 @@ class musicdata_spop(musicdata.musicdata):
 			self.musicdata['state'] = u"stop"
 		else:
 			self.musicdata['state'] = u"play"
-			self.musicdata['artist'] = status['artist'] if 'artist' in status else u""
-			self.musicdata['title'] = status['title'] if 'title' in status else u""
-			self.musicdata['album'] = status['album'] if 'album' in status else u""
-			self.musicdata['volume'] = 0
-			self.musicdata['duration'] = int(status['duration']/1000) if 'duration' in status else 0
-			self.musicdata['current'] = int(status['position']) if 'position' in status else 0
-			self.musicdata['playlist_position'] = int(status['current_track']) if 'current_track' in status else 0
-			self.musicdata['playlist_count'] = int(status['total_tracks']) if 'total_tracks' in status else 0
 
+		# Update remaining variables
+		self.musicdata['artist'] = status['artist'] if 'artist' in status else u""
+		self.musicdata['title'] = status['title'] if 'title' in status else u""
+		self.musicdata['album'] = status['album'] if 'album' in status else u""
+		self.musicdata['volume'] = 0
+		self.musicdata['duration'] = int(status['duration']/1000) if 'duration' in status else 0
+		self.musicdata['current'] = int(status['position']) if 'position' in status else 0
+		self.musicdata['playlist_position'] = int(status['current_track']) if 'current_track' in status else 0
+		self.musicdata['playlist_count'] = int(status['total_tracks']) if 'total_tracks' in status else 0
 
-			self.musicdata['actPlayer'] = "SPOP"
-			self.musicdata['musicdatasource'] = "SPOP"
+		self.musicdata['actPlayer'] = "SPOP"
+		self.musicdata['musicdatasource'] = "SPOP"
 
-			self.musicdata['bitrate'] = u""
-			self.musicdata['tracktype'] = u""
+		self.musicdata['bitrate'] = u""
+		self.musicdata['tracktype'] = u""
 
-			plp = self.musicdata['playlist_position']
-			plc = self.musicdata['playlist_count']
+		plp = self.musicdata['playlist_position']
+		plc = self.musicdata['playlist_count']
 
-			if self.musicdata['duration'] > 0:
-				timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['duration']))
-				remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
+		if self.musicdata['duration'] > 0:
+			timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['duration']))
+			remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
 
-			else:
-				timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
-				remaining = timepos
+		else:
+			timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
+			remaining = timepos
 
-			self.musicdata['remaining'] = remaining
-			self.musicdata['position'] = timepos
+		self.musicdata['remaining'] = remaining
+		self.musicdata['position'] = timepos
 
-			self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
-			self.musicdata['tracktype'] = u"SPOP"
+		self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
+		self.musicdata['tracktype'] = u"SPOP"
 
 
 if __name__ == '__main__':

@@ -111,27 +111,49 @@ class musicdata_volumio2(musicdata.musicdata):
 					self.socketIO.emit('getQueue','')
 
 			# Update variables based upon received data
+
+			# String values
 			self.musicdata['album'] = status['album'] if 'album' in status else u""
-			self.musicdata['random'] = status['random'] if 'random' in status else False
 			self.musicdata['stream'] = status['stream'] if 'stream' in status else u""
 			self.musicdata['artist'] = status['artist'] if 'artist' in status else u""
-			self.musicdata['mute'] = status['mute'] if 'mute' in status else False
-			seek = status['seek'] if 'seek' in status else 0
-			self.musicdata['current'] = int(float(seek)/1000) if seek !=  None else 0
 			self.musicdata['title'] = status['title'] if 'title' in status else u""
 			self.musicdata['uri'] = status['uri'] if 'uri' in status else u""
-			volume = status['volume'] if 'volume' in status else 0
-			self.musicdata['volume'] = int(volume) if volume != None else 0
-			self.musicdata['repeat'] = status['repeat'] if 'repeat' in status else False
-			duration = status['duration'] if 'duration' in status else 0
-			self.musicdata['duration'] = int(duration) if duration !=  None else 0
-			playlist_position = status['position'] if 'position' in status else 0
-			self.musicdata['playlist_position'] = int(playlist_position)+1 if playlist_position != None else 0
 			self.musicdata['bitdepth'] = status['bitdepth'] if 'bitdepth' in status else u""
-			channels = status['channels'] if 'channels' in status else 0
-			self.musicdata['channels'] = int(channels) if channels != None else 0
 			self.musicdata['tracktype'] = status['trackType'] if 'trackType' in status else u""
 			self.musicdata['samplerate'] = status['samplerate'] if 'samplerate' in status else u""
+
+			# Numeric values
+			try:
+				self.musicdata['current'] = int(float(status['seek'])/1000) if 'seek' in status else 0
+			except:
+				self.musicdata['current'] = 0
+
+			try:
+				self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
+			except:
+				self.musicdata['volume'] = 0
+
+			try:
+				self.musicdata['duration'] = int(status['duration']) if 'duration' in status else 0
+			except:
+				self.musicdata['duration'] = 0
+
+			try:
+				playlist_position = status['position'] if 'position' in status else 0
+				self.musicdata['playlist_position'] = int(status['position'])+1 if 'position' in status else 0
+			except:
+				self.musicdata['playlist_position'] = 0
+
+			try:
+				channels = status['channels'] if 'channels' in status else 0
+				self.musicdata['channels'] = int(status['channels']) if 'channels' in status else 0
+			except:
+				self.musicdata['channels'] = 0
+
+			# Boolean values
+			self.musicdata['repeat'] = status['repeat'] if 'repeat' in status else False
+			self.musicdata['random'] = status['random'] if 'random' in status else False
+			self.musicdata['mute'] = status['mute'] if 'mute' in status else False
 
 			# Fix any potential None values for Numeric or Boolean values
 			if self.musicdata['random'] is None:
