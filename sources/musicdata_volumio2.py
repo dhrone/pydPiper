@@ -103,93 +103,92 @@ class musicdata_volumio2(musicdata.musicdata):
 			if state != "play":
 				self.musicdata['state'] = u"stop"
 			else:
+				self.musicdata['state'] = u"play"
 
 				# Determine if the player is changing to playing.
 				if self.musicdata_prev['state'] != u"play":
-
 					# Request an update of the queue data
 					self.socketIO.emit('getQueue','')
 
-				# Update variables based upon received data
-				self.musicdata['state'] = u"play"
-				self.musicdata['album'] = status['album'] if 'album' in status else u""
-				self.musicdata['random'] = status['random'] if 'random' in status else False
-				self.musicdata['stream'] = status['stream'] if 'stream' in status else u""
-				self.musicdata['artist'] = status['artist'] if 'artist' in status else u""
-				self.musicdata['mute'] = status['mute'] if 'mute' in status else False
-				seek = status['seek'] if 'seek' in status else 0
-				self.musicdata['current'] = int(float(seek)/1000) if seek !=  None else 0
-				self.musicdata['title'] = status['title'] if 'title' in status else u""
-				self.musicdata['uri'] = status['uri'] if 'uri' in status else u""
-				volume = status['volume'] if 'volume' in status else 0
-				self.musicdata['volume'] = int(volume) if volume != None else 0
-				self.musicdata['repeat'] = status['repeat'] if 'repeat' in status else False
-				duration = status['duration'] if 'duration' in status else 0
-				self.musicdata['duration'] = int(duration) if duration !=  None else 0
-				playlist_position = status['position'] if 'position' in status else 0
-				self.musicdata['playlist_position'] = int(playlist_position)+1 if playlist_position != None else 0
-				self.musicdata['bitdepth'] = status['bitdepth'] if 'bitdepth' in status else u""
-				channels = status['channels'] if 'channels' in status else 0
-				self.musicdata['channels'] = int(channels) if channels != None else 0
-				self.musicdata['tracktype'] = status['trackType'] if 'trackType' in status else u""
-				self.musicdata['samplerate'] = status['samplerate'] if 'samplerate' in status else u""
+			# Update variables based upon received data
+			self.musicdata['album'] = status['album'] if 'album' in status else u""
+			self.musicdata['random'] = status['random'] if 'random' in status else False
+			self.musicdata['stream'] = status['stream'] if 'stream' in status else u""
+			self.musicdata['artist'] = status['artist'] if 'artist' in status else u""
+			self.musicdata['mute'] = status['mute'] if 'mute' in status else False
+			seek = status['seek'] if 'seek' in status else 0
+			self.musicdata['current'] = int(float(seek)/1000) if seek !=  None else 0
+			self.musicdata['title'] = status['title'] if 'title' in status else u""
+			self.musicdata['uri'] = status['uri'] if 'uri' in status else u""
+			volume = status['volume'] if 'volume' in status else 0
+			self.musicdata['volume'] = int(volume) if volume != None else 0
+			self.musicdata['repeat'] = status['repeat'] if 'repeat' in status else False
+			duration = status['duration'] if 'duration' in status else 0
+			self.musicdata['duration'] = int(duration) if duration !=  None else 0
+			playlist_position = status['position'] if 'position' in status else 0
+			self.musicdata['playlist_position'] = int(playlist_position)+1 if playlist_position != None else 0
+			self.musicdata['bitdepth'] = status['bitdepth'] if 'bitdepth' in status else u""
+			channels = status['channels'] if 'channels' in status else 0
+			self.musicdata['channels'] = int(channels) if channels != None else 0
+			self.musicdata['tracktype'] = status['trackType'] if 'trackType' in status else u""
+			self.musicdata['samplerate'] = status['samplerate'] if 'samplerate' in status else u""
 
-				# Fix any potential None values for Numeric or Boolean values
-				if self.musicdata['random'] is None:
-					self.musicdata['random'] = False
-				if self.musicdata['mute'] is None:
-					self.musicdata['mute'] = False
-				if self.musicdata['repeat'] is None:
-					self.musicdata['repeat'] = False
-
-
-				# Convert Boolean to ints (to be consistent with other services
-				self.musicdata['random'] = int(self.musicdata['random'])
-				self.musicdata['mute'] = int(self.musicdata['mute'])
-				self.musicdata['repeat'] = int(self.musicdata['repeat'])
-
-				# Check all other items.  If any are None then set to u''
-				for k, v in self.musicdata.iteritems():
-					if v is None:
-						self.musicdata[k] = u''
-
-				if self.musicdata['channels'] == 1:
-					self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Mono').strip()
-				elif self.musicdata['channels'] == 2:
-					self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Stereo').strip()
-				elif self.musicdata['channels'] > 2:
-					self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Multi').strip()
-				if self.musicdata['bitdepth']:
-					self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['bitdepth']).strip()
-				if self.musicdata['samplerate']:
-					self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['samplerate']).strip()
-
-				self.musicdata['musicdatasource'] = "Volumio"
-				self.musicdata['actPlayer'] = status['service'] if 'service' in status else u""
+			# Fix any potential None values for Numeric or Boolean values
+			if self.musicdata['random'] is None:
+				self.musicdata['random'] = False
+			if self.musicdata['mute'] is None:
+				self.musicdata['mute'] = False
+			if self.musicdata['repeat'] is None:
+				self.musicdata['repeat'] = False
 
 
-				# Determine what playlist_display should look like
-				# playlist_count comes from queue messages which are handled in on_queue_response
-				# So, we'll be updating playlist_display both here and there to make sure we have the latest
-				# regardless of whether on_state_response or on_queue_response updates the underlying data
-				plc = self.musicdata['playlist_count'] if 'playlist_count' in self.musicdata else 0
+			# Convert Boolean to ints (to be consistent with other services
+			self.musicdata['random'] = int(self.musicdata['random'])
+			self.musicdata['mute'] = int(self.musicdata['mute'])
+			self.musicdata['repeat'] = int(self.musicdata['repeat'])
 
-				if self.musicdata['stream'].lower() == 'webradio':
-					self.musicdata['playlist_display'] = 'Streaming'
-				else:
-					self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], plc)
+			# Check all other items.  If any are None then set to u''
+			for k, v in self.musicdata.iteritems():
+				if v is None:
+					self.musicdata[k] = u''
+
+			if self.musicdata['channels'] == 1:
+				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Mono').strip()
+			elif self.musicdata['channels'] == 2:
+				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Stereo').strip()
+			elif self.musicdata['channels'] > 2:
+				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Multi').strip()
+			if self.musicdata['bitdepth']:
+				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['bitdepth']).strip()
+			if self.musicdata['samplerate']:
+				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['samplerate']).strip()
+
+			self.musicdata['musicdatasource'] = "Volumio"
+			self.musicdata['actPlayer'] = status['service'] if 'service' in status else u""
 
 
-				# if duration is not available, then suppress its display
-				if int(self.musicdata['duration']) > 0:
-					timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
-					remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
-				else:
-					timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
-					remaining = timepos
+			# Determine what playlist_display should look like
+			# playlist_count comes from queue messages which are handled in on_queue_response
+			# So, we'll be updating playlist_display both here and there to make sure we have the latest
+			# regardless of whether on_state_response or on_queue_response updates the underlying data
+			plc = self.musicdata['playlist_count'] if 'playlist_count' in self.musicdata else 0
 
-				self.musicdata['remaining'] = remaining
-				self.musicdata['position'] = timepos
+			if self.musicdata['stream'].lower() == 'webradio':
+				self.musicdata['playlist_display'] = 'Streaming'
+			else:
+				self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], plc)
+
+
+			# if duration is not available, then suppress its display
+			if int(self.musicdata['duration']) > 0:
+				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
+				remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
+			else:
+				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
+				remaining = timepos
+
+			self.musicdata['remaining'] = remaining
+			self.musicdata['position'] = timepos
 
 		self.sendUpdate()
 
