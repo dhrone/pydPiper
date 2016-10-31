@@ -330,12 +330,13 @@ class music_controller(threading.Thread):
 			for item, value in updates.iteritems():
 				self.musicdata[item] = value
 
+			# Update song timing variables
+			if 'current' in updates:
+				self.musicdata['current'] = updates['current']
+				timesongstarted = time.time() - self.musicdata['current']
+
 			if self.musicdata['state'] == 'play':
-				# Update song timing variables
-				if 'current' in updates:
-					self.musicdata['current'] = updates['current']
-					timesongstarted = time.time() - self.musicdata['current']
-				else:
+				if 'current' not in updates:
 					if timesongstarted > 0:
 						self.musicdata['current'] = int(time.time() - timesongstarted)
 					else:
