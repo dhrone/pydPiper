@@ -4,7 +4,7 @@
 # musicdata service to read from Volumio V2
 # Written by: Ron Ritchey
 
-import json, mpd, threading, logging, Queue, time, sys
+import json, threading, logging, Queue, time, sys
 import musicdata
 from socketIO_client import SocketIO
 
@@ -17,7 +17,7 @@ class musicdata_volumio2(musicdata.musicdata):
 
 
 	def __init__(self, q, server='localhost', port=3000):
-		super(musicdata_mpd, self).__init__(q)
+		super(musicdata_volumio2, self).__init__(q)
 		self.server = server
 		self.port = port
 #		self.pwd = pwd
@@ -71,7 +71,7 @@ class musicdata_volumio2(musicdata.musicdata):
 #						return
 
 	def on_queue_response(self,*args):
-		list = args[0]['list']
+		list = args[0]
 		with self.musicdata_lock:
 			try:
 				self.musicdata['playlist_count'] = len(list)
@@ -85,7 +85,6 @@ class musicdata_volumio2(musicdata.musicdata):
 			# playlist_position comes from status messages which are handled in on_state_response
 			# So, we'll be updating playlist_display both here and there to make sure we have the latest
 			# regardless of whether on_state_response or on_queue_response updates the underlying data
-			musicdata['playlist_count'] if 'playlist_count' in self.musicdata else 0
 
 			if stream == 'webradio':
 				self.musicdata['playlist_display'] = 'Streaming'
@@ -100,7 +99,7 @@ class musicdata_volumio2(musicdata.musicdata):
 		status = args[0]
 
 		with self.musicdata_lock:
-			state = status.get('state')
+			state = status.get('status')
 			if state != "play":
 				self.musicdata['state'] = u"stop"
 			else:
@@ -118,18 +117,35 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata['stream'] = status['stream'] if 'stream' in status else u""
 				self.musicdata['artist'] = status['artist'] if 'artist' in status else u""
 				self.musicdata['mute'] = status['mute'] if 'mute' in status else False
-				self.musicdata['current'] = int(float(status['seek'])/1000) if 'seek' in status else 0
+				seek = status['seek'] if 'seek' in status else 0
+				self.musicdata['current'] = int(float(seek)/1000) if seek !=  None else 0
 				self.musicdata['title'] = status['title'] if 'title' in status else u""
 				self.musicdata['uri'] = status['uri'] if 'uri' in status else u""
-				self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
+				volume = status['volume'] if 'volume' in status else 0
+				self.musicdata['volume'] = int(volume) if volume != None else 0
 				self.musicdata['repeat]'] = status['repeat'] if 'repeat' in status else False
-				self.musicdata['duration'] = int(status['duration']) if 'duration' in status else 0
-				self.musicdata['playlist_position'] = int(status['position'])+1 if 'position' in status else 0
+				duration = status['duration'] if 'duration' in status else 0
+				self.musicdata['duration'] = int(duration) if duration !=  None else 0
+				playlist_position = status['position'] if 'position' in status else 0
+				self.musicdata['playlist_position'] = int(playlist_position)+1 if playlist_position != None else 0
 				self.musicdata['bitdepth'] = status['bitdepth'] if 'bitdepth' in status else u""
-
-				self.musicdata['channels'] = int(status['channels']) if 'channels' in status else 0
+				channels = status['channels'] if 'channels' in status else 0
+				self.musicdata['channels'] = int(channels) if channels != None else 0
 				self.musicdata['tracktype'] = status['trackType'] if 'trackType' in status else u""
 				self.musicdata['samplerate'] = status['samplerate'] if 'samplerate' in status else u""
+
+				# Fix any potential None values for Numeric or Boolean values
+				if self.musicdata['random'] is None:
+					self.musicdata['random'] = False
+				if self.musicdata['mute'] is None:
+					self.musicdata['mute'] = False
+				if self.musicdata['repeat'] is None:
+					self.musicdata['repeat'] = False
+
+				# Check all other items.  If any are None then set to u''
+				for k, v in self.musicdata.iteritems():
+					if v is None:
+						self.musicdata[k] = u''
 
 				if self.musicdata['channels'] == 1:
 					self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Mono').strip()
@@ -145,14 +161,6 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata['musicdatasource'] = "Volumio"
 				self.musicdata['actPlayer'] = status['service'] if 'service' in status else u""
 
-
-				# Fix any potential None values
-				if self.musicdata['random'] is None:
-					self.musicdata['random'] = False
-				if self.musicdata['mute'] is None:
-					self.musicdata['mute'] = False
-				if self.musicdata['repeat'] is None:
-					self.musicdata['repeat'] = False
 
 				# Determine what playlist_display should look like
 				# playlist_count comes from queue messages which are handled in on_queue_response
@@ -186,10 +194,7 @@ if __name__ == '__main__':
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_volumio2.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
-
-	# Suppress MPD libraries INFO messages
-	loggingMPD = logging.getLogger("mpd")
-	loggingMPD.setLevel( logging.WARN )
+	logging.getLogger('socketIO-client').setLevel(logging.WARNING)
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hs:p:",["server=","port="])
@@ -217,10 +222,7 @@ if __name__ == '__main__':
 	mdr = musicdata_volumio2(q, server, port)
 
 	try:
-		start = time.time()
 		while True:
-			if start+120 < time.time():
-				break;
 			try:
 				status = q.get(timeout=1000)
 				q.task_done()
