@@ -198,6 +198,9 @@ class music_controller(threading.Thread):
 		if "rune" in self.servicelist and len(self.servicelist) > 1:
 			logging.critical("Rune service can only be used alone")
 			raise RuntimeError("Rune service can only be used alone")
+		if "volumio" in self.servicelist and len(self.servicelist) > 1:
+			logging.critical("Volumio service can only be used alone")
+			raise RuntimeError("Volumio service can only be used alone")
 
 		musicservice = None
 		for s in self.servicelist:
@@ -211,6 +214,8 @@ class music_controller(threading.Thread):
 					musicservice = sources.musicdata_lms.musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
 				elif s == "rune":
 					musicservice = sources.musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
+				elif s == "volumio":
+					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT)
 				else:
 					logging.debug("Unsupported music service {0} requested".format(s))
 					continue
@@ -870,9 +875,9 @@ if __name__ == '__main__':
 	loggingMPD.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune"])
+		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio"])
 	except getopt.GetoptError:
-		print 'music-display.py -d <driver> --mpd --spop --lms --rune'
+		print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio'
 		sys.exit(2)
 
 	services_list = [ ]
@@ -880,7 +885,7 @@ if __name__ == '__main__':
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'music-display.py -d <driver> --mpd --spop --lms --rune'
+			print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio'
 			sys.exit()
 		elif opt in ("-d", "--driver"):
 			driver = arg
@@ -892,6 +897,8 @@ if __name__ == '__main__':
 			services_list.append('lms')
 		elif opt in ("--rune"):
 			services_list.append('rune')
+		elif opt in ("--volumio"):
+			services_list.append('volumio')
 
 	if len(services_list) == 0:
 		logging.critical("Must have at least one music service to monitor")
