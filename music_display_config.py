@@ -69,5 +69,5 @@ DISPLAY_WIDTH = 16 # the character width of the display
 DISPLAY_HEIGHT = 2 # the number of lines on the display
 DISPLAY_PIN_RS = 7
 DISPLAY_PIN_E =  8
-#DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
-DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
+DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
+#DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2

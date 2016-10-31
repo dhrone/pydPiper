@@ -197,7 +197,7 @@ class musicdata_lms(musicdata.musicdata):
 			elif playlist_mode == 1:
 				self.musicdata['single'] = 1
 				self.musicdata['repeat'] = 0
-			else playlist_mode = 2:
+			elif playlist_mode == 2:
 				self.musicdata['single'] = 0
 				self.musicdata['repeat'] = 1
 			else:

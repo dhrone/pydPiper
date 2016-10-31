@@ -142,6 +142,12 @@ class musicdata_volumio2(musicdata.musicdata):
 				if self.musicdata['repeat'] is None:
 					self.musicdata['repeat'] = False
 
+
+				# Convert Boolean to ints (to be consistent with other services
+				self.musicdata['random'] = int(self.musicdata['random'])
+				self.musicdata['mute'] = int(self.musicdata['mute'])
+				self.musicdata['repeat'] = int(self.musicdata['repeat'])
+
 				# Check all other items.  If any are None then set to u''
 				for k, v in self.musicdata.iteritems():
 					if v is None:

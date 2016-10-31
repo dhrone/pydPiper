@@ -848,7 +848,7 @@ if __name__ == '__main__':
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
 	logging.getLogger().addHandler(logging.StreamHandler())
-
+	logging.getLogger('socketIO-client').setLevel(logging.WARNING)
 
 	# Move unhandled exception messages to log file
 	def handleuncaughtexceptions(exc_type, exc_value, exc_traceback):

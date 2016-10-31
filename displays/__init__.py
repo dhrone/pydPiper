@@ -1,4 +1,4 @@
-__all__ = [ "lcd_display_driver_winstar_weh001602a", "lcd_display_driver_curses", "fonts" ]
+__all__ = [ "lcd_display_driver_winstar_weh001602a", "lcd_display_driver_hd44780", "lcd_display_driver_curses", "fonts" ]
 
 
 try:
@@ -8,6 +8,11 @@ except ImportError:
 
 try:
 	import lcd_display_driver_winstar_weh001602a
+except ImportError:
+	pass
+
+try:
+	import lcd_display_driver_hd44780
 except ImportError:
 	pass
 
