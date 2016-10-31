@@ -8,6 +8,10 @@ import json, mpd, threading, logging, Queue, time, sys, getopt
 import musicdata
 from socketIO_client import SocketIO
 
+
+def on_GetState_response(*args):
+    print "\n\n********* Got Response **************\n\n"
+
 class musicdata_volumio2(musicdata.musicdata):
 
 
@@ -28,74 +32,39 @@ class musicdata_volumio2(musicdata.musicdata):
 		data_t.start()
 
 
-	def connect(self):
-
-		# Try up to 10 times to connect to MPD
-		self.connection_failed = 0
-		self.dataclient = None
-
-		logging.debug("Connecting to Volumio Web Service on {0}:{1}".format(self.server, self.port))
-
-#		while True:
-#			if self.connection_failed >= 10:
-#				logging.debug("Could not connect to Volumio Web Service")
-#				break
-#			try:
-#				# Connection to MPD
-#				client = mpd.MPDClient(use_unicode=True)
-#				client.connect(self.server, self.port)
-#
-#				self.dataclient = client
-#				break
-#			except:
-#				self.dataclient = None
-#				self.connection_failed += 1
-#				time.sleep(1)
-#		if self.dataclient is None:
-#			raise mpd.ConnectionError("Could not connect to MPD")
-#		else:
-#			logging.debug("Connected to MPD")
-
-		# Can not figure out how to get the socketIO_client library to report a failed connection_failed
-		# So this code starts service and just assumes all is well
-		# If you are not getting music data, chances are your server and/or port values are wrong
-
-		with SocketIO(self.server, self.port) as socketIO:
-			self.socketIO = socketIO
-			self.socketIO.on('pushState', self.on_state_response)
-			self.socketIO.on('pushMultiRoomDevices', self.on_multiroomdevices_response)
-
-		logging.debug("Connected to Volumio Web Service")
-
 
 	def run(self):
 
 		logging.debug("Volumio 2 musicdata service starting")
+		logging.debug("Connecting to Volumio Web Service on {0}:{1}".format(self.server, self.port))
 
-		while True:
-#			if self.dataclient is None:
-#				try:
-#					# Try to connect
-#					self.connect()
-#					self.status()
-#					self.sendUpdate()
-#				except mpd.ConnectionError:
-#					self.dataclient = None
-#					# On connection error, sleep 5 and then return to top and try again
-#					time.sleep(5)
-#					continue
+		with SocketIO(self.server, self.port) as socketIO:
+			logging.debug("Connected to Volumio Web Service")
+			self.socketIO = socketIO
+			socketIO.on('pushState', self.on_status_response)
+			socketIO.on('pushMultiRoomDevices', self.on_multiroomdevices_response)
+			socketIO.on('pushQueue', self.on_queue_response)
+			socketIO.emit('GetState', on_GetState_response)
 
-			self.connect()
+			while True:
+				self.socketIO.emit('getQueue', '')
+				self.socketIO.emit('getState', '')
+				self.socketIO.wait_for_callbacks(seconds=5)
 
-			self.socketIO.wait_for_callbacks(seconds=5)
-			socketIO.emit('getState', self.on_response)
-
-
-	def on_response(self, *args):
-		logging.debug("Received web service response")
 
 	def on_multiroomdevices_response(self, *args):
-		return
+		list = args[0]['list']
+
+		for i in range(0, len(list)):
+			for item, value in list[i].iteritems():
+				if item == 'isSelf':
+					if value == True:
+						self.musicdata['actPlayer'] = list[i]['name'] if 'name' in list[i] else u""
+						return
+
+	def on_queue_response(self.*args):
+		list = args[0]['list']
+		self.musicdata['playlist_count'] = len(list)
 
 	def on_status_response(self, *args):
 		# Read musicplayer status and update musicdata
@@ -135,7 +104,7 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['bitdepth']).strip()
 			if self.musicdata['samplerate']:
 				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['samplerate']).strip()
-				
+
 			self.musicdata['musicdatasource'] = status['service'] if 'service' in status else u""
 
 

@@ -53,13 +53,13 @@ class ReadVolumio():
 			socketIO.on('pushState', self.on_state_response)
 			socketIO.on('pushMultiRoomDevices', self.on_multiroomdevices_response)
 			socketIO.on('pushQueue', self.on_queue_response)
-      			socketIO.emit('GetState', on_GetState_response)
+			socketIO.emit('GetState', on_GetState_response)
 
 			while True:
 				self.socketIO.emit('getQueue', '')
 				self.socketIO.emit('getState', '')
 				self.socketIO.wait_for_callbacks(seconds=5)
-		
+
 
 try:
 	rv = ReadVolumio()
@@ -67,5 +67,3 @@ try:
 
 except KeyboardInterrupt:
 	pass
-
-
