@@ -279,7 +279,6 @@ ALERT_RepeatOnce = {
 	'alert': {
   		'variable': "single",
 		'type': "change",
-		'values': [ 1 ],
 		'suppressonstatechange':False,
 		'coolingperiod': 0
 	},
@@ -298,7 +297,8 @@ ALERT_RepeatOnce = {
           		},
           		{
             		'name':"bottom",
-            		'format':"\x02\x03 Once",
+            		'variables': [ "single_onoff" ],
+            		'format':"\x02\x03 Once {0}",
             		'justification':"left",
             		'scroll':False
           		}
@@ -312,7 +312,6 @@ ALERT_RepeatAll = {
 	'alert': {
   		'variable': "repeat",
 		'type': "change",
-		'values': [ 1 ],
 		'suppressonstatechange':False,
 		'coolingperiod': 0
 	},
@@ -331,7 +330,8 @@ ALERT_RepeatAll = {
           		},
           		{
             		'name':"bottom",
-            		'format':"\x02\x03 All",
+            		'variables': [ "repeat_onoff" ],
+            		'format':"\x02\x03 All {0}",
             		'justification':"left",
             		'scroll':False
           		}
@@ -345,7 +345,6 @@ ALERT_Shuffle = {
 	'alert': {
   		'variable': "random",
 		'type': "change",
-		'values': [ 1 ],
 		'suppressonstatechange':False,
 		'coolingperiod': 0
 	},
@@ -364,7 +363,8 @@ ALERT_Shuffle = {
           		},
           		{
             		'name':"bottom",
-            		'format':"\x02\x03 Play",
+            		'variables': [ "random_onoff" ],
+            		'format':"\x02\x03 Play {0}",
             		'justification':"left",
             		'scroll':False
           		}

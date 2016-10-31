@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pythoelf.musicdata['random']
 # coding: UTF-8
 
 # musicctrl service to manage reading from active services
@@ -153,6 +153,12 @@ class music_controller(threading.Thread):
 		'duration':-1,
 		'position':u"",
 		'volume':-1,
+		'repeat': 0,
+		'single': 0,
+		'random': 0,
+		'repeat_onoff': u"Off",
+		'single_onoff': u"Off",
+		'random_onoff': u"Off",
 		'playlist_display':u"",
 		'playlist_position':-1,
 		'playlist_count':-1,
@@ -169,7 +175,7 @@ class music_controller(threading.Thread):
 	}
 
 
-	def __init__(self, displayqueue, servicelist, rows, cols):
+	def __init__(self, displayqueue, servicelist, rows, cols, showupdates=False):
 		threading.Thread.__init__(self)
 
 		self.daemon = True
@@ -179,6 +185,8 @@ class music_controller(threading.Thread):
 		self.rows = rows
 		self.cols = cols
 		self.current_font = ''
+
+		self.showupdates = showupdates
 
 		self.musicdata = self.musicdata_init.copy()
 		self.musicdata_prev = self.musicdata.copy()
@@ -316,7 +324,7 @@ class music_controller(threading.Thread):
 				pass
 
 			while self.musicdatalock:
-				sleep(.001)
+				time.sleep(.001)
 			self.musicdatalock = True
 			# Update musicdata based upon received message
 			for item, value in updates.iteritems():
@@ -347,6 +355,11 @@ class music_controller(threading.Thread):
 				self.musicdata['remaining'] = remaining
 				self.musicdata['position'] = timepos
 
+			# Update onoff variables (random, single, repeat)
+			self.musicdata['random_onoff'] = "On" if self.musicdata['random'] else "Off"
+			self.musicdata['single_onoff'] = "On" if self.musicdata['single'] else "Off"
+			self.musicdata['repeat_onoff'] = "On" if self.musicdata['repeat'] else "Off"
+
 			# if volume has changed, update volume_bar_fancy
 			if 'volume' in updates:
 				self.musicdata['volume_bar_fancy'] = self.volume_bar(self.musicdata['volume'],
@@ -373,6 +386,13 @@ class music_controller(threading.Thread):
 			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
 				lastupdate = time.time()+1
 				self.updatepages()
+
+				if self.showupdates:
+					ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
+					print "Status at time {0}".format(ctime)
+					for item,value in self.musicdata.iteritems():
+						print "    [{0}]={1} {2}".format(item,value, type(value))
+					print "\n"
 
 				# Update musicdata_prev with anything that has changed
 #				if self.musicdata['current'] != self.musicdata_prev['current']:
@@ -695,7 +715,7 @@ class music_controller(threading.Thread):
 				strftime = "%-I:%M %p"
 
 			while self.musicdatalock:
-				sleep(.001)
+				time.sleep(.001)
 			self.musicdatalock = True
 			self.musicdata['current_time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
 			self.musicdatalock = False
@@ -875,17 +895,18 @@ if __name__ == '__main__':
 	loggingMPD.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio"])
+		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio","showupdates"])
 	except getopt.GetoptError:
-		print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio'
+		print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --showupdates'
 		sys.exit(2)
 
 	services_list = [ ]
 	driver = ''
+	showupdates = False
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio'
+			print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --showupdates'
 			sys.exit()
 		elif opt in ("-d", "--driver"):
 			driver = arg
@@ -899,6 +920,8 @@ if __name__ == '__main__':
 			services_list.append('rune')
 		elif opt in ("--volumio"):
 			services_list.append('volumio')
+		elif opt in ("--showupdates"):
+			showupdates = True
 
 	if len(services_list) == 0:
 		logging.critical("Must have at least one music service to monitor")
@@ -934,7 +957,7 @@ if __name__ == '__main__':
 	lcd.message(music_display_config.STARTUP_MSG)
 
 	dc = display_controller(dq, lcd)
-	mc = music_controller(dq, services_list, lcd.rows, lcd.cols)
+	mc = music_controller(dq, services_list, lcd.rows, lcd.cols, showupdates)
 
 	dc.start()
 	mc.start()

@@ -123,7 +123,7 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata['uri'] = status['uri'] if 'uri' in status else u""
 				volume = status['volume'] if 'volume' in status else 0
 				self.musicdata['volume'] = int(volume) if volume != None else 0
-				self.musicdata['repeat]'] = status['repeat'] if 'repeat' in status else False
+				self.musicdata['repeat'] = status['repeat'] if 'repeat' in status else False
 				duration = status['duration'] if 'duration' in status else 0
 				self.musicdata['duration'] = int(duration) if duration !=  None else 0
 				playlist_position = status['position'] if 'position' in status else 0
