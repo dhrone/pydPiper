@@ -197,7 +197,7 @@ class music_controller(threading.Thread):
 		self.initservices()
 
 		# Lock used to prevent simultaneous update of the musicdata dictionary
-		self.musicdatalock = False
+		self.musicdata_lock = threading.Lock()
 
 
 	def initservices(self):
@@ -323,65 +323,63 @@ class music_controller(threading.Thread):
 			except Queue.Empty:
 				pass
 
-			while self.musicdatalock:
-				time.sleep(.001)
-			self.musicdatalock = True
-			# Update musicdata based upon received message
-			for item, value in updates.iteritems():
-				self.musicdata[item] = value
 
-			# Update song timing variables
-			if 'current' in updates:
-				self.musicdata['current'] = updates['current']
-				timesongstarted = time.time() - self.musicdata['current']
+			with self.musicdata_lock:
+				# Update musicdata based upon received message
+				for item, value in updates.iteritems():
+					self.musicdata[item] = value
 
-			if self.musicdata['state'] == 'play':
-				if 'current' not in updates:
-					if timesongstarted > 0:
-						self.musicdata['current'] = int(time.time() - timesongstarted)
+				# Update song timing variables
+				if 'current' in updates:
+					self.musicdata['current'] = updates['current']
+					timesongstarted = time.time() - self.musicdata['current']
+
+				if self.musicdata['state'] == 'play':
+					if 'current' not in updates:
+						if timesongstarted > 0:
+							self.musicdata['current'] = int(time.time() - timesongstarted)
+						else:
+							# We got here without timesongstarted being set which is a problem...
+							logging.debug("Trying to update current song position with an uninitialized start time")
+
+				# If the value of current has changed then update the other related timing variables
+				if self.musicdata['current'] != self.musicdata_prev['current']:
+					if self.musicdata['duration'] > 0:
+						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['duration']))
+						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
+
 					else:
-						# We got here without timesongstarted being set which is a problem...
-						logging.debug("Trying to update current song position with an uninitialized start time")
+						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
+						remaining = timepos
 
-			# If the value of current has changed then update the other related timing variables
-			if self.musicdata['current'] != self.musicdata_prev['current']:
-				if self.musicdata['duration'] > 0:
-					timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['duration']))
-					remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
+					self.musicdata['remaining'] = remaining
+					self.musicdata['position'] = timepos
 
-				else:
-					timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
-					remaining = timepos
+				# Update onoff variables (random, single, repeat)
+				self.musicdata['random_onoff'] = "On" if self.musicdata['random'] else "Off"
+				self.musicdata['single_onoff'] = "On" if self.musicdata['single'] else "Off"
+				self.musicdata['repeat_onoff'] = "On" if self.musicdata['repeat'] else "Off"
 
-				self.musicdata['remaining'] = remaining
-				self.musicdata['position'] = timepos
+				# if volume has changed, update volume_bar_fancy
+				if 'volume' in updates:
+					self.musicdata['volume_bar_fancy'] = self.volume_bar(self.musicdata['volume'],
+					self.cols-2,
+					displays.fonts.size5x8.volume.e,
+					displays.fonts.size5x8.volume.h,
+					displays.fonts.size5x8.volume.f,
+					displays.fonts.size5x8.volume.el,
+					displays.fonts.size5x8.volume.er,
+					displays.fonts.size5x8.volume.hr )
 
-			# Update onoff variables (random, single, repeat)
-			self.musicdata['random_onoff'] = "On" if self.musicdata['random'] else "Off"
-			self.musicdata['single_onoff'] = "On" if self.musicdata['single'] else "Off"
-			self.musicdata['repeat_onoff'] = "On" if self.musicdata['repeat'] else "Off"
+					self.musicdata['volume_bar_big'] = self.volume_bar(self.musicdata['volume'],
+					self.cols-3,
+					displays.fonts.size5x8.speaker.e,
+					displays.fonts.size5x8.speaker.h,
+					displays.fonts.size5x8.speaker.f,
+					displays.fonts.size5x8.speaker.el,
+					displays.fonts.size5x8.speaker.er,
+					displays.fonts.size5x8.speaker.hr )
 
-			# if volume has changed, update volume_bar_fancy
-			if 'volume' in updates:
-				self.musicdata['volume_bar_fancy'] = self.volume_bar(self.musicdata['volume'],
-				self.cols-2,
-				displays.fonts.size5x8.volume.e,
-				displays.fonts.size5x8.volume.h,
-				displays.fonts.size5x8.volume.f,
-				displays.fonts.size5x8.volume.el,
-				displays.fonts.size5x8.volume.er,
-				displays.fonts.size5x8.volume.hr )
-
-				self.musicdata['volume_bar_big'] = self.volume_bar(self.musicdata['volume'],
-				self.cols-3,
-				displays.fonts.size5x8.speaker.e,
-				displays.fonts.size5x8.speaker.h,
-				displays.fonts.size5x8.speaker.f,
-				displays.fonts.size5x8.speaker.el,
-				displays.fonts.size5x8.speaker.er,
-				displays.fonts.size5x8.speaker.hr )
-
-			self.musicdatalock = False
 
 			# If anything has changed, update pages
 			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
@@ -715,11 +713,8 @@ class music_controller(threading.Thread):
 				# Use 12 hour clock as default
 				strftime = "%-I:%M %p"
 
-			while self.musicdatalock:
-				time.sleep(.001)
-			self.musicdatalock = True
-			self.musicdata['current_time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
-			self.musicdatalock = False
+			with self.musicdata_lock:
+				self.musicdata['current_time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
 
 			format = current_line['format']
 
@@ -845,17 +840,14 @@ class music_controller(threading.Thread):
 				avail = 0
 				availp = 0
 
-			while self.musicdatalock:
-				time.sleep(.001)
-			self.musicdatalock = True
-			self.musicdata['current_tempc'] = tempc
-			self.musicdata['current_tempf'] = tempf
-			self.musicdata['disk_avail'] = avail
-			self.musicdata['disk_availp'] = availp
-			self.musicdata['current_time'] = current_time
-			self.musicdata['current_time_sec'] = current_time
-			self.musicdata['current_ip'] = current_ip
-			self.musicdatalock = False
+			with self.musicdata_lock:
+				self.musicdata['current_tempc'] = tempc
+				self.musicdata['current_tempf'] = tempf
+				self.musicdata['disk_avail'] = avail
+				self.musicdata['disk_availp'] = availp
+				self.musicdata['current_time'] = current_time
+				self.musicdata['current_time_sec'] = current_time
+				self.musicdata['current_ip'] = current_ip
 
 			# Read environmentals every 20 seconds
 			time.sleep(20)
