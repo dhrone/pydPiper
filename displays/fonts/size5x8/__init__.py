@@ -1,4 +1,4 @@
-__all__ = [ "player", "repeat_all", "repeat_once", "shuffle", "speaker", "volume", "clock" ]
+__all__ = [ "player", "repeat_all", "repeat_once", "shuffle", "speaker", "volume", "system" ]
 
 
 try:
@@ -32,7 +32,7 @@ except ImportError:
 	pass
 
 try:
-	import clock
+	import system
 except ImportError:
 	pass
 

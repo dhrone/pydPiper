@@ -50,13 +50,14 @@ PAGES_Stop = {
     [
       {
         'name':"Ready",
+	'font':'size5x8.system',
         'duration':15,
         'lines': [
           {
             'name':"1",
             'variables': [ "current_time_formatted" ],
             'strftime':"%A %-I:%M %p",
-            'format':"CL   {0}",
+            'format':"\x00\x01 {0}",
             'justification':"left",
             'scroll':False
           },
@@ -64,21 +65,18 @@ PAGES_Stop = {
             'name':"2",
             'variables': [ "current_time_formatted" ],
             'strftime':"%B %-d %Y",
-            'format':"LK   {0}",
+            'format':"\x02\x03 {0}",
             'justification':"left",
             'scroll':False
           },
           {
             'name':"3",
-            'variables': [ "current_tempf" ],
-            'format':"Temp {0}",
-            'justification':"left",
-            'scroll':False
+            'format':"",
           },
           {
             'name':"4",
-            'variables': [ "disk_availp" ],
-            'format':"Disk Space: {0}% full",
+            'variables': [ "current_tempf", "disk_availp" ],
+            'format':"\x04\x05 {0}  \x06\x07 {1}%",
             'justification':"left",
             'scroll':False
           }

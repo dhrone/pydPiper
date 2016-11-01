@@ -16,8 +16,8 @@ def map(fontpkgname):
 		return size5x8.speaker.fontpkg
 	elif fontpkgname == 'size5x8.volume':
 		return size5x8.volume.fontpkg
-	elif fontpkgname == 'size5x8.clock':
-		return size5x8.clock.fontpkg
+	elif fontpkgname == 'size5x8.system':
+		return size5x8.system.fontpkg
 	elif fontpkgname == 'default':
 		return size5x8.player.fontpkg
 	else:
