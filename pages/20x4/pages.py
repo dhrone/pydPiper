@@ -6,34 +6,115 @@ PAGES_Play = {
   'pages':
     [
       {
-        'name':"AlbumArtistTitle",
+        'name':"Artist",
         'duration':8,
 		'hidewhenempty':'any',
-        'hidewhenemptyvars': [ "title" ],
+        'hidewhenemptyvars': [ "artist" ],
         'lines': [
           {
-            'name':"1",
-            'variables': [ "album" ],
-            'format':"{0}",
-            'justification':"left",
-            'scroll':True
-          },
-          {
-            'name':"2",
+            'name':"top",
             'variables': [ "artist" ],
             'format':"{0}",
             'justification':"left",
             'scroll':True
           },
           {
-            'name':"3",
+            'name':"bottom",
+            'variables': [ "playlist_display", "position" ],
+            'format':"{0} {1}",
+            'justification':"left",
+            'scroll':False
+          }
+        ]
+      },
+      {
+        'name':"Blank",
+        'duration':0.25,
+        'lines': [
+          {
+            'name':"top",
+            'format':"",
+          },
+          {
+            'name':"bottom",
+            'variables': [ "playlist_display", "position" ],
+            'format':"{0} {1}",
+            'justification':"left",
+            'scroll':False
+          }
+        ]
+      },
+      {
+        'name':"Album",
+        'duration':8,
+		'hidewhenempty':'any',
+        'hidewhenemptyvars': [ "album" ],
+        'lines': [
+          {
+            'name':"top",
+            'variables': [ "album" ],
+            'format':"{0}",
+            'justification':"left",
+            'scroll':True
+          },
+          {
+            'name':"bottom",
+            'variables': [ "playlist_display", "position" ],
+            'format':"{0} {1}",
+            'justification':"left",
+            'scroll':False
+          }
+        ]
+      },
+      {
+        'name':"Blank",
+        'duration':0.25,
+        'lines': [
+          {
+            'name':"top",
+            'format':"",
+          },
+          {
+            'name':"bottom",
+            'variables': [ "playlist_display", "position" ],
+            'format':"{0} {1}",
+            'justification':"left",
+            'scroll':False
+          }
+        ]
+      },
+      {
+        'name':"Title",
+        'duration':10,
+		'hidewhenempty':'any',
+        'hidewhenemptyvars': [ "title" ],
+        'lines': [
+          {
+            'name':"top",
             'variables': [ "title" ],
             'format':"{0}",
             'justification':"left",
             'scroll':True
           },
           {
-            'name':"4",
+            'name':"bottom",
+            'variables': [ "playlist_display", "position" ],
+            'format':"{0} {1}",
+            'justification':"left",
+            'scroll':False
+          }
+        ]
+      },
+      {
+        'name':"Blank",
+        'duration':0.25,
+        'lines': [
+          {
+            'name':"top",
+            'format':"",
+          },
+          {
+            'name':"bottom",
             'variables': [ "playlist_display", "position" ],
             'format':"{0} {1}",
             'justification':"left",
@@ -53,33 +134,39 @@ PAGES_Stop = {
         'duration':15,
         'lines': [
           {
-            'name':"1",
+            'name':"top",
+            'variables': [ ],
+            'format':"Ready",
+            'justification':"center",
+            'scroll':False
+          },
+          {
+            'name':"bottom",
             'variables': [ "current_time_formatted" ],
-            'strftime':"%A %-I:%M %p",
-            'format':"CL   {0}",
-            'justification':"left",
+            'strftime':"%a %b %-d %H:%M",
+            'format':"{0}",
+            'justification':"center",
             'scroll':False
+          }
+        ]
+      },
+      {
+        'name':"SYSTEMVARS",
+        'duration':10,
+        'lines': [
+          {
+            'name':"top",
+            'variables': [ "current_tempc", "disk_availp" ],
+            'format':"Temp: {0}c / Disk {1}% full",
+            'justification':"left",
+            'scroll':True
           },
           {
-            'name':"2",
+            'name':"bottom",
             'variables': [ "current_time_formatted" ],
-            'strftime':"%B %-d %Y",
-            'format':"LK   {0}",
-            'justification':"left",
-            'scroll':False
-          },
-          {
-            'name':"3",
-            'variables': [ "current_tempf" ],
-            'format':"Temp {0}",
-            'justification':"left",
-            'scroll':False
-          },
-          {
-            'name':"4",
-            'variables': [ "disk_availp" ],
-            'format':"Disk Space: {0}% full",
-            'justification':"left",
+            'strftime':"%a %b %-d %H:%M",
+            'format':"{0}",
+            'justification':"center",
             'scroll':False
           }
         ]
@@ -103,26 +190,18 @@ ALERT_Volume = {
         	'duration':2,
         	'lines': [
           		{
-            		'name':"1",
-            		'format':"",
-          		},
-          		{
-            		'name':"2",
+            		'name':"top",
             		'variables': ["volume" ],
             		'format':"\x00\x01   Volume {0}",
             		'justification':"left",
             		'scroll':False
           		},
           		{
-            		'name':"3",
+            		'name':"bottom",
             		'variables': [ "volume_bar_big" ],
             		'format':"\x02\x03 {0}",
             		'justification':"left",
             		'scroll':False
-          		},
-          		{
-            		'name':"4",
-            		'format':"",
           		}
         	]
       	}
@@ -146,22 +225,16 @@ ALERT_Play = {
         	'duration':1.5,
         	'lines': [
           		{
-            		'name':"1",
-            		'format':"",
-          		},
-          		{
-            		'name':"2",
+            		'name':"top",
             		'format':"\x01 Play",
-            		'justification':"center",
+            		'justification':"left",
             		'scroll':False
           		},
           		{
-            		'name':"3",
+            		'name':"bottom",
 			'format':'',
-          		},
-          		{
-            		'name':"4",
-			'format':'',
+            		'justification':"left",
+            		'scroll':False
           		}
         	]
       	}
@@ -185,25 +258,17 @@ ALERT_Stop = {
         	'duration':1.5,
         	'lines': [
           		{
-            		'name':"1",
-			'format':'',
-          		},
-          		{
-            		'name':"2",
+            		'name':"top",
             		'format':"\x00 Stop",
-            		'justification':"center",
-            		'scroll':False
-          		},
-          		{
-            		'name':"3",
-			'format':'',
             		'justification':"left",
             		'scroll':False
           		},
           		{
-            		'name':"4",
+            		'name':"bottom",
 			'format':'',
-          		},
+            		'justification':"left",
+            		'scroll':False
+          		}
         	]
       	}
     ]
