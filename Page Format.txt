@@ -1,3 +1,80 @@
+The Music-Display program allows the display to be configured to show content in a more flexible way.	Each state of the system (e.g. Play, Stop) has a PageList which is a collection of pages, each of which determines what to show, and how long to show it.	While in a particular state, the system walks through each page of a PageList, displaying the page for the duration specified within the Page definition.	Here is a quick description of each part of a PageList.
+
+PageList consists of...
+	name: The name of the page list.
+	cols: The width of display this pagelist is designed for
+	rows: The number of lines this pagelist is designed for
+	alert: An alert directive (if the page is used to display an alert message)
+	interruptible: Whether the page is interruptible or not (default is True).	Mainly used for alert messages.
+	pages: An array of Pages (in to be displayed order)
+
+	An alert directive consists of ...
+		variable: The variable to monitor
+		type: The type of monitoring (change, above, below, range)
+		suppressonstatechange: Whether the monitoring of a variable should be ignored if the state of the system changes (e.g. Play -> Stop sets volume to 0)
+		values: An array of values to compare against.	Should be one var for above/below, and two for range.	If a value is present for change,
+		the alert is only triggered if both the variable has changed and it equals the value provided.
+		coolingperiod: The amount of time that must be waited for the alert can be displayed again.
+
+A Page consists of...
+	name: The name of the page
+	duration: Length of time to display the page
+	font: the name of a font package to load in order to display the page
+	hidewhenempty: Directive to hide page if variables are empty (True or all, any, False)
+								 If set to all or True, all variables must by empty for the page to be skipped
+								 If set to any, any empty variable will cause the page to be skipped
+								 Any other value will force the page to be displayed regardless of variable value
+	hidewhenemptyvars: A list of variables to test for empty if hidewhenempty is set
+	lines: An array of lines to display on the page
+
+A line consists of ...
+	name: The name of the line
+	segments: An array of segments that make up the line
+
+A segment consists of ...
+	variable: An array of variables in to-be-displayed order
+	start: the character position on the display that the segment should be displayed starting on
+	end: the character position on the display that the segment that the segment must end by
+	format: A format string e.g "Artist {0} / Title {1}".
+	strftime: A strftime style format string used to format current_time_formatted (see strftime.org for examples)
+	justification: How should the segment be justified ("left", "right", "center")?
+	scroll:	Sets whether scrolling is enabled for the segment or not (True, False).
+
+ALERT_LIST consists of...
+	PageLists: An array of Pages each of which must have an alert directive
+
+To create a new PageList for a particular state, you modify what is assigned to the PAGE list variables (PAGE_Play, PAGE_Stop).	Note that PageLists use a combination of dictionary and array structures.	Be careful to make sure that you follow the formatting carefully so that the PageList structure can still be parsed.
+
+The variable values that you use within your PageLists must be returned by the status functions.	Currently the following variables are supported.
+	'state' - The current state of the system (e.g. play, stop)
+	'artist' - The name of the artist for the song that is currently playing
+	'title' - The name of the song that is currently playing
+	'album' - The name of the album that is currently playing
+	'current' - The amount of time the current song has been playing in seconds
+	'duration' - The length of the current song in seconds
+	'position' - A formatted combination of current and duration (e.g. ##:##/##:##)
+	'volume' - The current volume of the player
+	'playlist_position' - The number of the current track in the play list
+	'playlist_count' - The number of tracks currently in the play list
+	'playlist_display' - A formatted combination of playlist_count and playlist_display (e.g. ##/##)
+											 Displays "Streaming" if content is a streaming source without playlist information
+	'bitrate' - The bitrate of the current track
+	'type' - The encoding type of the current track (e.g. FLAC, MP3)
+	'tempc' - Current system temperature in celsius
+	'tempf' - Current system temperature in fahrenheit
+	'disk_avail' - Amount of bytes current left on root partition
+	'disk_availp' - Percentage of disk used on root partition
+	'time' - The current local time (assuming TIMEZONE is set correctly)
+	'time_formatted - The current local time formatted using strftime variable (if present)
+	'date' - The current date (assuming TIMEZONE is set correctly)
+	'ip' - The current IP address of the system
+
+For Play and Stop states, the system walks through each of the Pages in the current state's page file, displaying page each for that pages duration.	If the state of the system changes while a Page is being displayed, the display immediately switches to display the first page of the new state.
+
+Alerting operates differently.	Each PageList in the ALERT_LIST represents a timely or urgent message that may need to be displayed based upon a condition that the specific PageList in the Alert_LIST is monitoring.	This is specified in the alert directive for that particular PageList.	If the alert condition is met, that PageList is immediately displayed.	Normally, there is only one page per PageList in the ALERT_LIST and that Page will be set to not be interruptible.	This means that if the system state changes while an alert message is being displayed, the display will not update to show the new status until the alert page duration expires. To prevent an alert from monopolizing the display, there is also a CoolingPeriod value that can be set that will not allow the alert to occur even if the monitoring condition is still met.	The default CoolingPeriod is set by the COOLINGPERIOD variable.
+
+Example
+
 PAGES_Play = {
 	'name':"Play",
 	'cols':20,
@@ -25,7 +102,6 @@ PAGES_Play = {
 								'format':"{0}",
 								'justification':"left",
 								'scroll':True
-								'scrolldirection':'left'
 							}
 						]
 					},
@@ -44,7 +120,6 @@ PAGES_Play = {
 								'format':"{0}",
 								'justification':"left",
 								'scroll':True
-								'scrolldirection':'right'
 							}
 						]
 					},

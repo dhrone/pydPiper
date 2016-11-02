@@ -21,8 +21,80 @@ class display_controller(threading.Thread):
 		self.displayqueue = displayqueue
 		self.lcd = lcd
 
+		self.current_lines = [ ]
+
 		# Load default font
 		self.lcd.switchcustomchars(displays.fonts.map.map('default'))
+
+
+	def scrollwindow(self, segment, window, direction, resetscrollposition=False):
+		# segment - The segment to compute a window for
+		# width - the fixed size of the window.  The value will be truncated if smaller or padded if smaller.
+		# direction - 	Which direction to scroll.  Values are left, right, or bounce.
+		# 				Bounce scrolls to the left until the end of value reaches the right edge of the display width.
+		#				It then reverses the scroll until the start of value reaches the left edge of the display
+
+		if resetscrollposition:
+			segment['scrollposition'] = 0
+
+		# Get current scroll position
+		sp = segment['scrollposition'] if 'scrollposition' in segment else 0
+
+		value = segment['value']
+		blank = music_display_config.scrollblankwidth
+
+		# If a value value is sent to scroll window, reset the segments scroll position
+#		if posinit >= 0:
+#			segment['scrollposition'] = posinit if posinit < len(value)+blank else 0
+
+		# Left scroll
+		if len(value)-sp+blank >= window:
+			buffer = "{0:<{1}}".format(value[sp:],window)[0:window]
+		else: #len(value)-sp+blank < window:
+			buffer = "{0:<{1}}{2}".format(value[sp:],len(value)-sp+blank,value)[0:window]
+
+		if direction == 'left' or (direction == 'bounce' and cbounce == 'left'):
+			if sp < len(value)+blank-1:
+				sp += 1
+			else:
+				cbounce = 'right'
+				if direction == 'left':
+					sp = 0
+		elif direction =='right' or (direction == 'bounce' and cbounce == 'right'):
+			if sp > 0:
+				sp -= 1
+			else:
+				cbounce = 'left'
+				if direction == 'right':
+					sp = len(value)+blank-1
+
+		# Store current scroll position
+		segment['scrollposition'] = sp
+
+		# Return part of segment to display based upon scroll position
+		return buffer
+
+
+	def buildline(self, segments, resetscrollpositions = False):
+
+		buffer = ''
+		pos = 0
+
+		for segment in segments:
+			start = segment['start'] if 'start' in segment else 0
+			end = segment['end'] if 'end' in segment else music_display_config.DISPLAY_WIDTH
+			scroll = segment['scroll'] if 'scroll' in segment else False
+			window = end-start
+			if start > pos:
+				buffer += "{0:<{1}}".format('',start-pos)
+
+			if scroll:
+				direction = segment['scrolldirection'] if 'scrolldirection' in segment else 'left'
+				buffer += scrollwindow(segment, window, direction, resetscrollpositions)
+			else:
+				buffer += segment['value'][0:window]
+			pos = end
+		return buffer
 
 	def run(self):
 
@@ -42,96 +114,91 @@ class display_controller(threading.Thread):
 			if qitem['type'] == 'font':
 				self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
 			elif qitem['type'] == 'display':
-				item = qitem['lines']
+				lines_value_current = qitem['lines']
 				break
 			else:
 				logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
 
 		self.lcd.clear()
 
-		for i in range(len(item)):
-		  lines[i] = item[i]
-		  self.lcd.message( lines[i][0:self.lcd.cols], i, 0 )
+		lines_value_prev = lines_values_current.copy()
+		linebuffers = [ ]
 
-		prev_time = time.time()
+		# Zero values so that display gets appropriately initialized
+		for line in lines_value_prev:
+			linebuffers.append('')
+			for segment in line:
+				segment['value'] = ''
+
+		# if the pages file doesn't provide enough lines for the display
+		# fill remaining lines with blanks
+		for i in range(len(lines_value_prev)-1, self.rows):
+			linebuffers.append('')
+			self.lcd.message('',i,0)
+
+
+		# Immediately print out the initial display state
+#		for i in range(len(item)):
+#			lines[i] = item[i]
+#			self.lcd.message( lines[i][0:self.lcd.cols], i, 0 )
+
+		# Initialize the time display got updated
+		time_prev = time.time()
 
 		while True:
-			short_lines=True
-
 			# Smooth animation
-			if time.time() - prev_time < music_display_config.ANIMATION_SMOOTHING:
-				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-prev_time))
+			if time.time() - time_prev < music_display_config.ANIMATION_SMOOTHING:
+				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-time_prev))
 			try:
-				# Determine if any lines have been updated and if yes display them
-				for i in range(len(item)):
+				time_prev = time.time()
 
-					# Convert from Unicode into UTF-8
-					#item[i] = item[i].encode("utf-8")
-					# Check if line is longer than display
-					if len(item[i])>self.lcd.cols:
-						short_lines = False
+				# Determine if any lines have been updated and if yes udpate buffer for them
+				for linenr in range(0,len(lines_value_current)):
 
-					# Check if line has been updated
-					if lines[i] != item[i]:
-						# Create a line to print that is at least as long as the existing line
-						# This is to erase any extraneous characters on the display
-						buf = item[i].ljust(len(lines[i]))
+					line_changed = False
 
-						# Reset cursor to beginning of changed line and then display the change
-						#self.lcd.setCursor(0,i)
-						self.lcd.message(buf[0:self.lcd.cols], i, 0)
-
-						# Update the local line data and reset the column position for the line
-						lines[i] = item[i]
-						columns[i] = 0
-
-				# If lines all fit on display then we can wait for new input
-				if short_lines:
-					while True:
-						qitem=self.displayqueue.get()
-						self.displayqueue.task_done()
-
-						if qitem['type'] == 'font':
-							self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
-						elif qitem['type'] == 'display':
-							item = qitem['lines']
+					for segnr in range(0,len(lines_value_current[linenr])):
+						if lines_value_current[linenr][segnr]['value'] != lines_value_prev[linenr][segnr]['value']:
+							line_changed = True
 							break
-						else:
-							logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
 
-				else:
-					# Update all long lines
-					for i in range(len(lines)):
-						if len(lines[i])>self.lcd.cols:
-							buf = "%s          %s" % (lines[i], lines[i][0:self.lcd.cols-1])
-							#buf = "{}		{}".format(lines[i],lines[i][0:DISPLAY_WIDTH-1])
-							#buf = lines[i]+"		  "+lines[i][0:c]
+					if line_changed:
+						# Compute a new buffer for line
+						buffer = buildline(lines_value_current[linenr], True)
+					else:
+						buffer = buildline(lines_value_current[linenr])
 
-							columns[i] = columns[i]+1
-							if columns[i] > len(buf)-self.lcd.cols:
-								columns[i]=0
+					# If actual content of line changed send update to display
+					if linebuffers[linenr] != buffer:
+						self.lcd.message(buffer,linenr,0)
+						linebuffers[linenr] = buffer
 
-							#self.lcd.setCursor(0,i)
+				# if we need to erase content from lines that are not currently
+				# being used, create an empty string the same length as the last value
+				# and send it to the display to erase the previous content
+				for i in range(len(lines_value_current)-1,self.rows):
+					if linebuffers[i] != '':
+						self.lcd.message("{0:<{1}}".format('',len(linebuffers[i])))
+						linebuffers[i] == ''
 
-							# Print the portion of the string that is currently visible
-							self.lcd.message(buf[columns[i]:columns[i]+self.lcd.cols], i, 0)
-					# Since we have to continue updating the display, check for a new update but don't block
-					while True:
-						qitem=self.displayqueue.get_nowait()
-						self.displayqueue.task_done()
+				# Update prev values with current values
+				lines_value_prev = lines_value_current.copy()
 
-						if qitem['type'] == 'font':
-							self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
-						elif qitem['type'] == 'display':
-							item = qitem['lines']
-							break
-						else:
-							logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
+				# Attempt to get new value from queue
+				while True:
+					qitem=self.displayqueue.get_nowait()
+					self.displayqueue.task_done()
 
+					if qitem['type'] == 'font':
+						self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
+					elif qitem['type'] == 'display':
+						lines_value_current = qitem['lines']
+						break
+					else:
+						logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
 
-				prev_time = time.time()
+			# if no item available then...
 			except Queue.Empty:
-				prev_time = time.time()
 				pass
 
 class music_controller(threading.Thread):
@@ -676,99 +743,155 @@ class music_controller(threading.Thread):
 				# Send font update to the queue
 				self.displayqueue.put(dispval)
 
-		# Now display the lines from the current page
+		# Now build the display
+
+		# The data structure for the display is an array of lines with each line made up of an array of segments
+		# Each segment is a dict that defines what goes into the segment and where to display it on the line
+		# E.g.
+		#  lines = [
+		#	[ 	{ 'start':0, 'end':7, 'value':"Artist:" },
+		#		{ 'start':8, 'end':20, 'value':"Prince and the Revolutions", 'scroll':True, 'justification':'left' }
+		#	],
+		#	[ 	{ 'start':0, 'end':7, 'value':"Title:" },
+		#		{ 'start':8, 'end':20, 'value':"Purple Rain", 'scroll':True, 'justification':'left' }
+		#	],
+		#]
+
 		lines = []
 		for i in range(len(current_page['lines'])):
+			pagename = current_page['name'] if 'name' in current_page else "unknown"
 
 			# make sure curlines is big enough.  curlines is used to detect when the display has changed
 			# if not expanded here it will cause an IndexError later if it has not already been initialized
-			while len(self.curlines) < len(current_page['lines']):
-				self.curlines.append("")
+#			while len(self.curlines) < len(current_page['lines']):
+#				self.curlines.append("")
 
 			# make sure hesitate_expires is big enough as well
-			while len(self.hesitate_expires) < len(current_page['lines']):
-				self.hesitate_expires.append(0)
+#			while len(self.hesitate_expires) < len(current_page['lines']):
+#				self.hesitate_expires.append(0)
+
+			segments = []
 
 			current_line = current_page['lines'][i]
-			try:
-				justification = current_line['justification']
-			except KeyError:
-				justification = "left"
 
-			try:
-				scroll = current_line['scroll']
-			except KeyError:
-				scroll = False
+			segment_start = 0
+			for j in range(o, len(current_line['segments']))
+				current_segment = current_line['segments'][j]
+				segname = current_segment['name'] if 'name' in current_segment else "unknown"
 
-			try:
-				variables = current_line['variables']
-			except KeyError:
-				variables = []
+				# Initialize segment with values from page template
+				segment = current_segment.copy()
 
-			# If you have specified a strftime format on the line
-			# now use it to add a formatted time to musicdata
-			try:
-				strftime = current_line['strftime']
-			except:
-				# Use 12 hour clock as default
-				strftime = "%-I:%M %p"
+				# Need to make sure start and end are available
+				segment['start'] = current_segment['start'] if 'start' in current_segment else 0
+				segment['end'] = current_segment['end'] if 'end' in current_segment else self.cols
 
-			with self.musicdata_lock:
-				self.musicdata['current_time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
+				# Check placement on line
+				if current_segment['start'] < segment_start:
+					# This segment starts before the end of the previous segment
+					# Skip it
+					logging.debug("Found a segment that starts before the end of a previous segment on page {0}, segment {1}".format(pagename,segname))
+					continue
 
-			format = current_line['format']
+				# Crop line if end past the current display width
+				if current_segment['end'] <= self.cols:
+					current_segment['end'] = current_segment['end']
+				else:
+					current_segment['end'] = self.cols
+					logging.debug("Cropping segment from page {0}, segment {1} to display width".format(pagename, segname))
 
-			# Get paramaters
-			# ignore KeyError exceptions if variable is unavailable
-			parms = []
-			try:
-				for j in range(len(current_line['variables'])):
-					try:
-						if type(self.musicdata[current_line['variables'][j]]) is unicode:
-							parms.append(self.musicdata[current_line['variables'][j]].encode('utf-8'))
-						else:
-							parms.append(self.musicdata[current_line['variables'][j]])
-					except KeyError:
-						pass
-			except KeyError:
-				pass
+				# Update the current start position so we can detect if the next segment starts after this one
+				segment_start = current_segment['end']
 
-			# create line to display
-			line = format.format(*parms).decode('utf-8')
+				try:
+					justification = current_segment['justification']
+				except KeyError:
+					justification = "left"
 
-			# justify line
-			try:
-				if current_line['justification'] == "center":
-					line = "{0:^{1}}".format(line, self.cols)
-				elif current_line['justification'] == "right":
-					line = "{0:>{1}}".format(line, self.cols)
-			except KeyError:
-				pass
+				try:
+					scroll = current_segment['scroll']
+				except KeyError:
+					scroll = False
 
-			lines.append(line)
+				try:
+					variables = current_segment['variables']
+				except KeyError:
+					variables = []
 
+				# If you have specified a strftime format on the segment
+				# now use it to add a formatted time to musicdata
+				try:
+					strftime = current_segment['strftime']
+				except:
+					# Use 12 hour clock as default
+					strftime = "%-I:%M %p"
+
+				with self.musicdata_lock:
+					self.musicdata['current_time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
+
+				format = current_segment['format']
+
+				# Get paramaters
+				# ignore KeyError exceptions if variable is unavailable
+				parms = []
+				try:
+					for k in range(len(current_segment['variables'])):
+						try:
+							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
+								parms.append(self.musicdata[current_segment['variables'][k]].encode('utf-8'))
+							else:
+								parms.append(self.musicdata[current_segment['variables'][k]])
+						except KeyError:
+							pass
+				except KeyError:
+					pass
+
+				# create segment to display
+				segval = format.format(*parms).decode('utf-8')
+
+				# justify segment
+				try:
+					if current_segment['justification'] == "center":
+						segval = "{0:^{1}}".format(line, current_segment['end']-current_segment['start'])
+					elif current_line['justification'] == "right":
+						segval = "{0:>{1}}".format(line, current_segment['end']-current_segment['start'])
+				except KeyError:
+					pass
+
+				# Place actual value to display within segment into the segment data structure
+				segment['value'] = segval
+
+				# Add segment to array of segments
+				segments.append(segment)
+
+			# Add array of segments to line array
+			lines.append(segments)
+
+
+			####### This logic moving to display controller ###########
 			# determine whether to scroll or not
 			# if scroll is false, set hesitation time to large value which
 			# effectively shuts off the scroll function
-			if lines[i] != self.curlines[i]:
-				self.curlines[i] = lines[i]
-				try:
-					if current_line['scroll']:
-						self.hesitate_expires[i] = time.time() + music_display_config.HESITATION_TIME
-					else:
-						self.hesitate_expires[i] = time.time() + 86400 # Do not scroll
-				except KeyError:
-					self.hesitate_expires[i] = time.time() + 86400 # Do not scroll
+#			if lines[i] != self.curlines[i]:
+#				self.curlines[i] = lines[i]
+#				try:
+#					if current_line['scroll']:
+#						self.hesitate_expires[i] = time.time() + music_display_config.HESITATION_TIME
+#					else:
+#						self.hesitate_expires[i] = time.time() + 86400 # Do not scroll
+#				except KeyError:
+#					self.hesitate_expires[i] = time.time() + 86400 # Do not scroll
 
 		# Determine if the display should hesitate before scrolling
-		dispval = { 'type': 'display', 'lines': [] }
-		for i in range(len(lines)):
-			if self.hesitate_expires[i] < time.time():
-				dispval['lines'].append(lines[i])
-			else:
-				dispval['lines'].append(lines[i][0:self.cols])
+#		dispval = { 'type': 'display', 'lines': [] }
+#		for i in range(len(lines)):
+#			if self.hesitate_expires[i] < time.time():
+#				dispval['lines'].append(lines[i])
+#			else:
+#				dispval['lines'].append(lines[i][0:self.cols])
 
 		# Send dispval to the queue
+		dispval = { 'type': 'display', 'lines': lines }
 		self.displayqueue.put(dispval)
 
 	def updatesystemvars(self):
@@ -826,10 +949,10 @@ class music_controller(threading.Thread):
 				availp = va[1]
 
 				# remove % sign
-				availp = self.availp[0:len(self.availp)-1]
+				availp = availp[0:len(availp)-1]
 
-				avail = int(self.avail)
-				availp = int(self.availp)
+				avail = int(avail)
+				availp = int(availp)
 
 				p.close()
 			except IOError:
