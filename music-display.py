@@ -40,6 +40,12 @@ class display_controller(threading.Thread):
 		# Get current scroll position
 		sp = segment['scrollposition'] if 'scrollposition' in segment else 0
 
+		# Get hesitate time value
+		try:
+			hesitate_timer = segment['hesitate_timer']
+		except KeyError:
+			segment['hesitate_timer'] = hesitate_timer = time.time() + music_display_config.HESITATION_TIME
+
 		value = segment['value'] if 'value' in segment else ''
 
 		try:
@@ -50,7 +56,6 @@ class display_controller(threading.Thread):
 		# If value is smaller than the window then just send back a padded version of the value
 		if len(value) <= window:
 			buffer = "{0:<{1}}".format(value, window)
-
 		# Else send back a scrolling version
 		elif len(value)-sp+blank >= window:
 			buffer = "{0:<{1}}".format(value[sp:],window)[0:window]
@@ -58,7 +63,7 @@ class display_controller(threading.Thread):
 			buffer = "{0:<{1}}{2}".format(value[sp:],len(value)-sp+blank,value)[0:window]
 
 		# If we need to scroll then update the scollposition
-		if len(value) > window:
+		if len(value) > window and hesitate_timer < time.time():
 			if direction == 'left' or (direction == 'bounce' and cbounce == 'left'):
 				if sp < len(value)+blank-1:
 					sp += 1
@@ -220,7 +225,7 @@ class display_controller(threading.Thread):
 										else:
 											# If they key is not there, add it to lines_value_current and set scroll position to 0
 											ps[k] = v
-											ps['scrollposition'] = 0 
+											ps['scrollposition'] = 0
 						except:
 							# Structure of new_lines and lines_value_current is different
 							# Need to reset lines_value_current to new values
@@ -813,7 +818,7 @@ class music_controller(threading.Thread):
 
 
 			segment_start = 0
-				
+
 			for j in range(0, len(current_line['segments'])):
 				current_segment = current_line['segments'][j]
 				segname = current_segment['name'] if 'name' in current_segment else "unknown"

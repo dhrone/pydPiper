@@ -6,6 +6,8 @@ import size5x8
 def map(fontpkgname):
 	if fontpkgname == 'size5x8.player':
 		return size5x8.player.fontpkg
+	elif fontpkgname == 'size5x8.playing':
+		return size5x8.playing.fontpkg
 	elif fontpkgname == 'size5x8.repeat_all':
 		return size5x8.repeat_all.fontpkg
 	elif fontpkgname == 'size5x8.repeat_once':

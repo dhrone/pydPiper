@@ -6,6 +6,7 @@ PAGES_Play = {
 		[
 			{
 				'name':"AlbumArtistTitle",
+				'font':'size5x8.playing',
 				'duration':8,
 				'hidewhenempty':'any',
 				'hidewhenemptyvars': [ "title" ],
@@ -16,7 +17,7 @@ PAGES_Play = {
 							{
 								'start':0,
 								'end':2,
-								'format':"A:"
+								'format':"\x00\x01"
 							},
 							{
 								'variables': [ "artist" ],
@@ -35,7 +36,7 @@ PAGES_Play = {
 							{
 								'start':0,
 								'end':2,
-								'format':"L:"
+								'format':"\x04\x05"
 							},
 							{
 								'variables': [ "album" ],
@@ -54,7 +55,7 @@ PAGES_Play = {
 							{
 								'start':0,
 								'end':2,
-								'format':"T:"
+								'format':"\x02\x03"
 							},
 							{
 								'variables': [ "title" ],

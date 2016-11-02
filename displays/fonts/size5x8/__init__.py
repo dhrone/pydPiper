@@ -1,8 +1,13 @@
-__all__ = [ "player", "repeat_all", "repeat_once", "shuffle", "speaker", "volume", "system" ]
+__all__ = [ "player", "playing", "repeat_all", "repeat_once", "shuffle", "speaker", "volume", "system" ]
 
 
 try:
 	import player
+except ImportError:
+	pass
+
+try:
+	import playing
 except ImportError:
 	pass
 
@@ -35,4 +40,3 @@ try:
 	import system
 except ImportError:
 	pass
-
