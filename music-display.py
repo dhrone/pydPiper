@@ -4,7 +4,7 @@
 # musicctrl service to manage reading from active services
 # Written by: Ron Ritchey
 
-import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os
+import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy
 import pages
 import displays
 import sources
@@ -40,12 +40,8 @@ class display_controller(threading.Thread):
 		# Get current scroll position
 		sp = segment['scrollposition'] if 'scrollposition' in segment else 0
 
-		value = segment['value']
+		value = segment['value'] if 'value' in segment else ''
 		blank = music_display_config.scrollblankwidth
-
-		# If a value value is sent to scroll window, reset the segments scroll position
-#		if posinit >= 0:
-#			segment['scrollposition'] = posinit if posinit < len(value)+blank else 0
 
 		# Left scroll
 		if len(value)-sp+blank >= window:
@@ -88,11 +84,12 @@ class display_controller(threading.Thread):
 			if start > pos:
 				buffer += "{0:<{1}}".format('',start-pos)
 
+			value = segment['value'] if 'value' in segment else ''
 			if scroll:
 				direction = segment['scrolldirection'] if 'scrolldirection' in segment else 'left'
-				buffer += scrollwindow(segment, window, direction, resetscrollpositions)
+				buffer += self.scrollwindow(segment, window, direction, resetscrollpositions)
 			else:
-				buffer += segment['value'][0:window]
+				buffer += value[0:window]
 			pos = end
 		return buffer
 
@@ -112,8 +109,10 @@ class display_controller(threading.Thread):
 
 			# if the first item is a font change request, process that and then try again
 			if qitem['type'] == 'font':
+				print "Font change: {0}".format(qitem['font'])
 				self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
 			elif qitem['type'] == 'display':
+				print "Received values {0}".format(qitem['lines'])
 				lines_value_current = qitem['lines']
 				break
 			else:
@@ -121,7 +120,7 @@ class display_controller(threading.Thread):
 
 		self.lcd.clear()
 
-		lines_value_prev = lines_values_current.copy()
+		lines_value_prev = copy.deepcopy(lines_value_current)
 		linebuffers = [ ]
 
 		# Zero values so that display gets appropriately initialized
@@ -132,7 +131,7 @@ class display_controller(threading.Thread):
 
 		# if the pages file doesn't provide enough lines for the display
 		# fill remaining lines with blanks
-		for i in range(len(lines_value_prev)-1, self.rows):
+		for i in range(len(lines_value_prev)-1, self.lcd.rows):
 			linebuffers.append('')
 			self.lcd.message('',i,0)
 
@@ -146,6 +145,10 @@ class display_controller(threading.Thread):
 		time_prev = time.time()
 
 		while True:
+			time.sleep(1)
+			for i in range(0,len(linebuffers)):
+				print linebuffers[i]
+
 			# Smooth animation
 			if time.time() - time_prev < music_display_config.ANIMATION_SMOOTHING:
 				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-time_prev))
@@ -158,15 +161,18 @@ class display_controller(threading.Thread):
 					line_changed = False
 
 					for segnr in range(0,len(lines_value_current[linenr])):
-						if lines_value_current[linenr][segnr]['value'] != lines_value_prev[linenr][segnr]['value']:
+						try:
+							if lines_value_current[linenr][segnr]['value'] != lines_value_prev[linenr][segnr]['value']:
+								line_changed = True
+								break
+						except (KeyError, IndexError):
 							line_changed = True
-							break
 
 					if line_changed:
 						# Compute a new buffer for line
-						buffer = buildline(lines_value_current[linenr], True)
+						buffer = self.buildline(lines_value_current[linenr], True)
 					else:
-						buffer = buildline(lines_value_current[linenr])
+						buffer = self.buildline(lines_value_current[linenr])
 
 					# If actual content of line changed send update to display
 					if linebuffers[linenr] != buffer:
@@ -176,13 +182,13 @@ class display_controller(threading.Thread):
 				# if we need to erase content from lines that are not currently
 				# being used, create an empty string the same length as the last value
 				# and send it to the display to erase the previous content
-				for i in range(len(lines_value_current)-1,self.rows):
+				for i in range(len(lines_value_current)-1,self.lcd.rows):
 					if linebuffers[i] != '':
 						self.lcd.message("{0:<{1}}".format('',len(linebuffers[i])))
 						linebuffers[i] == ''
 
 				# Update prev values with current values
-				lines_value_prev = lines_value_current.copy()
+				lines_value_prev = copy.deepcopy(lines_value_current)
 
 				# Attempt to get new value from queue
 				while True:
@@ -190,8 +196,10 @@ class display_controller(threading.Thread):
 					self.displayqueue.task_done()
 
 					if qitem['type'] == 'font':
+						print "Font change: {0}".format(qitem['font'])
 						self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
 					elif qitem['type'] == 'display':
+						print "Received values {0}".format(qitem['lines'])
 						lines_value_current = qitem['lines']
 						break
 					else:
@@ -255,8 +263,8 @@ class music_controller(threading.Thread):
 
 		self.showupdates = showupdates
 
-		self.musicdata = self.musicdata_init.copy()
-		self.musicdata_prev = self.musicdata.copy()
+		self.musicdata = copy.deepcopy(self.musicdata_init)
+		self.musicdata_prev = copy.deepcopy(self.musicdata)
 		self.servicelist = servicelist
 		self.services = { }
 
@@ -760,42 +768,42 @@ class music_controller(threading.Thread):
 		lines = []
 		for i in range(len(current_page['lines'])):
 			pagename = current_page['name'] if 'name' in current_page else "unknown"
-
-			# make sure curlines is big enough.  curlines is used to detect when the display has changed
-			# if not expanded here it will cause an IndexError later if it has not already been initialized
-#			while len(self.curlines) < len(current_page['lines']):
-#				self.curlines.append("")
-
-			# make sure hesitate_expires is big enough as well
-#			while len(self.hesitate_expires) < len(current_page['lines']):
-#				self.hesitate_expires.append(0)
+			current_line = current_page['lines'][i]
+			linename = current_line['name'] if 'name' in current_line else "unknown"
 
 			segments = []
 
-			current_line = current_page['lines'][i]
+			# If no segments in line, create line with one empty segment, add it to lines and go to next loop iteration
+			if 'segments' not in current_line:
+				segment = { 'start':0, 'end':0, 'format':'' }
+				segments.append(segment)
+				lines.append(segments)
+				continue
+
 
 			segment_start = 0
-			for j in range(o, len(current_line['segments']))
+				
+			for j in range(0, len(current_line['segments'])):
 				current_segment = current_line['segments'][j]
 				segname = current_segment['name'] if 'name' in current_segment else "unknown"
 
 				# Initialize segment with values from page template
-				segment = current_segment.copy()
+				segment = copy.deepcopy(current_segment)
 
 				# Need to make sure start and end are available
 				segment['start'] = current_segment['start'] if 'start' in current_segment else 0
 				segment['end'] = current_segment['end'] if 'end' in current_segment else self.cols
 
 				# Check placement on line
-				if current_segment['start'] < segment_start:
+				if segment['start'] < segment_start:
 					# This segment starts before the end of the previous segment
 					# Skip it
 					logging.debug("Found a segment that starts before the end of a previous segment on page {0}, segment {1}".format(pagename,segname))
 					continue
 
 				# Crop line if end past the current display width
-				if current_segment['end'] <= self.cols:
-					current_segment['end'] = current_segment['end']
+				if segment['end'] <= self.cols:
+					current_segment['end'] = segment['end']
 				else:
 					current_segment['end'] = self.cols
 					logging.debug("Cropping segment from page {0}, segment {1} to display width".format(pagename, segname))
@@ -852,9 +860,9 @@ class music_controller(threading.Thread):
 				# justify segment
 				try:
 					if current_segment['justification'] == "center":
-						segval = "{0:^{1}}".format(line, current_segment['end']-current_segment['start'])
+						segval = "{0:^{1}}".format(segval, current_segment['end']-current_segment['start'])
 					elif current_line['justification'] == "right":
-						segval = "{0:>{1}}".format(line, current_segment['end']-current_segment['start'])
+						segval = "{0:>{1}}".format(segval, current_segment['end']-current_segment['start'])
 				except KeyError:
 					pass
 

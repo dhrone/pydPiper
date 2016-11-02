@@ -1,7 +1,7 @@
 import logging
 
-STARTUP_MSG = "Raspdac\nStarting"
-STARTUP_LOGMSG = "Raspdac Starting"
+STARTUP_MSG = "Music Display\nStarting"
+STARTUP_LOGMSG = "Music Display Starting"
 
 HESITATION_TIME = 2.5 # Amount of time in seconds to hesistate before scrolling
 ANIMATION_SMOOTHING = .15 # Amount of time in seconds before repainting display

@@ -24,7 +24,7 @@ PAGES_Play = {
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
-								'scroll':True
+								'scroll':True,
 								'scrolldirection':'left'
 							}
 						]
@@ -43,7 +43,7 @@ PAGES_Play = {
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
-								'scroll':True
+								'scroll':True,
 								'scrolldirection':'right'
 							}
 						]
