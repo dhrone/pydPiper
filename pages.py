@@ -172,7 +172,7 @@ ALERT_Volume = {
 					'segments': [
 						{
 							'variables': ["volume" ],
-							'format':"\x00\x01	 Volume {0}",
+							'format':"\x00\x01	   Volume {0}",
 							'start':0,
 							'end':20,
 							'justification':"left",
