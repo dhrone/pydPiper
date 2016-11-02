@@ -105,6 +105,8 @@ class display_controller(threading.Thread):
 				buffer += self.scrollwindow(segment, window, direction, resetscrollpositions)
 			else:
 				buffer += value[0:window]
+			buffer = "{0:<{1}}".format(buffer, end-start)
+
 			pos = end
 		return buffer
 
@@ -897,7 +899,7 @@ class music_controller(threading.Thread):
 				try:
 					if current_segment['justification'] == "center":
 						segval = "{0:^{1}}".format(segval, current_segment['end']-current_segment['start'])
-					elif current_line['justification'] == "right":
+					elif current_segment['justification'] == "right":
 						segval = "{0:>{1}}".format(segval, current_segment['end']-current_segment['start'])
 				except KeyError:
 					pass

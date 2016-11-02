@@ -71,11 +71,19 @@ PAGES_Play = {
 						'name':"4",
 						'segments': [
 							{
-								'variables': [ "playlist_display", "position" ],
+								'variables': [ "playlist_display"],
 								'start':0,
-								'end':20,
-								'format':"{0} {1}",
+								'end':10,
+								'format':"  {0}",
 								'justification':"left",
+								'scroll':False
+							},
+							{
+								'variables': [ "position" ],
+								'start':10,
+								'end':20,
+								'format':"{0}",
+								'justification':"right",
 								'scroll':False
 							}
 						]
