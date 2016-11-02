@@ -4,7 +4,7 @@ STARTUP_MSG = "Music Display\nStarting"
 STARTUP_LOGMSG = "Music Display Starting"
 
 HESITATION_TIME = 2.5 # Amount of time in seconds to hesistate before scrolling
-ANIMATION_SMOOTHING = .25 # Amount of time in seconds before repainting display
+ANIMATION_SMOOTHING = .35 # Amount of time in seconds before repainting display
 SCROLL_BLANK_WIDTH = 10 # Number of spaces to insert into string that is scrolling
 
 COOLING_PERIOD = 15 # Default amount of time in seconds before an alert message can be redisplayed

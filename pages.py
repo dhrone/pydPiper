@@ -44,7 +44,7 @@ PAGES_Play = {
 								'format':"{0}",
 								'justification':"left",
 								'scroll':True,
-								'scrolldirection':'right'
+								'scrolldirection':'left'
 							}
 						]
 					},
