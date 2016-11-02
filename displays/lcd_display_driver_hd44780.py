@@ -409,6 +409,39 @@ if __name__ == '__main__':
 
 		lcd.clear()
 
+#5678 Sending font change: size5x8.player
+#5678 Sending '                    ' to line 0, col 0 size 20
+#5678 Sending '\x00 Stop              ' to line 1, col 0 size 20
+#5678 Sending font change: size5x8.speaker
+#5678 Sending '\x00\x01\t Volume 63       ' to line 1, col 0 size 20
+#5678 Sending '\x02\x03 \x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x05\x04\x04\x04\x04\x04\x04' to line 2, col 0 size 20
+#5678 Sending '                    ' to line 3, col 0 size 20
+#5678 Sending font change: size5x8.system
+#5678 Sending '\x00\x01 Wednesday 8:31 AM' to line 0, col 0 size 20
+#5678 Sending '\x02\x03 November 2 2016  ' to line 1, col 0 size 20
+#5678 Sending '                    ' to line 2, col 0 size 20
+#5678 Sending '\x04\x05 102.2\t\x06\x07 2%      ' to line 3, col 0 size 20
+
+		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
+		lcd.message('                    ' , 0, 0)
+		lcd.message('\x00 Stop              ' , 1, 0)
+		time.sleep(2)
+		lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
+		lcd.message('\x00\x01\t Volume 63       ' , 1, 0)
+		lcd.message('\x02\x03 \x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x05\x04\x04\x04\x04\x04\x04' , 2, 0)
+		lcd.message('' , 0, 0)
+		lcd.message('                    ' , 3, 0)
+		time.sleep(2)
+		lcd.switchcustomchars(fonts.size5x8.system.fontpkg)
+		lcd.message('\x00\x01 Wednesday 8:31 AM' , 0, 0)
+		lcd.message('\x02\x03 November 2 2016  ' , 1, 0)
+		lcd.message('                    ' , 2, 0)
+		lcd.message('\x04\x05 102.2\t\x06\x07 2%      ' , 3, 0)
+		time.sleep(4)
+
+		lcd.clear()
+		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
+		
 		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
 		#for char in accent_min: print char, ord(char)
 		lcd.message(accent_min)

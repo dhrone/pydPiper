@@ -41,31 +41,41 @@ class display_controller(threading.Thread):
 		sp = segment['scrollposition'] if 'scrollposition' in segment else 0
 
 		value = segment['value'] if 'value' in segment else ''
-		blank = music_display_config.scrollblankwidth
 
-		# Left scroll
-		if len(value)-sp+blank >= window:
+		try:
+			blank = music_display_config.SCROLL_BLANK_WIDTH
+		except AttributeError:
+			blank = 10
+
+		# If value is smaller than the window then just send back a padded version of the value
+		if len(value) <= window:
+			buffer = "{0:<{1}}".format(value, window)
+
+		# Else send back a scrolling version
+		elif len(value)-sp+blank >= window:
 			buffer = "{0:<{1}}".format(value[sp:],window)[0:window]
 		else: #len(value)-sp+blank < window:
 			buffer = "{0:<{1}}{2}".format(value[sp:],len(value)-sp+blank,value)[0:window]
 
-		if direction == 'left' or (direction == 'bounce' and cbounce == 'left'):
-			if sp < len(value)+blank-1:
-				sp += 1
-			else:
-				cbounce = 'right'
-				if direction == 'left':
-					sp = 0
-		elif direction =='right' or (direction == 'bounce' and cbounce == 'right'):
-			if sp > 0:
-				sp -= 1
-			else:
-				cbounce = 'left'
-				if direction == 'right':
-					sp = len(value)+blank-1
+		# If we need to scroll then update the scollposition
+		if len(value) > window:
+			if direction == 'left' or (direction == 'bounce' and cbounce == 'left'):
+				if sp < len(value)+blank-1:
+					sp += 1
+				else:
+					cbounce = 'right'
+					if direction == 'left':
+						sp = 0
+			elif direction =='right' or (direction == 'bounce' and cbounce == 'right'):
+				if sp > 0:
+					sp -= 1
+				else:
+					cbounce = 'left'
+					if direction == 'right':
+						sp = len(value)+blank-1
 
-		# Store current scroll position
-		segment['scrollposition'] = sp
+			# Store current scroll position
+			segment['scrollposition'] = sp
 
 		# Return part of segment to display based upon scroll position
 		return buffer
@@ -109,10 +119,9 @@ class display_controller(threading.Thread):
 
 			# if the first item is a font change request, process that and then try again
 			if qitem['type'] == 'font':
-				print "Font change: {0}".format(qitem['font'])
+				self.lcd.clear()
 				self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
 			elif qitem['type'] == 'display':
-				print "Received values {0}".format(qitem['lines'])
 				lines_value_current = qitem['lines']
 				break
 			else:
@@ -123,32 +132,20 @@ class display_controller(threading.Thread):
 		lines_value_prev = copy.deepcopy(lines_value_current)
 		linebuffers = [ ]
 
-		# Zero values so that display gets appropriately initialized
-		for line in lines_value_prev:
+		# Zero linebuffers so that display gets appropriately initialized
+		for i in range(0, self.lcd.rows):
 			linebuffers.append('')
+
+		# Zero values in segments so initial update will occur
+		for line in lines_value_prev:
 			for segment in line:
 				segment['value'] = ''
 
-		# if the pages file doesn't provide enough lines for the display
-		# fill remaining lines with blanks
-		for i in range(len(lines_value_prev)-1, self.lcd.rows):
-			linebuffers.append('')
-			self.lcd.message('',i,0)
-
-
-		# Immediately print out the initial display state
-#		for i in range(len(item)):
-#			lines[i] = item[i]
-#			self.lcd.message( lines[i][0:self.lcd.cols], i, 0 )
 
 		# Initialize the time display got updated
 		time_prev = time.time()
 
 		while True:
-			time.sleep(1)
-			for i in range(0,len(linebuffers)):
-				print linebuffers[i]
-
 			# Smooth animation
 			if time.time() - time_prev < music_display_config.ANIMATION_SMOOTHING:
 				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-time_prev))
@@ -174,18 +171,13 @@ class display_controller(threading.Thread):
 					else:
 						buffer = self.buildline(lines_value_current[linenr])
 
+					buffer = "{0:<{1}}".format(buffer,self.lcd.cols)
+
 					# If actual content of line changed send update to display
 					if linebuffers[linenr] != buffer:
 						self.lcd.message(buffer,linenr,0)
 						linebuffers[linenr] = buffer
 
-				# if we need to erase content from lines that are not currently
-				# being used, create an empty string the same length as the last value
-				# and send it to the display to erase the previous content
-				for i in range(len(lines_value_current)-1,self.lcd.rows):
-					if linebuffers[i] != '':
-						self.lcd.message("{0:<{1}}".format('',len(linebuffers[i])))
-						linebuffers[i] == ''
 
 				# Update prev values with current values
 				lines_value_prev = copy.deepcopy(lines_value_current)
@@ -196,11 +188,49 @@ class display_controller(threading.Thread):
 					self.displayqueue.task_done()
 
 					if qitem['type'] == 'font':
-						print "Font change: {0}".format(qitem['font'])
+						self.lcd.clear()
 						self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
+
+						linebuffers = [ ]
+						lines_value_current = [ ]
+						# Font change occured which requires a display reset so, clear linebuffers
+						for i in range(0,self.lcd.rows):
+							linebuffers.append('')
+
 					elif qitem['type'] == 'display':
-						print "Received values {0}".format(qitem['lines'])
-						lines_value_current = qitem['lines']
+#						lines_value_current = qitem['lines']
+						new_lines = qitem['lines']
+
+						# Need to make sure not to overwrite lines_value_current unless new_lines is coming from a new page
+						# If this is just a value update, then determine what has changed and update just that
+						try:
+							if len(new_lines) != len(lines_value_current):
+								# Structured between page updates is different so assume page change.  Throwing exception to drop to reset logic
+								raise IndexError
+							for i in range(0,len(new_lines)):
+								for j in range(0, len( new_lines[i])):
+									ns = new_lines[i][j]
+									ps = lines_value_current[i][j]
+									for k, v in ns.iteritems():
+										if k in ps:
+											# If any key has changed, update lines_value_current and set scroll position to 0
+											if ps[k] != v:
+												ps[k] = v
+												ps['scrollposition'] = 0
+										else:
+											# If they key is not there, add it to lines_value_current and set scroll position to 0
+											ps[k] = v
+											ps['scrollposition'] = 0 
+						except:
+							# Structure of new_lines and lines_value_current is different
+							# Need to reset lines_value_current to new values
+							lcd.clear()
+							lines_value_current = copy.deepcopy(new_lines)
+							linebuffers = [ ]
+							for i in range(0,self.lcd.rows):
+								linebuffers.append('')
+
+
 						break
 					else:
 						logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
@@ -741,6 +771,7 @@ class music_controller(threading.Thread):
 		# Set current_page
 		current_page = self.current_pages['pages'][self.current_page_number]
 
+
 		# Change the font if requested
 		if 'font' in current_page:
 			if self.current_font != current_page['font']:
@@ -775,7 +806,7 @@ class music_controller(threading.Thread):
 
 			# If no segments in line, create line with one empty segment, add it to lines and go to next loop iteration
 			if 'segments' not in current_line:
-				segment = { 'start':0, 'end':0, 'format':'' }
+				segment = { 'start':0, 'end':0, 'value':'' }
 				segments.append(segment)
 				lines.append(segments)
 				continue

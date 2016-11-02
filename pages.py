@@ -15,12 +15,12 @@ PAGES_Play = {
 						'segments': [
 							{
 								'start':0,
-								'end':7,
-								'format':"Artist:"
+								'end':2,
+								'format':"A:"
 							},
 							{
 								'variables': [ "artist" ],
-								'start':8,
+								'start':2,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
@@ -34,12 +34,12 @@ PAGES_Play = {
 						'segments': [
 							{
 								'start':0,
-								'end':7,
-								'format':"Album:"
+								'end':2,
+								'format':"L:"
 							},
 							{
 								'variables': [ "album" ],
-								'start':8,
+								'start':2,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
@@ -53,12 +53,12 @@ PAGES_Play = {
 						'segments': [
 							{
 								'start':0,
-								'end':7,
-								'format':"Album:"
+								'end':2,
+								'format':"T:"
 							},
 							{
 								'variables': [ "title" ],
-								'start':8,
+								'start':2,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
@@ -73,7 +73,7 @@ PAGES_Play = {
 								'variables': [ "playlist_display", "position" ],
 								'start':0,
 								'end':20,
-								'format':"{0}",
+								'format':"{0} {1}",
 								'justification':"left",
 								'scroll':False
 							}
@@ -102,7 +102,6 @@ PAGES_Stop = {
 								'format':"\x00\x01 {0}",
 								'start':0,
 								'end':20,
-								'format':"{0}",
 								'justification':"left",
 								'scroll':False
 							}
@@ -117,7 +116,6 @@ PAGES_Stop = {
 								'format':"\x02\x03 {0}",
 								'start':0,
 								'end':20,
-								'format':"{0}",
 								'justification':"left",
 								'scroll':False
 							}
@@ -135,7 +133,6 @@ PAGES_Stop = {
 								'format':"\x04\x05 {0}	\x06\x07 {1}%",
 								'start':0,
 								'end':20,
-								'format':"{0}",
 								'justification':"left",
 								'scroll':False
 							}
@@ -177,7 +174,6 @@ ALERT_Volume = {
 							'format':"\x00\x01	 Volume {0}",
 							'start':0,
 							'end':20,
-							'format':"{0}",
 							'justification':"left",
 							'scroll':False
 						}
