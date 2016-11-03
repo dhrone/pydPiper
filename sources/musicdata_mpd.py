@@ -137,6 +137,9 @@ class musicdata_mpd(musicdata.musicdata):
 		temptime = status['time'] if 'time' in status else u'0:0'
 		(self.musicdata['current'], self.musicdata['duration']) = temptime.split(':')
 
+		self.musicdata['current'] = int(self.musicdata['current'])
+		self.musicdata['duration'] = int(self.musicdata['duration'])
+
 		self.musicdata['actPlayer'] = "MPD"
 		self.musicdata['musicdatasource'] = "MPD"
 
