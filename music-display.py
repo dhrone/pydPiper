@@ -521,7 +521,7 @@ class music_controller(threading.Thread):
 			# Update display data every 1/4 second
 #			time.sleep(.25)
 
-	def checkalert(pl):
+	def checkalert(self, pl, state):
 		# Determines whether a alert show be displayed
 
 		# Use try block to skip page if variables are missing
@@ -558,7 +558,7 @@ class music_controller(threading.Thread):
 			return False
 		return False
 
-	def resetalertpage(pl):
+	def resetalertpage(self, pl):
 		# Set current_pages to the alert page
 		self.current_pages = pl
 		self.current_page_number = 0
@@ -728,7 +728,7 @@ class music_controller(threading.Thread):
 
 		retval = val
 		# Compute transforms
-		for i in range(1,len(transforms))
+		for i in range(1,len(transforms)):
 			if transforms[i] in ['onoff','truefalse','yesno']:
 				# Make sure input is a Boolean
 				if type(val) is bool:
@@ -774,7 +774,7 @@ class music_controller(threading.Thread):
 			if pl['cooling_expires'] < time.time():
 				# Use try block to skip page if variables are missing
 				try:
-					self.alert_check = self.checkalert(pl)
+					self.alert_check = self.checkalert(pl, state)
 
 					if self.alert_check:
 						self.alert_mode = True
@@ -926,9 +926,9 @@ class music_controller(threading.Thread):
 					for k in range(len(current_segment['variables'])):
 						try:
 							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
-								parms.append(transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
+								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
 							else:
-								parms.append(transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k])
+								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]))
 						except KeyError:
 							pass
 				except KeyError:
