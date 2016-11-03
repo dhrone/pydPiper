@@ -521,6 +521,246 @@ class music_controller(threading.Thread):
 			# Update display data every 1/4 second
 #			time.sleep(.25)
 
+	def checkalert(pl):
+		# Determines whether a alert show be displayed
+
+		# Use try block to skip page if variables are missing
+		try:
+			# Check to see what type of monitoring to perform
+			if pl['alert']['type'] == "change":
+				if self.musicdata[pl['alert']['variable']] != self.musicdata_prev[pl['alert']['variable']]:
+					# Some state changes cause variable changes like volume
+					# Check to see if these dependent variable changes
+					# should be suppressed
+					try:
+						if self.musicdata_prev['state'] == state or not pl['alert']['suppressonstatechange']:
+							if 'values' in pl['alert']:
+								if len(pl['alert']['values']) > 0:
+									for v in pl['alert']['values']:
+										if v == self.musicdata[pl['alert']['variable']]:
+											return True
+								else:
+									return True
+							else:
+								return True
+					except KeyError:
+						return False
+			elif pl['alert']['type'] == "above":
+				if self.musicdata[pl['alert']['variable']] > pl['alert']['values'][0]:
+					return True
+			elif pl['alert']['type'] == "below":
+				if self.musicdata[pl['alert']['variable']] < pl['alert']['values'][0]:
+					return True
+			elif pl['alert']['type'] == "range":
+				if self.musicdata[pl['alert']['variable']] > pl['alert']['values'][0] and self.musicdata[pl['alert']['variable']] < pl['alert']['values'][1]:
+					return True
+		except (KeyError, AttributeError, IndexError):
+			return False
+		return False
+
+	def resetalertpage(pl):
+		# Set current_pages to the alert page
+		self.current_pages = pl
+		self.current_page_number = 0
+		self.current_line_number = 0
+		self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
+		self.curlines = []
+		self.hesitate_expires = []
+
+		# Set cooling expiry time.  If not coolingperiod directive, use default
+		try:
+			pl['cooling_expires'] = time.time() + pl['alert']['coolingperiod']
+		except KeyError:
+			try:
+				pl['cooling_expires'] = time.time() + music_display_config.COOLING_PERIOD
+			except AttributeError:
+				logging.debug("COOLING_PERIOD missing from music_display_config.py")
+				pl['cooling_expires'] = time.time() + 15
+
+
+	def movetonextpage(self):
+
+		# Move to next page and check to see if it should be displayed or hidden
+		for i in range(len(self.current_pages['pages'])):
+			self.current_page_number = self.current_page_number + 1
+
+			# if on last page, return to first page
+			if self.current_page_number > len(self.current_pages['pages'])-1:
+				self.current_page_number = 0
+
+			self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
+
+			cp = self.current_pages['pages'][self.current_page_number]
+
+			hwe = cp['hidewhenempty'] if 'hidewhenempty' in cp else False
+			hwp = cp['hidewhenpresent'] if 'hidewhenpresent' in cp else False
+
+			# to prevent old pages format from causing problems, convert values to strings
+			if type(hwe) is bool:
+				hwe = str(hwe)
+
+			if type(hwp) is bool:
+				hwp = str(hwp)
+
+			if hwe.lower() == 'all' or hwe.lower() == 'true':
+				allempty = True
+				hvars = cp['hidewhenemptyvars'] if 'hidewhenemptyvars' in cp else [ ]
+
+				for v in hvars:
+					try:
+						# if the variable is a string
+						if type(self.musicdata[v]) is unicode:
+							# and it is not empty, then set allempty False and exit loop
+							if len(self.musicdata[v]) > 0:
+								allempty = False
+								break
+						elif type(self.musicdata[v]) is int:
+							if not self.musicdata[v] == 0:
+								allempty = False
+								break
+						else:
+							# All other variable types are considered not empty
+							allempty = False
+							break
+					except KeyError:
+						# if the variable is not in musicdata consider it empty
+						pass
+				if not allempty:
+					break
+			elif hwe.lower() == 'any':
+				anyempty = False
+				try:
+					hvars = cp['hidewhenemptyvars']
+				except KeyError:
+					hvars = [ ]
+
+				for v in hvars:
+					try:
+						# if the variable is a string
+						if type(self.musicdata[v]) is unicode:
+							# and it is empty, then set anyempty True and exit loop
+							if len(self.musicdata[v]) == 0:
+								anyempty = True
+								break
+
+						# if the value is 0 consider it empty
+						elif type(self.musicdata[v]) is int:
+							if self.musicdata[v] == 0:
+								anyempty = True
+								break
+					except KeyError:
+						# if the variable is not in musicdata consider it empty
+						anyempty = True
+						break
+				if not anyempty:
+					break
+
+			elif hwp.lower() == 'any':
+				anypresent = False
+				try:
+					hvars = cp['hidewhenpresentvars']
+				except KeyError:
+					hvars = [ ]
+
+				for v in hvars:
+					try:
+						# if the variable is a string
+						if type(self.musicdata[v]) is unicode:
+							# and it is present, then set anypresent True and exit loop
+							if len(self.musicdata[v]) > 0:
+								anypresent = True
+								break
+						elif type(self.musicdata[v]) is int:
+							if not self.musicdata[v] == 0:
+								anypresent = True
+								break
+
+						# if it is not a string, and not zero consider it present
+						else:
+							anypresent = True
+							break
+					except KeyError:
+						# if the variable is not in musicdata consider it empty
+						break
+				if not anypresent:
+					break
+
+			elif hwp.lower() == 'all' or hwp.lower() == 'true':
+				allpresent = True
+				try:
+					hvars = cp['hidewhenemptyvars']
+				except KeyError:
+					hvars = [ ]
+
+				for v in hvars:
+					try:
+						# if the variable is a string
+						if type(self.musicdata[v]) is unicode:
+							# and it is not present, then set allpresent False and exit loop
+							if len(self.musicdata[v]) == 0:
+								allpresent = False
+								break
+						elif type(self.musicdata[v]) is int:
+							if self.musicdata[v] == 0:
+								allpresent = False
+								break
+					except KeyError:
+						# if the variable is not in musicdata consider it empty
+						allpresent = False
+						break
+				if not allpresent:
+					break
+
+			else:
+				# If not hidewhenempty or hidewhenpresent then exit loop
+				break
+
+
+
+	def transformvariable(self, val, name):
+		# Implement transformation logic (e.g. |yesno, |onoff |upper)
+
+		transforms = name.split('|')
+		if len(transforms) == 0:
+			return ''
+		elif len(transforms) == 1:
+			return val
+
+		retval = val
+		# Compute transforms
+		for i in range(1,len(transforms))
+			if transforms[i] in ['onoff','truefalse','yesno']:
+				# Make sure input is a Boolean
+				if type(val) is bool:
+
+					if transforms[i] == 'onoff':
+						retval = 'on' if val else 'off'
+					elif transforms[i] == 'truefalse':
+						retval = 'true' if val else 'false'
+					elif transforms[i] == 'yesno':
+						retval = 'yes' if val else 'no'
+				else:
+					logging.debug("Request to perform boolean transform on {0} requires boolean input").format(name)
+					return val
+			elif transforms[i] in ['upper','capitalize','title','lower']:
+				# These all require string input
+
+				if type(val) is str or type(val) is unicode:
+					if transforms[i] == 'upper':
+						retval = retval.upper()
+					elif transforms[i] == 'capitalize':
+						retval = retval.capitalize()
+					elif transforms[i] == 'title':
+						retval = retval.title()
+					elif transforms[i] == 'lower':
+						retval = retval.lower()
+				else:
+					logging.debug("Request to perform transform on {0} requires string input").format(name)
+					return val
+		return retval
+
+
+
 	def updatepages(self):
 
 		# Using PAGES variables, compute what to display
@@ -532,55 +772,15 @@ class music_controller(threading.Thread):
 		for pl in pages.ALERT_LIST:
 			# Check to see if alert is in its cooling period
 			if pl['cooling_expires'] < time.time():
-
 				# Use try block to skip page if variables are missing
 				try:
-					# Check to see what type of monitoring to perform
-					if pl['alert']['type'] == "change":
-						if self.musicdata[pl['alert']['variable']] != self.musicdata_prev[pl['alert']['variable']]:
-							# Some state changes cause variable changes like volume
-							# Check to see if these dependent variable changes
-							# should be suppressed
-							try:
-								if self.musicdata_prev['state'] == state or not pl['alert']['suppressonstatechange']:
-									if 'values' in pl['alert']:
-										if len(pl['alert']['values']) > 0:
-											for v in pl['alert']['values']:
-												if v == self.musicdata[pl['alert']['variable']]:
-													self.alert_check = True
-													break
-										else:
-											self.alert_check = True
-									else:
-										self.alert_check = True
-							except KeyError:
-								pass
-					elif pl['alert']['type'] == "above":
-						if self.musicdata[pl['alert']['variable']] > pl['alert']['values'][0]:
-							self.alert_check = True
-					elif pl['alert']['type'] == "below":
-						if self.musicdata[pl['alert']['variable']] < pl['alert']['values'][0]:
-							self.alert_check = True
-					elif pl['alert']['type'] == "range":
-						if self.musicdata[pl['alert']['variable']] > pl['alert']['values'][0] and self.musicdata[pl['alert']['variable']] < pl['alert']['values'][1]:
-							self.alert_check = True
+					self.alert_check = self.checkalert(pl)
 
 					if self.alert_check:
 						self.alert_mode = True
 
 						# Set current_pages to the alert page
-						self.current_pages = pl
-						self.current_page_number = 0
-						self.current_line_number = 0
-						self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
-						self.curlines = []
-						self.hesitate_expires = []
-
-						# Set cooling expiry time.  If not coolingperiod directive, use default
-						try:
-							pl['cooling_expires'] = time.time() + pl['alert']['coolingperiod']
-						except KeyError:
-							pl['cooling_expires'] = time.time() + music_display_config.COOLING_PERIOD
+						self.resetalertpage(pl)
 
 						# if an alert has been found, break out of the loop
 						# this has the effect of making the order of the list the priority of the messages
@@ -627,157 +827,10 @@ class music_controller(threading.Thread):
 
 		# if page has expired then move to the next page
 		if self.page_expires < time.time():
-
-			# Move to next page and check to see if it should be displayed or hidden
-			for i in range(len(self.current_pages['pages'])):
-				self.current_page_number = self.current_page_number + 1
-
-				# if on last page, return to first page
-				if self.current_page_number > len(self.current_pages['pages'])-1:
-					self.current_page_number = 0
-
-				self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
-
-				cp = self.current_pages['pages'][self.current_page_number]
-
-				try:
-					hwe = cp['hidewhenempty']
-				except KeyError:
-					hwe = 'False'
-
-				try:
-					hwp = cp['hidewhenpresent']
-				except:
-					hwp = 'False'
-
-				# to prevent old pages format from causing problems, convert values to strings
-				if type(hwe) is bool:
-					hwe = str(hwe)
-
-				if type(hwp) is bool:
-					hwp = str(hwp)
-
-				if hwe.lower() == 'all' or hwe.lower() == 'true':
-					allempty = True
-					try:
-						hvars = cp['hidewhenemptyvars']
-					except KeyError:
-						hvars = [ ]
-
-					for v in hvars:
-						try:
-							# if the variable is a string
-							if type(self.musicdata[v]) is unicode:
-								# and it is not empty, then set allempty False and exit loop
-								if len(self.musicdata[v]) > 0:
-									allempty = False
-									break
-							elif type(self.musicdata[v]) is int:
-								if not self.musicdata[v] == 0:
-									allempty = False
-									break
-							else:
-								# All other variable types are considered not empty
-								allempty = False
-								break
-						except KeyError:
-							# if the variable is not in musicdata consider it empty
-							pass
-					if not allempty:
-						break
-				elif hwe.lower() == 'any':
-					anyempty = False
-					try:
-						hvars = cp['hidewhenemptyvars']
-					except KeyError:
-						hvars = [ ]
-
-					for v in hvars:
-						try:
-							# if the variable is a string
-							if type(self.musicdata[v]) is unicode:
-								# and it is empty, then set anyempty True and exit loop
-								if len(self.musicdata[v]) == 0:
-									anyempty = True
-									break
-
-							# if the value is 0 consider it empty
-							elif type(self.musicdata[v]) is int:
-								if self.musicdata[v] == 0:
-									anyempty = True
-									break
-						except KeyError:
-							# if the variable is not in musicdata consider it empty
-							anyempty = True
-							break
-					if not anyempty:
-						break
-
-				elif hwp.lower() == 'any':
-					anypresent = False
-					try:
-						hvars = cp['hidewhenpresentvars']
-					except KeyError:
-						hvars = [ ]
-
-					for v in hvars:
-						try:
-							# if the variable is a string
-							if type(self.musicdata[v]) is unicode:
-								# and it is present, then set anypresent True and exit loop
-								if len(self.musicdata[v]) > 0:
-									anypresent = True
-									break
-							elif type(self.musicdata[v]) is int:
-								if not self.musicdata[v] == 0:
-									anypresent = True
-									break
-
-							# if it is not a string, and not zero consider it present
-							else:
-								anypresent = True
-								break
-						except KeyError:
-							# if the variable is not in musicdata consider it empty
-							break
-					if not anypresent:
-						break
-
-				elif hwp.lower() == 'all' or hwp.lower() == 'true':
-					allpresent = True
-					try:
-						hvars = cp['hidewhenemptyvars']
-					except KeyError:
-						hvars = [ ]
-
-					for v in hvars:
-						try:
-							# if the variable is a string
-							if type(self.musicdata[v]) is unicode:
-								# and it is not present, then set allpresent False and exit loop
-								if len(self.musicdata[v]) == 0:
-									allpresent = False
-									break
-							elif type(self.musicdata[v]) is int:
-								if self.musicdata[v] == 0:
-									allpresent = False
-									break
-						except KeyError:
-							# if the variable is not in musicdata consider it empty
-							allpresent = False
-							break
-					if not allpresent:
-						break
-
-				else:
-					# If not hidewhenempty or hidewhenpresent then exit loop
-					break
-
-
+			self.movetonextpage()
 
 		# Set current_page
 		current_page = self.current_pages['pages'][self.current_page_number]
-
 
 		# Change the font if requested
 		if 'font' in current_page:
@@ -849,31 +902,20 @@ class music_controller(threading.Thread):
 				# Update the current start position so we can detect if the next segment starts after this one
 				segment_start = current_segment['end']
 
-				try:
-					justification = current_segment['justification']
-				except KeyError:
-					justification = "left"
-
-				try:
-					scroll = current_segment['scroll']
-				except KeyError:
-					scroll = False
-
-				try:
-					variables = current_segment['variables']
-				except KeyError:
-					variables = []
+				justification = current_segment['justification'] if 'justification' in current_segment else "left"
+				scroll = current_segment['scroll'] if 'scroll' in current_segment else False
+				variables = current_segment['variables'] if 'variables' in current_segment else [ ]
 
 				# If you have specified a strftime format on the segment
-				# now use it to add a formatted time to musicdata
-				try:
-					strftime = current_segment['strftime']
-				except:
-					# Use 12 hour clock as default
-					strftime = "%-I:%M %p"
+				# use it to add a formatted time to musicdata
+				# else use 12 hour clock as default
+
+				strftime = current_segment['strftime'] if 'strftime' in current_segment else "%-I:%M %p"
 
 				with self.musicdata_lock:
-					self.musicdata['current_time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
+					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
+					# To support previous key used for this purpose
+					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
 				format = current_segment['format']
 
@@ -884,9 +926,9 @@ class music_controller(threading.Thread):
 					for k in range(len(current_segment['variables'])):
 						try:
 							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
-								parms.append(self.musicdata[current_segment['variables'][k]].encode('utf-8'))
+								parms.append(transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
 							else:
-								parms.append(self.musicdata[current_segment['variables'][k]])
+								parms.append(transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k])
 						except KeyError:
 							pass
 				except KeyError:
