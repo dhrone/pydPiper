@@ -72,15 +72,15 @@ PAGES_Play = {
 						'segments': [
 							{
 								'variables': [ "playlist_display"],
-								'start':2,
-								'end':12,
+								'start':0,
+								'end':10,
 								'format':"  {0}",
 								'justification':"left",
 								'scroll':False
 							},
 							{
 								'variables': [ "position" ],
-								'start':12,
+								'start':10,
 								'end':20,
 								'format':"{0}",
 								'justification':"right",
@@ -140,7 +140,7 @@ PAGES_Stop = {
 							{
 								'variables': [ "current_tempf", "disk_availp" ],
 								'format':"\x04\x05 {0}	\x06\x07 {1}%",
-								'start':0,
+								'start':3,
 								'end':20,
 								'justification':"left",
 								'scroll':False
@@ -192,9 +192,9 @@ PAGES_Stop = {
 							{
 								'variables': [ "outside_temp_formatted" ],
 								'format':"Outside \x04\x05 {0}",
-								'start':0,
+								'start':3,
 								'end':20,
-								'justification':"center",
+								'justification':"left",
 								'scroll':False
 							}
 						]
@@ -244,9 +244,9 @@ PAGES_Stop = {
 							{
 								'variables': [ "outside_conditions|title" ],
 								'format':"{0}",
-								'start':0,
+								'start':3,
 								'end':20,
-								'justification':"center",
+								'justification':"left",
 								'scroll':False
 							}
 						]
