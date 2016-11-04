@@ -10,6 +10,11 @@ import displays
 import sources
 import music_display_config
 
+try:
+	import pyowm
+except ImportError:
+	pass
+
 
 class display_controller(threading.Thread):
 	# Receives updates from music_controller and places them onto displays
@@ -998,6 +1003,19 @@ class music_controller(threading.Thread):
 
 			current_ip = commands.getoutput("ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
+			outside_tempf = 0.0
+			outside_tempc = 0.0
+			outside_conditions = ''
+
+			try:
+				owm = pyowm.OWM(music_display_config.OWM_API)
+				obs = owm.weather_at_place(OWM_LOCATION)
+				wea = observation_get_weather()
+				outside_tempf = wea.get_temperature('fahrenheit')['temp']
+				outside_tempc = wea.get_temperature('celsius')['temp']
+				outside_conditions = wea.get_detailed_status()
+			except:
+				pass
 
 			try:
 				file = open("/sys/class/thermal/thermal_zone0/temp")
@@ -1059,6 +1077,9 @@ class music_controller(threading.Thread):
 				self.musicdata['current_time'] = current_time
 				self.musicdata['current_time_sec'] = current_time
 				self.musicdata['current_ip'] = current_ip
+				self.musicdata['outside_tempc'] = outside_tempc
+				self.musicdata['outside_tempf'] = outside_tempf
+				self.musicdata['outside_conditions'] = outside_conditions
 
 			# Read environmentals every 20 seconds
 			time.sleep(20)

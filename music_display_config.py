@@ -11,10 +11,10 @@ COOLING_PERIOD = 15 # Default amount of time in seconds before an alert message 
 
 
 # This is where the log file will be written
-LOGFILE='/var/log/RaspDacDisplay.log'
+LOGFILE='/var/log/music-display.log'
 #LOGFILE='./log/RaspDacDisplay.log'
 
-STATUSLOGFILE='/var/log/RaspDacDisplayStatus.log'
+STATUSLOGFILE='/var/log/music-display-status.log'
 #STATUSLOGFILE='./log/RaspDacDisplayStatus.log'
 STATUSLOGGING = False
 
@@ -22,6 +22,10 @@ STATUSLOGGING = False
 TIMEZONE="US/Eastern"
 TIME24HOUR=False
 #TIMEZONE="Europe/Paris"
+
+# Adjust this setting to localize temperature displays
+TEMPERATURE='fahrenheit'
+#TEMPERATURE='celsius'
 
 # Logging level
 LOGLEVEL=logging.DEBUG

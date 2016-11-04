@@ -159,13 +159,13 @@ Weather Information
 --------------------
 Requires Open Weather Map API (from http://openweathermap.org) and current location to be set in music_display_config.py.  Variables to set are OWM_API and OWM_LOCATION.
 
-outside_tempf (float)
-  Description - Current Outside temperature in fahrenheit.
+outside_temp (float)
+  Description - Current Outside temperature.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
   Values 78.3
 
-outside_tempc (float)
-  Description - Current Outside temperature in fahrenheit.
-  Values 35.5
+outside_temp_formated (unicode)
+  Description - Formatted version of outside temperature.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
+  Values 78.3°f, 23.1°c
 
 outside_conditions (unicode)
   Description - Current weather conditions.
