@@ -100,7 +100,7 @@ PAGES_Stop = {
 			{
 				'name':"Ready",
 				'font':'size5x8.system',
-				'duration':15,
+				'duration':10,
 				'lines': [
 					{
 						'name':"1",
@@ -143,6 +143,110 @@ PAGES_Stop = {
 								'start':0,
 								'end':20,
 								'justification':"left",
+								'scroll':False
+							}
+						]
+					}
+				]
+			},
+			{
+				'name':"ReadyWeatherTemp",
+				'font':'size5x8.system',
+				'duration':4,
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%A %-I:%M %p",
+								'format':"\x00\x01 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"2",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%B %-d %Y",
+								'format':"\x02\x03 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"3",
+						'format':"",
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "outside_temp_formatted" ],
+								'format':"Outside \x04\x05 {0}",
+								'start':0,
+								'end':20,
+								'justification':"center",
+								'scroll':False
+							}
+						]
+					}
+				]
+			},
+			{
+				'name':"ReadyWeatherConditions",
+				'font':'size5x8.system',
+				'duration':4,
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%A %-I:%M %p",
+								'format':"\x00\x01 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"2",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%B %-d %Y",
+								'format':"\x02\x03 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"3",
+						'format':"",
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "outside_conditions_title" ],
+								'format':"{0}",
+								'start':0,
+								'end':20,
+								'justification':"center",
 								'scroll':False
 							}
 						]

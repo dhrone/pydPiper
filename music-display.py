@@ -1013,6 +1013,15 @@ class music_controller(threading.Thread):
 				wea = observation_get_weather()
 				outside_tempf = wea.get_temperature('fahrenheit')['temp']
 				outside_tempc = wea.get_temperature('celsius')['temp']
+
+				# Localize temperature value
+				if music_display_config.TEMPERATURE.lower() == 'celsius':
+					outside_temp = outside_tempc
+					outside_temp_formatted = "{0}\xb0c".format(outside_temp)
+				else:
+					outside_temp = outside_tempf
+					outside_temp_formatted = "{0}\xb0f".format(outside_temp)
+
 				outside_conditions = wea.get_detailed_status()
 			except:
 				pass
@@ -1070,15 +1079,19 @@ class music_controller(threading.Thread):
 				availp = 0
 
 			with self.musicdata_lock:
+				self.musicdata['temp'] = temp
+				# For backward compatibility
 				self.musicdata['current_tempc'] = tempc
 				self.musicdata['current_tempf'] = tempf
+
 				self.musicdata['disk_avail'] = avail
 				self.musicdata['disk_availp'] = availp
 				self.musicdata['current_time'] = current_time
 				self.musicdata['current_time_sec'] = current_time
 				self.musicdata['current_ip'] = current_ip
-				self.musicdata['outside_tempc'] = outside_tempc
-				self.musicdata['outside_tempf'] = outside_tempf
+
+				self.musicdata['outside_temp'] = outside_temp
+				self.musicdata['outside_temp_formatted'] = outside_temp_formatted
 				self.musicdata['outside_conditions'] = outside_conditions
 
 			# Read environmentals every 20 seconds
