@@ -110,7 +110,10 @@ class display_controller(threading.Thread):
 				buffer += self.scrollwindow(segment, window, direction, resetscrollpositions)
 			else:
 				buffer += value[0:window]
-			buffer = "{0:<{1}}".format(buffer, end-start)
+			try:
+				buffer = "{0:<{1}}".format(buffer, end-start)
+			except:
+				buffer = "{0:<{1}}".format(buffer.encode('utf-8'), end-start).decode('utf-8')
 
 			pos = end
 		return buffer
@@ -183,7 +186,10 @@ class display_controller(threading.Thread):
 					else:
 						buffer = self.buildline(lines_value_current[linenr])
 
-					buffer = "{0:<{1}}".format(buffer,self.lcd.cols)
+					try:
+						buffer = "{0:<{1}}".format(buffer,self.lcd.cols)
+					except:
+						buffer = "{0:<{1}}".format(buffer.encode('utf-8'),self.lcd.cols).decode('utf-8')
 
 					# If actual content of line changed send update to display
 					if linebuffers[linenr] != buffer:
@@ -762,6 +768,7 @@ class music_controller(threading.Thread):
 				else:
 					logging.debug("Request to perform transform on {0} requires string input").format(name)
 					return val
+
 		return retval
 
 
@@ -930,17 +937,27 @@ class music_controller(threading.Thread):
 				try:
 					for k in range(len(current_segment['variables'])):
 						try:
-							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
-								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
+							varname = current_segment['variables'][k].split('|')[0]
+							val = self.transformvariable(self.musicdata[varname], current_segment['variables'][k])
+							if val is unicode:
+								parms.append(val.encode('utf-8'))
 							else:
-								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]))
+								parms.append(val)
+#							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
+#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
+#							else:
+#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]))
 						except KeyError:
 							pass
 				except KeyError:
 					pass
 
 				# create segment to display
-				segval = format.format(*parms).decode('utf-8')
+				try:
+					segval = format.format(*parms)
+				except:
+					# Format doesn't match available variables
+					segval = u"Variable error"
 
 				# justify segment
 				try:
@@ -952,7 +969,7 @@ class music_controller(threading.Thread):
 					pass
 
 				# Place actual value to display within segment into the segment data structure
-				segment['value'] = segval
+				segment['value'] = segval.decode('utf-8')
 
 				# Add segment to array of segments
 				segments.append(segment)
@@ -1005,22 +1022,24 @@ class music_controller(threading.Thread):
 
 			outside_tempf = 0.0
 			outside_tempc = 0.0
+			outside_temp = 0.0
 			outside_conditions = ''
+			outside_temp_formatted = ''
 
 			try:
 				owm = pyowm.OWM(music_display_config.OWM_API)
-				obs = owm.weather_at_place(OWM_LOCATION)
-				wea = observation_get_weather()
+				obs = owm.weather_at_place(music_display_config.OWM_LOCATION)
+				wea = obs.get_weather()
 				outside_tempf = wea.get_temperature('fahrenheit')['temp']
 				outside_tempc = wea.get_temperature('celsius')['temp']
 
 				# Localize temperature value
 				if music_display_config.TEMPERATURE.lower() == 'celsius':
 					outside_temp = outside_tempc
-					outside_temp_formatted = "{0}\xb0c".format(outside_temp)
+					outside_temp_formatted = "{0}°c".format(int(outside_temp))
 				else:
 					outside_temp = outside_tempf
-					outside_temp_formatted = "{0}\xb0f".format(outside_temp)
+					outside_temp_formatted = "{0}°f".format(int(outside_temp))
 
 				outside_conditions = wea.get_detailed_status()
 			except:
@@ -1044,6 +1063,14 @@ class music_controller(threading.Thread):
 				file.close()
 				tempc = 0.0
 				tempf = 0.0
+
+			try:
+				if music_display_config.TEMPERATURE.lower() == 'celsuius':
+					temp = tempc
+				else:
+					temp = tempf
+			except:
+				temp = tempf
 
 			try:
 				# Check if running on OSX.  If yes, adjust df command

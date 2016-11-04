@@ -79,5 +79,5 @@ DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
 #DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
 
 # WEATHER Settings
-OWA_API = '52dfe63ba1fd89b1eda781a02d456842'
-OWA_LOCATION = "Fairfax, VA"
+OWM_API = '52dfe63ba1fd89b1eda781a02d456842'
+OWM_LOCATION = "Fairfax, VA"

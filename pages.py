@@ -72,15 +72,15 @@ PAGES_Play = {
 						'segments': [
 							{
 								'variables': [ "playlist_display"],
-								'start':0,
-								'end':10,
+								'start':2,
+								'end':12,
 								'format':"  {0}",
 								'justification':"left",
 								'scroll':False
 							},
 							{
 								'variables': [ "position" ],
-								'start':10,
+								'start':12,
 								'end':20,
 								'format':"{0}",
 								'justification':"right",
@@ -242,7 +242,7 @@ PAGES_Stop = {
 						'name':"4",
 						'segments': [
 							{
-								'variables': [ "outside_conditions_title" ],
+								'variables': [ "outside_conditions|title" ],
 								'format':"{0}",
 								'start':0,
 								'end':20,
