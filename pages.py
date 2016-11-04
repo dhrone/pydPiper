@@ -8,17 +8,12 @@ PAGES_Play = {
 				'name':"AlbumArtistTitle",
 				'font':'size5x8.playing',
 				'duration':8,
-				'hidewhenempty':'any',
-				'hidewhenemptyvars': [ "title" ],
+				'hidewhenempty':'all',
+				'hidewhenemptyvars': [ "artist", "album" ],
 				'lines': [
 					{
 						'name':"1",
 						'segments': [
-							{
-								'start':0,
-								'end':2,
-								'format':"\x00\x01"
-							},
 							{
 								'variables': [ "artist" ],
 								'start':2,
@@ -89,7 +84,65 @@ PAGES_Play = {
 						]
 					}
 				]
+			},
+			{
+				'name':"TitleOnly",
+				'font':'size5x8.playing',
+				'duration':8,
+				'hidewhenpresent':'any',
+				'hidewhenpresentvars': [ "artist", "album" ],
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'start':0,
+								'end':2,
+								'format':"\x02\x03"
+							},
+							{
+								'variables': [ "title" ],
+								'start':2,
+								'end':20,
+								'format':"{0}",
+								'justification':"left",
+								'scroll':True,
+								'scrolldirection':'left'
+							}
+						]
+					},
+					{
+						'name':"2",
+						'format':"",
+					},
+					{
+						'name':"3",
+						'format':"",
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "playlist_display"],
+								'start':0,
+								'end':10,
+								'format':"  {0}",
+								'justification':"left",
+								'scroll':False
+							},
+							{
+								'variables': [ "position" ],
+								'start':10,
+								'end':20,
+								'format':"{0}",
+								'justification':"right",
+								'scroll':False
+							}
+						]
+					}
+				]
 			}
+
 		]
 }
 

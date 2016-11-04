@@ -4,7 +4,7 @@
 # musicctrl service to manage reading from active services
 # Written by: Ron Ritchey
 
-import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy
+import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp
 import pages
 import displays
 import sources
@@ -1124,6 +1124,28 @@ class music_controller(threading.Thread):
 			# Read environmentals every 20 seconds
 			time.sleep(20)
 
+def validpages(pagesmodule):
+	# Need to have the following structures to be valid
+
+	# PAGES_Play
+	try:
+		p = pagesmodule.PAGES_Play
+	except:
+		return False
+
+	# PAGES_Stop
+	try:
+		p = pagesmodule.PAGES_Stop
+	except:
+		return False
+
+	# ALERT_LIST
+	try:
+		al = pagesmodule.ALERT_LIST
+	except:
+		return False
+
+	return True
 
 def sigterm_handler(_signo, _stack_frame):
         sys.exit(0)
@@ -1160,9 +1182,9 @@ if __name__ == '__main__':
 	loggingMPD.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio","showupdates"])
+		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio","pages", "showupdates"])
 	except getopt.GetoptError:
-		print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --showupdates'
+		print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
 		sys.exit(2)
 
 	services_list = [ ]
@@ -1171,7 +1193,7 @@ if __name__ == '__main__':
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --showupdates'
+			print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
 			sys.exit()
 		elif opt in ("-d", "--driver"):
 			driver = arg
@@ -1185,8 +1207,21 @@ if __name__ == '__main__':
 			services_list.append('rune')
 		elif opt in ("--volumio"):
 			services_list.append('volumio')
+		elif opt in ("--pages"):
+			# If page file provided, try to load provided file on top of default pages file
+			try:
+				newpages = imp.load_source('pages', arg)
+				if validpages(newpages):
+					pages = newpages
+				else:
+					print "Invalid page file provided.  Using default pages."
+			except IOError:
+				# Page file not found
+				print "Page file {0} not found.  Using default pages".format(arg)
+
 		elif opt in ("--showupdates"):
 			showupdates = True
+
 
 	if len(services_list) == 0:
 		logging.critical("Must have at least one music service to monitor")

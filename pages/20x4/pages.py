@@ -1,183 +1,265 @@
-# Page Definitions
-# See Page Format.txt for instructions and examples on how to modify your display settings
-
 PAGES_Play = {
-  'name':"Play",
-  'pages':
-    [
-      {
-        'name':"Artist",
-        'duration':8,
-		'hidewhenempty':'any',
-        'hidewhenemptyvars': [ "artist" ],
-        'lines': [
-          {
-            'name':"top",
-            'variables': [ "artist" ],
-            'format':"{0}",
-            'justification':"left",
-            'scroll':True
-          },
-          {
-            'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
-            'format':"{0} {1}",
-            'justification':"left",
-            'scroll':False
-          }
-        ]
-      },
-      {
-        'name':"Blank",
-        'duration':0.25,
-        'lines': [
-          {
-            'name':"top",
-            'format':"",
-          },
-          {
-            'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
-            'format':"{0} {1}",
-            'justification':"left",
-            'scroll':False
-          }
-        ]
-      },
-      {
-        'name':"Album",
-        'duration':8,
-		'hidewhenempty':'any',
-        'hidewhenemptyvars': [ "album" ],
-        'lines': [
-          {
-            'name':"top",
-            'variables': [ "album" ],
-            'format':"{0}",
-            'justification':"left",
-            'scroll':True
-          },
-          {
-            'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
-            'format':"{0} {1}",
-            'justification':"left",
-            'scroll':False
-          }
-        ]
-      },
-      {
-        'name':"Blank",
-        'duration':0.25,
-        'lines': [
-          {
-            'name':"top",
-            'format':"",
-          },
-          {
-            'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
-            'format':"{0} {1}",
-            'justification':"left",
-            'scroll':False
-          }
-        ]
-      },
-      {
-        'name':"Title",
-        'duration':10,
-		'hidewhenempty':'any',
-        'hidewhenemptyvars': [ "title" ],
-        'lines': [
-          {
-            'name':"top",
-            'variables': [ "title" ],
-            'format':"{0}",
-            'justification':"left",
-            'scroll':True
-          },
-          {
-            'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
-            'format':"{0} {1}",
-            'justification':"left",
-            'scroll':False
-          }
-        ]
-      },
-      {
-        'name':"Blank",
-        'duration':0.25,
-        'lines': [
-          {
-            'name':"top",
-            'format':"",
-          },
-          {
-            'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
-            'format':"{0} {1}",
-            'justification':"left",
-            'scroll':False
-          }
-        ]
-      }
-    ]
+	'name':"Play",
+	'cols':20,
+	'rows':4,
+	'pages':
+		[
+			{
+				'name':"AlbumArtistTitle",
+				'font':'size5x8.playing',
+				'duration':8,
+				'hidewhenempty':'any',
+				'hidewhenemptyvars': [ "title" ],
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'start':0,
+								'end':2,
+								'format':"\x00\x01"
+							},
+							{
+								'variables': [ "artist" ],
+								'start':2,
+								'end':20,
+								'format':"{0}",
+								'justification':"left",
+								'scroll':True,
+								'scrolldirection':'left'
+							}
+						]
+					},
+					{
+						'name':"2",
+						'segments': [
+							{
+								'start':0,
+								'end':2,
+								'format':"\x04\x05"
+							},
+							{
+								'variables': [ "album" ],
+								'start':2,
+								'end':20,
+								'format':"{0}",
+								'justification':"left",
+								'scroll':True,
+								'scrolldirection':'left'
+							}
+						]
+					},
+					{
+						'name':"3",
+						'segments': [
+							{
+								'start':0,
+								'end':2,
+								'format':"\x02\x03"
+							},
+							{
+								'variables': [ "title" ],
+								'start':2,
+								'end':20,
+								'format':"{0}",
+								'justification':"left",
+								'scroll':True
+							}
+						]
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "playlist_display"],
+								'start':0,
+								'end':10,
+								'format':"  {0}",
+								'justification':"left",
+								'scroll':False
+							},
+							{
+								'variables': [ "position" ],
+								'start':10,
+								'end':20,
+								'format':"{0}",
+								'justification':"right",
+								'scroll':False
+							}
+						]
+					}
+				]
+			}
+		]
 }
 
 PAGES_Stop = {
-  'name':"Stop",
-  'pages':
-    [
-      {
-        'name':"Ready",
-        'duration':15,
-        'lines': [
-          {
-            'name':"top",
-            'variables': [ ],
-            'format':"Ready",
-            'justification':"center",
-            'scroll':False
-          },
-          {
-            'name':"bottom",
-            'variables': [ "current_time_formatted" ],
-            'strftime':"%a %b %-d %H:%M",
-            'format':"{0}",
-            'justification':"center",
-            'scroll':False
-          }
-        ]
-      },
-      {
-        'name':"SYSTEMVARS",
-        'duration':10,
-        'lines': [
-          {
-            'name':"top",
-            'variables': [ "current_tempc", "disk_availp" ],
-            'format':"Temp: {0}c / Disk {1}% full",
-            'justification':"left",
-            'scroll':True
-          },
-          {
-            'name':"bottom",
-            'variables': [ "current_time_formatted" ],
-            'strftime':"%a %b %-d %H:%M",
-            'format':"{0}",
-            'justification':"center",
-            'scroll':False
-          }
-        ]
-      }
-    ]
+	'name':"Stop",
+	'pages':
+		[
+			{
+				'name':"Ready",
+				'font':'size5x8.system',
+				'duration':10,
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%A %-I:%M %p",
+								'format':"\x00\x01 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"2",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%B %-d %Y",
+								'format':"\x02\x03 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"3",
+						'format':"",
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "current_tempf", "disk_availp" ],
+								'format':"\x04\x05 {0}	\x06\x07 {1}%",
+								'start':3,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					}
+				]
+			},
+			{
+				'name':"ReadyWeatherTemp",
+				'font':'size5x8.system',
+				'duration':4,
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%A %-I:%M %p",
+								'format':"\x00\x01 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"2",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%B %-d %Y",
+								'format':"\x02\x03 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"3",
+						'format':"",
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "outside_temp_formatted" ],
+								'format':"Outside \x04\x05 {0}",
+								'start':3,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					}
+				]
+			},
+			{
+				'name':"ReadyWeatherConditions",
+				'font':'size5x8.system',
+				'duration':4,
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%A %-I:%M %p",
+								'format':"\x00\x01 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"2",
+						'segments': [
+							{
+								'variables': [ "current_time_formatted" ],
+								'strftime':"%B %-d %Y",
+								'format':"\x02\x03 {0}",
+								'start':0,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"3",
+						'format':"",
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "outside_conditions|title" ],
+								'format':"{0}",
+								'start':3,
+								'end':20,
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					}
+				]
+			}
+		]
 }
 
 ALERT_Volume = {
  	'name':"Volume",
 	'alert': {
-  		'variable': "volume",
+			'variable': "volume",
 		'type': "change",
 		'suppressonstatechange':True,
 		'coolingperiod': 0
@@ -185,33 +267,59 @@ ALERT_Volume = {
 	'interruptible':False,
 	'pages': [
 		{
-		'name':"Volume",
-		'font':'size5x8.speaker',
-        	'duration':2,
-        	'lines': [
-          		{
-            		'name':"top",
-            		'variables': ["volume" ],
-            		'format':"\x00\x01   Volume {0}",
-            		'justification':"left",
-            		'scroll':False
-          		},
-          		{
-            		'name':"bottom",
-            		'variables': [ "volume_bar_big" ],
-            		'format':"\x02\x03 {0}",
-            		'justification':"left",
-            		'scroll':False
-          		}
-        	]
-      	}
-    ]
+			'name':"Volume",
+			'font':'size5x8.speaker',
+			'duration':2,
+			'lines': [
+				{
+					'name':"1",
+					'segments': [
+						{
+							'format':""
+						}
+					]
+				},
+				{
+					'name':"2",
+					'segments': [
+						{
+							'variables': ["volume" ],
+							'format':"\x00\x01	   Volume {0}",
+							'start':0,
+							'end':20,
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				},
+				{
+					'name':"3",
+					'segments': [
+						{
+							'variables': [ "volume_bar_big" ],
+							'format':"\x02\x03 {0}",
+							'start':0,
+							'end':20
+						}
+					]
+				},
+				{
+					'name':"4",
+					'segments': [
+						{
+							'format':""
+						}
+					]
+				}
+			]
+		}
+	]
 }
 
 ALERT_Play = {
  	'name':"Play",
 	'alert': {
-  		'variable': "state",
+			'variable': "state",
 		'type': "change",
 		'values': [ 'play' ],
 		'suppressonstatechange':False,
@@ -220,31 +328,37 @@ ALERT_Play = {
 	'interruptible':False,
 	'pages': [
 		{
-		'name':"Play",
-		'font':'size5x8.player',
-        	'duration':1.5,
-        	'lines': [
-          		{
-            		'name':"top",
-            		'format':"\x01 Play",
-            		'justification':"left",
-            		'scroll':False
-          		},
-          		{
-            		'name':"bottom",
-			'format':'',
-            		'justification':"left",
-            		'scroll':False
-          		}
-        	]
-      	}
-    ]
+			'name':"Play",
+			'font':'size5x8.player',
+			'duration':1.5,
+			'lines': [
+				{
+					'name':"1",
+					'segments': [
+						{
+							'format':""
+						}
+					]
+				},
+				{
+					'name':"2",
+					'segments': [
+						{
+							'format':"\x01 Play",
+							'justification':"center",
+							'scroll':False
+						}
+					]
+				}
+			]
+		}
+	]
 }
 
 ALERT_Stop = {
  	'name':"Stop",
 	'alert': {
-  		'variable': "state",
+			'variable': "state",
 		'type': "change",
 		'values': [ 'stop' ],
 		'suppressonstatechange':False,
@@ -253,31 +367,37 @@ ALERT_Stop = {
 	'interruptible':False,
 	'pages': [
 		{
-		'name':"Stop",
-		'font':'size5x8.player',
-        	'duration':1.5,
-        	'lines': [
-          		{
-            		'name':"top",
-            		'format':"\x00 Stop",
-            		'justification':"left",
-            		'scroll':False
-          		},
-          		{
-            		'name':"bottom",
-			'format':'',
-            		'justification':"left",
-            		'scroll':False
-          		}
-        	]
-      	}
-    ]
+			'name':"Stop",
+			'font':'size5x8.player',
+			'duration':1.5,
+			'lines': [
+				{
+					'name':"1",
+					'segments': [
+						{
+							'format':""
+						}
+					]
+				},
+				{
+					'name':"2",
+					'segments': [
+						{
+							'format':"\x00 Stop",
+							'justification':"center",
+							'scroll':False
+						}
+					]
+				}
+			]
+		}
+	]
 }
 
 ALERT_RepeatOnce = {
  	'name':"RepeatOnce",
 	'alert': {
-  		'variable': "single",
+			'variable': "single",
 		'type': "change",
 		'suppressonstatechange':False,
 		'coolingperiod': 0
@@ -285,32 +405,40 @@ ALERT_RepeatOnce = {
 	'interruptible':False,
 	'pages': [
 		{
-		'name':"Stop",
-		'font':'size5x8.repeat_once',
-        	'duration':1.5,
-        	'lines': [
-          		{
-            		'name':"top",
-            		'format':"\x00\x01 Repeat",
-            		'justification':"left",
-            		'scroll':False
-          		},
-          		{
-            		'name':"bottom",
-            		'variables': [ "single_onoff" ],
-            		'format':"\x02\x03 Once {0}",
-            		'justification':"left",
-            		'scroll':False
-          		}
-        	]
-      	}
-    ]
+			'name':"Stop",
+			'font':'size5x8.repeat_once',
+			'duration':1.5,
+			'lines': [
+				{
+					'name':"top",
+					'segments': [
+						{
+							'format':"\x00\x01 Repeat",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				},
+				{
+					'name':"bottom",
+					'segments': [
+						{
+							'variables': [ "single_onoff" ],
+							'format':"\x02\x03 Once {0}",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				}
+			]
+		}
+	]
 }
 
 ALERT_RepeatAll = {
  	'name':"RepeatAll",
 	'alert': {
-  		'variable': "repeat",
+			'variable': "repeat",
 		'type': "change",
 		'suppressonstatechange':False,
 		'coolingperiod': 0
@@ -318,32 +446,40 @@ ALERT_RepeatAll = {
 	'interruptible':False,
 	'pages': [
 		{
-		'name':"Stop",
-		'font':'size5x8.repeat_all',
-        	'duration':1.5,
-        	'lines': [
-          		{
-            		'name':"top",
-            		'format':"\x00\x01 Repeat",
-            		'justification':"left",
-            		'scroll':False
-          		},
-          		{
-            		'name':"bottom",
-            		'variables': [ "repeat_onoff" ],
-            		'format':"\x02\x03 All {0}",
-            		'justification':"left",
-            		'scroll':False
-          		}
-        	]
-      	}
-    ]
+			'name':"Stop",
+			'font':'size5x8.repeat_all',
+			'duration':1.5,
+			'lines': [
+				{
+					'name':"top",
+					'segments': [
+						{
+							'format':"\x00\x01 Repeat",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				},
+				{
+					'name':"bottom",
+					'segments': [
+						{
+							'variables': [ "repeat_onoff" ],
+							'format':"\x02\x03 All {0}",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				}
+			]
+		}
+	]
 }
 
 ALERT_Shuffle = {
  	'name':"Shuffle",
 	'alert': {
-  		'variable': "random",
+			'variable': "random",
 		'type': "change",
 		'suppressonstatechange':False,
 		'coolingperiod': 0
@@ -351,32 +487,40 @@ ALERT_Shuffle = {
 	'interruptible':False,
 	'pages': [
 		{
-		'name':"Stop",
-		'font':'size5x8.shuffle',
-        	'duration':1.5,
-        	'lines': [
-          		{
-            		'name':"top",
-            		'format':"\x00\x01 Random",
-            		'justification':"left",
-            		'scroll':False
-          		},
-          		{
-            		'name':"bottom",
-            		'variables': [ "random_onoff" ],
-            		'format':"\x02\x03 Play {0}",
-            		'justification':"left",
-            		'scroll':False
-          		}
-        	]
-      	}
-    ]
+			'name':"Stop",
+			'font':'size5x8.shuffle',
+			'duration':1.5,
+			'lines': [
+				{
+					'name':"top",
+					'segments': [
+						{
+						'format':"\x00\x01 Random",
+						'justification':"left",
+						'scroll':False
+						}
+					]
+				},
+				{
+					'name':"bottom",
+					'segments': [
+						{
+						'variables': [ "random_onoff" ],
+						'format':"\x02\x03 Play {0}",
+						'justification':"left",
+						'scroll':False
+						}
+					]
+				}
+			]
+		}
+	]
 }
 
 ALERT_TempTooHigh = {
  	'name':"TempTooHigh",
 	'alert': {
-  		'variable': "current_tempc",
+			'variable': "current_tempc",
 		'type': "above",
 		'values': [ 85 ],
 		'suppressonstatechange':False,
@@ -386,25 +530,32 @@ ALERT_TempTooHigh = {
 	'pages': [
 		{
 			'name':"TempTooHigh",
-        	'duration':8,
-        	'lines': [
-          		{
-            		'name':"top",
-            		'variables': [ ],
-            		'format':"Temp Too High",
-            		'justification':"center",
-            		'scroll':False
-          		},
-          		{
-            		'name':"bottom",
-            		'variables': [ "current_tempc" ],
-            		'format':"Temp: {0}c",
-            		'justification':"center",
-            		'scroll':False
-          		}
-        	]
-      	}
-    ]
+			'duration':8,
+			'lines': [
+				{
+					'name':"top",
+					'segments': [
+						{
+							'format':"Temp Too High",
+							'justification':"center",
+							'scroll':False
+						}
+					]
+				},
+				{
+					'name':"bottom",
+					'segments': [
+						{
+							'variables': [ "current_tempc" ],
+							'format':"Temp: {0}c",
+							'justification':"center",
+							'scroll':False
+						}
+					]
+				}
+			]
+		}
+	]
 }
 
 
