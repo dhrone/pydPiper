@@ -41,6 +41,8 @@ class display_controller(threading.Thread):
 
 		if resetscrollposition:
 			segment['scrollposition'] = 0
+			segment['hesitate_timer'] = time.time() + music_display_config.HESITATION_TIME
+
 
 		# Get current scroll position
 		sp = segment['scrollposition'] if 'scrollposition' in segment else 0
