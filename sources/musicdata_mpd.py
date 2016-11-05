@@ -53,11 +53,11 @@ class musicdata_mpd(musicdata.musicdata):
 		self.connection_failed = 0
 		self.dataclient = None
 
-		logging.debug("Connecting to MPD service on {0}:{1}".format(self.server, self.port))
+		logging.debug(u"Connecting to MPD service on {0}:{1}".format(self.server, self.port))
 
 		while True:
 			if self.connection_failed >= 10:
-				logging.debug("Could not connect to MPD")
+				logging.debug(u"Could not connect to MPD")
 				break
 			try:
 				# Connection to MPD
@@ -71,14 +71,14 @@ class musicdata_mpd(musicdata.musicdata):
 				self.connection_failed += 1
 				time.sleep(1)
 		if self.dataclient is None:
-			raise mpd.ConnectionError("Could not connect to MPD")
+			raise mpd.ConnectionError(u"Could not connect to MPD")
 		else:
-			logging.debug("Connected to MPD")
+			logging.debug(u"Connected to MPD")
 
 
 	def run(self):
 
-		logging.debug("MPD musicdata service starting")
+		logging.debug(u"MPD musicdata service starting")
 
 		while True:
 			if self.dataclient is None:
@@ -104,7 +104,7 @@ class musicdata_mpd(musicdata.musicdata):
 				time.sleep(.01)
 			except mpd.ConnectionError:
 				self.dataclient = None
-				logging.debug("Could not get status from MPD")
+				logging.debug(u"Could not get status from MPD")
 				time.sleep(5)
 				continue
 
@@ -126,10 +126,10 @@ class musicdata_mpd(musicdata.musicdata):
 		self.musicdata['artist'] = current_song['artist'] if 'artist' in current_song else u""
 		self.musicdata['title'] = current_song['title'] if 'title' in current_song else u""
 		self.musicdata['album'] = current_song['album'] if 'album' in current_song else u""
-		self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
-		self.musicdata['repeat'] = bool(int(status['repeat'])) if 'repeat' in status else False
-		self.musicdata['random'] = bool(int(status['random'])) if 'random' in status else False
-		self.musicdata['single'] = bool(int(status['single'])) if 'single' in status else False
+		self.musicdata['volume'] = self.intn(status['volume']) if 'volume' in status else 0
+		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'repeat' in status else False
+		self.musicdata['random'] = bool(self.intn(status['random'])) if 'random' in status else False
+		self.musicdata['single'] = bool(self.intn(status['single'])) if 'single' in status else False
 		self.musicdata['uri'] = current_song['file'] if 'file' in current_song else u""
 
 
@@ -149,13 +149,13 @@ class musicdata_mpd(musicdata.musicdata):
 		self.musicdata['musicdatasource'] = "MPD"
 
 		if self.musicdata['uri'].split(':')[0] == 'http':
-			encoding = 'webradio'
+			encoding = u'webradio'
 		else:
 			encoding = self.musicdata['uri'].split(':')[0]
 
 		self.musicdata['encoding'] = encoding
 
-		self.musicdata['bitrate'] = "{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
+		self.musicdata['bitrate'] = u"{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
 
 		plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
 		plc = self.musicdata['playlist_length'] = int(status['playlistlength']) if 'playlistlength' in status else 0
@@ -165,10 +165,10 @@ class musicdata_mpd(musicdata.musicdata):
 
 		# If playlist is length 1 and the song playing is from an http source it is streaming
 		if self.musicdata['encoding'] == 'webradio':
-			self.musicdata['playlist_display'] = "Streaming"
+			self.musicdata['playlist_display'] = u"Streaming"
 			self.musicdata['artist'] = current_song['name'] if 'name' in current_song else u""
 		else:
-				self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
+				self.musicdata['playlist_display'] = u"{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
 
 		audio = status['audio'] if 'audio' in status else None
 		bitdepth = u""
@@ -195,10 +195,10 @@ class musicdata_mpd(musicdata.musicdata):
 			 	else:
 				 	channels = u""
 
-		 		tracktype = "{0} {1} {2} bit {3} kHz".format(self.musicdata['encoding'], channels, bits, sample).strip()
+		 		tracktype = u"{0} {1} {2} bit {3} kHz".format(self.musicdata['encoding'], channels, bits, sample).strip()
 
-				bitdepth = "{0} bits".format(bits)
-				samplerate = "{0} kHz".format(sample)
+				bitdepth = u"{0} bits".format(bits)
+				samplerate = u"{0} kHz".format(sample)
 
 		self.musicdata['tracktype'] = tracktype
 		self.musicdata['bitdepth'] = bitdepth
@@ -213,11 +213,14 @@ class musicdata_mpd(musicdata.musicdata):
 			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining
-		self.musicdata['elapsed_formatted'] = timepos
+		self.musicdata['remaining'] = remaining.decode()
+		self.musicdata['elapsed_formatted'] = timepos.decode()
 
 		# For backwards compatibility
 		self.musicdata['position'] = self.musicdata['elapsed_formatted']
+
+		self.validatemusicvars(self.musicdata)
+
 
 if __name__ == '__main__':
 
