@@ -57,10 +57,10 @@ class musicdata_lms(musicdata.musicdata):
 		connection_failed = 0
 		self.rawserver = None
 
-		logging.debug("Connecting to LMS raw service on {0}:{1}".format(self.server, self.port))
+		logging.debug(u"Connecting to LMS raw service on {0}:{1}".format(self.server, self.port))
 		while True:
 			if connection_failed >= 10:
-				logging.debug("Could not connect to raw LMS service")
+				logging.debug(u"Could not connect to raw LMS service")
 				break
 			try:
 				# Connection to LMS
@@ -74,7 +74,7 @@ class musicdata_lms(musicdata.musicdata):
 				connection_failed += 1
 				time.sleep(1)
 		if self.rawserver is None:
-			raise IOError("Could not connect raw to LMS")
+			raise IOError(u"Could not connect raw to LMS")
 
 	def connect(self):
 
@@ -82,11 +82,11 @@ class musicdata_lms(musicdata.musicdata):
 		self.connection_failed = 0
 		self.dataserver = None
 
-		logging.debug("Connecting to LMS service on {0}:{1}".format(self.server, self.port))
+		logging.debug(u"Connecting to LMS service on {0}:{1}".format(self.server, self.port))
 
 		while True:
 			if self.connection_failed >= 10:
-				logging.debug("Could not connect to LMS service")
+				logging.debug(u"Could not connect to LMS service")
 				break
 			try:
 				# Connection to LMS
@@ -101,14 +101,14 @@ class musicdata_lms(musicdata.musicdata):
 				if self.dataplayer is None:
 					self.dataplayer = self.dataserver.get_players()[0]
 					if self.dataplayer is None:
-						logging.critical("Could not find any LMS Players")
-						raise RuntimeError("Could not find any LMS Players")
+						logging.critical(u"Could not find any LMS Players")
+						raise RuntimeError(u"Could not find any LMS Players")
 					self.player = str(self.dataplayer)
 
 				break
 			except (IOError, AttributeError, IndexError):
 				### Trying to debug services
-				logging.error("LMS connect failure", exc_info=sys.exc_info())
+				logging.error(u"LMS connect failure", exc_info=sys.exc_info())
 
 				self.dataserver = None
 				self.dataplayer = None
@@ -116,15 +116,15 @@ class musicdata_lms(musicdata.musicdata):
 				time.sleep(1)
 		if self.dataserver is None:
 			### Trying to debug services
-			logging.error("LMS dataserver is None", exc_info=sys.exc_info())
-			raise IOError("Could not connect to LMS")
+			logging.error(u"LMS dataserver is None", exc_info=sys.exc_info())
+			raise IOError(u"Could not connect to LMS")
 		else:
-			logging.debug("Connected to LMS using player {0}".format(self.dataplayer.get_name()))
+			logging.debug(u"Connected to LMS using player {0}".format(self.dataplayer.get_name()))
 
 
 	def run(self):
 
-		logging.debug("LMS musicdata service starting")
+		logging.debug(u"LMS musicdata service starting")
 
 		while True:
 			# Connect to the data service if needed
@@ -168,7 +168,7 @@ class musicdata_lms(musicdata.musicdata):
 				time.sleep(.01)
 			except IOError:
 				self.dataserver = None
-				logging.debug("Could not get status from LMS")
+				logging.debug(u"Could not get status from LMS")
 				time.sleep(5)
 				continue
 
@@ -208,7 +208,7 @@ class musicdata_lms(musicdata.musicdata):
 			self.musicdata['single'] = False
 			self.musicdata['repeat'] = True
 		else:
-			logging.debug("Unexpected value received when querying playlist mode status (e.g. single, repeat)")
+			logging.debug(u"Unexpected value received when querying playlist mode status (e.g. single, repeat)")
 			self.musicdata['single'] = self.musicdata['repeat'] = False
 
 		shuffle_mode = int(self.dataplayer.request("playlist shuffle ?", True))
@@ -217,7 +217,7 @@ class musicdata_lms(musicdata.musicdata):
 		elif shuffle_mode == 1 or shuffle_mode == 2:
 			self.musicdata['random'] = True
 		else:
-			logging.debug("Unexpected value received when querying playlist shuffle status")
+			logging.debug(u"Unexpected value received when querying playlist shuffle status")
 			self.musicdata['random'] =  False
 
 
@@ -226,36 +226,36 @@ class musicdata_lms(musicdata.musicdata):
 		# For backwards compatibility
 		self.musicdata['playlist_count'] = self.musicdata['playlist_length']
 
-		playlist_display = "{0}/{1}".format(plp, plc)
+		playlist_display = u"{0}/{1}".format(plp, plc)
 		# If the track count is greater than 1, we are playing from a playlist and can display track position and track count
 		if self.plc > 1:
-			playlist_display = "{0}/{1}".format(plp, plc)
+			playlist_display = u"{0}/{1}".format(plp, plc)
 		# if the track count is exactly 1, this is either a short playlist or it is streaming
 		elif plc == 1:
 			try:
 				# if streaming
 				if self.dataplayer.playlist_get_info()[0]['duration'] == 0.0:
-					playlist_display = "Streaming"
+					playlist_display = u"Streaming"
 				# it really is a short playlist
 				else:
 					playlist_display = "{0}/{1}".format(plp, plc)
 			except KeyError:
-				logging.debug("In LMS couldn't get valid track information")
+				logging.debug(u"In LMS couldn't get valid track information")
 				playlist_display = u""
 		else:
-			logging.debug("In LMS track length is <= 0")
+			logging.debug(u"In LMS track length is <= 0")
 			playlist_display = u""
 
 		self.musicdata['playlist_display'] = playlist_display
 
-		self.musicdata['musicdatasource'] = "LMS"
+		self.musicdata['musicdatasource'] = u"LMS"
 
 		url = self.dataplayer.get_track_path()
 		self.musicdata['uri'] = url
 
 		urlp = urlparse.urlparse(url)
 		if urlp.scheme.lower() == 'wimp':
-			self.musicdata['actPlayer'] = 'tidal'
+			self.musicdata['actPlayer'] = u'tidal'
 		elif urlp.scheme.lower() == 'http':
 			# Extract out domain name
 			try:
@@ -287,8 +287,8 @@ class musicdata_lms(musicdata.musicdata):
 			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining
-		self.musicdata['elapsed_formatted'] = timepos
+		self.musicdata['remaining'] = remaining.decode()
+		self.musicdata['elapsed_formatted'] = timepos.decode()
 
 		# For backwards compatibility
 		self.musicdata['position'] = self.musicdata['elapsed_formatted']
@@ -308,7 +308,7 @@ if __name__ == '__main__':
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w:l:",["server=","port=","user=","pwd=","player="])
 	except getopt.GetoptError:
-		print 'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
+		print u'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
 		sys.exit(2)
 
 	# Set defaults
@@ -320,7 +320,7 @@ if __name__ == '__main__':
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
+			print u'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
 			sys.exit()
 		elif opt in ("-s", "--server"):
 			server = arg
