@@ -20,7 +20,7 @@ PAGES_Play = {
           },
           {
             'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
+            'variables': [ "playlist_display", "elapsed_formatted" ],
             'format':"{0} {1}",
             'justification':"left",
             'scroll':False
@@ -37,7 +37,7 @@ PAGES_Play = {
           },
           {
             'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
+            'variables': [ "playlist_display", "elapsed_formatted" ],
             'format':"{0} {1}",
             'justification':"left",
             'scroll':False
@@ -59,7 +59,7 @@ PAGES_Play = {
           },
           {
             'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
+            'variables': [ "playlist_display", "elapsed_formatted" ],
             'format':"{0} {1}",
             'justification':"left",
             'scroll':False
@@ -76,7 +76,7 @@ PAGES_Play = {
           },
           {
             'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
+            'variables': [ "playlist_display", "elapsed_formatted" ],
             'format':"{0} {1}",
             'justification':"left",
             'scroll':False
@@ -98,7 +98,7 @@ PAGES_Play = {
           },
           {
             'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
+            'variables': [ "playlist_display", "elapsed_formatted" ],
             'format':"{0} {1}",
             'justification':"left",
             'scroll':False
@@ -115,7 +115,7 @@ PAGES_Play = {
           },
           {
             'name':"bottom",
-            'variables': [ "playlist_display", "position" ],
+            'variables': [ "playlist_display", "elapsed_formatted" ],
             'format':"{0} {1}",
             'justification':"left",
             'scroll':False
@@ -142,7 +142,7 @@ PAGES_Stop = {
           },
           {
             'name':"bottom",
-            'variables': [ "current_time_formatted" ],
+            'variables': [ "time_formatted" ],
             'strftime':"%a %b %-d %H:%M",
             'format':"{0}",
             'justification':"center",
@@ -156,14 +156,35 @@ PAGES_Stop = {
         'lines': [
           {
             'name':"top",
-            'variables': [ "current_tempc", "disk_availp" ],
+            'variables': [ "system_temp", "disk_usedp" ],
             'format':"Temp: {0}c / Disk {1}% full",
             'justification':"left",
             'scroll':True
           },
           {
             'name':"bottom",
-            'variables': [ "current_time_formatted" ],
+            'variables': [ "time_formatted" ],
+            'strftime':"%a %b %-d %H:%M",
+            'format':"{0}",
+            'justification':"center",
+            'scroll':False
+          }
+        ]
+      },
+      {
+        'name':"WEATHER",
+        'duration':10,
+        'lines': [
+          {
+            'name':"top",
+            'variables': [ "outside_temp", "outside_conditions" ],
+            'format':"Weather: {0} {1}",
+            'justification':"left",
+            'scroll':True
+          },
+          {
+            'name':"bottom",
+            'variables': [ "time_formatted" ],
             'strftime':"%a %b %-d %H:%M",
             'format':"{0}",
             'justification':"center",
@@ -297,7 +318,7 @@ ALERT_RepeatOnce = {
           		},
           		{
             		'name':"bottom",
-            		'variables': [ "single_onoff" ],
+            		'variables': [ "single|onoff" ],
             		'format':"\x02\x03 Once {0}",
             		'justification':"left",
             		'scroll':False
@@ -330,7 +351,7 @@ ALERT_RepeatAll = {
           		},
           		{
             		'name':"bottom",
-            		'variables': [ "repeat_onoff" ],
+            		'variables': [ "repeat|onoff" ],
             		'format':"\x02\x03 All {0}",
             		'justification':"left",
             		'scroll':False
@@ -363,7 +384,7 @@ ALERT_Shuffle = {
           		},
           		{
             		'name':"bottom",
-            		'variables': [ "random_onoff" ],
+            		'variables': [ "random|onoff" ],
             		'format':"\x02\x03 Play {0}",
             		'justification':"left",
             		'scroll':False
@@ -376,7 +397,7 @@ ALERT_Shuffle = {
 ALERT_TempTooHigh = {
  	'name':"TempTooHigh",
 	'alert': {
-  		'variable': "current_tempc",
+  		'variable': "system_tempc",
 		'type': "above",
 		'values': [ 85 ],
 		'suppressonstatechange':False,
@@ -397,7 +418,7 @@ ALERT_TempTooHigh = {
           		},
           		{
             		'name':"bottom",
-            		'variables': [ "current_tempc" ],
+            		'variables': [ "system_tempc" ],
             		'format':"Temp: {0}c",
             		'justification':"center",
             		'scroll':False

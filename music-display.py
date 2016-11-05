@@ -771,6 +771,47 @@ class music_controller(threading.Thread):
 
 		return retval
 
+	def getsegmentvalue(self, vars, format, just, start, end):
+
+		# Get paramaters
+		# ignore KeyError exceptions if variable is unavailable
+		parms = []
+		try:
+			for k in range(len(vars)):
+				try:
+					varname = vars[k].split('|')[0]
+					val = self.transformvariable(self.musicdata[varname], vars[k])
+					if val is unicode:
+						parms.append(val.encode('utf-8'))
+					else:
+						parms.append(val)
+#							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
+#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
+#							else:
+#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]))
+				except KeyError:
+					pass
+		except KeyError:
+			pass
+
+		# create segment to display
+		try:
+			segval = format.format(*parms)
+		except:
+			# Format doesn't match available variables
+			segval = u"Variable error"
+
+		# justify segment
+		try:
+			if just.lower() == "center":
+				segval = "{0:^{1}}".format(segval, end-start)
+			elif just.lower() == "right":
+				segval = "{0:>{1}}".format(segval, end-start)
+		except KeyError:
+			pass
+
+		# Place actual value to display within segment into the segment data structure
+		return segval.decode('utf-8')
 
 
 	def updatepages(self):
@@ -876,9 +917,20 @@ class music_controller(threading.Thread):
 
 			segments = []
 
-			# If no segments in line, create line with one empty segment, add it to lines and go to next loop iteration
+			# If no segments in line, create line with one segment based upon the line level variables then add it to lines and go to next loop iteration
 			if 'segments' not in current_line:
-				segment = { 'start':0, 'end':0, 'value':'' }
+				segment = { }
+
+				segment['start'] = 0
+				segment['end'] = self.cols
+				segment['variables'] = vars = current_line['variables'] if 'variables' in current_line else [ ]
+				segment['format'] = format = current_line['format'] if 'format' in current_line else u""
+				segment['justification'] = justification = current_line['justification'] if 'justification' in current_line else "left"
+				segment['scroll'] = scroll = current_line['scroll'] if 'scroll' in current_line else False
+				segment['scrolldirection'] = scrolldirection = current_line['scrolldirection'] if 'scrolldirection' in current_line else "left"
+
+				segment['value'] = getsegmentvalue(vars, format, justification, segment['start'], segment['end'])
+
 				segments.append(segment)
 				lines.append(segments)
 				continue
@@ -931,45 +983,7 @@ class music_controller(threading.Thread):
 
 				format = current_segment['format']
 
-				# Get paramaters
-				# ignore KeyError exceptions if variable is unavailable
-				parms = []
-				try:
-					for k in range(len(current_segment['variables'])):
-						try:
-							varname = current_segment['variables'][k].split('|')[0]
-							val = self.transformvariable(self.musicdata[varname], current_segment['variables'][k])
-							if val is unicode:
-								parms.append(val.encode('utf-8'))
-							else:
-								parms.append(val)
-#							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
-#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
-#							else:
-#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]))
-						except KeyError:
-							pass
-				except KeyError:
-					pass
-
-				# create segment to display
-				try:
-					segval = format.format(*parms)
-				except:
-					# Format doesn't match available variables
-					segval = u"Variable error"
-
-				# justify segment
-				try:
-					if current_segment['justification'] == "center":
-						segval = "{0:^{1}}".format(segval, current_segment['end']-current_segment['start'])
-					elif current_segment['justification'] == "right":
-						segval = "{0:>{1}}".format(segval, current_segment['end']-current_segment['start'])
-				except KeyError:
-					pass
-
-				# Place actual value to display within segment into the segment data structure
-				segment['value'] = segval.decode('utf-8')
+				segment['value'] = getsegmentvalue(current_segment['variables'], format, current_segment['justification'], current_segment['start'], current_segment['end'])
 
 				# Add segment to array of segments
 				segments.append(segment)
