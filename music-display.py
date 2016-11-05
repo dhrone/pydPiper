@@ -60,14 +60,15 @@ class display_controller(threading.Thread):
 		except AttributeError:
 			blank = 10
 
+
 		# If value is smaller than the window then just send back a padded version of the value
 		if len(value) <= window:
-			buffer = "{0:<{1}}".format(value, window)
+			buffer = "{0:<{1}}".format(value.encode('utf-8'), window).decode('utf-8')
 		# Else send back a scrolling version
 		elif len(value)-sp+blank >= window:
-			buffer = "{0:<{1}}".format(value[sp:],window)[0:window]
+			buffer = "{0:<{1}}".format(value[sp:].encode('utf-8'),window)[0:window].decode('utf-8')
 		else: #len(value)-sp+blank < window:
-			buffer = "{0:<{1}}{2}".format(value[sp:],len(value)-sp+blank,value)[0:window]
+			buffer = "{0:<{1}}{2}".format(value[sp:].encode('utf-8'),len(value)-sp+blank,value)[0:window].decode('utf-8')
 
 		# If we need to scroll then update the scollposition
 		if len(value) > window and hesitate_timer < time.time():
