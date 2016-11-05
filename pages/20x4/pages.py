@@ -8,17 +8,12 @@ PAGES_Play = {
 				'name':"AlbumArtistTitle",
 				'font':'size5x8.playing',
 				'duration':8,
-				'hidewhenempty':'any',
-				'hidewhenemptyvars': [ "title" ],
+				'hidewhenempty':'all',
+				'hidewhenemptyvars': [ "album" ],
 				'lines': [
 					{
 						'name':"1",
 						'segments': [
-							{
-								'start':0,
-								'end':2,
-								'format':"\x00\x01"
-							},
 							{
 								'variables': [ "artist" ],
 								'start':2,
@@ -79,7 +74,7 @@ PAGES_Play = {
 								'scroll':False
 							},
 							{
-								'variables': [ "position" ],
+								'variables': [ "elapsed_formatted" ],
 								'start':10,
 								'end':20,
 								'format':"{0}",
@@ -89,7 +84,73 @@ PAGES_Play = {
 						]
 					}
 				]
+			},
+			{
+				'name':"TitleOnly",
+				'font':'size5x8.playing',
+				'duration':8,
+				'hidewhenpresent':'any',
+				'hidewhenpresentvars': [ "album" ],
+				'lines': [
+					{
+						'name':"1",
+						'segments': [
+							{
+								'variables': [ "artist" ],
+								'start':2,
+								'end':20,
+								'format':"{0}",
+								'justification':"left",
+								'scroll':False
+							}
+						]
+					},
+					{
+						'name':"2",
+						'segments': [
+							{
+								'start':0,
+								'end':2,
+								'format':"\x02\x03",
+								'scroll':True		
+							},
+							{
+								'start':2,
+								'end':20,
+								'variables': [ "title" ],
+								'format':"{0}",
+								'scroll':True		
+							}
+						]
+					},
+					{
+						'name':"3",
+						'format':"",
+					},
+					{
+						'name':"4",
+						'segments': [
+							{
+								'variables': [ "playlist_display"],
+								'start':0,
+								'end':12,
+								'format':"  {0}",
+								'justification':"left",
+								'scroll':False
+							},
+							{
+								'variables': [ "elapsed_formatted" ],
+								'start':12,
+								'end':20,
+								'format':"{0}",
+								'justification':"right",
+								'scroll':False
+							}
+						]
+					}
+				]
 			}
+
 		]
 }
 
@@ -138,7 +199,7 @@ PAGES_Stop = {
 						'name':"4",
 						'segments': [
 							{
-								'variables': [ "current_tempf", "disk_availp" ],
+								'variables': [ "system_temp_formatted", "disk_availp" ],
 								'format':"\x04\x05 {0}	\x06\x07 {1}%",
 								'start':3,
 								'end':20,
@@ -283,7 +344,7 @@ ALERT_Volume = {
 					'name':"2",
 					'segments': [
 						{
-							'variables': ["volume" ],
+							'variables': [ "volume" ],
 							'format':"\x00\x01	   Volume {0}",
 							'start':0,
 							'end':20,
@@ -423,7 +484,7 @@ ALERT_RepeatOnce = {
 					'name':"bottom",
 					'segments': [
 						{
-							'variables': [ "single_onoff" ],
+							'variables': [ "single|onoff" ],
 							'format':"\x02\x03 Once {0}",
 							'justification':"left",
 							'scroll':False
@@ -464,7 +525,7 @@ ALERT_RepeatAll = {
 					'name':"bottom",
 					'segments': [
 						{
-							'variables': [ "repeat_onoff" ],
+							'variables': [ "repeat|onoff" ],
 							'format':"\x02\x03 All {0}",
 							'justification':"left",
 							'scroll':False
@@ -505,7 +566,7 @@ ALERT_Shuffle = {
 					'name':"bottom",
 					'segments': [
 						{
-						'variables': [ "random_onoff" ],
+						'variables': [ "random|onoff" ],
 						'format':"\x02\x03 Play {0}",
 						'justification':"left",
 						'scroll':False
@@ -520,7 +581,7 @@ ALERT_Shuffle = {
 ALERT_TempTooHigh = {
  	'name':"TempTooHigh",
 	'alert': {
-			'variable': "current_tempc",
+			'variable': "system_tempc",
 		'type': "above",
 		'values': [ 85 ],
 		'suppressonstatechange':False,
@@ -546,8 +607,8 @@ ALERT_TempTooHigh = {
 					'name':"bottom",
 					'segments': [
 						{
-							'variables': [ "current_tempc" ],
-							'format':"Temp: {0}c",
+							'variables': [ "system_temp_formatted" ],
+							'format':"Temp: {0}",
 							'justification':"center",
 							'scroll':False
 						}

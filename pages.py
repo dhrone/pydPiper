@@ -9,7 +9,7 @@ PAGES_Play = {
 				'font':'size5x8.playing',
 				'duration':8,
 				'hidewhenempty':'all',
-				'hidewhenemptyvars': [ "artist", "album" ],
+				'hidewhenemptyvars': [ "album" ],
 				'lines': [
 					{
 						'name':"1",
@@ -90,30 +90,38 @@ PAGES_Play = {
 				'font':'size5x8.playing',
 				'duration':8,
 				'hidewhenpresent':'any',
-				'hidewhenpresentvars': [ "artist", "album" ],
+				'hidewhenpresentvars': [ "album" ],
 				'lines': [
 					{
 						'name':"1",
 						'segments': [
 							{
-								'start':0,
-								'end':2,
-								'format':"\x02\x03"
-							},
-							{
-								'variables': [ "title" ],
+								'variables': [ "artist" ],
 								'start':2,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
-								'scroll':True,
-								'scrolldirection':'left'
+								'scroll':False
 							}
 						]
 					},
 					{
 						'name':"2",
-						'format':"",
+						'segments': [
+							{
+								'start':0,
+								'end':2,
+								'format':"\x02\x03",
+								'scroll':True		
+							},
+							{
+								'start':2,
+								'end':20,
+								'variables': [ "title" ],
+								'format':"{0}",
+								'scroll':True		
+							}
+						]
 					},
 					{
 						'name':"3",
@@ -125,14 +133,14 @@ PAGES_Play = {
 							{
 								'variables': [ "playlist_display"],
 								'start':0,
-								'end':10,
+								'end':12,
 								'format':"  {0}",
 								'justification':"left",
 								'scroll':False
 							},
 							{
 								'variables': [ "elapsed_formatted" ],
-								'start':10,
+								'start':12,
 								'end':20,
 								'format':"{0}",
 								'justification':"right",

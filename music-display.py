@@ -1089,7 +1089,7 @@ class music_controller(threading.Thread):
 				va = line.split()
 				avail = int(va[0])
 				usedp = int(va[1][:-1]) # Remove trailing % and convert to int
-				used = int([va[2]])
+				used = int(va[2])
 				availp = 100-usedp
 
 			except AttributeError:
