@@ -271,22 +271,31 @@ class music_controller(threading.Thread):
 		'artist':u"",
 		'title':u"",
 		'album':u"",
+		'uri':u"",
 		'current':-1,
+		'elapsed':-1,
 		'remaining':u"",
 		'duration':-1,
+		'length':-1,
 		'position':u"",
+		'elapsed_formatted':u"",
 		'volume':-1,
 		'repeat': 0,
 		'single': 0,
 		'random': 0,
+		'channels':0,
+		'bitdepth':u"",
+		'bitrate':u"",
+		'samplerate':u"",
+		'type':u"",
+		'tracktype':u""
 		'repeat_onoff': u"Off",
 		'single_onoff': u"Off",
 		'random_onoff': u"Off",
 		'playlist_display':u"",
 		'playlist_position':-1,
 		'playlist_count':-1,
-		'bitrate':u"",
-		'type':u"",
+		'playlist_length':-1,
 		'current_tempc':0,
 		'current_tempf':0,
 		'disk_avail':0,
@@ -453,30 +462,30 @@ class music_controller(threading.Thread):
 					self.musicdata[item] = value
 
 				# Update song timing variables
-				if 'current' in updates:
-					self.musicdata['current'] = updates['current']
-					timesongstarted = time.time() - self.musicdata['current']
+				if 'elapsed' in updates:
+					self.musicdata['elapsed'] = self.musicdata['current'] = updates['elapsed']
+					timesongstarted = time.time() - self.musicdata['elapsed']
 
 				if self.musicdata['state'] == 'play':
-					if 'current' not in updates:
+					if 'elapsed' not in updates:
 						if timesongstarted > 0:
-							self.musicdata['current'] = int(time.time() - timesongstarted)
+							self.musicdata['elapsed'] = int(time.time() - timesongstarted)
 						else:
 							# We got here without timesongstarted being set which is a problem...
 							logging.debug("Trying to update current song position with an uninitialized start time")
 
 				# If the value of current has changed then update the other related timing variables
-				if self.musicdata['current'] != self.musicdata_prev['current']:
+				if self.musicdata['elapsed'] != self.musicdata_prev['elapsed']:
 					if self.musicdata['duration'] > 0:
-						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['duration']))
-						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['duration'] - self.musicdata['current'] ) )
+						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['length']))
+						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['length'] - self.musicdata['elapsed'] ) )
 
 					else:
-						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
+						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed']))
 						remaining = timepos
 
 					self.musicdata['remaining'] = remaining
-					self.musicdata['position'] = timepos
+					self.musicdata['elapsed_formatted'] = self.musicdata['position'] = timepos
 
 				# Update onoff variables (random, single, repeat)
 				self.musicdata['random_onoff'] = "On" if self.musicdata['random'] else "Off"

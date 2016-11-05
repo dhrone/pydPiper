@@ -63,10 +63,13 @@ bitdepth (unicode)
     Description - Resolution of the sampling used for the playing song
     Values - 16 bits, 24 bits
 
-samplerate (unicode)
-  Description - The sample rate for the file.  May show 'VBR' if the rate is variable
+bitrate (unicode)
+  Description - The bit rate for the file.  May show 'VBR' if the rate is variable
   Values - 320 kbs, VBR
-  Previously called - bitrate
+
+samplerate (unicode)
+  Description - The sample rate for the file.
+  Values 44.1 kHz, 96 kHz
 
 channels (int)
   Description - The number of channels contained within song
