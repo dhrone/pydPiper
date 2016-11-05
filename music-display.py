@@ -53,7 +53,7 @@ class display_controller(threading.Thread):
 		except KeyError:
 			segment['hesitate_timer'] = hesitate_timer = time.time() + music_display_config.HESITATION_TIME
 
-		value = segment['value'] if 'value' in segment else ''
+		value = segment['value'] if 'value' in segment else u''
 
 		try:
 			blank = music_display_config.SCROLL_BLANK_WIDTH
@@ -117,7 +117,7 @@ class display_controller(threading.Thread):
 			if start > pos:
 				buffer += "{0:<{1}}".format('',start-pos)
 
-			value = segment['value'] if 'value' in segment else ''
+			value = segment['value'] if 'value' in segment else u''
 			if scroll:
 				direction = segment['scrolldirection'] if 'scrolldirection' in segment else 'left'
 				buffer += self.scrollwindow(segment, window, direction, resetscrollpositions)
@@ -167,7 +167,7 @@ class display_controller(threading.Thread):
 		# Zero values in segments so initial update will occur
 		for line in lines_value_prev:
 			for segment in line:
-				segment['value'] = ''
+				segment['value'] = u''
 
 
 		# Initialize the time display got updated
@@ -1060,16 +1060,16 @@ class music_controller(threading.Thread):
 					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M:%S %p").strip()
 			except ValueError:
 				# Don't know why but on exit, the moment code is occasionally throwing a ValueError
-				current_time = "00:00"
-				current_time_sec = "00:00:00"
+				current_time = u"00:00"
+				current_time_sec = u"00:00:00"
 
 			current_ip = commands.getoutput("ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
 			outside_tempf = 0.0
 			outside_tempc = 0.0
 			outside_temp = 0.0
-			outside_conditions = ''
-			outside_temp_formatted = ''
+			outside_conditions = u''
+			outside_temp_formatted = u''
 
 			try:
 				owm = pyowm.OWM(music_display_config.OWM_API)
@@ -1081,10 +1081,10 @@ class music_controller(threading.Thread):
 				# Localize temperature value
 				if music_display_config.TEMPERATURE.lower() == 'celsius':
 					outside_temp = outside_tempc
-					outside_temp_formatted = "{0}°c".format(int(outside_temp))
+					outside_temp_formatted = u"{0}°C".format(int(outside_temp))
 				else:
 					outside_temp = outside_tempf
-					outside_temp_formatted = "{0}°f".format(int(outside_temp))
+					outside_temp_formatted = u"{0}°F".format(int(outside_temp))
 
 				outside_conditions = wea.get_detailed_status()
 			except:

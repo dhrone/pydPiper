@@ -268,7 +268,8 @@ if __name__ == '__main__':
 			try:
 				item = q.get(timeout=1000)
 				print "++++++++++"
-				print item
+				for k,v in item.iteritems():
+					print "[{0}] '{1}' type {2}".format(k,v,type(v))
 				print "++++++++++"
 				print
 				q.task_done()
