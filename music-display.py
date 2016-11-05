@@ -785,10 +785,10 @@ class music_controller(threading.Thread):
 						parms.append(val.encode('utf-8'))
 					else:
 						parms.append(val)
-#							if type(self.musicdata[current_segment['variables'][k]]) is unicode:
-#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]).encode('utf-8'))
+#							if type(self.musicdata[vars[k]]) is unicode:
+#								parms.append(self.transformvariable(self.musicdata[vars[k]],vars[k]).encode('utf-8'))
 #							else:
-#								parms.append(self.transformvariable(self.musicdata[current_segment['variables'][k]],current_segment['variables'][k]))
+#								parms.append(self.transformvariable(self.musicdata[vars[k]],vars[k]))
 				except KeyError:
 					pass
 		except KeyError:
@@ -798,6 +798,7 @@ class music_controller(threading.Thread):
 		try:
 			segval = format.format(*parms)
 		except:
+#			print "Var Error Format {0}, Parms {1} Vars {2}\n{3}".format(format, parms, vars, self.musicdata)
 			# Format doesn't match available variables
 			segval = u"Variable error"
 
@@ -929,7 +930,14 @@ class music_controller(threading.Thread):
 				segment['scroll'] = scroll = current_line['scroll'] if 'scroll' in current_line else False
 				segment['scrolldirection'] = scrolldirection = current_line['scrolldirection'] if 'scrolldirection' in current_line else "left"
 
-				segment['value'] = getsegmentvalue(vars, format, justification, segment['start'], segment['end'])
+				strftime = current_line['strftime'] if 'strftime' in current_line else "%-I:%M %p"
+
+				with self.musicdata_lock:
+					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
+					# To support previous key used for this purpose
+					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
+
+				segment['value'] = self.getsegmentvalue(vars, format, justification, segment['start'], segment['end'])
 
 				segments.append(segment)
 				lines.append(segments)
@@ -982,8 +990,7 @@ class music_controller(threading.Thread):
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
 				format = current_segment['format']
-
-				segment['value'] = getsegmentvalue(current_segment['variables'], format, current_segment['justification'], current_segment['start'], current_segment['end'])
+				segment['value'] = self.getsegmentvalue(variables, format, justification, segment['start'], segment['end'])
 
 				# Add segment to array of segments
 				segments.append(segment)
@@ -1204,7 +1211,7 @@ if __name__ == '__main__':
 	loggingMPD.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio","pages", "showupdates"])
+		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio","pages=", "showupdates"])
 	except getopt.GetoptError:
 		print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
 		sys.exit(2)
@@ -1230,6 +1237,7 @@ if __name__ == '__main__':
 		elif opt in ("--volumio"):
 			services_list.append('volumio')
 		elif opt in ("--pages"):
+			print "Loading {0} as page file".format(arg)
 			# If page file provided, try to load provided file on top of default pages file
 			try:
 				newpages = imp.load_source('pages', arg)
