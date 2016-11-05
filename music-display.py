@@ -288,7 +288,7 @@ class music_controller(threading.Thread):
 		'bitrate':u"",
 		'samplerate':u"",
 		'type':u"",
-		'tracktype':u""
+		'tracktype':u"",
 		'repeat_onoff': u"Off",
 		'single_onoff': u"Off",
 		'random_onoff': u"Off",
