@@ -219,17 +219,17 @@ PAGES_Stop = {
 		'lines': [
 		  {
 			'name':"top",
-			'variables': [ ],
-			'format':"Ready",
-			'justification':"center",
-			'scroll':False
-		  },
-		  {
-			'name':"bottom",
 			'variables': [ "time_formatted" ],
 			'strftime':"%a %b %-d %H:%M",
 			'format':"{0}",
 			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "outside_temp_formatted" ],
+			'format':"Temp {0}",
+			'justification':"center",
 			'scroll':False
 		  }
 		]
@@ -263,7 +263,7 @@ PAGES_Stop = {
 			'name':"top",
 			'variables': [ "outside_temp_formatted" ],
 			'format':"Temp {0}",
-			'justification':"left",
+			'justification':"center",
 			'scroll':True
 		  },
 		  {
