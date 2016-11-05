@@ -145,8 +145,8 @@ class musicdata_mpd(musicdata.musicdata):
 		self.musicdata['current'] = self.musicdata['elapsed']
 		self.musicdata['duration'] = self.musicdata['length']
 
-		self.musicdata['actPlayer'] = "MPD"
-		self.musicdata['musicdatasource'] = "MPD"
+		self.musicdata['actPlayer'] = u"MPD"
+		self.musicdata['musicdatasource'] = u"MPD"
 
 		if self.musicdata['uri'].split(':')[0] == 'http':
 			encoding = u'webradio'
@@ -264,7 +264,9 @@ if __name__ == '__main__':
 			try:
 				item = q.get(timeout=1000)
 				print "+++++++++"
-				print item
+				for k,v in item.iteritems():
+					print u"[{0}] '{1}' type {2}".format(k,v,type(v))
+
 				print "+++++++++"
 				print
 				q.task_done()
