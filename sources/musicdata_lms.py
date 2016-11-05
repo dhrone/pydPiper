@@ -192,7 +192,7 @@ class musicdata_lms(musicdata.musicdata):
 		self.musicdata['volume'] = self.dataplayer.get_volume()
 
 		self.musicdata['elapsed'] = int(self.dataplayer.get_time_elapsed())
-		self.musicdata['length'] = self.dataplayer.get_track_duration()
+		self.musicdata['length'] = int(self.dataplayer.get_track_duration())
 
 		# For backwards compatibility
 		self.musicdata['current'] = self.musicdata['elapsed']
@@ -228,7 +228,7 @@ class musicdata_lms(musicdata.musicdata):
 
 		playlist_display = u"{0}/{1}".format(plp, plc)
 		# If the track count is greater than 1, we are playing from a playlist and can display track position and track count
-		if self.plc > 1:
+		if plc > 1:
 			playlist_display = u"{0}/{1}".format(plp, plc)
 		# if the track count is exactly 1, this is either a short playlist or it is streaming
 		elif plc == 1:
@@ -250,7 +250,7 @@ class musicdata_lms(musicdata.musicdata):
 
 		self.musicdata['musicdatasource'] = u"LMS"
 
-		url = self.dataplayer.get_track_path()
+		url = self.dataplayer.get_track_path().decode()
 		self.musicdata['uri'] = url
 
 		urlp = urlparse.urlparse(url)
@@ -298,7 +298,7 @@ class musicdata_lms(musicdata.musicdata):
 		self.musicdata['samplerate'] = u""
 		self.musicdata['channels'] = 0
 
-
+		self.validatemusicvars(self.musicdata)
 
 if __name__ == '__main__':
 
@@ -346,7 +346,8 @@ if __name__ == '__main__':
 			try:
 				item = q.get(timeout=1000)
 				print "+++++++++"
-				print item
+				for k,v in item.iteritems():
+					print u"[{0}] '{1}' type {2}".format(k,v,type(v))
 				print "+++++++++"
 				print
 				q.task_done()
