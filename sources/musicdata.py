@@ -1,6 +1,6 @@
 # meta - base class for collecting meta data from music sources
 
-import abc
+import abc,logging
 
 class musicdata:
 	__metaclass__ = abc.ABCMeta
@@ -71,7 +71,7 @@ class musicdata:
 
 	def validatemusicvars(self, vars):
 
-		for vtype, members in varcheck.iteritems():
+		for vtype, members in self.varcheck.iteritems():
 
 			if vtype == 'unicode':
 				for v in members:
@@ -84,7 +84,7 @@ class musicdata:
 							logging.debug("Received string in {0}.  Converting to Unicode".format(v))
 							vars[v] = vars[v].decode()
 						else:
-							logging.debug("Received non-string type {0} in {1}.  Converting to null".format(type(vars[v],v)))
+							logging.debug("Received non-string type {0} in {1}.  Converting to null".format(type(vars[v]),v))
 							vars[v] = u""
 					except KeyError:
 						logging.debug("Missing required value {0}.  Adding empty version".format(v))
@@ -100,7 +100,7 @@ class musicdata:
 							logging.debug("Received integer in {0}.  Converting to boolean".format(v))
 							vars[v] = bool(vars[v])
 						else:
-							logging.debug("Received non-bool type {0} in {1}.  Converting to False".format(type(vars[v],v)))
+							logging.debug("Received non-bool type {0} in {1}.  Converting to False".format(type(vars[v]),v))
 							vars[v] = False
 					except KeyError:
 						logging.debug("Missing required value {0}.  Adding empty version".format(v))
@@ -116,7 +116,7 @@ class musicdata:
 							logging.debug("Received boolean in {0}.  Converting to integer".format(v))
 							vars[v] = int(vars[v])
 						else:
-							logging.debug("Received non-integer type {0} in {1}.  Converting to 0".format(type(vars[v],v)))
+							logging.debug("Received non-integer type {0} in {1}.  Converting to 0".format(type(vars[v]),v))
 							vars[v] = 0
 					except KeyError:
 						logging.debug("Missing required value {0}.  Adding empty version".format(v))

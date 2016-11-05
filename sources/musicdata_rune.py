@@ -4,7 +4,7 @@
 # musicdata service to read from RuneAudio
 # Written by: Ron Ritchey
 
-import json, redis, threading, logging, Queue, time, getopt, sys
+import json, redis, threading, logging, Queue, time, getopt, sys, logging
 import musicdata
 
 class musicdata_rune(musicdata.musicdata):
@@ -136,7 +136,7 @@ class musicdata_rune(musicdata.musicdata):
 		self.musicdata['samplerate'] = u""
 		self.musicdata['bitrate'] = u""
 		self.musicdata['channels'] = 0
-		self.musicdata['bitdepth'] = 0
+		self.musicdata['bitdepth'] = u""
 		self.musicdata['tracktype'] = u""
 		self.musicdata['encoding'] = u""
 		self.musicdata['tracktype'] = u""
@@ -178,7 +178,7 @@ class musicdata_rune(musicdata.musicdata):
 				if len(audio) == 3:
 					sample = round(float(audio[0])/1000,1)
 				 	bits = audio[1]
-					chnum = audio[2]
+					chnum = int(audio[2])
 				 	if audio[2] == '1':
 						channels = u'Mono'
 				 	elif audio[2] == '2':
@@ -227,7 +227,7 @@ class musicdata_rune(musicdata.musicdata):
 		# For backwards compatibility
 		self.musicdata['position'] = self.musicdata['elapsed_formatted']
 
-		validatemusicvars(self, musicdata)
+		self.validatemusicvars(self.musicdata)
 
 
 if __name__ == '__main__':
