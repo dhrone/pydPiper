@@ -227,7 +227,7 @@ PAGES_Stop = {
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "outside_temp_formatted" ],
+			'variables': [ "outside_temp" ],
 			'format':"Temp {0}",
 			'justification':"center",
 			'scroll':False
@@ -261,7 +261,7 @@ PAGES_Stop = {
 		'lines': [
 		  {
 			'name':"top",
-			'variables': [ "outside_temp_formatted" ],
+			'variables': [ "outside_temp" ],
 			'format':"Temp {0}",
 			'justification':"center",
 			'scroll':True

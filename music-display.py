@@ -62,13 +62,23 @@ class display_controller(threading.Thread):
 
 
 		# If value is smaller than the window then just send back a padded version of the value
+#		if len(value) <= window:
+#			buffer = "{0:<{1}}".format(value.encode('utf-8'), window).decode('utf-8')
+#		# Else send back a scrolling version
+#		elif len(value)-sp+blank >= window:
+#			buffer = "{0:<{1}}".format(value[sp:].encode('utf-8'),window)[0:window].decode('utf-8')
+#		else: #len(value)-sp+blank < window:
+#			buffer = "{0:<{1}}{2}".format(value[sp:].encode('utf-8'),len(value)-sp+blank,value)[0:window].decode('utf-8')
+
+		# If value is smaller than the window then just send back a padded version of the value
 		if len(value) <= window:
-			buffer = "{0:<{1}}".format(value.encode('utf-8'), window).decode('utf-8')
+			buffer = "{0:<{1}}".format(value, window)
 		# Else send back a scrolling version
 		elif len(value)-sp+blank >= window:
-			buffer = "{0:<{1}}".format(value[sp:].encode('utf-8'),window)[0:window].decode('utf-8')
+			buffer = "{0:<{1}}".format(value[sp:],window)[0:window]
 		else: #len(value)-sp+blank < window:
-			buffer = "{0:<{1}}{2}".format(value[sp:].encode('utf-8'),len(value)-sp+blank,value)[0:window].decode('utf-8')
+			buffer = "{0:<{1}}{2}".format(value[sp:],len(value)-sp+blank,value)[0:window]
+
 
 		# If we need to scroll then update the scollposition
 		if len(value) > window and hesitate_timer < time.time():
@@ -961,6 +971,8 @@ class music_controller(threading.Thread):
 			for j in range(0, len(current_line['segments'])):
 				current_segment = current_line['segments'][j]
 				segname = current_segment['name'] if 'name' in current_segment else "unknown"
+
+				segment = { }
 
 				# Need to make sure start and end are available
 				segment['start'] = current_segment['start'] if 'start' in current_segment else 0
