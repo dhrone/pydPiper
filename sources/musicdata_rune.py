@@ -30,7 +30,7 @@ class musicdata_rune(musicdata.musicdata):
 		# Try up to 10 times to connect to REDIS
 		self.connection_failed = 0
 
-		logging.debug("Connecting to Rune Redis service on {0}:{1}".format(self.server, self.port))
+		logging.debug(u"Connecting to Rune Redis service on {0}:{1}".format(self.server, self.port))
 
 		while True:
 			if self.connection_failed >= 10:

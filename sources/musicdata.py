@@ -81,13 +81,13 @@ class musicdata:
 						if type(vars[v]) is None:
 							vars[v] = u""
 						elif type(vars[v]) is str:
-							logging.debug("Received string in {0}.  Converting to Unicode".format(v))
+							logging.debug(u"Received string in {0}.  Converting to Unicode".format(v))
 							vars[v] = vars[v].decode()
 						else:
-							logging.debug("Received non-string type {0} in {1}.  Converting to null".format(type(vars[v]),v))
+							logging.debug(u"Received non-string type {0} in {1}.  Converting to null".format(type(vars[v]),v))
 							vars[v] = u""
 					except KeyError:
-						logging.debug("Missing required value {0}.  Adding empty version".format(v))
+						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
 						vars[v] = u""
 			elif vtype == 'bool':
 				for v in members:
@@ -97,13 +97,13 @@ class musicdata:
 						if type(vars[v]) is None:
 							vars[v] = False
 						elif type(vars[v]) is int:
-							logging.debug("Received integer in {0}.  Converting to boolean".format(v))
+							logging.debug(u"Received integer in {0}.  Converting to boolean".format(v))
 							vars[v] = bool(vars[v])
 						else:
-							logging.debug("Received non-bool type {0} in {1}.  Converting to False".format(type(vars[v]),v))
+							logging.debug(u"Received non-bool type {0} in {1}.  Converting to False".format(type(vars[v]),v))
 							vars[v] = False
 					except KeyError:
-						logging.debug("Missing required value {0}.  Adding empty version".format(v))
+						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
 						vars[v] = False
 			elif vtype == 'int':
 				for v in members:
@@ -113,13 +113,13 @@ class musicdata:
 						if type(vars[v]) is None:
 							vars[v] = 0
 						elif type(vars[v]) is bool:
-							logging.debug("Received boolean in {0}.  Converting to integer".format(v))
+							logging.debug(u"Received boolean in {0}.  Converting to integer".format(v))
 							vars[v] = int(vars[v])
 						else:
-							logging.debug("Received non-integer type {0} in {1}.  Converting to 0".format(type(vars[v]),v))
+							logging.debug(u"Received non-integer type {0} in {1}.  Converting to 0".format(type(vars[v]),v))
 							vars[v] = 0
 					except KeyError:
-						logging.debug("Missing required value {0}.  Adding empty version".format(v))
+						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
 						vars[v] = 0
 
 

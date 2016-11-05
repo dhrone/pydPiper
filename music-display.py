@@ -72,12 +72,12 @@ class display_controller(threading.Thread):
 
 		# If value is smaller than the window then just send back a padded version of the value
 		if len(value) <= window:
-			buffer = "{0:<{1}}".format(value, window)
+			buffer = u"{0:<{1}}".format(value, window)
 		# Else send back a scrolling version
 		elif len(value)-sp+blank >= window:
-			buffer = "{0:<{1}}".format(value[sp:],window)[0:window]
+			buffer = u"{0:<{1}}".format(value[sp:],window)[0:window]
 		else: #len(value)-sp+blank < window:
-			buffer = "{0:<{1}}{2}".format(value[sp:],len(value)-sp+blank,value)[0:window]
+			buffer = u"{0:<{1}}{2}".format(value[sp:],len(value)-sp+blank,value)[0:window]
 
 
 		# If we need to scroll then update the scollposition
@@ -115,7 +115,7 @@ class display_controller(threading.Thread):
 			scroll = segment['scroll'] if 'scroll' in segment else False
 			window = end-start
 			if start > pos:
-				buffer += "{0:<{1}}".format('',start-pos)
+				buffer += u"{0:<{1}}".format('',start-pos)
 
 			value = segment['value'] if 'value' in segment else u''
 			if scroll:
@@ -123,10 +123,8 @@ class display_controller(threading.Thread):
 				buffer += self.scrollwindow(segment, window, direction, resetscrollpositions)
 			else:
 				buffer += value[0:window]
-			try:
-				buffer = "{0:<{1}}".format(buffer, end-start)
-			except:
-				buffer = "{0:<{1}}".format(buffer.encode('utf-8'), end-start).decode('utf-8')
+
+			buffer = u"{0:<{1}}".format(buffer, end-start)
 
 			pos = end
 		return buffer
@@ -153,7 +151,7 @@ class display_controller(threading.Thread):
 				lines_value_current = qitem['lines']
 				break
 			else:
-				logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
+				logging.debug(u"Unexpected displayqueue message {0}".format(qitem['type']))
 
 		self.lcd.clear()
 
@@ -199,10 +197,7 @@ class display_controller(threading.Thread):
 					else:
 						buffer = self.buildline(lines_value_current[linenr])
 
-					try:
-						buffer = "{0:<{1}}".format(buffer,self.lcd.cols)
-					except:
-						buffer = "{0:<{1}}".format(buffer.encode('utf-8'),self.lcd.cols).decode('utf-8')
+					buffer = "u{0:<{1}}".format(buffer,self.lcd.cols)
 
 					# If actual content of line changed send update to display
 					if linebuffers[linenr] != buffer:
@@ -264,7 +259,7 @@ class display_controller(threading.Thread):
 
 						break
 					else:
-						logging.debug("Unexpected displayqueue message {0}".format(qitem['type']))
+						logging.debug(u"Unexpected displayqueue message {0}".format(qitem['type']))
 
 			# if no item available then...
 			except Queue.Empty:
@@ -370,18 +365,18 @@ class music_controller(threading.Thread):
 				elif s == "volumio":
 					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT)
 				else:
-					logging.debug("Unsupported music service {0} requested".format(s))
+					logging.debug(u"Unsupported music service {0} requested".format(s))
 					continue
 			except NameError:
 				# Missing dependency for requested servicelist
-				logging.warning("Request for {0} failed due to missing dependencies".format(s))
+				logging.warning(u"Request for {0} failed due to missing dependencies".format(s))
 				pass
 			if musicservice != None:
 				self.services[s] = musicservice
 
 		if len(self.services) == 0:
-			logging.critical("No music services succeeded in initializing")
-			raise RuntimeError("No music services succeeded in initializing")
+			logging.critical(u"No music services succeeded in initializing")
+			raise RuntimeError(u"No music services succeeded in initializing")
 
 	def volume_bar(self,vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
 		# Algorithm for computing the volume lines
@@ -398,7 +393,7 @@ class music_controller(threading.Thread):
 			buffer += chr(ff)
 		else:
 			# Shouldnt be here
-			logging.debug("Bad value in volume_bar")
+			logging.debug(u"Bad value in volume_bar")
 			buffer += 'Y'
 
 		for i in range(1, chars-1):
@@ -410,7 +405,7 @@ class music_controller(threading.Thread):
 				buffer += chr(ff)
 			else:
 				# Shouldnt be here
-				logging.debug("Bad value in volume_bar")
+				logging.debug(u"Bad value in volume_bar")
 				buffer += 'Y'
 
 		i = chars - 1
@@ -422,7 +417,7 @@ class music_controller(threading.Thread):
 			buffer += chr(ff)
 		else:
 			# Shouldnt be here
-			logging.debug("Bad value in volume_bar")
+			logging.debug(u"Bad value in volume_bar")
 			buffer += 'Y'
 
 
@@ -430,7 +425,7 @@ class music_controller(threading.Thread):
 
 	def run(self):
 
-		logging.debug("Music Controller Starting")
+		logging.debug(u"Music Controller Starting")
 
 		# Start the thread that updates the system variables
 		sv_t = threading.Thread(target=self.updatesystemvars)
@@ -533,9 +528,9 @@ class music_controller(threading.Thread):
 
 				if self.showupdates:
 					ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
-					print "Status at time {0}".format(ctime)
+					print u"Status at time {0}".format(ctime)
 					for item,value in self.musicdata.iteritems():
-						print "    [{0}]={1} {2}".format(item,value, type(value))
+						print u"    [{0}]={1} {2}".format(item,value, type(value))
 					print "\n"
 
 				# Update musicdata_prev with anything that has changed
@@ -773,7 +768,7 @@ class music_controller(threading.Thread):
 					elif transforms[i] == 'yesno':
 						retval = 'yes' if val else 'no'
 				else:
-					logging.debug("Request to perform boolean transform on {0} requires boolean input").format(name)
+					logging.debug(u"Request to perform boolean transform on {0} requires boolean input").format(name)
 					return val
 			elif transforms[i] in ['upper','capitalize','title','lower']:
 				# These all require string input
@@ -788,7 +783,7 @@ class music_controller(threading.Thread):
 					elif transforms[i] == 'lower':
 						retval = retval.lower()
 				else:
-					logging.debug("Request to perform transform on {0} requires string input").format(name)
+					logging.debug(u"Request to perform transform on {0} requires string input").format(name)
 					return val
 
 		return retval
@@ -803,10 +798,10 @@ class music_controller(threading.Thread):
 				try:
 					varname = vars[k].split('|')[0]
 					val = self.transformvariable(self.musicdata[varname], vars[k])
-					if val is unicode:
-						parms.append(val.encode('utf-8'))
-					else:
-						parms.append(val)
+#					if val is unicode:
+#						parms.append(val.encode('utf-8'))
+#					else:
+					parms.append(val)
 #							if type(self.musicdata[vars[k]]) is unicode:
 #								parms.append(self.transformvariable(self.musicdata[vars[k]],vars[k]).encode('utf-8'))
 #							else:
@@ -827,14 +822,14 @@ class music_controller(threading.Thread):
 		# justify segment
 		try:
 			if just.lower() == "center":
-				segval = "{0:^{1}}".format(segval, end-start)
+				segval = u"{0:^{1}}".format(segval, end-start)
 			elif just.lower() == "right":
-				segval = "{0:>{1}}".format(segval, end-start)
+				segval = u"{0:>{1}}".format(segval, end-start)
 		except KeyError:
 			pass
 
 		# Place actual value to display within segment into the segment data structure
-		return segval.decode('utf-8')
+		return segval
 
 
 	def updatepages(self):
@@ -952,6 +947,14 @@ class music_controller(threading.Thread):
 				segment['scroll'] = scroll = current_line['scroll'] if 'scroll' in current_line else False
 				segment['scrolldirection'] = scrolldirection = current_line['scrolldirection'] if 'scrolldirection' in current_line else "left"
 
+				# Make sure format is a unicode value
+				if type(segment['format']) not unicode:
+					try:
+						segment['format'] = segment['format'].decode()
+					except:
+						logging.debug(u"On page {0}, line {1}, there is a segment with a bad format key".format(pagename, linename))
+						segment['format'] = 'FmtErr'
+
 				strftime = current_line['strftime'] if 'strftime' in current_line else "%-I:%M %p"
 
 				with self.musicdata_lock:
@@ -984,6 +987,15 @@ class music_controller(threading.Thread):
 				segment['justification'] = justification = current_segment['justification'] if 'justification' in current_segment else "left"
 				segment['scroll'] = scroll = current_segment['scroll'] if 'scroll' in current_segment else False
 				segment['scrolldirection'] = scrolldirection = current_segment['scrolldirection'] if 'scrolldirection' in current_segment else "left"
+
+				# Make sure format is a unicode value
+				if type(segment['format']) not unicode:
+					try:
+						segment['format'] = segment['format'].decode()
+					except:
+						logging.debug(u"On page {0}, line {1}, there is a segment with a bad format key".format(pagename, linename))
+						segment['format'] = 'FmtErr'
+
 
 				# Check placement on line
 				if segment['start'] < segment_start:
