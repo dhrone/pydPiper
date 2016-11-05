@@ -107,7 +107,6 @@ class musicdata_rune(musicdata.musicdata):
 
 	def status(self):
 		# Read musicplayer status and update musicdata
-
 		status = json.loads(self.dataclient.get('act_player_info'))
 
 		state = status.get('state')
@@ -127,7 +126,7 @@ class musicdata_rune(musicdata.musicdata):
 		self.musicdata['single'] = bool(self.intn(status['single'])) if 'single' in status else False
 		self.musicdata['random'] = bool(self.intn(status['random'])) if 'random' in status else False
 		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'random' in status else False
-		self.musicdata['musicdatasource'] = "Rune"
+		self.musicdata['musicdatasource'] = u"Rune"
 
 		# For backwards compatibility
 		self.musicdata['duration'] = self.musicdata['length']
@@ -143,7 +142,7 @@ class musicdata_rune(musicdata.musicdata):
 		self.musicdata['tracktype'] = u""
 
 		if self.musicdata['actPlayer'] == 'Spotify':
-			self.musicdata['bitrate'] = "320 kbps"
+			self.musicdata['bitrate'] = u"320 kbps"
 			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
 			plc = self.musicdata['playlist_length'] = int(status['playlistlength']) if 'playlistlength' in status else 0
 
@@ -158,7 +157,7 @@ class musicdata_rune(musicdata.musicdata):
 			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
 			plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
 
-			self.musicdata['bitrate'] = "{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
+			self.musicdata['bitrate'] = u"{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
 
 			# if radioname is None then this is coming from a playlist (e.g. not streaming)
 			if status.get('radioname') == None:
@@ -227,6 +226,9 @@ class musicdata_rune(musicdata.musicdata):
 
 		# For backwards compatibility
 		self.musicdata['position'] = self.musicdata['elapsed_formatted']
+
+		validatemusicvars(self, musicdata)
+
 
 if __name__ == '__main__':
 

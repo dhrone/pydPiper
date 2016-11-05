@@ -26,26 +26,105 @@ class musicdata:
 		'actPlayer':u"",
 		'artist':u"",
 		'title':u"",
+		'uri':u"",
+		'encoding':u"",
+		'tracktype':u"",
+		'bitdepth':u"",
+		'bitrate':u"",
+		'samplerate':u"",
+		'elapsed_formatted':u"",
 		'album':u"",
-		'current':-1,
+		'elapsed':-1,
+		'channels':0,
+		'length':0,
 		'remaining':u"",
-		'duration':-1,
-		'position':u"",
 		'volume':-1,
-		'repeat':0,
-		'single':0,
-		'random':0,
+		'repeat':False,
+		'single':False,
+		'random':False,
 		'playlist_display':u"",
 		'playlist_position':-1,
+		'playlist_length':-1,
+
+		# Deprecated values
+		'current':-1,
+		'duration':-1,
+		'position':u"",
 		'playlist_count':-1,
-		'bitrate':u"",
 		'type':u""
 	}
+
+	varcheck {
+		'unicode':
+			[ 'state', 'actPlayer', 'musicdatasource', 'album', 'artist', 'title', 'uri', 'encoding', 'tracktype', 'bitdepth', 'bitrate', 'samplerate', 'elapsed_formatted', 'remaining', 'playlist_display' ],
+		'bool':
+			[ 'random', 'single', 'repeat' ],
+		'int':
+			[ 'channels', 'length', 'elapsed', 'playlist_position', 'playlist_length' ]
+	}
+
 
 	def __init__(self, q):
 		self.musicdata = self.musicdata_init.copy()
 		self.musicdata_prev = self.musicdata.copy()
 		self.dataqueue = q
+
+	def validatemusicvars(self, vars):
+
+		for vtype, members in varcheck.iteritems():
+
+			if vtype == 'unicode':
+				for v in members:
+					try:
+						if type(vars[v]) is unicode:
+							continue
+						if type(vars[v]) is None:
+							vars[v] = u""
+						elif type(vars[v]) is str:
+							logging.debug("Received string in {0}.  Converting to Unicode".format(v))
+							vars[v] = vars[v].decode()
+						else:
+							logging.debug("Received non-string type {0} in {1}.  Converting to null".format(type(vars[v],v))
+							vars[v] = u""
+					except KeyError:
+						logging.debug("Missing required value {0}.  Adding empty version".format(v))
+						vars[v] = u""
+			elif vtype == 'bool':
+				for v in members:
+					try:
+						if type(vars[v]) is bool:
+							continue
+						if type(vars[v]) is None:
+							vars[v] = False
+						elif type(vars[v]) is int:
+							logging.debug("Received integer in {0}.  Converting to boolean".format(v))
+							vars[v] = bool(vars[v])
+						else:
+							logging.debug("Received non-bool type {0} in {1}.  Converting to False".format(type(vars[v],v))
+							vars[v] = False
+					except KeyError:
+						logging.debug("Missing required value {0}.  Adding empty version".format(v))
+						vars[v] = False
+			elif vtype == 'int':
+				for v in members:
+					try:
+						if type(vars[v]) is int:
+							continue
+						if type(vars[v]) is None:
+							vars[v] = 0
+						elif type(vars[v]) is bool:
+							logging.debug("Received boolean in {0}.  Converting to integer".format(v))
+							vars[v] = int(vars[v])
+						else:
+							logging.debug("Received non-integer type {0} in {1}.  Converting to 0".format(type(vars[v],v))
+							vars[v] = 0
+					except KeyError:
+						logging.debug("Missing required value {0}.  Adding empty version".format(v))
+						vars[v] = 0
+
+
+
+
 
 
 	def sendUpdate(self):
