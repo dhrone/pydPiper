@@ -54,12 +54,12 @@ class musicdata_spop(musicdata.musicdata):
 		self.connection_failed = 0
 		self.dataclient = None
 
-		logging.debug("Connecting to SPOP service on {0}:{1}".format(self.server, self.port))
+		logging.debug(u"Connecting to SPOP service on {0}:{1}".format(self.server, self.port))
 
 
 		while True:
 			if self.connection_failed >= 10:
-				logging.debug("Could not connect to SPOP")
+				logging.debug(u"Could not connect to SPOP")
 				break
 			try:
 				# Connection to MPD
@@ -73,14 +73,14 @@ class musicdata_spop(musicdata.musicdata):
 				self.connection_failed += 1
 				time.sleep(1)
 		if self.dataclient is None:
-			raise IOError("Could not connect to SPOP")
+			raise IOError(u"Could not connect to SPOP")
 		else:
-			logging.debug("Connected to SPOP service")
+			logging.debug(u"Connected to SPOP service")
 
 
 	def run(self):
 
-		logging.debug("SPOP musicdata service starting")
+		logging.debug(u"SPOP musicdata service starting")
 
 		while True:
 			if self.dataclient is None:
@@ -106,7 +106,7 @@ class musicdata_spop(musicdata.musicdata):
 				time.sleep(.01)
 			except IOError:
 				self.dataclient = None
-				logging.debug("Could not get status from SPOP")
+				logging.debug(u"Could not get status from SPOP")
 				time.sleep(5)
 				continue
 
@@ -119,7 +119,7 @@ class musicdata_spop(musicdata.musicdata):
 		try:
 			status = json.loads(msg)
 		except ValueError:
-			logging.debug("Value error with msg={0}".format(msg))
+			logging.debug(u"Value error with msg={0}".format(msg))
 
 		state = status.get('status')
 		if state != "playing":
@@ -132,13 +132,13 @@ class musicdata_spop(musicdata.musicdata):
 		self.musicdata['title'] = status['title'] if 'title' in status else u""
 		self.musicdata['album'] = status['album'] if 'album' in status else u""
 		self.musicdata['volume'] = 0
-		self.musicdata['duration'] = int(status['duration']/1000) if 'duration' in status else 0
-		self.musicdata['current'] = int(status['position']) if 'position' in status else 0
-		self.musicdata['playlist_position'] = int(status['current_track']) if 'current_track' in status else 0
-		self.musicdata['playlist_count'] = int(status['total_tracks']) if 'total_tracks' in status else 0
+		self.musicdata['duration'] = self.intn(status['duration']/1000) if 'duration' in status else 0
+		self.musicdata['current'] = self.intn(status['position']) if 'position' in status else 0
+		self.musicdata['playlist_position'] = self.intn(status['current_track']) if 'current_track' in status else 0
+		self.musicdata['playlist_count'] = self.intn(status['total_tracks']) if 'total_tracks' in status else 0
 
-		self.musicdata['actPlayer'] = "SPOP"
-		self.musicdata['musicdatasource'] = "SPOP"
+		self.musicdata['actPlayer'] = u"SPOP"
+		self.musicdata['musicdatasource'] = u"SPOP"
 
 		self.musicdata['bitrate'] = u""
 		self.musicdata['tracktype'] = u""
@@ -154,11 +154,13 @@ class musicdata_spop(musicdata.musicdata):
 			timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['current']))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining
-		self.musicdata['position'] = timepos
+		self.musicdata['remaining'] = remaining.decode()
+		self.musicdata['position'] = timepos.decode()
 
-		self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
+		self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
 		self.musicdata['tracktype'] = u"SPOP"
+
+		self.validatemusicvars(self.musicdata)
 
 
 if __name__ == '__main__':
@@ -201,7 +203,8 @@ if __name__ == '__main__':
 			try:
 				item = q.get(timeout=1000)
 				print "+++++++++"
-				print item
+				for k,v in item.iteritems():
+					print u"[{0}] '{1}' type {2}".format(k,v,type(v))
 				print "+++++++++"
 				print
 				q.task_done()
