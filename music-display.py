@@ -959,12 +959,16 @@ class music_controller(threading.Thread):
 				current_segment = current_line['segments'][j]
 				segname = current_segment['name'] if 'name' in current_segment else "unknown"
 
-				# Initialize segment with values from page template
-				segment = copy.deepcopy(current_segment)
-
 				# Need to make sure start and end are available
 				segment['start'] = current_segment['start'] if 'start' in current_segment else 0
 				segment['end'] = current_segment['end'] if 'end' in current_segment else self.cols
+
+
+				segment['variables'] = variables = current_segment['variables'] if 'variables' in current_segment else [ ]
+				segment['format'] = format = current_segment['format'] if 'format' in current_segment else u""
+				segment['justification'] = justification = current_segment['justification'] if 'justification' in current_segment else "left"
+				segment['scroll'] = scroll = current_segment['scroll'] if 'scroll' in current_segment else False
+				segment['scrolldirection'] = scrolldirection = current_segment['scrolldirection'] if 'scrolldirection' in current_segment else "left"
 
 				# Check placement on line
 				if segment['start'] < segment_start:
@@ -982,10 +986,6 @@ class music_controller(threading.Thread):
 
 				# Update the current start position so we can detect if the next segment starts after this one
 				segment_start = current_segment['end']
-
-				justification = current_segment['justification'] if 'justification' in current_segment else "left"
-				scroll = current_segment['scroll'] if 'scroll' in current_segment else False
-				variables = current_segment['variables'] if 'variables' in current_segment else [ ]
 
 				# If you have specified a strftime format on the segment
 				# use it to add a formatted time to musicdata
