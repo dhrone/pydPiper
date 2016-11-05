@@ -74,9 +74,12 @@ class musicdata_volumio2(musicdata.musicdata):
 		list = args[0]
 		with self.musicdata_lock:
 			try:
-				self.musicdata['playlist_count'] = len(list)
+				self.musicdata['playlist_length'] = len(list)
 			except:
-				self.musidata['playlist_count'] = 0
+				self.musicdata['playlist_length'] = 0
+
+			# For backwards compatibility
+			self.musicdata['playlist_count'] = self.musicdata['playlist_length']
 
 			plp = self.musicdata['playlist_position'] if 'playlist_position' in self.musicdata else 0
 			stream = self.musicdata['stream'] if 'stream' in self.musicdata else u""
@@ -124,9 +127,11 @@ class musicdata_volumio2(musicdata.musicdata):
 
 			# Numeric values
 			try:
-				self.musicdata['current'] = int(float(status['seek'])/1000) if 'seek' in status else 0
+				self.musicdata['elapsed'] = int(float(status['seek'])/1000) if 'seek' in status else 0
 			except:
-				self.musicdata['current'] = 0
+				self.musicdata['elapsed'] = 0
+			# For backwards compatibility
+			self.musicdata['current'] = self.musicdata['elapsed']
 
 			try:
 				self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
@@ -134,9 +139,11 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata['volume'] = 0
 
 			try:
-				self.musicdata['duration'] = int(status['duration']) if 'duration' in status else 0
+				self.musicdata['length'] = int(status['duration']) if 'duration' in status else 0
 			except:
-				self.musicdata['duration'] = 0
+				self.musicdata['length'] = 0
+			# For backwards compatibility
+			self.musicdata['length'] = self.musicdata['duration']
 
 			try:
 				playlist_position = status['position'] if 'position' in status else 0
@@ -163,12 +170,6 @@ class musicdata_volumio2(musicdata.musicdata):
 			if self.musicdata['repeat'] is None:
 				self.musicdata['repeat'] = False
 
-
-			# Convert Boolean to ints (to be consistent with other services
-			self.musicdata['random'] = int(self.musicdata['random'])
-			self.musicdata['mute'] = int(self.musicdata['mute'])
-			self.musicdata['repeat'] = int(self.musicdata['repeat'])
-
 			# Check all other items.  If any are None then set to u''
 			for k, v in self.musicdata.iteritems():
 				if v is None:
@@ -193,7 +194,7 @@ class musicdata_volumio2(musicdata.musicdata):
 			# playlist_count comes from queue messages which are handled in on_queue_response
 			# So, we'll be updating playlist_display both here and there to make sure we have the latest
 			# regardless of whether on_state_response or on_queue_response updates the underlying data
-			plc = self.musicdata['playlist_count'] if 'playlist_count' in self.musicdata else 0
+			plc = self.musicdata['playlist_length'] if 'playlist_length' in self.musicdata else 0
 
 			if self.musicdata['stream'].lower() == 'webradio':
 				self.musicdata['playlist_display'] = 'Streaming'
@@ -202,15 +203,16 @@ class musicdata_volumio2(musicdata.musicdata):
 
 
 			# if duration is not available, then suppress its display
-			if int(self.musicdata['duration']) > 0:
-				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
-				remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
+			if int(self.musicdata['length']) > 0:
+				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['length'])))
+				remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['length']) - int(self.musicdata['elapsed']) ) )
 			else:
-				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
+				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed'])))
 				remaining = timepos
 
 			self.musicdata['remaining'] = remaining
-			self.musicdata['position'] = timepos
+			self.musicdata['elapsed_formatted'] = timepos
+			self.musicdata['position'] = self.musicdata['elapsed_formatted']
 
 		self.sendUpdate()
 

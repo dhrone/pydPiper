@@ -74,7 +74,7 @@ PAGES_Play = {
 								'scroll':False
 							},
 							{
-								'variables': [ "position" ],
+								'variables': [ "elapsed_formatted" ],
 								'start':10,
 								'end':20,
 								'format':"{0}",
@@ -131,7 +131,7 @@ PAGES_Play = {
 								'scroll':False
 							},
 							{
-								'variables': [ "position" ],
+								'variables': [ "elapsed_formatted" ],
 								'start':10,
 								'end':20,
 								'format':"{0}",
@@ -191,7 +191,7 @@ PAGES_Stop = {
 						'name':"4",
 						'segments': [
 							{
-								'variables': [ "current_tempf", "disk_availp" ],
+								'variables': [ "system_temp_formatted", "disk_availp" ],
 								'format':"\x04\x05 {0}	\x06\x07 {1}%",
 								'start':3,
 								'end':20,
@@ -336,7 +336,7 @@ ALERT_Volume = {
 					'name':"2",
 					'segments': [
 						{
-							'variables': ["volume" ],
+							'variables': [ "volume" ],
 							'format':"\x00\x01	   Volume {0}",
 							'start':0,
 							'end':20,
@@ -476,7 +476,7 @@ ALERT_RepeatOnce = {
 					'name':"bottom",
 					'segments': [
 						{
-							'variables': [ "single_onoff" ],
+							'variables': [ "single|onoff" ],
 							'format':"\x02\x03 Once {0}",
 							'justification':"left",
 							'scroll':False
@@ -517,7 +517,7 @@ ALERT_RepeatAll = {
 					'name':"bottom",
 					'segments': [
 						{
-							'variables': [ "repeat_onoff" ],
+							'variables': [ "repeat|onoff" ],
 							'format':"\x02\x03 All {0}",
 							'justification':"left",
 							'scroll':False
@@ -558,7 +558,7 @@ ALERT_Shuffle = {
 					'name':"bottom",
 					'segments': [
 						{
-						'variables': [ "random_onoff" ],
+						'variables': [ "random|onoff" ],
 						'format':"\x02\x03 Play {0}",
 						'justification':"left",
 						'scroll':False
@@ -573,7 +573,7 @@ ALERT_Shuffle = {
 ALERT_TempTooHigh = {
  	'name':"TempTooHigh",
 	'alert': {
-			'variable': "current_tempc",
+			'variable': "system_tempc",
 		'type': "above",
 		'values': [ 85 ],
 		'suppressonstatechange':False,
@@ -599,8 +599,8 @@ ALERT_TempTooHigh = {
 					'name':"bottom",
 					'segments': [
 						{
-							'variables': [ "current_tempc" ],
-							'format':"Temp: {0}c",
+							'variables': [ "system_temp_formatted" ],
+							'format':"Temp: {0}",
 							'justification':"center",
 							'scroll':False
 						}

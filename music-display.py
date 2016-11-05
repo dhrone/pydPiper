@@ -1046,75 +1046,83 @@ class music_controller(threading.Thread):
 				pass
 
 			try:
-				file = open("/sys/class/thermal/thermal_zone0/temp")
-				tempc = int(file.read())
+				with open("/sys/class/thermal/thermal_zone0/temp") as file:
+					system_tempc = int(file.read())
 
 				# Convert value to float and correct decimal place
-				tempc = round(float(tempc) / 1000,1)
+				system_tempc = round(float(system_tempc) / 1000,1)
 
 				# convert to fahrenheit
-				tempf = round(tempc*9/5+32,1)
+				system_tempf = round(system_tempc*9/5+32,1)
 
-				file.close()
-			except IOError:
-				tempc = 0.0
-				tempf = 0.0
 			except AttributeError:
-				file.close()
-				tempc = 0.0
-				tempf = 0.0
+				system_tempc = 0.0
+				system_tempf = 0.0
 
 			try:
-				if music_display_config.TEMPERATURE.lower() == 'celsuius':
-					temp = tempc
+				if music_display_config.TEMPERATURE.lower() == 'celsius':
+					system_temp = system_tempc
+					system_temp_formatted = "{0}°c".format(int(system_temp))
 				else:
-					temp = tempf
+					system_temp = system_tempf
+					system_temp_formatted = "{0}°f".format(int(system_temp))
 			except:
-				temp = tempf
+				system_temp = system_tempf
+				system_temp_formatted = "{0}°f".format(int(system_temp))
 
 			try:
 				# Check if running on OSX.  If yes, adjust df command
 				if sys.platform == "darwin":
-					p = os.popen("df /")
-					line = p.readline()
-					line = p.readline()
+					with os.popen("df /") as p:
+						p = os.popen("df /")
+						line = p.readline()
+						line = p.readline()
+
 					va = line.split()
 					line = "{0} {1}".format(va[3], va[4])
 				else:
 					# assume running on Raspberry linux
-					p = os.popen("df --output='avail','pcent' /")
-					line = p.readline()
-					line = p.readline().strip()
+					with os.popen("df --output='avail','pcent','used' /") as p:
+						line = p.readline()
+						line = p.readline().strip()
 
 				va = line.split()
-				avail = va[0]
-				availp = va[1]
+				avail = int(va[0])
+				usedp = int(va[1][:-1]) # Remove trailing % and convert to int
+				used = int([va[2]])
+				availp = 100-usedp
 
-				# remove % sign
-				availp = availp[0:len(availp)-1]
-
-				avail = int(avail)
-				availp = int(availp)
-
-				p.close()
-			except IOError:
-				avail = 0
-				availp = 0
 			except AttributeError:
-				p.close()
 				avail = 0
 				availp = 0
+				usedp = 0
+				used = 0
 
 			with self.musicdata_lock:
-				self.musicdata['temp'] = temp
+				self.musicdata['system_temp'] = system_temp
+				self.musicdata['system_temp_formatted'] = system_temp_formatted
+				self.musicdata['system_tempc'] = system_tempc
+				self.musicdata['system_tempf'] = system_tempf
+
 				# For backward compatibility
-				self.musicdata['current_tempc'] = tempc
-				self.musicdata['current_tempf'] = tempf
+				self.musicdata['current_tempc'] = self.musicdata['system_tempc']
+				self.musicdata['current_tempf'] = self.musicdata['system_tempf']
 
 				self.musicdata['disk_avail'] = avail
 				self.musicdata['disk_availp'] = availp
+				self.musicdata['disk_used'] = used
+				self.musicdata['disk_usedp'] = usedp
+
+				self.musicdata['time'] = current_time
+				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed
+
+				# For backwards compatibility
 				self.musicdata['current_time'] = current_time
 				self.musicdata['current_time_sec'] = current_time
+
+				self.musicdata['ip'] = current_ip
+
+				# For backwards compatibility
 				self.musicdata['current_ip'] = current_ip
 
 				self.musicdata['outside_temp'] = outside_temp

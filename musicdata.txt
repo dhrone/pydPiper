@@ -25,6 +25,12 @@ volume (int)
   Description - The current player volume setting as a percent of maximum volume
   Values - 0-100
 
+volume_bar_big (unicode)
+  Description - A string filled with custom character symbols to make up a "graphical" volume bar.  Autosizes to 3 characters less than current display width.  Requires fonts.size5x8.speaker to be loaded on the page.  This font package allows a large 2x2 speaker to be displayed.
+
+volume_bar_fancy (unicode)
+  Description - A string filled with custom character symbols to make up a "graphical" volume bar.  Autosizes to 2 characters less than current display width.  Requires fonts.size5x8.volume to be loaded on the page.  This font package uses more symbols for the volume bar but doesn't leave room for the 2x2 speaker.
+
 
 
 Track information
@@ -128,15 +134,21 @@ time_formatted (unicode)
   Values - (vary based upon strftime key) e.g. 'Oct 24 2016', 'Monday October 24', etc.
   Previously called - current_time_formatted
 
-tempc (float)
-  Description - Current temperature in centigrade
-  Values - 82.4
-  Previously called - current_tempc
+system_temp (float)
+  Description - Current temp of system.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
+  Values - 102.3
 
-tempf (float)
-  Description - Current temperature in fahrenheit
-  Values - 102.5
-  Previously called - current_tempf
+system_tempf (float)
+  Description - Current temp of system in fahrenheit
+  Values - 102.3
+
+system_tempc (float)
+  Description - Current temp of system in celsius
+  Values - 78.3
+
+system_temp_formated (unicode)
+  Description - Formatted version of system temperature.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
+  Values 102.3°f, 73.1°c
 
 disk_avail (int)
   Description - Amount of disk space available in bytes
@@ -154,6 +166,10 @@ disk_availp (int)
   Description - Percentage of disk space available (still left)
   Values - 97 (Value from 0 to 100)
 
+ip (unicode)
+  Description - The IP address of the host
+  Values - 192.168.2.40
+  Previously current_ip
 
 Weather Information
 --------------------
@@ -197,3 +213,7 @@ Input must be string
 |capitalize - converts first character of input to upper case
 |title - converts first character of every word to upper case
 |lower - converts input to lower case
+
+Hold
+
+urls=['http://somafm.com/7soul.pls?source=squeezeapp', 'http://www.radioparadise.com/musiclinks/rp_128.m3u', 'file:///E:/Music/MP3/Midnight%20Oil/10,9,8,7,6,5,4,3,2,1/01%20-%20Outside%20World.mp3', 'wimp://50262852.flac', 'spotify:track:6E495JmYuGPcYOJtdATH1O', 'pandora://3373354931763482533.mp3']
