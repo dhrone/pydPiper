@@ -150,11 +150,11 @@ class musicdata_rune(musicdata.musicdata):
 			# For backwards compatibility
 			self.musicdata['playlist_count'] = self.musicdata['playlist_length']
 
-			self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
-			self.musicdata['actPlayer'] = "Spotify"
-			self.musicdata['tracktype'] = "Spotify"
+			self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
+			self.musicdata['actPlayer'] = u"Spotify"
+			self.musicdata['tracktype'] = u"Spotify"
 
-		elif self.musicdata['actPlayer'] == 'MPD':
+		elif self.musicdata['actPlayer'] == u'MPD':
 			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
 			plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
 
@@ -162,9 +162,9 @@ class musicdata_rune(musicdata.musicdata):
 
 			# if radioname is None then this is coming from a playlist (e.g. not streaming)
 			if status.get('radioname') == None:
-				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, plc)
+				self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
 			else:
-				self.musicdata['playlist_display'] = "Streaming"
+				self.musicdata['playlist_display'] = u"Streaming"
 				# if artist is empty, place radioname in artist field
 				if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
 					self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
@@ -181,18 +181,18 @@ class musicdata_rune(musicdata.musicdata):
 				 	bits = audio[1]
 					chnum = audio[2]
 				 	if audio[2] == '1':
-						channels = 'Mono'
+						channels = u'Mono'
 				 	elif audio[2] == '2':
-					 	channels = 'Stereo'
+					 	channels = u'Stereo'
 				 	elif int(audio[2]) > 2:
-					 	channels = 'Multi'
+					 	channels = u'Multi'
 				 	else:
 					 	channels = u""
 
 			 	 	if channels == u"":
-					 	tracktype = "{0} bit, {1} kHz".format(bits, sample)
+					 	tracktype = u"{0} bit, {1} kHz".format(bits, sample)
 				 	else:
-				 		tracktype = "{0}, {1} bit, {2} kHz".format(channels, bits, sample)
+				 		tracktype = u"{0}, {1} bit, {2} kHz".format(channels, bits, sample)
 				else:
 					# If audio information not available just send that MPD is the source
 					tracktype = u"MPD"
@@ -200,19 +200,19 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['tracktype'] = tracktype
 			self.musicdata['channels'] = chnum
 
-		elif self.musicdata['actPlayer'] == 'Airplay':
+		elif self.musicdata['actPlayer'] == u'Airplay':
 			self.musicdata['playlist_position'] = 1
 			self.musicdata['playlist_count'] = 1
 			self.musicdata['tracktype'] = u"Airplay"
-			self.musicdata['playlist_display'] = "Airplay"
+			self.musicdata['playlist_display'] = u"Airplay"
 
 		else:
 			# Unexpected player type
-			logging.debug("Unexpected player type {0} discovered".format(actPlayer))
+			logging.debug(u"Unexpected player type {0} discovered".format(actPlayer))
 			self.musicdata['playlist_position'] = 1
 			self.musicdata['playlist_count'] = 1
 			self.musicdata['tracktype'] = actPlayer
-			self.musicdata['playlist_display'] = "Streaming"
+			self.musicdata['playlist_display'] = u"Streaming"
 
 		# if duration is not available, then suppress its display
 		if int(self.musicdata['length']) > 0:
@@ -267,10 +267,10 @@ if __name__ == '__main__':
 				break;
 			try:
 				item = q.get(timeout=1000)
-				print "++++++++++"
+				print u"++++++++++"
 				for k,v in item.iteritems():
-					print "[{0}] '{1}' type {2}".format(k,v,type(v))
-				print "++++++++++"
+					print u"[{0}] '{1}' type {2}".format(k,v,type(v))
+				print u"++++++++++"
 				print
 				q.task_done()
 			except Queue.Empty:
@@ -279,4 +279,4 @@ if __name__ == '__main__':
 		print ''
 		pass
 
-	print "Exiting..."
+	print u"Exiting..."
