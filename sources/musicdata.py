@@ -64,6 +64,22 @@ class musicdata:
 			# Update musicdata_prev
 			self.musicdata_prev = self.musicdata.copy()
 
+	def intn(self,val):
+		# A version of int that returns 0 if the value is not convertable
+		try:
+			retval = int(val)
+		except:
+			retval = 0
+		return retval
+
+	def booln(self,val):
+		# A version of bool that returns False if the value is not convertable
+		try:
+			retval = bool(val)
+		except:
+			retval = False
+		return retval
+
 
 	def clear(self):
 		# revert data back to init state

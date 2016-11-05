@@ -145,7 +145,7 @@ PAGES_Stop = {
             'variables': [ "time_formatted" ],
             'strftime':"%a %b %-d %H:%M",
             'format':"{0}",
-            'justification':"center",
+            'justification':"left",
             'scroll':False
           }
         ]
@@ -166,7 +166,7 @@ PAGES_Stop = {
             'variables': [ "time_formatted" ],
             'strftime':"%a %b %-d %H:%M",
             'format':"{0}",
-            'justification':"center",
+            'justification':"left",
             'scroll':False
           }
         ]
@@ -187,7 +187,7 @@ PAGES_Stop = {
             'variables': [ "time_formatted" ],
             'strftime':"%a %b %-d %H:%M",
             'format':"{0}",
-            'justification':"center",
+            'justification':"left",
             'scroll':False
           }
         ]

@@ -4,7 +4,7 @@ STARTUP_MSG = "Music Display\nStarting"
 STARTUP_LOGMSG = "Music Display Starting"
 
 HESITATION_TIME = 2.5 # Amount of time in seconds to hesistate before scrolling
-ANIMATION_SMOOTHING = .35 # Amount of time in seconds before repainting display
+ANIMATION_SMOOTHING = .15 # Amount of time in seconds before repainting display
 SCROLL_BLANK_WIDTH = 10 # Number of spaces to insert into string that is scrolling
 
 COOLING_PERIOD = 15 # Default amount of time in seconds before an alert message can be redisplayed
@@ -69,14 +69,14 @@ RUNE_PASSWORD = ""
 
 
 # DISPLAY Settings
-#DISPLAY_WIDTH = 16 # the character width of the display
-#DISPLAY_HEIGHT = 2 # the number of lines on the display
-DISPLAY_WIDTH = 20 # the character width of the display
-DISPLAY_HEIGHT = 4 # the number of lines on the display
+DISPLAY_WIDTH = 16 # the character width of the display
+DISPLAY_HEIGHT = 2 # the number of lines on the display
+#DISPLAY_WIDTH = 20 # the character width of the display
+#DISPLAY_HEIGHT = 4 # the number of lines on the display
 DISPLAY_PIN_RS = 7
 DISPLAY_PIN_E =  8
-DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
-#DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
+#DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
+DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
 
 # WEATHER Settings
 OWM_API = '52dfe63ba1fd89b1eda781a02d456842'

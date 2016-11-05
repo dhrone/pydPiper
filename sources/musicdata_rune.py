@@ -83,7 +83,7 @@ class musicdata_rune(musicdata.musicdata):
 					self.subscribe()
 					self.status()
 					self.sendUpdate()
-				except redis.ConnectionError, RuntimeError:
+				except (redis.ConnectionError, RuntimeError):
 					self.dataclient = None
 					# On connection error, sleep 5 and then return to top and try again
 					time.sleep(5)
@@ -96,7 +96,7 @@ class musicdata_rune(musicdata.musicdata):
 					self.status()
 					self.sendUpdate()
 				time.sleep(.01)
-			except (RuntimeError, redis.ConnectionError):
+			except redis.ConnectionError:
 				# if we lose our connection while trying to query DB
 				# sleep 5 and then return to top to try again
 				self.dataclient = None
@@ -120,13 +120,13 @@ class musicdata_rune(musicdata.musicdata):
 		self.musicdata['artist'] = status['currentartist'] if 'currentartist' in status else u""
 		self.musicdata['title'] = status['currentsong'] if 'currentsong' in status else u""
 		self.musicdata['album'] = status['currentalbum'] if 'currentalbum' in status else u""
-		self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
-		self.musicdata['length'] = int(status['time']) if 'time' in status else 0
-		self.musicdata['elapsed'] = int(status['elapsed']) if 'elapsed' in status else 0
+		self.musicdata['volume'] = self.intn(status['volume']) if 'volume' in status else 0
+		self.musicdata['length'] = self.intn(status['time']) if 'time' in status else 0
+		self.musicdata['elapsed'] = self.intn(status['elapsed']) if 'elapsed' in status else 0
 		self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
-		self.musicdata['single'] = bool(int(status['single'])) if 'single' in status else False
-		self.musicdata['random'] = bool(int(status['random'])) if 'random' in status else False
-		self.musicdata['repeat'] = bool(int(status['repeat'])) if 'random' in status else False
+		self.musicdata['single'] = bool(self.intn(status['single'])) if 'single' in status else False
+		self.musicdata['random'] = bool(self.intn(status['random'])) if 'random' in status else False
+		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'random' in status else False
 		self.musicdata['musicdatasource'] = "Rune"
 
 		# For backwards compatibility
