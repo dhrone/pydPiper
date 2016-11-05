@@ -54,7 +54,7 @@ class musicdata:
 		'type':u""
 	}
 
-	varcheck {
+	varcheck = {
 		'unicode':
 			[ 'state', 'actPlayer', 'musicdatasource', 'album', 'artist', 'title', 'uri', 'encoding', 'tracktype', 'bitdepth', 'bitrate', 'samplerate', 'elapsed_formatted', 'remaining', 'playlist_display' ],
 		'bool':
