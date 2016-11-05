@@ -216,14 +216,14 @@ class musicdata_rune(musicdata.musicdata):
 
 		# if duration is not available, then suppress its display
 		if int(self.musicdata['length']) > 0:
-			timepos = time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata['elapsed']))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata['length'])))
-			remaining = time.strftime(u"%-M:%S", time.gmtime( int(self.musicdata['length']) - int(self.musicdata['elapsed']) ) )
+			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['length'])))
+			remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['length']) - int(self.musicdata['elapsed']) ) )
 		else:
-			timepos = time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata['elapsed'])))
+			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed'])))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining
-		self.musicdata['elapsed_formatted'] = timepos
+		self.musicdata['remaining'] = remaining.decode()
+		self.musicdata['elapsed_formatted'] = timepos.decode()
 
 		# For backwards compatibility
 		self.musicdata['position'] = self.musicdata['elapsed_formatted']
