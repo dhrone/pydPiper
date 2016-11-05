@@ -197,7 +197,7 @@ class display_controller(threading.Thread):
 					else:
 						buffer = self.buildline(lines_value_current[linenr])
 
-					buffer = "u{0:<{1}}".format(buffer,self.lcd.cols)
+					buffer = u"{0:<{1}}".format(buffer,self.lcd.cols)
 
 					# If actual content of line changed send update to display
 					if linebuffers[linenr] != buffer:
@@ -383,7 +383,7 @@ class music_controller(threading.Thread):
 		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
 		ppb = percentperblock = 100.0 / chars
 
-		buffer = ''
+		buffer = u''
 		i = 0
 		if vol_per <= (i+.25)*ppb:
 			buffer += chr(vle)
@@ -492,13 +492,13 @@ class music_controller(threading.Thread):
 						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed']))
 						remaining = timepos
 
-					self.musicdata['remaining'] = remaining
-					self.musicdata['elapsed_formatted'] = self.musicdata['position'] = timepos
+					self.musicdata['remaining'] = remaining.decode()
+					self.musicdata['elapsed_formatted'] = self.musicdata['position'] = timepos.decode()
 
 				# Update onoff variables (random, single, repeat)
-				self.musicdata['random_onoff'] = "On" if self.musicdata['random'] else "Off"
-				self.musicdata['single_onoff'] = "On" if self.musicdata['single'] else "Off"
-				self.musicdata['repeat_onoff'] = "On" if self.musicdata['repeat'] else "Off"
+				self.musicdata['random_onoff'] = u"On" if self.musicdata['random'] else u"Off"
+				self.musicdata['single_onoff'] = u"On" if self.musicdata['single'] else u"Off"
+				self.musicdata['repeat_onoff'] = u"On" if self.musicdata['repeat'] else u"Off"
 
 				# if volume has changed, update volume_bar_fancy
 				if 'volume' in updates:
@@ -530,7 +530,14 @@ class music_controller(threading.Thread):
 					ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
 					print u"Status at time {0}".format(ctime)
 					for item,value in self.musicdata.iteritems():
-						print u"    [{0}]={1} {2}".format(item,value, type(value))
+						try:
+							print u"    [{0}]={1} {2}".format(item,value, type(value))
+						except:
+							print "err"
+							print "[{0}] =".format(item),
+							print value,
+							print " ",
+							print type(value)	
 					print "\n"
 
 				# Update musicdata_prev with anything that has changed
@@ -762,11 +769,11 @@ class music_controller(threading.Thread):
 				if type(val) is bool:
 
 					if transforms[i] == 'onoff':
-						retval = 'on' if val else 'off'
+						retval = u'on' if val else u'off'
 					elif transforms[i] == 'truefalse':
-						retval = 'true' if val else 'false'
+						retval = u'true' if val else u'false'
 					elif transforms[i] == 'yesno':
-						retval = 'yes' if val else 'no'
+						retval = u'yes' if val else u'no'
 				else:
 					logging.debug(u"Request to perform boolean transform on {0} requires boolean input").format(name)
 					return val
@@ -774,6 +781,8 @@ class music_controller(threading.Thread):
 				# These all require string input
 
 				if type(val) is str or type(val) is unicode:
+					if type(retval) is str:
+						retval = retval.decode()
 					if transforms[i] == 'upper':
 						retval = retval.upper()
 					elif transforms[i] == 'capitalize':
@@ -817,6 +826,7 @@ class music_controller(threading.Thread):
 		except:
 #			print "Var Error Format {0}, Parms {1} Vars {2}\n{3}".format(format, parms, vars, self.musicdata)
 			# Format doesn't match available variables
+			logging.debug("Var Error with parm type {0} and format type {1}".format(type(parms), type(format)))
 			segval = u"Variable error"
 
 		# justify segment
@@ -942,23 +952,25 @@ class music_controller(threading.Thread):
 				segment['start'] = 0
 				segment['end'] = self.cols
 				segment['variables'] = vars = current_line['variables'] if 'variables' in current_line else [ ]
-				segment['format'] = format = current_line['format'] if 'format' in current_line else u""
+				segment['format'] = current_line['format'] if 'format' in current_line else u""
 				segment['justification'] = justification = current_line['justification'] if 'justification' in current_line else "left"
 				segment['scroll'] = scroll = current_line['scroll'] if 'scroll' in current_line else False
 				segment['scrolldirection'] = scrolldirection = current_line['scrolldirection'] if 'scrolldirection' in current_line else "left"
 
 				# Make sure format is a unicode value
-				if type(segment['format']) not unicode:
+				if type(segment['format']) is not unicode:
 					try:
 						segment['format'] = segment['format'].decode()
 					except:
 						logging.debug(u"On page {0}, line {1}, there is a segment with a bad format key".format(pagename, linename))
 						segment['format'] = 'FmtErr'
 
+				format = segment['format']
+
 				strftime = current_line['strftime'] if 'strftime' in current_line else "%-I:%M %p"
 
 				with self.musicdata_lock:
-					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
+					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
 					# To support previous key used for this purpose
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
@@ -983,19 +995,20 @@ class music_controller(threading.Thread):
 
 
 				segment['variables'] = variables = current_segment['variables'] if 'variables' in current_segment else [ ]
-				segment['format'] = format = current_segment['format'] if 'format' in current_segment else u""
+				segment['format'] = current_segment['format'] if 'format' in current_segment else u""
 				segment['justification'] = justification = current_segment['justification'] if 'justification' in current_segment else "left"
 				segment['scroll'] = scroll = current_segment['scroll'] if 'scroll' in current_segment else False
 				segment['scrolldirection'] = scrolldirection = current_segment['scrolldirection'] if 'scrolldirection' in current_segment else "left"
 
 				# Make sure format is a unicode value
-				if type(segment['format']) not unicode:
+				if type(segment['format']) is not unicode:
 					try:
 						segment['format'] = segment['format'].decode()
 					except:
 						logging.debug(u"On page {0}, line {1}, there is a segment with a bad format key".format(pagename, linename))
 						segment['format'] = 'FmtErr'
 
+				format = segment['format']
 
 				# Check placement on line
 				if segment['start'] < segment_start:
@@ -1021,11 +1034,11 @@ class music_controller(threading.Thread):
 				strftime = current_segment['strftime'] if 'strftime' in current_segment else "%-I:%M %p"
 
 				with self.musicdata_lock:
-					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip()
+					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
 					# To support previous key used for this purpose
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
-				format = current_segment['format']
+
 				segment['value'] = self.getsegmentvalue(variables, format, justification, segment['start'], segment['end'])
 
 				# Add segment to array of segments
@@ -1119,13 +1132,13 @@ class music_controller(threading.Thread):
 			try:
 				if music_display_config.TEMPERATURE.lower() == 'celsius':
 					system_temp = system_tempc
-					system_temp_formatted = "{0}°c".format(int(system_temp))
+					system_temp_formatted = u"{0}°c".format(int(system_temp))
 				else:
 					system_temp = system_tempf
-					system_temp_formatted = "{0}°f".format(int(system_temp))
+					system_temp_formatted = u"{0}°f".format(int(system_temp))
 			except:
 				system_temp = system_tempf
-				system_temp_formatted = "{0}°f".format(int(system_temp))
+				system_temp_formatted = u"{0}°f".format(int(system_temp))
 
 			try:
 				# Check if running on OSX.  If yes, adjust df command
@@ -1170,17 +1183,17 @@ class music_controller(threading.Thread):
 				self.musicdata['disk_used'] = used
 				self.musicdata['disk_usedp'] = usedp
 
-				self.musicdata['time'] = current_time
+				self.musicdata['time'] = current_time.decode()
 				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed
 
 				# For backwards compatibility
-				self.musicdata['current_time'] = current_time
-				self.musicdata['current_time_sec'] = current_time
+				self.musicdata['current_time'] = current_time.decode()
+				self.musicdata['current_time_sec'] = current_time.decode()
 
-				self.musicdata['ip'] = current_ip
+				self.musicdata['ip'] = current_ip.decode()
 
 				# For backwards compatibility
-				self.musicdata['current_ip'] = current_ip
+				self.musicdata['current_ip'] = current_ip.decode()
 
 				self.musicdata['outside_temp'] = outside_temp
 				self.musicdata['outside_temp_formatted'] = outside_temp_formatted

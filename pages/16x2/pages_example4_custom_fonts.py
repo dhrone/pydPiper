@@ -227,7 +227,7 @@ PAGES_Stop = {
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "outside_temp" ],
+			'variables': [ "outside_temp_formatted" ],
 			'format':"Temp {0}",
 			'justification':"center",
 			'scroll':False
@@ -240,18 +240,18 @@ PAGES_Stop = {
 		'lines': [
 		  {
 			'name':"top",
-			'variables': [ "system_temp", "disk_usedp" ],
-			'format':"Temp: {0}c / Disk {1}% full",
-			'justification':"left",
-			'scroll':True
-		  },
-		  {
-			'name':"bottom",
 			'variables': [ "time_formatted" ],
 			'strftime':"%a %b %-d %H:%M",
 			'format':"{0}",
 			'justification':"left",
 			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "system_temp", "disk_usedp" ],
+			'format':"Temp: {0}c / Disk {1}% full",
+			'justification':"left",
+			'scroll':True
 		  }
 		]
 	  },
@@ -261,17 +261,17 @@ PAGES_Stop = {
 		'lines': [
 		  {
 			'name':"top",
-			'variables': [ "outside_temp" ],
-			'format':"Temp {0}",
-			'justification':"center",
-			'scroll':True
-		  },
-		  {
-			'name':"bottom",
-			'variables': [ "outside_conditions" ],
+			'variables': [ "outside_conditions|title" ],
 			'format':"{0}",
 			'justification':"center",
 			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "outside_temp_formatted" ],
+			'format':"Temp {0}",
+			'justification':"center",
+			'scroll':True
 		  }
 		]
 	  }
