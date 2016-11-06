@@ -86,7 +86,7 @@ class musicdata_volumio2(musicdata.musicdata):
 			# regardless of whether on_state_response or on_queue_response updates the underlying data
 
 			if stream == 'webradio':
-				self.musicdata['playlist_display'] = 'Streaming'
+				self.musicdata['playlist_display'] = 'Radio'
 			else:
 				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, self.musicdata['playlist_length'] )
 
@@ -173,7 +173,7 @@ class musicdata_volumio2(musicdata.musicdata):
 			plc = self.musicdata['playlist_length'] if 'playlist_length' in self.musicdata else 0
 
 			if self.musicdata['stream'].lower() == u'webradio':
-				self.musicdata['playlist_display'] = u'Streaming'
+				self.musicdata['playlist_display'] = u'Radio'
 			else:
 				self.musicdata['playlist_display'] = u"{0}/{1}".format(self.musicdata['playlist_position'], plc)
 
@@ -192,7 +192,7 @@ class musicdata_volumio2(musicdata.musicdata):
 			# For backwards compatibility
 			self.musicdata['position'] = self.musicdata['elapsed_formatted']
 
-			self.validatemusicvars(self.musicdata)	
+			self.validatemusicvars(self.musicdata)
 
 		self.sendUpdate()
 

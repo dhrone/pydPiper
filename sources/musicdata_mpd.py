@@ -173,7 +173,7 @@ class musicdata_mpd(musicdata.musicdata):
 
 		# If playlist is length 1 and the song playing is from an http source it is streaming
 		if self.musicdata['encoding'] == 'webradio':
-			self.musicdata['playlist_display'] = u"Streaming"
+			self.musicdata['playlist_display'] = u"Radio"
 			self.musicdata['artist'] = current_song['name'] if 'name' in current_song else u""
 		else:
 				self.musicdata['playlist_display'] = u"{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])

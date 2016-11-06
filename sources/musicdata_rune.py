@@ -175,7 +175,7 @@ class musicdata_rune(musicdata.musicdata):
 			if status.get('radioname') == None:
 				self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
 			else:
-				self.musicdata['playlist_display'] = u"Streaming"
+				self.musicdata['playlist_display'] = u"Radio"
 				# if artist is empty, place radioname in artist field
 				if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
 					self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
@@ -215,7 +215,7 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['playlist_position'] = 1
 			self.musicdata['playlist_count'] = 1
 			self.musicdata['tracktype'] = u"Airplay"
-			self.musicdata['playlist_display'] = u"Airplay"
+			self.musicdata['playlist_display'] = u"Airply"
 
 		else:
 			# Unexpected player type
@@ -223,7 +223,7 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['playlist_position'] = 1
 			self.musicdata['playlist_count'] = 1
 			self.musicdata['tracktype'] = actPlayer
-			self.musicdata['playlist_display'] = u"Streaming"
+			self.musicdata['playlist_display'] = u"Radio"
 
 		# if duration is not available, then suppress its display
 		if int(self.musicdata['length']) > 0:

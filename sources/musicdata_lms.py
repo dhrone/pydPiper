@@ -235,7 +235,7 @@ class musicdata_lms(musicdata.musicdata):
 			try:
 				# if streaming
 				if self.dataplayer.playlist_get_info()[0]['duration'] == 0.0:
-					playlist_display = u"Streaming"
+					playlist_display = u"Radio"
 				# it really is a short playlist
 				else:
 					playlist_display = "{0}/{1}".format(plp, plc)

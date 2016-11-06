@@ -109,8 +109,8 @@ playlist_length (int)
   Previously called - playlist_count
 
 playlist_display (unicode)
-  Description - Formatted information on playlist status.  Displays streaming if playing from streaming source.
-  Values - 1/9, 8/20, Streaming
+  Description - Formatted information on playlist status.  Displays 'Radio' if playing from streaming source.
+  Values - 1/9, 8/20, Radio
 
 random (boolean)
   Description - Is the song order being randomized?
