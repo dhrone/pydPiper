@@ -520,41 +520,41 @@ class music_controller(threading.Thread):
 					displays.fonts.size5x8.speaker.er,
 					displays.fonts.size5x8.speaker.hr )
 
+			with self.musicdata_lock:
+				# If anything has changed, update pages
+				if self.musicdata != self.musicdata_prev or lastupdate < time.time():
+					lastupdate = time.time()+1
+					self.updatepages()
 
-			# If anything has changed, update pages
-			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
-				lastupdate = time.time()+1
-				self.updatepages()
+					if self.showupdates:
+						ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
+						print u"Status at time {0}".format(ctime)
+						for item,value in self.musicdata.iteritems():
+							try:
+								print u"    [{0}]={1} {2}".format(item,value, type(value))
+							except:
+								print "err"
+								print "[{0}] =".format(item),
+								print value,
+								print " ",
+								print type(value)
+						print "\n"
 
-				if self.showupdates:
-					ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
-					print u"Status at time {0}".format(ctime)
-					for item,value in self.musicdata.iteritems():
+					# Update musicdata_prev with anything that has changed
+	#				if self.musicdata['current'] != self.musicdata_prev['current']:
+	#					self.musicdata_prev['current'] = self.musicdata['current']
+	#					self.musicdata_prev['remaining'] = self.musicdata['remaining']
+	#					self.musicdata_prev['position'] = self.musicdata['position']
+
+					for item, value in self.musicdata.iteritems():
 						try:
-							print u"    [{0}]={1} {2}".format(item,value, type(value))
-						except:
-							print "err"
-							print "[{0}] =".format(item),
-							print value,
-							print " ",
-							print type(value)
-					print "\n"
-
-				# Update musicdata_prev with anything that has changed
-#				if self.musicdata['current'] != self.musicdata_prev['current']:
-#					self.musicdata_prev['current'] = self.musicdata['current']
-#					self.musicdata_prev['remaining'] = self.musicdata['remaining']
-#					self.musicdata_prev['position'] = self.musicdata['position']
-
-				for item, value in self.musicdata.iteritems():
-					try:
-						if self.musicdata_prev[item] != value:
+							if self.musicdata_prev[item] != value:
+								self.musicdata_prev[item] = value
+						except KeyError:
 							self.musicdata_prev[item] = value
-					except KeyError:
-						self.musicdata_prev[item] = value
 
 			# Update display data every 1/4 second
-#			time.sleep(.25)
+			time.sleep(.25)
 
 	def checkalert(self, pl, state):
 		# Determines whether a alert show be displayed
