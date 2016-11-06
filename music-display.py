@@ -623,7 +623,7 @@ class music_controller(threading.Thread):
 			if self.current_page_number > len(self.current_pages['pages'])-1:
 				self.current_page_number = 0
 
-			self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['length']
+			self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
 
 			cp = self.current_pages['pages'][self.current_page_number]
 
