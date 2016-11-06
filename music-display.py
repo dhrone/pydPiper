@@ -1,10 +1,10 @@
-#!/usr/bin/pythoelf.musicdata['random']
+#!/usr/bin/python.music-display
 # coding: UTF-8
 
-# musicctrl service to manage reading from active services
+# music-display service to display music data to LCD and OLED character displays
 # Written by: Ron Ritchey
 
-import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp
+import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp, codecs
 import pages
 import displays
 import sources
@@ -535,10 +535,9 @@ class music_controller(threading.Thread):
 								print u"    [{0}]={1} {2}".format(item,value, type(value))
 							except:
 								print "err"
-								print "[{0}] =".format(item),
-								print value,
-								print " ",
+								print u"[{0}] =".format(item)
 								print type(value)
+								print value
 						print "\n"
 
 				# Update musicdata_prev with anything that has changed
@@ -1094,8 +1093,12 @@ class music_controller(threading.Thread):
 			outside_tempf = 0.0
 			outside_tempc = 0.0
 			outside_temp = 0.0
+			outside_temp_max = 0.0
+			outside_temp_min = 0.0
 			outside_conditions = u''
 			outside_temp_formatted = u''
+			outside_temp_max_formatted = u''
+			outside_temp_min_formatted = u''
 
 			try:
 				owm = pyowm.OWM(music_display_config.OWM_API)
@@ -1249,6 +1252,9 @@ def sigterm_handler(_signo, _stack_frame):
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
+
+	if sys.stdout.encoding != 'UTF-8':
+    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
 	logging.getLogger().addHandler(logging.StreamHandler())

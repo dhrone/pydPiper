@@ -75,8 +75,8 @@ DISPLAY_HEIGHT = 2 # the number of lines on the display
 #DISPLAY_HEIGHT = 4 # the number of lines on the display
 DISPLAY_PIN_RS = 7
 DISPLAY_PIN_E =  8
-#DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
-DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
+DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
+#DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
 
 # WEATHER Settings
 OWM_API = '52dfe63ba1fd89b1eda781a02d456842'
