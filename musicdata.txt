@@ -149,7 +149,7 @@ system_tempc (float)
   Description - Current temp of system in celsius
   Values - 78.3
 
-system_temp_formated (unicode)
+system_temp_formatted (unicode)
   Description - Formatted version of system temperature.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
   Values 102.3°f, 73.1°c
 
@@ -180,11 +180,27 @@ Requires Open Weather Map API (from http://openweathermap.org) and current locat
 
 outside_temp (float)
   Description - Current Outside temperature.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
-  Values 78.3
+  Values 78.34
 
-outside_temp_formated (unicode)
+outside_temp_max (float)
+  Description - Forecast high outside temperature for the day.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
+  Values 92.32
+
+outside_temp_min (float)
+  Description - Forecast low outside temperature for the day.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
+  Values 92.34
+
+outside_temp_formatted (unicode)
   Description - Formatted version of outside temperature.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
-  Values 78.3°f, 23.1°c
+  Values 78°f, 23°c
+
+outside_temp_max_formatted (unicode)
+  Description - Formatted version of the high outside temperature forecast for the day.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
+  Values 78°f, 23°c
+
+outside_temp_max_formatted (unicode)
+  Description - Formatted version of the low outside temperature forecast for the day.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
+  Values 78°f, 23°c
 
 outside_conditions (unicode)
   Description - Current weather conditions.

@@ -214,7 +214,7 @@ PAGES_Stop = {
   'pages':
 	[
 	  {
-		'name':"Ready",
+		'name':"TIME",
 		'duration':15,
 		'lines': [
 		  {
@@ -235,8 +235,8 @@ PAGES_Stop = {
 		]
 	  },
 	  {
-		'name':"SYSTEMVARS",
-		'duration':6,
+		'name':"WEAHLTEMP",
+		'duration':10,
 		'lines': [
 		  {
 			'name':"top",
@@ -248,30 +248,31 @@ PAGES_Stop = {
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "system_temp", "disk_usedp" ],
-			'format':"Temp: {0}c / Disk {1}% full",
-			'justification':"left",
-			'scroll':True
+			'variables': [ "outside_temp_max", "outside_temp_min" ],
+			'format':"H{0} / L{1}",
+			'justification':"center",
+			'scroll':False
 		  }
 		]
 	  },
 	  {
-		'name':"WEATHER",
+		'name':"WEACOND",
 		'duration':10,
 		'lines': [
 		  {
 			'name':"top",
-			'variables': [ "outside_conditions|title" ],
+			'variables': [ "time_formatted" ],
+			'strftime':"%a %b %-d %H:%M",
 			'format':"{0}",
-			'justification':"center",
+			'justification':"left",
 			'scroll':False
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "outside_temp_formatted" ],
-			'format':"Temp {0}",
+			'variables': [ "outside_conditions|title" ],
+			'format':"{0}",
 			'justification':"center",
-			'scroll':True
+			'scroll':False
 		  }
 		]
 	  }

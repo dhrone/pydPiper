@@ -537,7 +537,7 @@ class music_controller(threading.Thread):
 							print "[{0}] =".format(item),
 							print value,
 							print " ",
-							print type(value)	
+							print type(value)
 					print "\n"
 
 				# Update musicdata_prev with anything that has changed
@@ -827,7 +827,7 @@ class music_controller(threading.Thread):
 #			print "Var Error Format {0}, Parms {1} Vars {2}\n{3}".format(format, parms, vars, self.musicdata)
 			# Format doesn't match available variables
 			logging.debug("Var Error with parm type {0} and format type {1}".format(type(parms), type(format)))
-			segval = u"Variable error"
+			segval = u"VarErr"
 
 		# justify segment
 		try:

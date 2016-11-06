@@ -112,9 +112,17 @@ class musicdata_mpd(musicdata.musicdata):
 	def status(self):
 		# Read musicplayer status and update musicdata
 
-		status = self.dataclient.status()
-		current_song = self.dataclient.currentsong()
-		playlist_info = self.dataclient.playlistinfo()
+		try:
+			status = self.dataclient.status()
+			current_song = self.dataclient.currentsong()
+			playlist_info = self.dataclient.playlistinfo()
+		except:
+			# Caught something else.  Report it and then inform calling function that the connection is bad
+			e = sys.exc_info()[0]
+			logging.debug(u"Caught {0} trying to get status".format(e))
+			raise RuntimeError("Could not get status from MPD")
+
+
 
 		state = status.get('state')
 		if state != "play":

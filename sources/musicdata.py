@@ -46,6 +46,8 @@ class musicdata:
 		'playlist_position':-1,
 		'playlist_length':-1,
 
+		'my_name':u"", # Volumio 2 only
+
 		# Deprecated values
 		'current':-1,
 		'duration':-1,
@@ -56,7 +58,7 @@ class musicdata:
 
 	varcheck = {
 		'unicode':
-			[ 'state', 'actPlayer', 'musicdatasource', 'album', 'artist', 'title', 'uri', 'encoding', 'tracktype', 'bitdepth', 'bitrate', 'samplerate', 'elapsed_formatted', 'remaining', 'playlist_display' ],
+			[ 'state', 'actPlayer', 'musicdatasource', 'album', 'artist', 'title', 'uri', 'encoding', 'tracktype', 'bitdepth', 'bitrate', 'samplerate', 'elapsed_formatted', 'remaining', 'playlist_display', 'my_name' ],
 		'bool':
 			[ 'random', 'single', 'repeat' ],
 		'int':
@@ -159,6 +161,14 @@ class musicdata:
 			retval = bool(val)
 		except:
 			retval = False
+		return retval
+
+	def floatn(self,val):
+		# A version of float that returns 0.0 if the value is not convertable
+		try:
+			retval = float(val)
+		except:
+			retval = 0.0
 		return retval
 
 
