@@ -131,7 +131,7 @@ class musicdata_volumio2(musicdata.musicdata):
 
 			self.musicdata['length'] = self.intn(status['duration']) if 'duration' in status else 0
 			# For backwards compatibility
-			self.musicdata['length'] = self.musicdata['duration']
+			self.musicdata['duration'] = self.musicdata['length']
 
 			try:
 				playlist_position = status['position'] if 'position' in status else 0

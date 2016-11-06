@@ -484,7 +484,7 @@ class music_controller(threading.Thread):
 
 				# If the value of current has changed then update the other related timing variables
 				if self.musicdata['elapsed'] != self.musicdata_prev['elapsed']:
-					if self.musicdata['duration'] > 0:
+					if self.musicdata['length'] > 0:
 						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['length']))
 						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['length'] - self.musicdata['elapsed'] ) )
 
@@ -599,7 +599,7 @@ class music_controller(threading.Thread):
 		self.current_pages = pl
 		self.current_page_number = 0
 		self.current_line_number = 0
-		self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
+		self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['length']
 		self.curlines = []
 		self.hesitate_expires = []
 
@@ -624,7 +624,7 @@ class music_controller(threading.Thread):
 			if self.current_page_number > len(self.current_pages['pages'])-1:
 				self.current_page_number = 0
 
-			self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
+			self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['length']
 
 			cp = self.current_pages['pages'][self.current_page_number]
 
