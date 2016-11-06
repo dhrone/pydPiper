@@ -215,7 +215,7 @@ PAGES_Stop = {
 	[
 	  {
 		'name':"TIME",
-		'duration':15,
+		'duration':8,
 		'lines': [
 		  {
 			'name':"top",
@@ -236,7 +236,7 @@ PAGES_Stop = {
 	  },
 	  {
 		'name':"WEAHLTEMP",
-		'duration':10,
+		'duration':8,
 		'lines': [
 		  {
 			'name':"top",
@@ -248,7 +248,7 @@ PAGES_Stop = {
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "outside_temp_max", "outside_temp_min" ],
+			'variables': [ "outside_temp_max_formatted", "outside_temp_min_formatted" ],
 			'format':"H{0} / L{1}",
 			'justification':"center",
 			'scroll':False
@@ -257,7 +257,7 @@ PAGES_Stop = {
 	  },
 	  {
 		'name':"WEACOND",
-		'duration':10,
+		'duration':8,
 		'lines': [
 		  {
 			'name':"top",
