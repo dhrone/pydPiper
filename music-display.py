@@ -1101,15 +1101,28 @@ class music_controller(threading.Thread):
 				obs = owm.weather_at_place(music_display_config.OWM_LOCATION)
 				wea = obs.get_weather()
 				outside_tempf = wea.get_temperature('fahrenheit')['temp']
+				outside_temp_maxf = wea.get_temperature('fahrenheit')['temp_max']
+				outside_temp_minf = wea.get_temperature('fahrenheit')['temp_min']
+
 				outside_tempc = wea.get_temperature('celsius')['temp']
+				outside_temp_maxc = wea.get_temperature('celsius')['temp_max']
+				outside_temp_minc = wea.get_temperature('celsius')['temp_min']
 
 				# Localize temperature value
 				if music_display_config.TEMPERATURE.lower() == 'celsius':
 					outside_temp = outside_tempc
+					outside_temp_max = outside_temp_maxc
+					outside_temp_min = outside_temp_minc
 					outside_temp_formatted = u"{0}°C".format(int(outside_temp))
+					outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
+					outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
 				else:
 					outside_temp = outside_tempf
+					outside_temp_max = outside_temp_maxf
+					outside_temp_min = outside_temp_minf
 					outside_temp_formatted = u"{0}°F".format(int(outside_temp))
+					outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
+					outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
 
 				outside_conditions = wea.get_detailed_status()
 			except:
@@ -1171,6 +1184,7 @@ class music_controller(threading.Thread):
 			with self.musicdata_lock:
 				self.musicdata['system_temp'] = system_temp
 				self.musicdata['system_temp_formatted'] = system_temp_formatted
+
 				self.musicdata['system_tempc'] = system_tempc
 				self.musicdata['system_tempf'] = system_tempf
 
@@ -1196,7 +1210,11 @@ class music_controller(threading.Thread):
 				self.musicdata['current_ip'] = current_ip.decode()
 
 				self.musicdata['outside_temp'] = outside_temp
+				self.musicdata['outside_temp_max'] = outside_temp_max
+				self.musicdata['outside_temp_min'] = outside_temp_min
 				self.musicdata['outside_temp_formatted'] = outside_temp_formatted
+				self.musicdata['outside_temp_max_formatted'] = outside_temp_max_formatted
+				self.musicdata['outside_temp_min_formatted'] = outside_temp_min_formatted
 				self.musicdata['outside_conditions'] = outside_conditions
 
 			# Read environmentals every 20 seconds
