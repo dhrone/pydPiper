@@ -87,9 +87,9 @@ class musicdata_volumio2(musicdata.musicdata):
 			# regardless of whether on_state_response or on_queue_response updates the underlying data
 
 			if stream == 'webradio':
-				self.musicdata['playlist_display'] = 'Radio'
+				self.musicdata['playlist_display'] = u'Radio'
 			else:
-				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, self.musicdata['playlist_length'] )
+				self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, self.musicdata['playlist_length'] )
 
 		self.sendUpdate()
 
