@@ -520,15 +520,16 @@ class music_controller(threading.Thread):
 					displays.fonts.size5x8.speaker.er,
 					displays.fonts.size5x8.speaker.hr )
 
-			with self.musicdata_lock:
-				# If anything has changed, update pages
-				if self.musicdata != self.musicdata_prev or lastupdate < time.time():
-					lastupdate = time.time()+1
-					self.updatepages()
+			# If anything has changed, update pages
+			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
+				lastupdate = time.time()+1
+				self.updatepages()
 
-					if self.showupdates:
-						ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
-						print u"Status at time {0}".format(ctime)
+				if self.showupdates:
+					ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
+					print u"Status at time {0}".format(ctime)
+
+					with self.musicdata_lock:
 						for item,value in self.musicdata.iteritems():
 							try:
 								print u"    [{0}]={1} {2}".format(item,value, type(value))
@@ -540,12 +541,12 @@ class music_controller(threading.Thread):
 								print type(value)
 						print "\n"
 
-					# Update musicdata_prev with anything that has changed
-	#				if self.musicdata['current'] != self.musicdata_prev['current']:
-	#					self.musicdata_prev['current'] = self.musicdata['current']
-	#					self.musicdata_prev['remaining'] = self.musicdata['remaining']
-	#					self.musicdata_prev['position'] = self.musicdata['position']
-
+				# Update musicdata_prev with anything that has changed
+#				if self.musicdata['current'] != self.musicdata_prev['current']:
+#					self.musicdata_prev['current'] = self.musicdata['current']
+#					self.musicdata_prev['remaining'] = self.musicdata['remaining']
+#					self.musicdata_prev['position'] = self.musicdata['position']
+				with self.musicdata_lock:
 					for item, value in self.musicdata.iteritems():
 						try:
 							if self.musicdata_prev[item] != value:
