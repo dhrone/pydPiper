@@ -137,7 +137,7 @@ class musicdata_rune(musicdata.musicdata):
 		self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
 		self.musicdata['single'] = bool(self.intn(status['single'])) if 'single' in status else False
 		self.musicdata['random'] = bool(self.intn(status['random'])) if 'random' in status else False
-		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'random' in status else False
+		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'repeat' in status else False
 		self.musicdata['musicdatasource'] = u"Rune"
 
 		# For backwards compatibility
@@ -203,7 +203,7 @@ class musicdata_rune(musicdata.musicdata):
 			 	 	if channels == u"":
 					 	tracktype = u"{0} bit, {1} kHz".format(bits, sample)
 				 	else:
-				 		tracktype = u"{0}, {1} bit, {2} kHz".format(channels, bits, sample)
+				 		tracktype = u"{0} {1} bit {2} kHz".format(channels, bits, sample)
 				else:
 					# If audio information not available just send that MPD is the source
 					tracktype = u"MPD"
@@ -215,7 +215,7 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['playlist_position'] = 1
 			self.musicdata['playlist_count'] = 1
 			self.musicdata['tracktype'] = u"Airplay"
-			self.musicdata['playlist_display'] = u"Airply"
+			self.musicdata['playlist_display'] = u"Aplay"
 
 		else:
 			# Unexpected player type

@@ -249,7 +249,7 @@ PAGES_Stop = {
 		  {
 			'name':"bottom",
 			'variables': [ "outside_temp_max_formatted", "outside_temp_min_formatted" ],
-			'format':"H{0} / L{1}",
+			'format':"H {0}/L {1}",
 			'justification':"center",
 			'scroll':False
 		  }
