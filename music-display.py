@@ -16,6 +16,8 @@ except ImportError:
 	pass
 
 
+exitapp = [ False ]
+
 class display_controller(threading.Thread):
 	# Receives updates from music_controller and places them onto displays
 	def __init__(self, displayqueue, lcd):
@@ -138,7 +140,7 @@ class display_controller(threading.Thread):
 		  lines.append("")
 		  columns.append(0)
 
-		while True:
+		while not exitapp[0]:
 			# Get first display update off of the queue
 			qitem = self.displayqueue.get()
 			self.displayqueue.task_done()
@@ -171,7 +173,7 @@ class display_controller(threading.Thread):
 		# Initialize the time display got updated
 		time_prev = time.time()
 
-		while True:
+		while not exitapp[0]:
 			# Smooth animation
 			if time.time() - time_prev < music_display_config.ANIMATION_SMOOTHING:
 				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-time_prev))
@@ -363,7 +365,7 @@ class music_controller(threading.Thread):
 				elif s == "rune":
 					musicservice = sources.musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
 				elif s == "volumio":
-					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT)
+					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT, exitapp )
 				else:
 					logging.debug(u"Unsupported music service {0} requested".format(s))
 					continue
@@ -452,7 +454,7 @@ class music_controller(threading.Thread):
 		self.musicdata_prev['state'] = ""
 
 		lastupdate = 0 # Initialize variable to be used to force updates every second regardless of the receipt of a source update
-		while True:
+		while not exitapp[0]:
 
 			updates = { }
 
@@ -1373,6 +1375,8 @@ if __name__ == '__main__':
 		pass
 
 	finally:
+		print "Shutting down threads"
+		exitapp[0] = True
 		try:
 			lcd.clear()
 			lcd.message("Exiting...")
@@ -1381,4 +1385,6 @@ if __name__ == '__main__':
 			lcd.cleanup()
 		except:
 			pass
+		dc.join()
+		mc.join()
 		logging.info("Exiting...")

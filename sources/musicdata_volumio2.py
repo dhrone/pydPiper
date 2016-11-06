@@ -14,7 +14,7 @@ def on_GetState_response(*args):
 
 class musicdata_volumio2(musicdata.musicdata):
 
-	def __init__(self, q, server='localhost', port=3000):
+	def __init__(self, q, server='localhost', port=3000, exitapp = [ False ] ):
 		super(musicdata_volumio2, self).__init__(q)
 		self.server = server
 		self.port = port
@@ -22,6 +22,7 @@ class musicdata_volumio2(musicdata.musicdata):
 		self.connection_failed = 0
 		self.timeout = 20
 		self.idle_state = False
+		self.exitapp = exitapp
 
 		self.musicdata_lock = threading.Lock()
 
@@ -50,7 +51,7 @@ class musicdata_volumio2(musicdata.musicdata):
 			socketIO.emit('getQueue', '')
 			socketIO.emit('getState', '')
 
-			while True:
+			while not self.exitapp[0]:
 				socketIO.wait_for_callbacks(seconds=20)
 				socketIO.emit('getQueue', '')
 				socketIO.emit('getState', '')
@@ -227,8 +228,9 @@ if __name__ == '__main__':
 #		elif opt in ("-w", "--pwd"):
 #			pwd = arg
 
+	exitapp = [ False ]
 	q = Queue.Queue()
-	mdr = musicdata_volumio2(q, server, port)
+	mdr = musicdata_volumio2(q, server, port, exitapp)
 
 	try:
 		while True:
@@ -247,5 +249,7 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:
 		print ''
 		pass
+	finally:
+		exitapp[0] = True
 
 	print "Exiting..."
