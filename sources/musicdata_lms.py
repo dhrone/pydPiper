@@ -238,7 +238,7 @@ class musicdata_lms(musicdata.musicdata):
 					playlist_display = u"Radio"
 				# it really is a short playlist
 				else:
-					playlist_display = "{0}/{1}".format(plp, plc)
+					playlist_display = u"{0}/{1}".format(plp, plc)
 			except KeyError:
 				logging.debug(u"In LMS couldn't get valid track information")
 				playlist_display = u""
