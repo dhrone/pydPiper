@@ -214,6 +214,26 @@ PAGES_Stop = {
   'pages':
 	[
 	  {
+		'name':"TIMEBIG",
+		'duration':8,
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "time_big_1" ],
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "time_big_2" ],
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  }
+		]
+	  },
+	  {
 		'name':"TIME",
 		'duration':8,
 		'lines': [

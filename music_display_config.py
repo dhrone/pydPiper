@@ -48,7 +48,7 @@ SPOP_PASSWORD = ''
 VOLUMIO_SERVER = 'localhost'
 VOLUMIO_PORT = 3000
 
-LMS_SERVER = "localhost"
+LMS_SERVER = "192.168.254.251"
 LMS_PORT = 9090
 LMS_USER = ""
 LMS_PASSWORD = ""
@@ -59,7 +59,8 @@ LMS_PASSWORD = ""
 #       possible that your player has decided to join it, instead of the LMS on Max2Play
 #       To fix this, go to the SqueezeServer interface and change move the player to the
 #       correct server.
-LMS_PLAYER = "00:01:02:aa:bb:cc"
+#LMS_PLAYER = "00:01:02:aa:bb:cc"
+LMS_PLAYER = "00:04:20:06:43:10"
 
 
 # If you are using RuneAudio you can pull the information from the REDIS database that RuneAudio maintains

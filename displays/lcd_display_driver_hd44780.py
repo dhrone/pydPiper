@@ -453,7 +453,7 @@ if __name__ == '__main__':
 				for p in range (0,3):
 					s[l] += chr(numbers[n][l][p])
 			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
-			sleep(2)
+			time.sleep(2)
 
 		# Print volume range
 		lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)

@@ -568,12 +568,12 @@ class music_controller(threading.Thread):
 					with self.musicdata_lock:
 						for item,value in self.musicdata.iteritems():
 							try:
-								print u"    [{0}]={1} {2}".format(item,value, type(value))
+								print u"    [{0}]={1} {2}".format(item,repr(value), type(value))
 							except:
 								print "err"
 								print u"[{0}] =".format(item)
 								print type(value)
-								print value
+								print repr(value)
 						print "\n"
 
 				# Update musicdata_prev with anything that has changed
