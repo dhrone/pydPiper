@@ -96,7 +96,7 @@ class musicdata_rune(musicdata.musicdata):
 					self.status()
 					self.sendUpdate()
 				time.sleep(.01)
-			except redis.ConnectionError:
+			except (redis.ConnectionError, RuntimeError):
 				# if we lose our connection while trying to query DB
 				# sleep 5 and then return to top to try again
 				self.dataclient = None
@@ -107,7 +107,19 @@ class musicdata_rune(musicdata.musicdata):
 
 	def status(self):
 		# Read musicplayer status and update musicdata
-		status = json.loads(self.dataclient.get('act_player_info'))
+		try:
+			msg = self.dataclient.get('act_player_info')
+			status = json.loads(msg)
+		except ValueError:
+			logging.debug(u"Bad status message received.  Contents were {0}".format(msg))
+			raise RuntimeError("Bad status message received.")
+		except:
+			# Caught something else.  Report it and then inform calling function that the connection is bad
+			e = sys.exc_info()[0]
+			logging.debug(u"Caught {0} trying to get status from Rune".format(e))
+			raise RuntimeError("Could not get status from Rune")
+
+
 
 		state = status.get('state')
 		if state != "play":
@@ -125,7 +137,7 @@ class musicdata_rune(musicdata.musicdata):
 		self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
 		self.musicdata['single'] = bool(self.intn(status['single'])) if 'single' in status else False
 		self.musicdata['random'] = bool(self.intn(status['random'])) if 'random' in status else False
-		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'random' in status else False
+		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'repeat' in status else False
 		self.musicdata['musicdatasource'] = u"Rune"
 
 		# For backwards compatibility
@@ -143,8 +155,8 @@ class musicdata_rune(musicdata.musicdata):
 
 		if self.musicdata['actPlayer'] == 'Spotify':
 			self.musicdata['bitrate'] = u"320 kbps"
-			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
-			plc = self.musicdata['playlist_length'] = int(status['playlistlength']) if 'playlistlength' in status else 0
+			plp = self.musicdata['playlist_position'] = self.intn(status['song'])+1 if 'song' in status else 0
+			plc = self.musicdata['playlist_length'] = self.intn(status['playlistlength']) if 'playlistlength' in status else 0
 
 			# For backwards compatibility
 			self.musicdata['playlist_count'] = self.musicdata['playlist_length']
@@ -154,8 +166,8 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['tracktype'] = u"Spotify"
 
 		elif self.musicdata['actPlayer'] == u'MPD':
-			plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
-			plc = self.musicdata['playlist_count'] = int(status['playlistlength']) if 'playlistlength' in status else 0
+			plp = self.musicdata['playlist_position'] = self.intn(status['song'])+1 if 'song' in status else 0
+			plc = self.musicdata['playlist_count'] = self.intn(status['playlistlength']) if 'playlistlength' in status else 0
 
 			self.musicdata['bitrate'] = u"{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
 
@@ -163,7 +175,7 @@ class musicdata_rune(musicdata.musicdata):
 			if status.get('radioname') == None:
 				self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
 			else:
-				self.musicdata['playlist_display'] = u"Streaming"
+				self.musicdata['playlist_display'] = u"Radio"
 				# if artist is empty, place radioname in artist field
 				if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
 					self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
@@ -191,7 +203,7 @@ class musicdata_rune(musicdata.musicdata):
 			 	 	if channels == u"":
 					 	tracktype = u"{0} bit, {1} kHz".format(bits, sample)
 				 	else:
-				 		tracktype = u"{0}, {1} bit, {2} kHz".format(channels, bits, sample)
+				 		tracktype = u"{0} {1} bit {2} kHz".format(channels, bits, sample)
 				else:
 					# If audio information not available just send that MPD is the source
 					tracktype = u"MPD"
@@ -203,7 +215,7 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['playlist_position'] = 1
 			self.musicdata['playlist_count'] = 1
 			self.musicdata['tracktype'] = u"Airplay"
-			self.musicdata['playlist_display'] = u"Airplay"
+			self.musicdata['playlist_display'] = u"Aplay"
 
 		else:
 			# Unexpected player type
@@ -211,7 +223,7 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata['playlist_position'] = 1
 			self.musicdata['playlist_count'] = 1
 			self.musicdata['tracktype'] = actPlayer
-			self.musicdata['playlist_display'] = u"Streaming"
+			self.musicdata['playlist_display'] = u"Radio"
 
 		# if duration is not available, then suppress its display
 		if int(self.musicdata['length']) > 0:

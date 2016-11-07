@@ -1,10 +1,10 @@
-#!/usr/bin/pythoelf.musicdata['random']
+#!/usr/bin/python.music-display
 # coding: UTF-8
 
-# musicctrl service to manage reading from active services
+# music-display service to display music data to LCD and OLED character displays
 # Written by: Ron Ritchey
 
-import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp
+import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp, codecs
 import pages
 import displays
 import sources
@@ -15,6 +15,8 @@ try:
 except ImportError:
 	pass
 
+
+exitapp = [ False ]
 
 class display_controller(threading.Thread):
 	# Receives updates from music_controller and places them onto displays
@@ -138,7 +140,7 @@ class display_controller(threading.Thread):
 		  lines.append("")
 		  columns.append(0)
 
-		while True:
+		while not exitapp[0]:
 			# Get first display update off of the queue
 			qitem = self.displayqueue.get()
 			self.displayqueue.task_done()
@@ -171,7 +173,7 @@ class display_controller(threading.Thread):
 		# Initialize the time display got updated
 		time_prev = time.time()
 
-		while True:
+		while not exitapp[0]:
 			# Smooth animation
 			if time.time() - time_prev < music_display_config.ANIMATION_SMOOTHING:
 				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-time_prev))
@@ -363,7 +365,7 @@ class music_controller(threading.Thread):
 				elif s == "rune":
 					musicservice = sources.musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
 				elif s == "volumio":
-					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT)
+					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT, exitapp )
 				else:
 					logging.debug(u"Unsupported music service {0} requested".format(s))
 					continue
@@ -377,6 +379,40 @@ class music_controller(threading.Thread):
 		if len(self.services) == 0:
 			logging.critical(u"No music services succeeded in initializing")
 			raise RuntimeError(u"No music services succeeded in initializing")
+
+	def bigclock(self, time):
+		#Converts time into string array that can be printed to produce a large clock display
+		# time must be formatted as ##:## or #:##
+		# can be 24 or 12 hour
+
+		retval = [ u'Bad Symbol', u' Received ' ]
+		# Make sure that time doesn't contain invalid charcters
+		AllowableSymbols = [ u'0', u'1',u'2',u'3',u'4',u'5',u'6',u'7',u'8',u'9',u':' ]
+		for c in time:
+			if c not in AllowableSymbols:
+				logging.debug(u"Received invalid symbol into bigclock converter")
+				retval = [ u'Bad Symbol', u' Received ' ]
+				return retval
+
+		retval = [ u'Bad Size', u'Received' ]
+		# Make sure that display is appropriate size (e.g. 4-5 characters)
+		if len(time) < 4 or len(time) > 5:
+			logging.debug(u"Received time value that was the wrong size")
+			return retval
+
+		numbers = displays.fonts.size5x8.bigclock.numbers
+		retval = [ u'', u'' ]
+		for tc in time:
+			for l in range(0,2):
+				if tc in u'0123456789':
+					for c in range(0,3):
+						retval[l] += chr(numbers[int(tc)][l][c])
+				elif tc in u':':
+					retval[l] += 'o'
+				retval[l] += ' '
+
+		return retval
+
 
 	def volume_bar(self,vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
 		# Algorithm for computing the volume lines
@@ -452,7 +488,7 @@ class music_controller(threading.Thread):
 		self.musicdata_prev['state'] = ""
 
 		lastupdate = 0 # Initialize variable to be used to force updates every second regardless of the receipt of a source update
-		while True:
+		while not exitapp[0]:
 
 			updates = { }
 
@@ -484,7 +520,7 @@ class music_controller(threading.Thread):
 
 				# If the value of current has changed then update the other related timing variables
 				if self.musicdata['elapsed'] != self.musicdata_prev['elapsed']:
-					if self.musicdata['duration'] > 0:
+					if self.musicdata['length'] > 0:
 						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['length']))
 						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['length'] - self.musicdata['elapsed'] ) )
 
@@ -520,7 +556,6 @@ class music_controller(threading.Thread):
 					displays.fonts.size5x8.speaker.er,
 					displays.fonts.size5x8.speaker.hr )
 
-
 			# If anything has changed, update pages
 			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
 				lastupdate = time.time()+1
@@ -529,32 +564,33 @@ class music_controller(threading.Thread):
 				if self.showupdates:
 					ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
 					print u"Status at time {0}".format(ctime)
-					for item,value in self.musicdata.iteritems():
-						try:
-							print u"    [{0}]={1} {2}".format(item,value, type(value))
-						except:
-							print "err"
-							print "[{0}] =".format(item),
-							print value,
-							print " ",
-							print type(value)	
-					print "\n"
+
+					with self.musicdata_lock:
+						for item,value in self.musicdata.iteritems():
+							try:
+								print u"    [{0}]={1} {2}".format(item,repr(value), type(value))
+							except:
+								print "err"
+								print u"[{0}] =".format(item)
+								print type(value)
+								print repr(value)
+						print "\n"
 
 				# Update musicdata_prev with anything that has changed
 #				if self.musicdata['current'] != self.musicdata_prev['current']:
 #					self.musicdata_prev['current'] = self.musicdata['current']
 #					self.musicdata_prev['remaining'] = self.musicdata['remaining']
 #					self.musicdata_prev['position'] = self.musicdata['position']
-
-				for item, value in self.musicdata.iteritems():
-					try:
-						if self.musicdata_prev[item] != value:
+				with self.musicdata_lock:
+					for item, value in self.musicdata.iteritems():
+						try:
+							if self.musicdata_prev[item] != value:
+								self.musicdata_prev[item] = value
+						except KeyError:
 							self.musicdata_prev[item] = value
-					except KeyError:
-						self.musicdata_prev[item] = value
 
 			# Update display data every 1/4 second
-#			time.sleep(.25)
+			time.sleep(.25)
 
 	def checkalert(self, pl, state):
 		# Determines whether a alert show be displayed
@@ -598,7 +634,7 @@ class music_controller(threading.Thread):
 		self.current_pages = pl
 		self.current_page_number = 0
 		self.current_line_number = 0
-		self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
+		self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['length']
 		self.curlines = []
 		self.hesitate_expires = []
 
@@ -827,7 +863,7 @@ class music_controller(threading.Thread):
 #			print "Var Error Format {0}, Parms {1} Vars {2}\n{3}".format(format, parms, vars, self.musicdata)
 			# Format doesn't match available variables
 			logging.debug("Var Error with parm type {0} and format type {1}".format(type(parms), type(format)))
-			segval = u"Variable error"
+			segval = u"VarErr"
 
 		# justify segment
 		try:
@@ -969,8 +1005,19 @@ class music_controller(threading.Thread):
 
 				strftime = current_line['strftime'] if 'strftime' in current_line else "%-I:%M %p"
 
+				if music_display_config.TIME24HOUR:
+					bigclockformat = "%H:%M"
+				else:
+					bigclockformat = "%I:%M"
+
+				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
+				bigclockoutput = self.bigclock(bigclockinput)
+
 				with self.musicdata_lock:
 					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata['time_big_1'] = bigclockoutput[0]
+					self.musicdata['time_big_2'] = bigclockoutput[1]
+
 					# To support previous key used for this purpose
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
@@ -1031,10 +1078,21 @@ class music_controller(threading.Thread):
 				# use it to add a formatted time to musicdata
 				# else use 12 hour clock as default
 
+				if music_display_config.TIME24HOUR:
+					bigclockformat = "%H:%M"
+				else:
+					bigclockformat = "%I:%M"
+
+				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
+				bigclockoutput = self.bigclock(bigclockinput)
+
 				strftime = current_segment['strftime'] if 'strftime' in current_segment else "%-I:%M %p"
 
 				with self.musicdata_lock:
 					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata['time_big_1'] = bigclockoutput[0]
+					self.musicdata['time_big_2'] = bigclockoutput[1]
+
 					# To support previous key used for this purpose
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
@@ -1093,23 +1151,44 @@ class music_controller(threading.Thread):
 			outside_tempf = 0.0
 			outside_tempc = 0.0
 			outside_temp = 0.0
+			outside_temp_max = 0.0
+			outside_temp_min = 0.0
 			outside_conditions = u''
 			outside_temp_formatted = u''
+			outside_temp_max_formatted = u''
+			outside_temp_min_formatted = u''
 
 			try:
 				owm = pyowm.OWM(music_display_config.OWM_API)
 				obs = owm.weather_at_place(music_display_config.OWM_LOCATION)
+				fc = owm.daily_forecast(music_display_config.OWM_LOCATION)
+				f = fc.get_forecast()
+				dailyfc = f.get_weathers()
 				wea = obs.get_weather()
+
 				outside_tempf = wea.get_temperature('fahrenheit')['temp']
+				outside_temp_maxf = dailyfc[0].get_temperature('fahrenheit')['min']
+				outside_temp_minf = dailyfc[0].get_temperature('fahrenheit')['temp_min']
+
 				outside_tempc = wea.get_temperature('celsius')['temp']
+				outside_temp_maxc = dailyfc[0].get_temperature('celsius')['temp_max']
+				outside_temp_minc = dailyfc[0].get_temperature('celsius')['temp_min']
 
 				# Localize temperature value
 				if music_display_config.TEMPERATURE.lower() == 'celsius':
 					outside_temp = outside_tempc
+					outside_temp_max = outside_temp_maxc
+					outside_temp_min = outside_temp_minc
 					outside_temp_formatted = u"{0}°C".format(int(outside_temp))
+					outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
+					outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
 				else:
 					outside_temp = outside_tempf
+					outside_temp_max = outside_temp_maxf
+					outside_temp_min = outside_temp_minf
 					outside_temp_formatted = u"{0}°F".format(int(outside_temp))
+					outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
+					outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
 
 				outside_conditions = wea.get_detailed_status()
 			except:
@@ -1171,6 +1250,7 @@ class music_controller(threading.Thread):
 			with self.musicdata_lock:
 				self.musicdata['system_temp'] = system_temp
 				self.musicdata['system_temp_formatted'] = system_temp_formatted
+
 				self.musicdata['system_tempc'] = system_tempc
 				self.musicdata['system_tempf'] = system_tempf
 
@@ -1196,7 +1276,11 @@ class music_controller(threading.Thread):
 				self.musicdata['current_ip'] = current_ip.decode()
 
 				self.musicdata['outside_temp'] = outside_temp
+				self.musicdata['outside_temp_max'] = outside_temp_max
+				self.musicdata['outside_temp_min'] = outside_temp_min
 				self.musicdata['outside_temp_formatted'] = outside_temp_formatted
+				self.musicdata['outside_temp_max_formatted'] = outside_temp_max_formatted
+				self.musicdata['outside_temp_min_formatted'] = outside_temp_min_formatted
 				self.musicdata['outside_conditions'] = outside_conditions
 
 			# Read environmentals every 20 seconds
@@ -1230,6 +1314,9 @@ def sigterm_handler(_signo, _stack_frame):
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
+
+	if sys.stdout.encoding != 'UTF-8':
+    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
 
 	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
 	logging.getLogger().addHandler(logging.StreamHandler())
@@ -1348,6 +1435,8 @@ if __name__ == '__main__':
 		pass
 
 	finally:
+		print "Shutting down threads"
+		exitapp[0] = True
 		try:
 			lcd.clear()
 			lcd.message("Exiting...")
@@ -1356,4 +1445,6 @@ if __name__ == '__main__':
 			lcd.cleanup()
 		except:
 			pass
+		dc.join()
+		mc.join()
 		logging.info("Exiting...")

@@ -1,9 +1,10 @@
 [Unit]
     Description=Music-Display
-    After=logitechmediaserver.service
+    After=rune_PL_wrk.service 
 
     [Service]
-    ExecStart=/usr/bin/python2 /usr/local/bin/music-display/music-display.py
+
+    ExecStart=/usr/bin/python2 /usr/local/bin/music-display/music-display.py -d lcd_display_driver_winstar_weh001602a --rune 
     ExecReload=/usr/bin/kill -HUP $MAINPID
     KillMode=process
     Restart=always

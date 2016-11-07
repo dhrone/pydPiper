@@ -112,9 +112,17 @@ class musicdata_mpd(musicdata.musicdata):
 	def status(self):
 		# Read musicplayer status and update musicdata
 
-		status = self.dataclient.status()
-		current_song = self.dataclient.currentsong()
-		playlist_info = self.dataclient.playlistinfo()
+		try:
+			status = self.dataclient.status()
+			current_song = self.dataclient.currentsong()
+			playlist_info = self.dataclient.playlistinfo()
+		except:
+			# Caught something else.  Report it and then inform calling function that the connection is bad
+			e = sys.exc_info()[0]
+			logging.debug(u"Caught {0} trying to get status".format(e))
+			raise RuntimeError("Could not get status from MPD")
+
+
 
 		state = status.get('state')
 		if state != "play":
@@ -165,7 +173,7 @@ class musicdata_mpd(musicdata.musicdata):
 
 		# If playlist is length 1 and the song playing is from an http source it is streaming
 		if self.musicdata['encoding'] == 'webradio':
-			self.musicdata['playlist_display'] = u"Streaming"
+			self.musicdata['playlist_display'] = u"Radio"
 			self.musicdata['artist'] = current_song['name'] if 'name' in current_song else u""
 		else:
 				self.musicdata['playlist_display'] = u"{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])

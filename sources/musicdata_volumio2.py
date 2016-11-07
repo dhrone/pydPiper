@@ -10,13 +10,11 @@ from socketIO_client import SocketIO
 
 
 def on_GetState_response(*args):
-    print "\n\n********* Got Response **************\n\n"
+	logging.debug("********* Got Response **************")
 
 class musicdata_volumio2(musicdata.musicdata):
 
-
-
-	def __init__(self, q, server='localhost', port=3000):
+	def __init__(self, q, server='localhost', port=3000, exitapp = [ False ] ):
 		super(musicdata_volumio2, self).__init__(q)
 		self.server = server
 		self.port = port
@@ -24,6 +22,7 @@ class musicdata_volumio2(musicdata.musicdata):
 		self.connection_failed = 0
 		self.timeout = 20
 		self.idle_state = False
+		self.exitapp = exitapp
 
 		self.musicdata_lock = threading.Lock()
 
@@ -37,11 +36,11 @@ class musicdata_volumio2(musicdata.musicdata):
 
 	def run(self):
 
-		logging.debug("Volumio 2 musicdata service starting")
-		logging.debug("Connecting to Volumio Web Service on {0}:{1}".format(self.server, self.port))
+		logging.debug(u"Volumio 2 musicdata service starting")
+		logging.debug(u"Connecting to Volumio Web Service on {0}:{1}".format(self.server, self.port))
 
 		with SocketIO(self.server, self.port) as socketIO:
-			logging.debug("Connected to Volumio Web Service")
+			logging.debug(u"Connected to Volumio Web Service")
 			self.socketIO = socketIO
 			socketIO.on('pushState', self.on_state_response)
 			socketIO.on('pushMultiRoomDevices', self.on_multiroomdevices_response)
@@ -52,7 +51,7 @@ class musicdata_volumio2(musicdata.musicdata):
 			socketIO.emit('getQueue', '')
 			socketIO.emit('getState', '')
 
-			while True:
+			while not self.exitapp[0]:
 				socketIO.wait_for_callbacks(seconds=20)
 				socketIO.emit('getQueue', '')
 				socketIO.emit('getState', '')
@@ -60,15 +59,13 @@ class musicdata_volumio2(musicdata.musicdata):
 	def on_multiroomdevices_response(self, *args):
 		list = args[0]['list']
 
-		# Was going to update actPlayer based upon the reported name from Volumio but
-		# decided that this should be driven by the service key in status instead
-#		for i in range(0, len(list)):
-#			for item, value in list[i].iteritems():
-#				if item == 'isSelf':
-#					if value == True:
-#						with self.musicdata_lock:
-#							self.musicdata['actPlayer'] = list[i]['name'] if 'name' in list[i] else u""
-#						return
+		for i in range(0, len(list)):
+			for item, value in list[i].iteritems():
+				if item == 'isSelf':
+					if value == True:
+						with self.musicdata_lock:
+							self.musicdata['my_name'] = list[i]['name'] if 'name' in list[i] else u""
+						return
 
 	def on_queue_response(self,*args):
 		list = args[0]
@@ -90,9 +87,9 @@ class musicdata_volumio2(musicdata.musicdata):
 			# regardless of whether on_state_response or on_queue_response updates the underlying data
 
 			if stream == 'webradio':
-				self.musicdata['playlist_display'] = 'Streaming'
+				self.musicdata['playlist_display'] = u'Radio'
 			else:
-				self.musicdata['playlist_display'] = "{0}/{1}".format(plp, self.musicdata['playlist_count'], )
+				self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, self.musicdata['playlist_length'] )
 
 		self.sendUpdate()
 
@@ -126,24 +123,16 @@ class musicdata_volumio2(musicdata.musicdata):
 			self.musicdata['samplerate'] = status['samplerate'] if 'samplerate' in status else u""
 
 			# Numeric values
-			try:
-				self.musicdata['elapsed'] = int(float(status['seek'])/1000) if 'seek' in status else 0
-			except:
-				self.musicdata['elapsed'] = 0
+			self.musicdata['elapsed'] = int(self.floatn(status['seek'])/1000) if 'seek' in status else 0
+
 			# For backwards compatibility
 			self.musicdata['current'] = self.musicdata['elapsed']
 
-			try:
-				self.musicdata['volume'] = int(status['volume']) if 'volume' in status else 0
-			except:
-				self.musicdata['volume'] = 0
+			self.musicdata['volume'] = self.intn(status['volume']) if 'volume' in status else 0
 
-			try:
-				self.musicdata['length'] = int(status['duration']) if 'duration' in status else 0
-			except:
-				self.musicdata['length'] = 0
+			self.musicdata['length'] = self.intn(status['duration']) if 'duration' in status else 0
 			# For backwards compatibility
-			self.musicdata['length'] = self.musicdata['duration']
+			self.musicdata['duration'] = self.musicdata['length']
 
 			try:
 				playlist_position = status['position'] if 'position' in status else 0
@@ -151,42 +140,30 @@ class musicdata_volumio2(musicdata.musicdata):
 			except:
 				self.musicdata['playlist_position'] = 0
 
-			try:
-				channels = status['channels'] if 'channels' in status else 0
-				self.musicdata['channels'] = int(status['channels']) if 'channels' in status else 0
-			except:
-				self.musicdata['channels'] = 0
+			self.musicdata['channels'] = self.intn(status['channels']) if 'channels' in status else 0
 
 			# Boolean values
-			self.musicdata['repeat'] = status['repeat'] if 'repeat' in status else False
-			self.musicdata['random'] = status['random'] if 'random' in status else False
-			self.musicdata['mute'] = status['mute'] if 'mute' in status else False
-
-			# Fix any potential None values for Numeric or Boolean values
-			if self.musicdata['random'] is None:
-				self.musicdata['random'] = False
-			if self.musicdata['mute'] is None:
-				self.musicdata['mute'] = False
-			if self.musicdata['repeat'] is None:
-				self.musicdata['repeat'] = False
+			self.musicdata['repeat'] = self.booln(status['repeat']) if 'repeat' in status else False
+			self.musicdata['random'] = self.booln(status['random']) if 'random' in status else False
+			self.musicdata['mute'] = self.booln(status['mute']) if 'mute' in status else False
 
 			# Check all other items.  If any are None then set to u''
-			for k, v in self.musicdata.iteritems():
-				if v is None:
-					self.musicdata[k] = u''
+#			for k, v in self.musicdata.iteritems():
+#				if v is None:
+#					self.musicdata[k] = u''
 
 			if self.musicdata['channels'] == 1:
-				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Mono').strip()
+				self.musicdata['tracktype'] = u"{0} {1}".format(self.musicdata['tracktype'], 'Mono').strip()
 			elif self.musicdata['channels'] == 2:
-				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Stereo').strip()
+				self.musicdata['tracktype'] = u"{0} {1}".format(self.musicdata['tracktype'], 'Stereo').strip()
 			elif self.musicdata['channels'] > 2:
-				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], 'Multi').strip()
+				self.musicdata['tracktype'] = u"{0} {1}".format(self.musicdata['tracktype'], 'Multi').strip()
 			if self.musicdata['bitdepth']:
-				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['bitdepth']).strip()
+				self.musicdata['tracktype'] = u"{0} {1}".format(self.musicdata['tracktype'], self.musicdata['bitdepth']).strip()
 			if self.musicdata['samplerate']:
-				self.musicdata['tracktype'] = "{0} {1}".format(self.musicdata['tracktype'], self.musicdata['samplerate']).strip()
+				self.musicdata['tracktype'] = u"{0} {1}".format(self.musicdata['tracktype'], self.musicdata['samplerate']).strip()
 
-			self.musicdata['musicdatasource'] = "Volumio"
+			self.musicdata['musicdatasource'] = u"Volumio"
 			self.musicdata['actPlayer'] = status['service'] if 'service' in status else u""
 
 
@@ -196,10 +173,10 @@ class musicdata_volumio2(musicdata.musicdata):
 			# regardless of whether on_state_response or on_queue_response updates the underlying data
 			plc = self.musicdata['playlist_length'] if 'playlist_length' in self.musicdata else 0
 
-			if self.musicdata['stream'].lower() == 'webradio':
-				self.musicdata['playlist_display'] = 'Streaming'
+			if self.musicdata['stream'].lower() == u'webradio':
+				self.musicdata['playlist_display'] = u'Radio'
 			else:
-				self.musicdata['playlist_display'] = "{0}/{1}".format(self.musicdata['playlist_position'], plc)
+				self.musicdata['playlist_display'] = u"{0}/{1}".format(self.musicdata['playlist_position'], plc)
 
 
 			# if duration is not available, then suppress its display
@@ -210,9 +187,13 @@ class musicdata_volumio2(musicdata.musicdata):
 				timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed'])))
 				remaining = timepos
 
-			self.musicdata['remaining'] = remaining
-			self.musicdata['elapsed_formatted'] = timepos
+			self.musicdata['remaining'] = remaining.decode()
+			self.musicdata['elapsed_formatted'] = timepos.decode()
+
+			# For backwards compatibility
 			self.musicdata['position'] = self.musicdata['elapsed_formatted']
+
+			self.validatemusicvars(self.musicdata)
 
 		self.sendUpdate()
 
@@ -247,8 +228,9 @@ if __name__ == '__main__':
 #		elif opt in ("-w", "--pwd"):
 #			pwd = arg
 
+	exitapp = [ False ]
 	q = Queue.Queue()
-	mdr = musicdata_volumio2(q, server, port)
+	mdr = musicdata_volumio2(q, server, port, exitapp)
 
 	try:
 		while True:
@@ -267,5 +249,7 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:
 		print ''
 		pass
+	finally:
+		exitapp[0] = True
 
 	print "Exiting..."

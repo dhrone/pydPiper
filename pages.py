@@ -1,326 +1,288 @@
-PAGES_Play = {
-	'name':"Play",
-	'cols':20,
-	'rows':4,
-	'pages':
-		[
-			{
-				'name':"AlbumArtistTitle",
-				'font':'size5x8.playing',
-				'duration':8,
-				'hidewhenempty':'all',
-				'hidewhenemptyvars': [ "album" ],
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "artist" ],
-								'start':2,
-								'end':20,
-								'format':"{0}",
-								'justification':"left",
-								'scroll':True,
-								'scrolldirection':'left'
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'start':0,
-								'end':2,
-								'format':"\x04\x05"
-							},
-							{
-								'variables': [ "album" ],
-								'start':2,
-								'end':20,
-								'format':"{0}",
-								'justification':"left",
-								'scroll':True,
-								'scrolldirection':'left'
-							}
-						]
-					},
-					{
-						'name':"3",
-						'segments': [
-							{
-								'start':0,
-								'end':2,
-								'format':"\x02\x03"
-							},
-							{
-								'variables': [ "title" ],
-								'start':2,
-								'end':20,
-								'format':"{0}",
-								'justification':"left",
-								'scroll':True
-							}
-						]
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "playlist_display"],
-								'start':0,
-								'end':10,
-								'format':"  {0}",
-								'justification':"left",
-								'scroll':False
-							},
-							{
-								'variables': [ "elapsed_formatted" ],
-								'start':10,
-								'end':20,
-								'format':"{0}",
-								'justification':"right",
-								'scroll':False
-							}
-						]
-					}
-				]
-			},
-			{
-				'name':"TitleOnly",
-				'font':'size5x8.playing',
-				'duration':8,
-				'hidewhenpresent':'any',
-				'hidewhenpresentvars': [ "album" ],
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "artist" ],
-								'start':2,
-								'end':20,
-								'format':"{0}",
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'start':0,
-								'end':2,
-								'format':"\x02\x03",
-								'scroll':True		
-							},
-							{
-								'start':2,
-								'end':20,
-								'variables': [ "title" ],
-								'format':"{0}",
-								'scroll':True		
-							}
-						]
-					},
-					{
-						'name':"3",
-						'format':"",
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "playlist_display"],
-								'start':0,
-								'end':12,
-								'format':"  {0}",
-								'justification':"left",
-								'scroll':False
-							},
-							{
-								'variables': [ "elapsed_formatted" ],
-								'start':12,
-								'end':20,
-								'format':"{0}",
-								'justification':"right",
-								'scroll':False
-							}
-						]
-					}
-				]
-			}
+# Page Definitions
+# See Page Format.txt for instructions and examples on how to modify your display settings
 
+PAGES_Play = {
+  'name':"Play",
+  'pages':
+	[
+	  {
+		'name':"Artist",
+		'duration':8,
+		'hidewhenempty':'any',
+		'hidewhenemptyvars': [ "artist" ],
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "artist" ],
+			'format':"{0}",
+			'justification':"left",
+			'scroll':True
+		  },
+		  {
+			'name':"bottom",
+			'segments': [
+				{
+					'variables': [ "playlist_display"],
+					'start':0,
+					'end':5,
+					'format':"{0}",
+					'justification':"left",
+					'scroll':False
+				},
+				{
+					'variables': [ "elapsed_formatted" ],
+					'start':5,
+					'end':16,
+					'format':"{0}",
+					'justification':"right",
+					'scroll':False
+				}
+			]
+		  }
 		]
+	  },
+	  {
+		'name':"Blank",
+		'duration':0.25,
+		'lines': [
+		  {
+			'name':"top",
+			'format':"",
+		  },
+		  {
+			'name':"bottom",
+			'segments': [
+				{
+					'variables': [ "playlist_display"],
+					'start':0,
+					'end':5,
+					'format':"{0}",
+					'justification':"left",
+					'scroll':False
+				},
+				{
+					'variables': [ "elapsed_formatted" ],
+					'start':5,
+					'end':16,
+					'format':"{0}",
+					'justification':"right",
+					'scroll':False
+				}
+			]
+		  }
+		]
+	  },
+	  {
+		'name':"Album",
+		'duration':8,
+		'hidewhenempty':'any',
+		'hidewhenemptyvars': [ "album" ],
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "album" ],
+			'format':"{0}",
+			'justification':"left",
+			'scroll':True
+		  },
+		  {
+			'name':"bottom",
+			'segments': [
+				{
+					'variables': [ "playlist_display"],
+					'start':0,
+					'end':5,
+					'format':"{0}",
+					'justification':"left",
+					'scroll':False
+				},
+				{
+					'variables': [ "elapsed_formatted" ],
+					'start':5,
+					'end':16,
+					'format':"{0}",
+					'justification':"right",
+					'scroll':False
+				}
+			]
+		  }
+		]
+	  },
+	  {
+		'name':"Blank",
+		'duration':0.25,
+		'lines': [
+		  {
+			'name':"top",
+			'format':"",
+		  },
+		  {
+			'name':"bottom",
+			'segments': [
+				{
+					'variables': [ "playlist_display"],
+					'start':0,
+					'end':5,
+					'format':"{0}",
+					'justification':"left",
+					'scroll':False
+				},
+				{
+					'variables': [ "elapsed_formatted" ],
+					'start':5,
+					'end':16,
+					'format':"{0}",
+					'justification':"right",
+					'scroll':False
+				}
+			]
+		  }
+		]
+	  },
+	  {
+		'name':"Title",
+		'duration':10,
+		'hidewhenempty':'any',
+		'hidewhenemptyvars': [ "title" ],
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "title" ],
+			'format':"{0}",
+			'justification':"left",
+			'scroll':True
+		  },
+		  {
+			'name':"bottom",
+			'segments': [
+				{
+					'variables': [ "playlist_display"],
+					'start':0,
+					'end':5,
+					'format':"{0}",
+					'justification':"left",
+					'scroll':False
+				},
+				{
+					'variables': [ "elapsed_formatted" ],
+					'start':5,
+					'end':16,
+					'format':"{0}",
+					'justification':"right",
+					'scroll':False
+				}
+			]
+		  }
+		]
+	  },
+	  {
+		'name':"Blank",
+		'duration':0.25,
+		'lines': [
+		  {
+			'name':"top",
+			'format':"",
+		  },
+		  {
+			'name':"bottom",
+			'segments': [
+				{
+					'variables': [ "playlist_display"],
+					'start':0,
+					'end':5,
+					'format':"{0}",
+					'justification':"left",
+					'scroll':False
+				},
+				{
+					'variables': [ "elapsed_formatted" ],
+					'start':5,
+					'end':16,
+					'format':"{0}",
+					'justification':"right",
+					'scroll':False
+				}
+			]
+		  }
+		]
+	  }
+	]
 }
 
 PAGES_Stop = {
-	'name':"Stop",
-	'pages':
-		[
-			{
-				'name':"Ready",
-				'font':'size5x8.system',
-				'duration':10,
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%A %-I:%M %p",
-								'format':"\x00\x01 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%B %-d %Y",
-								'format':"\x02\x03 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"3",
-						'format':"",
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "system_temp_formatted", "disk_availp" ],
-								'format':"\x04\x05 {0}	\x06\x07 {1}%",
-								'start':3,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					}
-				]
-			},
-			{
-				'name':"ReadyWeatherTemp",
-				'font':'size5x8.system',
-				'duration':4,
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%A %-I:%M %p",
-								'format':"\x00\x01 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%B %-d %Y",
-								'format':"\x02\x03 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"3",
-						'format':"",
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "outside_temp_formatted" ],
-								'format':"Outside \x04\x05 {0}",
-								'start':3,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					}
-				]
-			},
-			{
-				'name':"ReadyWeatherConditions",
-				'font':'size5x8.system',
-				'duration':4,
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%A %-I:%M %p",
-								'format':"\x00\x01 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%B %-d %Y",
-								'format':"\x02\x03 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"3",
-						'format':"",
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "outside_conditions|title" ],
-								'format':"{0}",
-								'start':3,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					}
-				]
-			}
+  'name':"Stop",
+  'pages':
+	[
+	  {
+		'name':"TIME",
+		'duration':8,
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "time_formatted" ],
+			'strftime':"%a %b %-d %H:%M",
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "outside_temp_formatted" ],
+			'format':"Temp {0}",
+			'justification':"center",
+			'scroll':False
+		  }
 		]
+	  },
+	  {
+		'name':"WEAHLTEMP",
+		'duration':8,
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "time_formatted" ],
+			'strftime':"%a %b %-d %H:%M",
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "outside_temp_max_formatted", "outside_temp_min_formatted" ],
+			'format':"H {0}/L {1}",
+			'justification':"center",
+			'scroll':False
+		  }
+		]
+	  },
+	  {
+		'name':"WEACOND",
+		'duration':8,
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "time_formatted" ],
+			'strftime':"%a %b %-d %H:%M",
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "outside_conditions|title" ],
+			'format':"{0}",
+			'justification':"center",
+			'scroll':False
+		  }
+		]
+	  }
+	]
 }
 
 ALERT_Volume = {
  	'name':"Volume",
 	'alert': {
-			'variable': "volume",
+  		'variable': "volume",
 		'type': "change",
 		'suppressonstatechange':True,
 		'coolingperiod': 0
@@ -328,59 +290,33 @@ ALERT_Volume = {
 	'interruptible':False,
 	'pages': [
 		{
-			'name':"Volume",
-			'font':'size5x8.speaker',
+		'name':"Volume",
+		'font':'size5x8.speaker',
 			'duration':2,
 			'lines': [
-				{
-					'name':"1",
-					'segments': [
-						{
-							'format':""
-						}
-					]
-				},
-				{
-					'name':"2",
-					'segments': [
-						{
-							'variables': [ "volume" ],
-							'format':"\x00\x01	   Volume {0}",
-							'start':0,
-							'end':20,
-							'justification':"left",
-							'scroll':False
-						}
-					]
-				},
-				{
-					'name':"3",
-					'segments': [
-						{
-							'variables': [ "volume_bar_big" ],
-							'format':"\x02\x03 {0}",
-							'start':0,
-							'end':20
-						}
-					]
-				},
-				{
-					'name':"4",
-					'segments': [
-						{
-							'format':""
-						}
-					]
-				}
+		  		{
+					'name':"top",
+					'variables': ["volume" ],
+					'format':"\x00\x01   Volume {0}",
+					'justification':"left",
+					'scroll':False
+		  		},
+		  		{
+					'name':"bottom",
+					'variables': [ "volume_bar_big" ],
+					'format':"\x02\x03 {0}",
+					'justification':"left",
+					'scroll':False
+		  		}
 			]
-		}
+	  	}
 	]
 }
 
 ALERT_Play = {
  	'name':"Play",
 	'alert': {
-			'variable': "state",
+  		'variable': "state",
 		'type': "change",
 		'values': [ 'play' ],
 		'suppressonstatechange':False,
@@ -389,37 +325,31 @@ ALERT_Play = {
 	'interruptible':False,
 	'pages': [
 		{
-			'name':"Play",
-			'font':'size5x8.player',
+		'name':"Play",
+		'font':'size5x8.player',
 			'duration':1.5,
 			'lines': [
-				{
-					'name':"1",
-					'segments': [
-						{
-							'format':""
-						}
-					]
-				},
-				{
-					'name':"2",
-					'segments': [
-						{
-							'format':"\x01 Play",
-							'justification':"center",
-							'scroll':False
-						}
-					]
-				}
+		  		{
+					'name':"top",
+					'format':"\x01 Play",
+					'justification':"left",
+					'scroll':False
+		  		},
+		  		{
+					'name':"bottom",
+			'format':'',
+					'justification':"left",
+					'scroll':False
+		  		}
 			]
-		}
+	  	}
 	]
 }
 
 ALERT_Stop = {
  	'name':"Stop",
 	'alert': {
-			'variable': "state",
+  		'variable': "state",
 		'type': "change",
 		'values': [ 'stop' ],
 		'suppressonstatechange':False,
@@ -428,37 +358,31 @@ ALERT_Stop = {
 	'interruptible':False,
 	'pages': [
 		{
-			'name':"Stop",
-			'font':'size5x8.player',
+		'name':"Stop",
+		'font':'size5x8.player',
 			'duration':1.5,
 			'lines': [
-				{
-					'name':"1",
-					'segments': [
-						{
-							'format':""
-						}
-					]
-				},
-				{
-					'name':"2",
-					'segments': [
-						{
-							'format':"\x00 Stop",
-							'justification':"center",
-							'scroll':False
-						}
-					]
-				}
+		  		{
+					'name':"top",
+					'format':"\x00 Stop",
+					'justification':"left",
+					'scroll':False
+		  		},
+		  		{
+					'name':"bottom",
+			'format':'',
+					'justification':"left",
+					'scroll':False
+		  		}
 			]
-		}
+	  	}
 	]
 }
 
 ALERT_RepeatOnce = {
  	'name':"RepeatOnce",
 	'alert': {
-			'variable': "single",
+  		'variable': "single",
 		'type': "change",
 		'suppressonstatechange':False,
 		'coolingperiod': 0
@@ -466,40 +390,32 @@ ALERT_RepeatOnce = {
 	'interruptible':False,
 	'pages': [
 		{
-			'name':"Stop",
-			'font':'size5x8.repeat_once',
+		'name':"Stop",
+		'font':'size5x8.repeat_once',
 			'duration':1.5,
 			'lines': [
-				{
+		  		{
 					'name':"top",
-					'segments': [
-						{
-							'format':"\x00\x01 Repeat",
-							'justification':"left",
-							'scroll':False
-						}
-					]
-				},
-				{
+					'format':"\x00\x01 Repeat",
+					'justification':"left",
+					'scroll':False
+		  		},
+		  		{
 					'name':"bottom",
-					'segments': [
-						{
-							'variables': [ "single|onoff" ],
-							'format':"\x02\x03 Once {0}",
-							'justification':"left",
-							'scroll':False
-						}
-					]
-				}
+					'variables': [ "single|onoff" ],
+					'format':"\x02\x03 Once {0}",
+					'justification':"left",
+					'scroll':False
+		  		}
 			]
-		}
+	  	}
 	]
 }
 
 ALERT_RepeatAll = {
  	'name':"RepeatAll",
 	'alert': {
-			'variable': "repeat",
+  		'variable': "repeat",
 		'type': "change",
 		'suppressonstatechange':False,
 		'coolingperiod': 0
@@ -507,40 +423,32 @@ ALERT_RepeatAll = {
 	'interruptible':False,
 	'pages': [
 		{
-			'name':"Stop",
-			'font':'size5x8.repeat_all',
+		'name':"Stop",
+		'font':'size5x8.repeat_all',
 			'duration':1.5,
 			'lines': [
-				{
+		  		{
 					'name':"top",
-					'segments': [
-						{
-							'format':"\x00\x01 Repeat",
-							'justification':"left",
-							'scroll':False
-						}
-					]
-				},
-				{
+					'format':"\x00\x01 Repeat",
+					'justification':"left",
+					'scroll':False
+		  		},
+		  		{
 					'name':"bottom",
-					'segments': [
-						{
-							'variables': [ "repeat|onoff" ],
-							'format':"\x02\x03 All {0}",
-							'justification':"left",
-							'scroll':False
-						}
-					]
-				}
+					'variables': [ "repeat|onoff" ],
+					'format':"\x02\x03 All {0}",
+					'justification':"left",
+					'scroll':False
+		  		}
 			]
-		}
+	  	}
 	]
 }
 
 ALERT_Shuffle = {
  	'name':"Shuffle",
 	'alert': {
-			'variable': "random",
+  		'variable': "random",
 		'type': "change",
 		'suppressonstatechange':False,
 		'coolingperiod': 0
@@ -548,40 +456,32 @@ ALERT_Shuffle = {
 	'interruptible':False,
 	'pages': [
 		{
-			'name':"Stop",
-			'font':'size5x8.shuffle',
+		'name':"Stop",
+		'font':'size5x8.shuffle',
 			'duration':1.5,
 			'lines': [
-				{
+		  		{
 					'name':"top",
-					'segments': [
-						{
-						'format':"\x00\x01 Random",
-						'justification':"left",
-						'scroll':False
-						}
-					]
-				},
-				{
+					'format':"\x00\x01 Random",
+					'justification':"left",
+					'scroll':False
+		  		},
+		  		{
 					'name':"bottom",
-					'segments': [
-						{
-						'variables': [ "random|onoff" ],
-						'format':"\x02\x03 Play {0}",
-						'justification':"left",
-						'scroll':False
-						}
-					]
-				}
+					'variables': [ "random|onoff" ],
+					'format':"\x02\x03 Play {0}",
+					'justification':"left",
+					'scroll':False
+		  		}
 			]
-		}
+	  	}
 	]
 }
 
 ALERT_TempTooHigh = {
  	'name':"TempTooHigh",
 	'alert': {
-			'variable': "system_tempc",
+  		'variable': "system_tempc",
 		'type': "above",
 		'values': [ 85 ],
 		'suppressonstatechange':False,
@@ -593,29 +493,22 @@ ALERT_TempTooHigh = {
 			'name':"TempTooHigh",
 			'duration':8,
 			'lines': [
-				{
+		  		{
 					'name':"top",
-					'segments': [
-						{
-							'format':"Temp Too High",
-							'justification':"center",
-							'scroll':False
-						}
-					]
-				},
-				{
+					'variables': [ ],
+					'format':"Temp Too High",
+					'justification':"center",
+					'scroll':False
+		  		},
+		  		{
 					'name':"bottom",
-					'segments': [
-						{
-							'variables': [ "system_temp_formatted" ],
-							'format':"Temp: {0}",
-							'justification':"center",
-							'scroll':False
-						}
-					]
-				}
+					'variables': [ "system_tempc" ],
+					'format':"Temp: {0}c",
+					'justification':"center",
+					'scroll':False
+		  		}
 			]
-		}
+	  	}
 	]
 }
 

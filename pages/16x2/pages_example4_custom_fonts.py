@@ -214,8 +214,28 @@ PAGES_Stop = {
   'pages':
 	[
 	  {
-		'name':"Ready",
-		'duration':15,
+		'name':"TIMEBIG",
+		'duration':8,
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "time_big_1" ],
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "time_big_2" ],
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  }
+		]
+	  },
+	  {
+		'name':"TIME",
+		'duration':8,
 		'lines': [
 		  {
 			'name':"top",
@@ -235,8 +255,8 @@ PAGES_Stop = {
 		]
 	  },
 	  {
-		'name':"SYSTEMVARS",
-		'duration':6,
+		'name':"WEAHLTEMP",
+		'duration':8,
 		'lines': [
 		  {
 			'name':"top",
@@ -248,30 +268,31 @@ PAGES_Stop = {
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "system_temp", "disk_usedp" ],
-			'format':"Temp: {0}c / Disk {1}% full",
-			'justification':"left",
-			'scroll':True
+			'variables': [ "outside_temp_max_formatted", "outside_temp_min_formatted" ],
+			'format':"H {0}/L {1}",
+			'justification':"center",
+			'scroll':False
 		  }
 		]
 	  },
 	  {
-		'name':"WEATHER",
-		'duration':10,
+		'name':"WEACOND",
+		'duration':8,
 		'lines': [
 		  {
 			'name':"top",
+			'variables': [ "time_formatted" ],
+			'strftime':"%a %b %-d %H:%M",
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
 			'variables': [ "outside_conditions|title" ],
 			'format':"{0}",
 			'justification':"center",
 			'scroll':False
-		  },
-		  {
-			'name':"bottom",
-			'variables': [ "outside_temp_formatted" ],
-			'format':"Temp {0}",
-			'justification':"center",
-			'scroll':True
 		  }
 		]
 	  }

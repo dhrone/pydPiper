@@ -48,7 +48,7 @@ SPOP_PASSWORD = ''
 VOLUMIO_SERVER = 'localhost'
 VOLUMIO_PORT = 3000
 
-LMS_SERVER = "localhost"
+LMS_SERVER = "192.168.254.251"
 LMS_PORT = 9090
 LMS_USER = ""
 LMS_PASSWORD = ""
@@ -59,7 +59,8 @@ LMS_PASSWORD = ""
 #       possible that your player has decided to join it, instead of the LMS on Max2Play
 #       To fix this, go to the SqueezeServer interface and change move the player to the
 #       correct server.
-LMS_PLAYER = "00:01:02:aa:bb:cc"
+#LMS_PLAYER = "00:01:02:aa:bb:cc"
+LMS_PLAYER = "00:04:20:06:43:10"
 
 
 # If you are using RuneAudio you can pull the information from the REDIS database that RuneAudio maintains
@@ -75,8 +76,8 @@ DISPLAY_HEIGHT = 2 # the number of lines on the display
 #DISPLAY_HEIGHT = 4 # the number of lines on the display
 DISPLAY_PIN_RS = 7
 DISPLAY_PIN_E =  8
-#DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
-DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
+DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
+#DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
 
 # WEATHER Settings
 OWM_API = '52dfe63ba1fd89b1eda781a02d456842'

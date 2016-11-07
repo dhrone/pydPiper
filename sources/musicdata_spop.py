@@ -89,7 +89,7 @@ class musicdata_spop(musicdata.musicdata):
 					self.connect()
 					self.status()
 					self.sendUpdate()
-				except IOError:
+				except (IOError, RuntimeError):
 					self.dataclient = None
 					# On connection error, sleep 5 and then return to top and try again
 					time.sleep(5)
@@ -104,7 +104,7 @@ class musicdata_spop(musicdata.musicdata):
 				self.status()
 				self.sendUpdate()
 				time.sleep(.01)
-			except IOError:
+			except (IOError, RuntimeError):
 				self.dataclient = None
 				logging.debug(u"Could not get status from SPOP")
 				time.sleep(5)
@@ -114,12 +114,18 @@ class musicdata_spop(musicdata.musicdata):
 	def status(self):
 		# Read musicplayer status and update musicdata
 
-		self.dataclient.write("status\n")
-		msg = self.dataclient.read_until("\n").strip()
 		try:
+			self.dataclient.write("status\n")
+			msg = self.dataclient.read_until("\n").strip()
 			status = json.loads(msg)
-		except ValueError:
-			logging.debug(u"Value error with msg={0}".format(msg))
+		except (IOError, ValueError):
+			logging.debug(u"Bad status message received.  Contents were {0}".format(msg))
+			raise RuntimeError("Bad status message received.")
+		except:
+			# Caught something else.  Report it and then inform calling function that the connection is bad
+			e = sys.exc_info()[0]
+			logging.debug(u"Caught {0} trying to get status from SPOP".format(e))
+			raise RuntimeError("Could not get status from SPOP")
 
 		state = status.get('status')
 		if state != "playing":
