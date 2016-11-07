@@ -380,6 +380,40 @@ class music_controller(threading.Thread):
 			logging.critical(u"No music services succeeded in initializing")
 			raise RuntimeError(u"No music services succeeded in initializing")
 
+	def bigclock(self, time):
+		#Converts time into string array that can be printed to produce a large clock display
+		# time must be formatted as ##:## or #:##
+		# can be 24 or 12 hour
+
+		retval = [ u'Bad Symbol', u' Received ' ]
+		# Make sure that time doesn't contain invalid charcters
+		AllowableSymbols = [ u'0', u'1',u'2',u'3',u'4',u'5',u'6',u'7',u'8',u'9',u':' ]
+		for c in time:
+			if c not in AllowableSymbols:
+				logging.debug(u"Received invalid symbol into bigclock converter")
+				retval = [ u'Bad Symbol', u' Received ' ]
+				return retval
+
+		retval = [ u'Bad Size', u'Received' ]
+		# Make sure that display is appropriate size (e.g. 4-5 characters)
+		if len(time) < 4 or len(time) > 5:
+			logging.debug(u"Received time value that was the wrong size")
+			return retval
+
+		numbers = displays.fonts.size5x8.bigclock.numbers
+		retval = [ u'', u'' ]
+		for tc in time:
+			for l in range(0,2):
+				if tc in u'0123456789':
+					for c in range(0,3):
+						retval[l] += chr(numbers[int(tc)][l][c])
+				elif tc in u':':
+					retval[l] += 'o'
+				retval[l] += ' '
+
+		return retval
+
+
 	def volume_bar(self,vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
 		# Algorithm for computing the volume lines
 		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
@@ -971,8 +1005,19 @@ class music_controller(threading.Thread):
 
 				strftime = current_line['strftime'] if 'strftime' in current_line else "%-I:%M %p"
 
+				if music_display_config.TIME24HOUR:
+					bigclockformat = "%H:%M"
+				else:
+					bigclockformat = "%I:%M"
+
+				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
+				bigclockoutput = self.bigclock(bigclockinput)
+
 				with self.musicdata_lock:
 					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata['time_big_1'] = bigclockoutput[0]
+					self.musicdata['time_big_2'] = bigclockoutput[1]
+
 					# To support previous key used for this purpose
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
@@ -1033,10 +1078,21 @@ class music_controller(threading.Thread):
 				# use it to add a formatted time to musicdata
 				# else use 12 hour clock as default
 
+				if music_display_config.TIME24HOUR:
+					bigclockformat = "%H:%M"
+				else:
+					bigclockformat = "%I:%M"
+
+				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
+				bigclockoutput = self.bigclock(bigclockinput)
+
 				strftime = current_segment['strftime'] if 'strftime' in current_segment else "%-I:%M %p"
 
 				with self.musicdata_lock:
 					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata['time_big_1'] = bigclockoutput[0]
+					self.musicdata['time_big_2'] = bigclockoutput[1]
+
 					# To support previous key used for this purpose
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
 
