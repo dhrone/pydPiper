@@ -25,13 +25,13 @@ emp = 32 # Empty block
 
 # Numeric patterns 3x2
 
-one     = [ [emp,  ur, emp], [ lb,  lr,  lb] ]
+one     = [ [emp,  ll, emp], [ lb,  ul,  lb] ]
 two     = [ [ulk, ulk,  ur], [ ll, uln, uln] ]
 three   = [ [ulk, ulk,  ur], [uln, uln,  lr] ]
-four    = [ [ lr,  lb,  ur], [emp, emp,  lr] ]
+four    = [ [ ll,  lb,  ur], [emp, emp,  lr] ]
 five    = [ [ ul, ulk, ulk], [uln, uln,  lr] ]
-six     = [ [ ul, ulk, ulk], [ lr, uln,  lr] ]
-seven   = [ [ ub,  ub,  ur], [emp,  ur, emp] ]
+six     = [ [ ul, ulk, ulk], [ ll, uln,  lr] ]
+seven   = [ [ ub,  ub,  ur], [emp,  ul, emp] ]
 eight   = [ [ ul, ulk,  ur], [ ll, uln,  lr] ]
 nine    = [ [ ll, ulk,  ur], [emp, emp,  lr] ]
 zero    = [ [ ul, ub,   ur], [ ll,  lb,  lr] ]
