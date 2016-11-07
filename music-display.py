@@ -1105,14 +1105,18 @@ class music_controller(threading.Thread):
 			try:
 				owm = pyowm.OWM(music_display_config.OWM_API)
 				obs = owm.weather_at_place(music_display_config.OWM_LOCATION)
+				fc = owm.daily_forecast(music_display_config.OWM_LOCATION)
+				f = fc.get_forecast()
+				dailyfc = f.get_weathers()
 				wea = obs.get_weather()
+
 				outside_tempf = wea.get_temperature('fahrenheit')['temp']
-				outside_temp_maxf = wea.get_temperature('fahrenheit')['temp_max']
-				outside_temp_minf = wea.get_temperature('fahrenheit')['temp_min']
+				outside_temp_maxf = dailyfc[0].get_temperature('fahrenheit')['min']
+				outside_temp_minf = dailyfc[0].get_temperature('fahrenheit')['temp_min']
 
 				outside_tempc = wea.get_temperature('celsius')['temp']
-				outside_temp_maxc = wea.get_temperature('celsius')['temp_max']
-				outside_temp_minc = wea.get_temperature('celsius')['temp_min']
+				outside_temp_maxc = dailyfc[0].get_temperature('celsius')['temp_max']
+				outside_temp_minc = dailyfc[0].get_temperature('celsius')['temp_min']
 
 				# Localize temperature value
 				if music_display_config.TEMPERATURE.lower() == 'celsius':
