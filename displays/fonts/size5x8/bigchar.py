@@ -1,0 +1,132 @@
+
+
+# Derived from http://woodsgood.ca/projects/2015/02/17/big-font-lcd-characters/
+
+
+#ful	= [ 0b00111, 0b01111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111 ] # Block with upper left rounded
+#fll	= [ 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b01111, 0b00111 ] # Block with lower left rounded
+#fur	= [ 0b11100, 0b11110, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111 ] # Block with upper right rounded
+#flr	= [ 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11110, 0b11100 ] # Block with lower right rounded
+#fub	= [ 0b11111, 0b11111, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000 ] # Upper bar
+#flb	= [ 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111 ] # Lower bar
+#fuln= [ 0b11111, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111 ] # Upper lower thin
+#fulk =[ 0b11111, 0b11111, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111 ] # Upper lower thick
+
+fontpkg = [						# Custom character definitions
+	  [ 0x1F, 0x1F, 0x1F, 0x00, 0x00, 0x00, 0x00, 0x00 ], # char 1
+	  [ 0x18, 0x1C, 0x1E, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F ], # char 2
+	  [ 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x0F, 0x07, 0x03 ], # char 3
+	  [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x1F ], # char 4
+	  [ 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1E, 0x1C, 0x18 ], # char 5
+	  [ 0x1F, 0x1F, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x1F ], # char 6
+	  [ 0x1F, 0x00, 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x1F ], # char 7
+	  [ 0x03, 0x07, 0x0F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F ]  # char 8
+]
+
+# BIG FONT Character Set
+# - each character is between 1-4 cols wide and 1-2 rows deep
+
+# - 0x00-0x07 => custom characters, 0x20 => space, 0xFF => black square
+
+# Must use character translation in driver to move chars 8 and 9 to Block (0xff) and Dot (0xA5)
+# This is part of the display drivers lcd_display_driver_XXXX
+
+
+
+
+bigchars = [
+	{'data': [[32], [32]], 'col': 1, 'row': 2, 'char':' '}, 						#
+	{'data': [[8], [6]], 'col': 1, 'row': 2, 'char':'!'}, 							# !
+	{'data': [[4, 4], [32, 32]], 'col': 2, 'row': 2, 'char':'"'}, 					# "
+	{'data': [[3, 8, 3, 8], [3, 0, 8, 0]], 'col': 4, 'row': 2, 'char':'#'}, 		# #
+	{'data': [[7, 8, 5], [6, 8, 4]], 'col': 3, 'row': 2, 'char':'$'}, 				# $
+	{'data': [[0, 32, 3, 0], [3, 0, 32, 3]], 'col': 4, 'row': 2, 'char':'%'}, 		# %
+	{'data': [[7, 5, 1, 32], [2, 6, 1, 3]], 'col': 4, 'row': 2, 'char':'&'}, 		# &
+	{'data': [[4], [32]], 'col': 1, 'row': 2, 'char':"'"}, 							# '
+	{'data': [[7, 0], [2, 3]], 'col': 2, 'row': 2, 'char':'('}, 					# (
+	{'data': [[0, 1], [3, 4]], 'col': 2, 'row': 2, 'char':')'}, 					# )
+	{'data': [[0, 3, 3, 0], [3, 0, 0, 3]], 'col': 4, 'row': 2, 'char':'*'}, 		# *
+	{'data': [[3, 8, 3], [0, 8, 0]], 'col': 3, 'row': 2, 'char':'+'}, 				# +
+	{'data': [[32], [4]], 'col': 1, 'row': 2, 'char': ','}, 						# ,
+	{'data': [[3, 3, 3], [32, 32, 32]], 'col': 3, 'row': 2, 'char': '-'}, 			# -
+	{'data': [[32], [3]], 'col': 1, 'row': 2, 'char': '.'}, 						# .
+	{'data': [[32, 32, 3, 0], [3, 0, 32, 32]], 'col': 4, 'row': 2, 'char': '/'},	# /
+	{'data': [[7, 0, 1], [2, 3, 4]], 'col': 3, 'row': 2, 'char': '0'}, 				# 0
+	{'data': [[0, 1, 32], [3, 8, 3]], 'col': 3, 'row': 2, 'char': '1'}, 			# 1
+	{'data': [[5, 5, 1], [8, 6, 6]], 'col': 3, 'row': 2, 'char': '2'}, 				# 2
+	{'data': [[0, 5, 1], [3, 6, 4]], 'col': 3, 'row': 2, 'char': '3'}, 				# 3
+	{'data': [[2, 3, 8], [32, 32, 8]], 'col': 3, 'row': 2, 'char': '4'}, 			# 4
+	{'data': [[8, 5, 5], [6, 6, 4]], 'col': 3, 'row': 2, 'char': '5'}, 				# 5
+	{'data': [[7, 5, 5], [2, 6, 4]], 'col': 3, 'row': 2, 'char': '6'}, 				# 6
+	{'data': [[0, 0, 1], [32, 7, 32]], 'col': 3, 'row': 2, 'char': '7'}, 			# 7
+	{'data': [[7, 5, 1], [2, 6, 4]], 'col': 3, 'row': 2, 'char': '8'}, 				# 8
+	{'data': [[7, 5, 1], [6, 6, 4]], 'col': 3, 'row': 2, 'char': '9'}, 				# 9
+	{'data': [[9], [9]], 'col': 1, 'row': 2, 'char': ':'}, 							# :
+	{'data': [[3], [4]], 'col': 1, 'row': 2, 'char': ';'}, 							# ;
+	{'data': [[32, 3, 0], [0, 0, 3]], 'col': 3, 'row': 2, 'char': '<'}, 			# <
+	{'data': [[3, 3, 3], [0, 0, 0]], 'col': 3, 'row': 2, 'char': '='}, 				# =
+	{'data': [[0, 3, 32], [3, 0, 0]], 'col': 3, 'row': 2, 'char': '>'}, 			# >
+	{'data': [[0, 5, 1], [32, 6, 32]], 'col': 3, 'row': 2, 'char': '?'}, 			# ?
+	{'data': [[7, 5, 1], [2, 3, 3]], 'col': 3, 'row': 2, 'char': '@'}, 				# @
+	{'data': [[7, 5, 1], [8, 32, 8]], 'col': 3, 'row': 2, 'char': 'A'}, 			# A
+	{'data': [[8, 5, 4], [8, 6, 1]], 'col': 3, 'row': 2, 'char': 'B'}, 				# B
+	{'data': [[7, 0, 0], [2, 3, 3]], 'col': 3, 'row': 2, 'char': 'C'}, 				# C
+	{'data': [[8, 0, 1], [8, 3, 4]], 'col': 3, 'row': 2, 'char': 'D'}, 				# D
+	{'data': [[8, 5, 5], [8, 6, 6]], 'col': 3, 'row': 2, 'char': 'E'}, 				# E
+	{'data': [[8, 5, 5], [8, 32, 32]], 'col': 3, 'row': 2, 'char': 'F'}, 			# F
+	{'data': [[7, 0, 0], [2, 3, 1]], 'col': 3, 'row': 2, 'char': 'G'}, 				# G
+	{'data': [[8, 3, 8], [8, 32, 8]], 'col': 3, 'row': 2, 'char': 'H'}, 			# H
+	{'data': [[0, 8, 0], [3, 8, 3]], 'col': 3, 'row': 2, 'char': 'I'}, 				# I
+	{'data': [[32, 32, 8], [3, 3, 4]], 'col': 3, 'row': 2, 'char': 'J'}, 			# J
+	{'data': [[8, 3, 4], [8, 32, 1]], 'col': 3, 'row': 2, 'char': 'K'}, 			# K
+	{'data': [[8, 32, 32], [8, 3, 3]], 'col': 3, 'row': 2, 'char': 'L'}, 			# L
+	{'data': [[7, 2, 4, 1], [8, 32, 32, 8]], 'col': 4, 'row': 2, 'char': 'M'}, 		# M
+	{'data': [[8, 1, 32, 8], [8, 32, 2, 8]], 'col': 4, 'row': 2, 'char': 'N'}, 		# N
+	{'data': [[7, 0, 1], [2, 3, 4]], 'col': 3, 'row': 2, 'char': 'O'}, 				# O
+	{'data': [[7, 5, 1], [8, 32, 32]], 'col': 3, 'row': 2, 'char': 'P'}, 			# P
+	{'data': [[7, 0, 1, 32], [2, 3, 8, 3]], 'col': 4, 'row': 2, 'char': 'Q'}, 		# Q
+	{'data': [[8, 5, 1], [8, 32, 1]], 'col': 3, 'row': 2, 'char': 'R'}, 			# R
+	{'data': [[7, 5, 5], [6, 6, 4]], 'col': 3, 'row': 2, 'char': 'S'}, 				# S
+	{'data': [[0, 8, 0], [32, 8, 32]], 'col': 3, 'row': 2, 'char': 'T'}, 			# T
+	{'data': [[8, 32, 8], [2, 3, 4]], 'col': 3, 'row': 2, 'char': 'U'}, 			# U
+	{'data': [[2, 32, 32, 4], [32, 1, 7, 32]], 'col': 4, 'row': 2, 'char': 'V'}, 	# V
+	{'data': [[8, 32, 32, 8], [2, 7, 1, 4]], 'col': 4, 'row': 2, 'char': 'W'}, 		# W
+	{'data': [[2, 3, 4], [7, 32, 1]], 'col': 3, 'row': 2, 'char': 'X'}, 			# X
+	{'data': [[2, 3, 4], [32, 8, 32]], 'col': 3, 'row': 2, 'char': 'Y'}, 			# Y
+	{'data': [[0, 5, 4], [7, 6, 3]], 'col': 3, 'row': 2, 'char': 'Z'}, 				# Z
+	{'data': [[8, 0], [8, 3]], 'col': 2, 'row': 2, 'char': '['}, 					# [
+	{'data': [[0, 3, 32, 32], [32, 32, 0, 3]], 'col': 4, 'row': 2, 'char': '\\'}, 	# \
+	{'data': [[0, 8], [3, 8]], 'col': 2, 'row': 2, 'char': ']'}, 					# ]
+	{'data': [[7, 1], [32, 32]], 'col': 2, 'row': 2, 'char': '^'}, 					# ^
+	{'data': [[32, 32, 32], [3, 3, 3]], 'col': 3, 'row': 2, 'char': '_'}, 			# _
+]
+
+
+
+def genbigchar(msg, rows):
+	# Input msg - the message to return. Raises IndexError if any chars in msg are not supported
+	# Return - An array of unicode strings; on string per line
+
+	# Initialize retval to include a string per row
+	retval = [ ]
+	for i in range(0,rows):
+		retval.append('')
+
+	for c in msg:
+		# Check if Allowable
+		if ord(c) < ord(' ') or ord(c) > ord('_'):
+			raise IndexError
+
+		# Find character data
+		d = ord(c)-ord(' ')
+
+		# Verify that correct character has been selected
+		if bigchars[d]['char'] != c:
+			logging.debug("bigchar expected {0} but found {1}".format(bigchars[d]['char'], c))
+			raise ValueError
+
+		for i in range(0, bigchars[d]['row']):
+			for j in range(0, bigchars[d]['col']):
+				retval[i][j] += retval[i].append(bigchars[d]['data'][i])
+
+	return retval
