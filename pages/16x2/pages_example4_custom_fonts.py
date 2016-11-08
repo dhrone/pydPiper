@@ -216,6 +216,7 @@ PAGES_Stop = {
 	  {
 		'name':"TIMEBIG",
 		'duration':8,
+		'font':'size5x8.bigclock',		
 		'lines': [
 		  {
 			'name':"top",
