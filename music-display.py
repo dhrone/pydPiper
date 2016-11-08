@@ -409,7 +409,7 @@ class music_controller(threading.Thread):
 						retval[l] += chr(numbers[int(tc)][l][c])
 				elif tc in u':':
 					retval[l] += 'o'
-				retval[l] += ' '
+#				retval[l] += ' '
 
 		return retval
 
