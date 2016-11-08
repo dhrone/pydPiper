@@ -444,8 +444,10 @@ if __name__ == '__main__':
 
 
 		# Print large numbers
+		lcd.clear()
 		lcd.switchcustomchars(fonts.size5x8.bigclock.fontpkg)
 		numbers = fonts.size5x8.bigclock.numbers
+		alphas = fonts.size5x8.bigclock.alphas
 
 		for n in range (0,10):
 			s = [ '', '' ]
@@ -455,9 +457,19 @@ if __name__ == '__main__':
 			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
 			time.sleep(2)
 
+		# Print large letters
+		for n in range (0,26):
+			s = [ '', '' ]
+			for l in range (0,2):
+				for p in range (0,3):
+					s[l] += chr(alphas[n][l][p])
+			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
+			time.sleep(2)
+		
+
 		# Print volume range
 		lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
-		
+
 		for i in range (0,101,5):
 			volbar = volume_bar(i,
 				14,
