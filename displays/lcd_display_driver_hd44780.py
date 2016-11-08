@@ -394,6 +394,10 @@ if __name__ == '__main__':
 		elif opt in ("--d7"):
 			d7  = int(arg)
 
+	import codecs
+	if sys.stdout.encoding != 'UTF-8':
+    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
+
 	try:
 
 		pins = [d4, d5, d6, d7]
@@ -409,62 +413,65 @@ if __name__ == '__main__':
 
 		lcd.clear()
 
-		lcd.msgtest("72.3\xb0f or 32.1\xb0c", 4)
+#		lcd.msgtest("72.3\xb0f or 32.1\xb0c", 4)
 
-		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
-		#for char in accent_min: print char, ord(char)
-		lcd.message(accent_min)
-		time.sleep(2)
+#		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
+#		#for char in accent_min: print char, ord(char)
+#		lcd.message(accent_min)
+#		time.sleep(2)
 
-		lcd.clear()
+#		lcd.clear()
 
-		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
-		lcd.message(accent_maj)
+#		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
+#		lcd.message(accent_maj)
 
-		time.sleep(2)
-		lcd.clear()
+#		time.sleep(2)
+#		lcd.clear()
 
-		lcd.msgtest("\x00 Stop")
-		lcd.msgtest("\x01 Play")
-		lcd.msgtest("\x02 Pause")
-		lcd.msgtest("\x03 Ethernet")
-		lcd.msgtest("\x04 Wireless")
-		lcd.msgtest("\x05 Music")
-		lcd.msgtest("\x06 Power")
-		lcd.clear()
+#		lcd.msgtest("\x00 Stop")
+#		lcd.msgtest("\x01 Play")
+#		lcd.msgtest("\x02 Pause")
+#		lcd.msgtest("\x03 Ethernet")
+#		lcd.msgtest("\x04 Wireless")
+#		lcd.msgtest("\x05 Music")
+#		lcd.msgtest("\x06 Power")
+#		lcd.clear()
 
-		lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
-		lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
-		lcd.switchcustomchars(fonts.size5x8.shuffle.fontpkg)
-		lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
-		lcd.switchcustomchars(fonts.size5x8.repeat_all.fontpkg)
-		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
-		lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
-		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
+#		lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
+#		lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
+#		lcd.switchcustomchars(fonts.size5x8.shuffle.fontpkg)
+#		lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
+#		lcd.switchcustomchars(fonts.size5x8.repeat_all.fontpkg)
+#		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
+#		lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
+#		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
 
 
 		# Print large numbers
-		lcd.clear()
-		lcd.switchcustomchars(fonts.size5x8.bigclock.fontpkg)
+#		lcd.clear()
+		lcd.switchcustomchars(fonts.size5x8.bigchar.fontpkg)
 		numbers = fonts.size5x8.bigclock.numbers
 		bigchars = fonts.size5x8.bigchar.bigchars
-
-		for n in range (0,10):
-			s = [ '', '' ]
-			for l in range (0,2):
-				for p in range (0,3):
-					s[l] += chr(numbers[n][l][p])
-			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
-			time.sleep(2)
+#
+#		for n in range (0,10):
+#			s = [ '', '' ]
+#			for l in range (0,2):
+#				for p in range (0,3):
+#					s[l] += unichr(numbers[n][l][p])
+#			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
+#			time.sleep(2)
+#
 
 		# Print large letters
 		for c in bigchars:
 			s = [ '', '' ]
 			for row in range(0,c['row']):
 				for col in range(0,c['col']):
-					s[row] += c['data'][row][col]
-			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
+					s[row] += unichr(c['data'][row][col])
+			print u"{0}\n{1}\n".format(repr(s[0]),repr(s[1]))
+			lcd.message(u"{0}\n{1}\n{2}".format(s[0],s[1],c['char']))
 			time.sleep(2)
+			lcd.clear()
 		
 
 		# Print volume range
