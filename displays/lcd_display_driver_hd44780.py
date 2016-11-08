@@ -67,7 +67,7 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 	LCD_5x8DOTS = 0x00
 
 	character_translation = [
-		  0,  1,  2,  3,  4,  5,  6,  7,  255, 9,  0,  0,  0,  0,  0,  0,	#0
+		  0,  1,  2,  3,  4,  5,  6,  7,  255, 165,  0,  0,  0,  0,  0,  0,	#0
 		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,	#16
 		 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,	#32
 		 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,	#48
@@ -468,7 +468,6 @@ if __name__ == '__main__':
 			for row in range(0,c['row']):
 				for col in range(0,c['col']):
 					s[row] += unichr(c['data'][row][col])
-			print u"{0}\n{1}\n".format(repr(s[0]),repr(s[1]))
 			lcd.message(u"{0}  {1}\n{2}".format(s[0],c['char'],s[1]))
 			time.sleep(2)
 			lcd.clear()

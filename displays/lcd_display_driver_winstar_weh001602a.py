@@ -70,7 +70,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 	LCD_5x10s = 0x04
 	LCD_5x8DOTS = 0x00
 
-	character_translation = [   0,1,2,3,4,5,6,7,0,32,						#0
+	character_translation = [   0,1,2,3,4,5,6,7,255,165,						#0
 								0,0,0,0,0,0,0,0,0,0,						#10
 								0,0,0,0,0,0,0,0,0,0,						#20
 								0,0,32,33,34,35,36,37,38,39,				#30
@@ -424,6 +424,10 @@ if __name__ == '__main__':
 		elif opt in ("--d7"):
 			d7  = int(arg)
 
+	import codecs
+	if sys.stdout.encoding != 'UTF-8':
+    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
+
 	try:
 		pins = [d4, d5, d6, d7]
 		print "Winstar OLED Display Test"
@@ -470,8 +474,24 @@ if __name__ == '__main__':
 		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
 		lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
 		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
-		lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
 
+		lcd.switchcustomchars(fonts.size5x8.bigchar.fontpkg)
+		numbers = fonts.size5x8.bigclock.numbers
+		bigchars = fonts.size5x8.bigchar.bigchars
+
+		# Print large letters
+		for c in bigchars:
+			s = [ '', '' ]
+			for row in range(0,c['row']):
+				for col in range(0,c['col']):
+					s[row] += unichr(c['data'][row][col])
+			lcd.message(u"{0}  {1}\n{2}".format(s[0],c['char'],s[1]))
+			time.sleep(2)
+			lcd.clear()
+
+
+
+		lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
 		for i in range (0,101):
 			volbar = volume_bar(i,
 				14,
