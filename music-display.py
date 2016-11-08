@@ -1168,11 +1168,11 @@ class music_controller(threading.Thread):
 
 				outside_tempf = wea.get_temperature('fahrenheit')['temp']
 				outside_temp_maxf = dailyfc[0].get_temperature('fahrenheit')['min']
-				outside_temp_minf = dailyfc[0].get_temperature('fahrenheit')['temp_min']
+				outside_temp_minf = dailyfc[0].get_temperature('fahrenheit')['min']
 
 				outside_tempc = wea.get_temperature('celsius')['temp']
-				outside_temp_maxc = dailyfc[0].get_temperature('celsius')['temp_max']
-				outside_temp_minc = dailyfc[0].get_temperature('celsius')['temp_min']
+				outside_temp_maxc = dailyfc[0].get_temperature('celsius')['max']
+				outside_temp_minc = dailyfc[0].get_temperature('celsius')['min']
 
 				# Localize temperature value
 				if music_display_config.TEMPERATURE.lower() == 'celsius':
@@ -1192,11 +1192,10 @@ class music_controller(threading.Thread):
 
 				outside_conditions = wea.get_detailed_status()
 			except:
-				print "WEATHER Failure"
+				logging.debug("Failed to get weather data.  Check OWM_API key.")
 				pass
 
 
-			print "WEA Temp: {0}\nWEA Hi {1}/ Lo {2}\nWEA Cond: {3}".format(outside_temp_formatted, outside_temp_max_formatted, outside_temp_min_formatted, outside_conditions)
 			try:
 				with open("/sys/class/thermal/thermal_zone0/temp") as file:
 					system_tempc = int(file.read())
