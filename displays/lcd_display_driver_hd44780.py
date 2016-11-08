@@ -447,7 +447,7 @@ if __name__ == '__main__':
 		lcd.clear()
 		lcd.switchcustomchars(fonts.size5x8.bigclock.fontpkg)
 		numbers = fonts.size5x8.bigclock.numbers
-		alphas = fonts.size5x8.bigclock.alphas
+		bigchars = fonts.size5x8.bigchar.bigchars
 
 		for n in range (0,10):
 			s = [ '', '' ]
@@ -458,11 +458,11 @@ if __name__ == '__main__':
 			time.sleep(2)
 
 		# Print large letters
-		for n in range (0,26):
+		for c in bigchars:
 			s = [ '', '' ]
-			for l in range (0,2):
-				for p in range (0,3):
-					s[l] += chr(alphas[n][l][p])
+			for row in range(0,c['row']):
+				for col in range(0,c['col']):
+					s[row] += c['data'][row][col]
 			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
 			time.sleep(2)
 		
