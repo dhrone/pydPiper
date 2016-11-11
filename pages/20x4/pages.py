@@ -164,7 +164,7 @@ PAGES_Stop = {
 		'font':'size5x8.bigchars',
 		'lines': [
 		  {
-			'name':"top",
+			'name':"1",
 			'variables': [ "time_formatted|bigchars+0+1", "time_ampm" ],
 			'strftime':"%I:%M",
 			'format':"{0} {1}",
@@ -172,9 +172,21 @@ PAGES_Stop = {
 			'scroll':False
 		  },
 		  {
-			'name':"bottom",
+			'name':"2",
 			'variables': [ "time_formatted|bigchars+1+1" ],
 			'strftime':"%I:%M",
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"3",
+			'format':"",
+		  },
+		  {
+			'name':"4",
+			'variables': [ "time_formatted" ],
+			'strftime':"%B %-m, %Y",
 			'format':"{0}",
 			'justification':"left",
 			'scroll':False
@@ -187,16 +199,27 @@ PAGES_Stop = {
 		'font':'size5x8.bigchars',
 		'lines': [
 		  {
-			'name':"top",
+			'name':"1",
 			'variables': [ "outside_temp_formatted|bigchars+0+1" ],
 			'format':"{0}",
 			'justification':"center",
 			'scroll':False
 		  },
 		  {
-			'name':"bottom",
+			'name':"2",
 			'variables': [ "outside_temp_formatted|bigchars+1+1" ],
 			'format':"{0}",
+			'justification':"center",
+			'scroll':False
+		  },
+		  {
+			'name':"3",
+			'format':"",
+		  },
+		  {
+			'name':"4",
+			'variables': [ "outside_temp_max_formatted", "outside_temp_min_formatted" ],
+			'format':"H: {0}   L: {1}",
 			'justification':"center",
 			'scroll':False
 		  }
@@ -233,7 +256,7 @@ ALERT_Volume = {
 					'segments': [
 						{
 							'variables': [ "volume" ],
-							'format':"\x00\x01	   Volume {0}",
+							'format':"\x00\x01    Volume {0}",
 							'start':0,
 							'end':20,
 							'justification':"left",

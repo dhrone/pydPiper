@@ -1204,7 +1204,7 @@ class music_controller(threading.Thread):
 				wea = obs.get_weather()
 
 				outside_tempf = wea.get_temperature('fahrenheit')['temp']
-				outside_temp_maxf = dailyfc[0].get_temperature('fahrenheit')['min']
+				outside_temp_maxf = dailyfc[0].get_temperature('fahrenheit')['max']
 				outside_temp_minf = dailyfc[0].get_temperature('fahrenheit')['min']
 
 				outside_tempc = wea.get_temperature('celsius')['temp']
