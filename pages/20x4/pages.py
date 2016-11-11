@@ -112,14 +112,14 @@ PAGES_Play = {
 								'start':0,
 								'end':2,
 								'format':"\x02\x03",
-								'scroll':True		
+								'scroll':True
 							},
 							{
 								'start':2,
 								'end':20,
 								'variables': [ "title" ],
 								'format':"{0}",
-								'scroll':True		
+								'scroll':True
 							}
 						]
 					},
@@ -155,166 +155,54 @@ PAGES_Play = {
 }
 
 PAGES_Stop = {
-	'name':"Stop",
-	'pages':
-		[
-			{
-				'name':"Ready",
-				'font':'size5x8.system',
-				'duration':10,
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%A %-I:%M %p",
-								'format':"\x00\x01 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%B %-d %Y",
-								'format':"\x02\x03 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"3",
-						'format':"",
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "system_temp_formatted", "disk_availp" ],
-								'format':"\x04\x05 {0}	\x06\x07 {1}%",
-								'start':3,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					}
-				]
-			},
-			{
-				'name':"ReadyWeatherTemp",
-				'font':'size5x8.system',
-				'duration':4,
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%A %-I:%M %p",
-								'format':"\x00\x01 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%B %-d %Y",
-								'format':"\x02\x03 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"3",
-						'format':"",
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "outside_temp_formatted" ],
-								'format':"Outside \x04\x05 {0}",
-								'start':3,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					}
-				]
-			},
-			{
-				'name':"ReadyWeatherConditions",
-				'font':'size5x8.system',
-				'duration':4,
-				'lines': [
-					{
-						'name':"1",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%A %-I:%M %p",
-								'format':"\x00\x01 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"2",
-						'segments': [
-							{
-								'variables': [ "current_time_formatted" ],
-								'strftime':"%B %-d %Y",
-								'format':"\x02\x03 {0}",
-								'start':0,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					},
-					{
-						'name':"3",
-						'format':"",
-					},
-					{
-						'name':"4",
-						'segments': [
-							{
-								'variables': [ "outside_conditions|title" ],
-								'format':"{0}",
-								'start':3,
-								'end':20,
-								'justification':"left",
-								'scroll':False
-							}
-						]
-					}
-				]
-			}
+  'name':"Stop",
+  'pages':
+	[
+	  {
+		'name':"TIMEBIG",
+		'duration':8,
+		'font':'size5x8.bigchars',
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "time_formatted|bigchars+0+1", "time_ampm" ],
+			'strftime':"%I:%M",
+			'format':"{0} {1}",
+			'justification':"left",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "time_formatted|bigchars+1+1" ],
+			'strftime':"%I:%M",
+			'format':"{0}",
+			'justification':"left",
+			'scroll':False
+		  }
 		]
+	  },
+	  {
+		'name':"TEMPBIG",
+		'duration':8,
+		'font':'size5x8.bigchars',
+		'lines': [
+		  {
+			'name':"top",
+			'variables': [ "outside_temp_formatted|bigchars+0+1" ],
+			'format':"{0}",
+			'justification':"center",
+			'scroll':False
+		  },
+		  {
+			'name':"bottom",
+			'variables': [ "outside_temp_formatted|bigchars+1+1" ],
+			'format':"{0}",
+			'justification':"center",
+			'scroll':False
+		  }
+		]
+	  }
+	]
 }
 
 ALERT_Volume = {

@@ -841,9 +841,9 @@ class music_controller(threading.Thread):
 
 				tvalues = transforms[i].split('+')[1:]
 
-				if len(tvalues) > 1:
+				if len(tvalues) > 2:
 					# Safe to ignore but logging
-					logging.debug(u"Expected one but received {0} variables for bigchar".format(len(values)))
+					logging.debug(u"Expected at most two but received {0} variables for bigchar".format(len(values)))
 
 				if len(tvalues) == 0:
 					# Requires at least one variable to specify line so will return error in retval
@@ -853,6 +853,10 @@ class music_controller(threading.Thread):
 
 					if transform_request == 'bigchars':
 						try:
+							if len(tvalues) == 2: # Request to add spaces between characters
+								es = u"{0:<{1}}".format('',int(tvalues[1]))
+								val = es.join(val)
+
 							retval = displays.fonts.size5x8.bigchars.generate(val)[int(tvalues[0])]
 						except (IndexError, ValueError):
 							logging.debug("Bad value or line provided for bigchar")
