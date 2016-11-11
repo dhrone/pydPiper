@@ -1,4 +1,4 @@
-__all__ = [ "player", "playing", "repeat_all", "repeat_once", "shuffle", "speaker", "volume", "system", "bigclock", "bigchars" ]
+__all__ = [ "player", "playing", "repeat_all", "repeat_once", "shuffle", "speaker", "volume", "system", "bigclock", "bigchars", "bigplay" ]
 
 
 try:
@@ -48,5 +48,10 @@ except ImportError:
 
 try:
 	import bigchars
+except ImportError:
+	pass
+
+try:
+	import bigplay
 except ImportError:
 	pass
