@@ -125,8 +125,6 @@ def generate(msg):
 		rows = len(bigchars[d]['data'])
 		cols = len(bigchars[d]['data'][0])
 
-		print "rows {0}: cols {1}".format(rows, cols)
-
 		for i in range(0, rows):
 			for j in range(0, cols):
 				retval[i] += unichr(bigchars[d]['data'][i][j])
