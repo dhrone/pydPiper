@@ -475,9 +475,9 @@ if __name__ == '__main__':
 		lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
 		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
 
-		lcd.switchcustomchars(fonts.size5x8.bigchar.fontpkg)
+		lcd.switchcustomchars(fonts.size5x8.bigchars.fontpkg)
 		numbers = fonts.size5x8.bigclock.numbers
-		bigchars = fonts.size5x8.bigchar.bigchars
+		bigchars = fonts.size5x8.bigchars.bigchars
 
 		# Print large letters
 		for c in bigchars:
@@ -507,11 +507,6 @@ if __name__ == '__main__':
 			time.sleep(.05)
 
 		time.sleep(2)
-
-		lcd.setsize(1)
-		lcd.msgtest("Big Test")
-		lcd.setsize(0)
-		lcd.msgtest("Small Test")
 
 
 	except KeyboardInterrupt:
