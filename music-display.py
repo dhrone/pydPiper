@@ -888,7 +888,7 @@ class music_controller(threading.Thread):
 		try:
 			segval = format.format(*parms)
 		except:
-#			print "Var Error Format {0}, Parms {1} Vars {2}\n{3}".format(format, parms, vars, self.musicdata)
+			logging.debug( "Var Error Format {0}, Parms {1} Vars {2}".format(format, parms, vars) )
 			# Format doesn't match available variables
 			logging.debug("Var Error with parm type {0} and format type {1}".format(type(parms), type(format)))
 			segval = u"VarErr"
@@ -1041,10 +1041,13 @@ class music_controller(threading.Thread):
 				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
 				bigclockoutput = self.bigclock(bigclockinput)
 
+				current_time_ampm = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%p").strip().decode()
+
 				with self.musicdata_lock:
 					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
 					self.musicdata['time_big_1'] = bigclockoutput[0]
 					self.musicdata['time_big_2'] = bigclockoutput[1]
+					self.musicdata['time_ampm'] = current_time_ampm
 
 					# To support previous key used for this purpose
 					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
@@ -1456,7 +1459,7 @@ if __name__ == '__main__':
 	lcd.message(music_display_config.STARTUP_MSG)
 
 	mc = music_controller(dq, services_list, lcd.rows, lcd.cols, showupdates)
-	time.sleep(1)
+	time.sleep(2)
 	dc = display_controller(dq, lcd)
 
 	dc.start()
