@@ -367,7 +367,7 @@ ALERT_Stop = {
 	'pages': [
 		{
 			'name':"Stop",
-			'font':'size5x8.bigchar',
+			'font':'size5x8.bigchars',
 			'duration':1.5,
 			'lines': [
 				{
@@ -382,7 +382,7 @@ ALERT_Stop = {
 					'name':"2",
 					'segments': [
 						{
-							'variables': [ 'state|bigchar+0' ],
+							'variables': [ 'state|bigchars+0' ],
 							'format':"  \x08\x08  {0}",
 							'justification':"left",
 							'scroll':False
@@ -393,7 +393,7 @@ ALERT_Stop = {
 					'name':"3",
 					'segments': [
 						{
-							'variables': [ 'state|bigchar+1' ],
+							'variables': [ 'state|bigchars+1' ],
 							'format':"  \x08\x08  {0}",
 							'justification':"left",
 							'scroll':False

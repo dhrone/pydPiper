@@ -29,5 +29,5 @@ def map(fontpkgname):
 	elif fontpkgname == 'default':
 		return size5x8.player.fontpkg
 	else:
-		logging.debug("Font change requeste to unknown font {0}".fontpkgname)
+		logging.debug("Font change requeste to unknown font {0}".format(fontpkgname))
 		return [ ]
