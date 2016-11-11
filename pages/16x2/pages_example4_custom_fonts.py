@@ -216,18 +216,20 @@ PAGES_Stop = {
 	  {
 		'name':"TIMEBIG",
 		'duration':8,
-		'font':'size5x8.bigclock',		
+		'font':'size5x8.bigchars',
 		'lines': [
 		  {
 			'name':"top",
-			'variables': [ "time_big_1" ],
-			'format':"{0}",
+			'variables': [ "time_formatted|bigchars+0", "time_ampm" ],
+			'strftime':"%H:%M",
+			'format':"{0} {1}",
 			'justification':"left",
 			'scroll':False
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "time_big_2" ],
+			'variables': [ "time_formatted|bigchars+1" ],
+			'strftime':"%H:%M",
 			'format':"{0}",
 			'justification':"left",
 			'scroll':False

@@ -22,8 +22,8 @@ def map(fontpkgname):
 		return size5x8.system.fontpkg
 	elif fontpkgname == 'size5x8.bigclock':
 		return size5x8.bigclock.fontpkg
-	elif fontpkgname == 'size5x8.bigchar':
-		return size5x8.bigchar.fontpkg
+	elif fontpkgname == 'size5x8.bigchars':
+		return size5x8.bigchars.fontpkg
 	elif fontpkgname == 'default':
 		return size5x8.player.fontpkg
 	else:

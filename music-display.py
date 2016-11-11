@@ -789,7 +789,10 @@ class music_controller(threading.Thread):
 
 
 	def transformvariable(self, val, name):
-		# Implement transformation logic (e.g. |yesno, |onoff |upper)
+		# Implement transformation logic (e.g. |yesno, |onoff |upper |bigchars+0)
+		# Format of 'name' is the name of the transform preceded by a '|' and
+		# then if variables are required a series of values seperated by '+' symbols
+
 
 		transforms = name.split('|')
 		if len(transforms) == 0:
@@ -800,36 +803,61 @@ class music_controller(threading.Thread):
 		retval = val
 		# Compute transforms
 		for i in range(1,len(transforms)):
-			if transforms[i] in ['onoff','truefalse','yesno']:
+			transform_request = transforms[i].split('+')[0] # Pull request type away from variables
+			if transform_request in ['onoff','truefalse','yesno']:
 				# Make sure input is a Boolean
 				if type(val) is bool:
 
-					if transforms[i] == 'onoff':
+					if transform_request == 'onoff':
 						retval = u'on' if val else u'off'
-					elif transforms[i] == 'truefalse':
+					elif transform_request == 'truefalse':
 						retval = u'true' if val else u'false'
-					elif transforms[i] == 'yesno':
+					elif transform_request == 'yesno':
 						retval = u'yes' if val else u'no'
 				else:
 					logging.debug(u"Request to perform boolean transform on {0} requires boolean input").format(name)
 					return val
-			elif transforms[i] in ['upper','capitalize','title','lower']:
+			elif transform_request in ['upper','capitalize','title','lower']:
 				# These all require string input
 
 				if type(val) is str or type(val) is unicode:
 					if type(retval) is str:
 						retval = retval.decode()
-					if transforms[i] == 'upper':
+					if transform_request == 'upper':
 						retval = retval.upper()
-					elif transforms[i] == 'capitalize':
+					elif transform_request == 'capitalize':
 						retval = retval.capitalize()
-					elif transforms[i] == 'title':
+					elif transform_request == 'title':
 						retval = retval.title()
-					elif transforms[i] == 'lower':
+					elif transform_request == 'lower':
 						retval = retval.lower()
 				else:
 					logging.debug(u"Request to perform transform on {0} requires string input").format(name)
 					return val
+			elif transform_request in [ 'bigchars' ]:
+				# requires a string input
+				# bigchars requires a variable to specify which line of the msg to return
+
+
+				tvalues = transforms[i].split('+')[1:]
+
+				if len(tvalues) > 1:
+					# Safe to ignore but logging
+					logging.debug(u"Expected one but received {0} variables for bigchar".format(len(values)))
+
+				if len(tvalues) == 0:
+					# Requires at least one variable to specify line so will return error in retval
+					logging.debug("Expected one but received no variables for bigchar")
+					retval = u"Err"
+				else:
+
+					if transform_request == 'bigchars':
+						try:
+							retval = displays.fonts.size5x8.bigchars.generate(val)[int(tvalues[0])]
+						except (IndexError, ValueError):
+							logging.debug("Bad value or line provided for bigchar")
+							retval = u'Err'
+
 
 		return retval
 
@@ -1135,16 +1163,18 @@ class music_controller(threading.Thread):
 	def updatesystemvars(self):
 		while True:
 			try:
+				current_time_ampm = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%p").strip().decode()
 				if music_display_config.TIME24HOUR == True:
-					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M").strip()
-					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M:%S").strip()
+					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M").strip().decode()
+					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M:%S").strip().decode()
 				else:
-					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M %p").strip()
-					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M:%S %p").strip()
+					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M %p").strip().decode()
+					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M:%S %p").strip().decode()
 			except ValueError:
 				# Don't know why but on exit, the moment code is occasionally throwing a ValueError
 				current_time = u"00:00"
 				current_time_sec = u"00:00:00"
+				current_time_ampm = u''
 
 			current_ip = commands.getoutput("ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
@@ -1265,12 +1295,13 @@ class music_controller(threading.Thread):
 				self.musicdata['disk_used'] = used
 				self.musicdata['disk_usedp'] = usedp
 
-				self.musicdata['time'] = current_time.decode()
+				self.musicdata['time'] = current_time
+				self.musicdata['time_ampm'] = current_time_ampm
 				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed
 
 				# For backwards compatibility
-				self.musicdata['current_time'] = current_time.decode()
-				self.musicdata['current_time_sec'] = current_time.decode()
+				self.musicdata['current_time'] = current_time
+				self.musicdata['current_time_sec'] = current_time
 
 				self.musicdata['ip'] = current_ip.decode()
 

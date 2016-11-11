@@ -137,6 +137,10 @@ time_formatted (unicode)
   Values - (vary based upon strftime key) e.g. 'Oct 24 2016', 'Monday October 24', etc.
   Previously called - current_time_formatted
 
+time_ampm (unicode)
+  Description: displays 'AM' or 'PM' based upon the current system time_formatted
+  Values - 'AM', 'PM'
+
 system_temp (float)
   Description - Current temp of system.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
   Values - 102.3

@@ -103,17 +103,14 @@ bigchars = [
 
 
 
-def genbigchar(msg, rows):
+def generate(msg):
 	# Input msg - the message to return. Raises IndexError if any chars in msg are not supported
 	# Return - An array of unicode strings; on string per line
 
-	# Initialize retval to include a string per row
-	retval = [ ]
-	for i in range(0,rows):
-		retval.append('')
+	retval = [ '','' ] # This font has a height of two characters so initialize return value to return two lines
 
-	for c in msg:
-		# Check if Allowable
+	# Check if every character is in the allowable
+	for c in msg.upper():
 		if ord(c) < ord(' ') or ord(c) > ord('_'):
 			raise IndexError
 
@@ -125,8 +122,13 @@ def genbigchar(msg, rows):
 			logging.debug("bigchar expected {0} but found {1}".format(bigchars[d]['char'], c))
 			raise ValueError
 
-		for i in range(0, bigchars[d]['row']):
-			for j in range(0, bigchars[d]['col']):
-				retval[i][j] += retval[i].append(bigchars[d]['data'][i])
+		rows = len(bigchars[d]['data'])
+		cols = len(bigchars[d]['data'][0])
+
+		print "rows {0}: cols {1}".format(rows, cols)
+
+		for i in range(0, rows):
+			for j in range(0, cols):
+				retval[i] += unichr(bigchars[d]['data'][i][j])
 
 	return retval
