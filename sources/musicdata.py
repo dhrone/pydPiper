@@ -132,6 +132,10 @@ class musicdata:
 		# Requires station to send name using the M3U protocol
 		# url - url of the station
 
+		# Only check for a radio station name if you are actively playing a track
+		if self.musicdata['state'] != u'play':
+			return u''
+
 		retval = u''
 		logging.debug("Trying to get radio station name from {0}".format(url))
 		with contextlib.closing(urllib2.urlopen(url)) as page:
@@ -157,6 +161,14 @@ class musicdata:
 							except:
 								logging.debug("Not sure what I found {0}".format(retval))
 								return u''
+				elif line.startswith('Title1='):
+					try:
+						retval = line.split('Title1=')[1].split(':')[1:2][0]
+					except:
+						retval = line.split('Title1=')[0]
+					retval = retval.split('(')[0].strip()
+					return retval.decode()
+
 				if cnt == 0: break
 			logging.debug("Didn't find a M3U header at {0}".format(url))
 

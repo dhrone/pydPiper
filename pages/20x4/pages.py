@@ -126,7 +126,7 @@ PAGES_Play = {
 								'scroll':True
 							},
 							{
-								'start':2,
+								'start':3,
 								'end':20,
 								'variables': [ "title" ],
 								'format':"{0}",
