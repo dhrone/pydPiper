@@ -301,7 +301,7 @@ ALERT_Play = {
 	'pages': [
 		{
 			'name':"Play",
-			'font':'size5x8.player',
+			'font':'size5x8.bigplay',
 			'duration':1.5,
 			'lines': [
 				{
@@ -316,8 +316,18 @@ ALERT_Play = {
 					'name':"2",
 					'segments': [
 						{
-							'format':"\x01 Play",
-							'justification':"center",
+							'format':"    \x00\x01 Play",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				},
+				{
+					'name':"3",
+					'segments': [
+						{
+							'format':"    \x02\x03",
+							'justification':"left",
 							'scroll':False
 						}
 					]

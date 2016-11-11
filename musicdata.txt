@@ -202,9 +202,9 @@ outside_temp_max_formatted (unicode)
   Description - Formatted version of the high outside temperature forecast for the day.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
   Values 78°f, 23°c
 
-outside_temp_max_formatted (unicode)
+outside_temp_min_formatted (unicode)
   Description - Formatted version of the low outside temperature forecast for the day.  Uses key 'TEMPERATURE' to determine whether the value should be fahrenheit or celsius.
-  Values 78°f, 23°c
+  Values 48°f, 14°c
 
 outside_conditions (unicode)
   Description - Current weather conditions.
@@ -236,6 +236,14 @@ Input must be string
 |capitalize - converts first character of input to upper case
 |title - converts first character of every word to upper case
 |lower - converts input to lower case
+
+Big Character transforms
+------------------------
+Input must be string.  Must be limited to characters from ascii 32 ' ' to ascii 95 '_'.  This includes all numbers and upper case letters. You can include lower case letters in your input string but they will be converted to upper.
+
+|bigchar+n+s - converts input into the values needed for the bigchars font.  Accepts two variables (n and s).  N selects what line of the display this value is for. S selects how many spaces to place between characters and defaults to zero.
+
+Example:  For the first line of the font use '|bigchar+0'.  If you wanted to add a space between each character you would use '|bigchar+0+1'.
 
 Hold
 
