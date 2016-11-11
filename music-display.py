@@ -834,7 +834,7 @@ class music_controller(threading.Thread):
 				else:
 					logging.debug(u"Request to perform transform on {0} requires string input").format(name)
 					return val
-			elif transform_request in [ 'bigchars' ]:
+			elif transform_request in [ 'bigchars','bigpage' ]:
 				# requires a string input
 				# bigchars requires a variable to specify which line of the msg to return
 
@@ -843,11 +843,11 @@ class music_controller(threading.Thread):
 
 				if len(tvalues) > 2:
 					# Safe to ignore but logging
-					logging.debug(u"Expected at most two but received {0} variables for bigchar".format(len(values)))
+					logging.debug(u"Expected at most two but received {0} variables".format(len(values)))
 
 				if len(tvalues) == 0:
 					# Requires at least one variable to specify line so will return error in retval
-					logging.debug("Expected one but received no variables for bigchar")
+					logging.debug("Expected one but received no variables")
 					retval = u"Err"
 				else:
 
@@ -861,6 +861,17 @@ class music_controller(threading.Thread):
 						except (IndexError, ValueError):
 							logging.debug("Bad value or line provided for bigchar")
 							retval = u'Err'
+					elif transform_request == 'bigpage':
+						try:
+							if len(tvalues) == 2: # Request to add spaces between characters
+								es = u"{0:<{1}}".format('',int(tvalues[1]))
+								val = es.join(val)
+
+							retval = displays.fonts.size5x8.bigpage.generate('symbol')[int(tvalues[0])] + '  ' displays.fonts.size5x8.bigpage.generate('page')[int(tvalues[0])]
+						except (IndexError, ValueError):
+							logging.debug("Bad value or line provided for bigpage")
+							retval = u'Err'
+
 
 
 		return retval

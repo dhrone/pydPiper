@@ -327,7 +327,10 @@ ALERT_Play = {
 					'name':"2",
 					'segments': [
 						{
-							'format':"    \x00\x01   Play",
+							'start':0,
+							'end':20,
+							'variables': [ "state|bigplay+0" ],
+							'format':"  {0}",
 							'justification':"left",
 							'scroll':False
 						}
@@ -337,7 +340,10 @@ ALERT_Play = {
 					'name':"3",
 					'segments': [
 						{
-							'format':"    \x02\x03",
+							'start':0,
+							'end':20,
+							'variables': [ "state|bigplay+1" ],
+							'format':"  {0}",
 							'justification':"left",
 							'scroll':False
 						}

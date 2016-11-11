@@ -104,8 +104,6 @@ bigchars = [
 	{'data': [[111], [32]], 'col': 1, 'row': 2, 'char': u'\xb0'}, 			# degree symbol
 ]
 
-
-
 def generate(msg):
 	# Input msg - the message to return. Raises IndexError if any chars in msg are not supported
 	# Return - An array of unicode strings; on string per line
