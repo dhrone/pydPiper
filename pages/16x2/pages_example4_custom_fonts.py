@@ -221,7 +221,7 @@ PAGES_Stop = {
 		  {
 			'name':"top",
 			'variables': [ "time_formatted|bigchars+0", "time_ampm" ],
-			'strftime':"%H:%M",
+			'strftime':"%I:%M",
 			'format':"{0} {1}",
 			'justification':"left",
 			'scroll':False
@@ -229,7 +229,7 @@ PAGES_Stop = {
 		  {
 			'name':"bottom",
 			'variables': [ "time_formatted|bigchars+1" ],
-			'strftime':"%H:%M",
+			'strftime':"%I:%M",
 			'format':"{0}",
 			'justification':"left",
 			'scroll':False
@@ -237,62 +237,20 @@ PAGES_Stop = {
 		]
 	  },
 	  {
-		'name':"TIME",
+		'name':"TEMPBIG",
 		'duration':8,
+		'font':'size5x8.bigchars',
 		'lines': [
 		  {
 			'name':"top",
-			'variables': [ "time_formatted" ],
-			'strftime':"%a %b %-d %H:%M",
+			'variables': [ "outside_temp_formatted|bigchars+0" ],
 			'format':"{0}",
-			'justification':"left",
-			'scroll':False
-		  },
-		  {
-			'name':"bottom",
-			'variables': [ "outside_temp_formatted" ],
-			'format':"Temp {0}",
 			'justification':"center",
 			'scroll':False
-		  }
-		]
-	  },
-	  {
-		'name':"WEAHLTEMP",
-		'duration':8,
-		'lines': [
-		  {
-			'name':"top",
-			'variables': [ "time_formatted" ],
-			'strftime':"%a %b %-d %H:%M",
-			'format':"{0}",
-			'justification':"left",
-			'scroll':False
 		  },
 		  {
 			'name':"bottom",
-			'variables': [ "outside_temp_max_formatted", "outside_temp_min_formatted" ],
-			'format':"H {0}/L {1}",
-			'justification':"center",
-			'scroll':False
-		  }
-		]
-	  },
-	  {
-		'name':"WEACOND",
-		'duration':8,
-		'lines': [
-		  {
-			'name':"top",
-			'variables': [ "time_formatted" ],
-			'strftime':"%a %b %-d %H:%M",
-			'format':"{0}",
-			'justification':"left",
-			'scroll':False
-		  },
-		  {
-			'name':"bottom",
-			'variables': [ "outside_conditions|title" ],
+			'variables': [ "outside_temp_formatted|bigchars+1" ],
 			'format':"{0}",
 			'justification':"center",
 			'scroll':False
