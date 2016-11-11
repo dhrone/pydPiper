@@ -1,6 +1,6 @@
 # meta - base class for collecting meta data from music sources
 
-import abc,logging
+import abc,logging,urllib2,contextlib
 
 class musicdata:
 	__metaclass__ = abc.ABCMeta
@@ -127,6 +127,23 @@ class musicdata:
 
 
 
+	def webradioname(self,url):
+		# Attempt to get name of webradio station
+		# Requires station to send name using the M3U protocol
+		# url - url of the station
+
+		retval == u''
+		with contextlib.closing(urllib2.urlopen(url)) as page:
+			for line in page:
+				if line.startswith('#EXTINF:'):
+					try:
+						retval = line.split('#EXTINF:')[1].split(',')[1].split(')')[1].strip()
+					except IndexError:
+						try:
+							retval = line.split('#EXTINF:')[1].split(',')[0].split(')')[1].strip()
+						except IndexError:
+							retval = u''
+					if retval != u'': return retval
 
 
 
