@@ -99,6 +99,9 @@ bigchars = [
 	{'data': [[0, 8], [3, 8]], 'col': 2, 'row': 2, 'char': ']'}, 					# ]
 	{'data': [[7, 1], [32, 32]], 'col': 2, 'row': 2, 'char': '^'}, 					# ^
 	{'data': [[32, 32, 32], [3, 3, 3]], 'col': 3, 'row': 2, 'char': '_'}, 			# _
+
+	# Special characters
+	{'data': [[111], [32]], 'col': 1, 'row': 2, 'char': u'\xb0'}, 			# degree symbol
 ]
 
 
@@ -113,15 +116,22 @@ def generate(msg):
 	for c in msg.upper():
 
 		# Fix the degree symbol if it shows up.  This is for the temperature variables.
-		if c == u'\xb0':
+		if c in :
 			c = u'O'
 
 		# Make sure we have a printable character
 		if ord(c) < ord(' ') or ord(c) > ord('_'):
-			raise IndexError
-
-		# Find character data
-		d = ord(c)-ord(' ')
+			# Check for special characters
+			i = None
+			for i in range( ord('_') - ord(' ')+1, len(bigchars)):
+				if bigchars[i]['char'] == c:
+					d = i
+					break
+			if i is None:
+				raise IndexError
+		else:
+			# Character is normal.  Compute location in data bigchars array
+			d = ord(c)-ord(' ')
 
 		# Verify that correct character has been selected
 		if bigchars[d]['char'] != c:
