@@ -115,10 +115,6 @@ def generate(msg):
 	# Check if every character is in the allowable
 	for c in msg.upper():
 
-		# Fix the degree symbol if it shows up.  This is for the temperature variables.
-		if c in :
-			c = u'O'
-
 		# Make sure we have a printable character
 		if ord(c) < ord(' ') or ord(c) > ord('_'):
 			# Check for special characters
