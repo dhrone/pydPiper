@@ -15,8 +15,13 @@ PAGES_Play = {
 						'name':"1",
 						'segments': [
 							{
+								'start':0,
+								'end':2,
+								'format':"\x00\x01"
+							},
+							{
 								'variables': [ "artist" ],
-								'start':2,
+								'start':3,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
@@ -35,7 +40,7 @@ PAGES_Play = {
 							},
 							{
 								'variables': [ "album" ],
-								'start':2,
+								'start':3,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
@@ -54,7 +59,7 @@ PAGES_Play = {
 							},
 							{
 								'variables': [ "title" ],
-								'start':2,
+								'start':3,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
@@ -69,7 +74,7 @@ PAGES_Play = {
 								'variables': [ "playlist_display"],
 								'start':0,
 								'end':10,
-								'format':"  {0}",
+								'format':"   {0}",
 								'justification':"left",
 								'scroll':False
 							},
@@ -316,7 +321,7 @@ ALERT_Play = {
 					'name':"2",
 					'segments': [
 						{
-							'format':"    \x00\x01 Play",
+							'format':"    \x00\x01   Play",
 							'justification':"left",
 							'scroll':False
 						}
@@ -350,7 +355,7 @@ ALERT_Stop = {
 	'pages': [
 		{
 			'name':"Stop",
-			'font':'size5x8.player',
+			'font':'size5x8.bigplay',
 			'duration':1.5,
 			'lines': [
 				{
@@ -365,8 +370,18 @@ ALERT_Stop = {
 					'name':"2",
 					'segments': [
 						{
-							'format':"\x00 Stop",
-							'justification':"center",
+							'format':"    \x04\x05   Stop",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				},
+				{
+					'name':"3",
+					'segments': [
+						{
+							'format':"    \x06\x07",
+							'justification':"left",
 							'scroll':False
 						}
 					]
