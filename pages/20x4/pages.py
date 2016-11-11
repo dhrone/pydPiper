@@ -101,12 +101,18 @@ PAGES_Play = {
 						'name':"1",
 						'segments': [
 							{
+								'start':0,
+								'end':2,
+								'format':"\x00\x01",
+								'scroll':False
+							},
+							{
 								'variables': [ "artist" ],
-								'start':2,
+								'start':3,
 								'end':20,
 								'format':"{0}",
 								'justification':"left",
-								'scroll':False
+								'scroll':True
 							}
 						]
 					},

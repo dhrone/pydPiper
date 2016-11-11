@@ -132,9 +132,12 @@ class musicdata:
 		# Requires station to send name using the M3U protocol
 		# url - url of the station
 
-		retval == u''
+		retval = u''
+		logging.debug("Trying to get radio station name from {0}".format(url))
 		with contextlib.closing(urllib2.urlopen(url)) as page:
+			cnt = 20
 			for line in page:
+				cnt -= 1
 				if line.startswith('#EXTINF:'):
 					try:
 						retval = line.split('#EXTINF:')[1].split(',')[1].split(')')[1].strip()
@@ -143,8 +146,19 @@ class musicdata:
 							retval = line.split('#EXTINF:')[1].split(',')[0].split(')')[1].strip()
 						except IndexError:
 							retval = u''
-					if retval != u'': return retval
-
+					if retval != u'':
+						if retval is unicode:
+							logging.debug("Found {0}".format(retval))
+							return retval
+						else:
+							try:
+								logging.debug("Found {0}".format(retval))
+								return retval.decode()
+							except:
+								logging.debug("Not sure what I found {0}".format(retval))
+								return u''
+				if cnt == 0: break
+			logging.debug("Didn't find a M3U header at {0}".format(url))
 
 
 	def sendUpdate(self):

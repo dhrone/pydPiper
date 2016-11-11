@@ -177,7 +177,7 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata['playlist_display'] = u'Radio'
 				if self.musicdata['artist'] is None or self.musicdata['artist'] == u'':
 					# Try to get web station name
-					self.musicdata['artist'] = webradioname(self.musicdata['uri'])
+					self.musicdata['artist'] = self.webradioname(self.musicdata['uri'])
 			else:
 				self.musicdata['playlist_display'] = u"{0}/{1}".format(self.musicdata['playlist_position'], plc)
 
