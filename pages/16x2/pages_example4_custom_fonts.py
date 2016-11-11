@@ -307,21 +307,35 @@ ALERT_Play = {
 	'pages': [
 		{
 		'name':"Play",
-		'font':'size5x8.player',
+		'font':'size5x8.bigplay',
 			'duration':1.5,
 			'lines': [
-		  		{
+				{
 					'name':"top",
-					'format':"\x01 Play",
-					'justification':"left",
-					'scroll':False
-		  		},
-		  		{
+					'segments': [
+						{
+							'start':0,
+							'end':20,
+							'variables': [ "state|bigplay+0" ],
+							'format':"{0}",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				},
+				{
 					'name':"bottom",
-			'format':'',
-					'justification':"left",
-					'scroll':False
-		  		}
+					'segments': [
+						{
+							'start':0,
+							'end':20,
+							'variables': [ "state|bigplay+1" ],
+							'format':"{0}",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				}
 			]
 	  	}
 	]
@@ -339,26 +353,38 @@ ALERT_Stop = {
 	'interruptible':False,
 	'pages': [
 		{
-		'name':"Stop",
-		'font':'size5x8.player',
+			'name':"Stop",
+			'font':'size5x8.bigchars',
 			'duration':1.5,
 			'lines': [
-		  		{
+				{
 					'name':"top",
-					'format':"\x00 Stop",
-					'justification':"left",
-					'scroll':False
-		  		},
-		  		{
+					'segments': [
+						{
+							'variables': [ 'state|bigchars+0' ],
+							'format':"\x08\x08  {0}",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				},
+				{
 					'name':"bottom",
-			'format':'',
-					'justification':"left",
-					'scroll':False
-		  		}
+					'segments': [
+						{
+							'variables': [ 'state|bigchars+1' ],
+							'format':"\x08\x08  {0}",
+							'justification':"left",
+							'scroll':False
+						}
+					]
+				}
 			]
 	  	}
 	]
 }
+
+
 
 ALERT_RepeatOnce = {
  	'name':"RepeatOnce",
