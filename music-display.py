@@ -1455,8 +1455,9 @@ if __name__ == '__main__':
 	lcd.clear()
 	lcd.message(music_display_config.STARTUP_MSG)
 
-	dc = display_controller(dq, lcd)
 	mc = music_controller(dq, services_list, lcd.rows, lcd.cols, showupdates)
+	time.sleep(1)
+	dc = display_controller(dq, lcd)
 
 	dc.start()
 	mc.start()
