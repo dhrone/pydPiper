@@ -86,7 +86,8 @@ class musicdata:
 							logging.debug(u"Received string in {0}.  Converting to Unicode".format(v))
 							vars[v] = vars[v].decode()
 						else:
-							logging.debug(u"Received non-string type {0} in {1}.  Converting to null".format(type(vars[v]),v))
+							# This happens so often when playing from webradio that I'm disabling logging for now.
+#							logging.debug(u"Received non-string type {0} in {1}.  Converting to null".format(type(vars[v]),v))
 							vars[v] = u""
 					except KeyError:
 						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
