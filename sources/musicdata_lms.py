@@ -11,7 +11,7 @@ import musicdata
 class musicdata_lms(musicdata.musicdata):
 
 
-	def __init__(self, q, server='localhost', port=9090, user='', pwd='', player=''):
+	def __init__(self, q, server=u'localhost', port=9090, user=u'', pwd=u'', player=u''):
 		super(musicdata_lms, self).__init__(q)
 		self.server = server
 		self.port = port
@@ -178,53 +178,53 @@ class musicdata_lms(musicdata.musicdata):
 
 		state = self.dataplayer.get_mode()
 
-		if state != "play":
-			self.musicdata['state'] = u"stop"
+		if state != u"play":
+			self.musicdata[u'state'] = u"stop"
 		else:
 
-			self.musicdata['state'] = u"play"
+			self.musicdata[u'state'] = u"play"
 
 		# Update values
-		self.musicdata['artist'] = urllib.unquote(str(self.dataplayer.request("artist ?", True))).decode('utf-8')
-		self.musicdata['title'] = urllib.unquote(str(self.dataplayer.request("title ?", True))).decode('utf-8')
-		self.musicdata['album'] = urllib.unquote(str(self.dataplayer.request("album ?", True))).decode('utf-8')
+		self.musicdata[u'artist'] = urllib.unquote(str(self.dataplayer.request("artist ?", True))).decode('utf-8')
+		self.musicdata[u'title'] = urllib.unquote(str(self.dataplayer.request("title ?", True))).decode('utf-8')
+		self.musicdata[u'album'] = urllib.unquote(str(self.dataplayer.request("album ?", True))).decode('utf-8')
 
-		self.musicdata['volume'] = self.dataplayer.get_volume()
+		self.musicdata[u'volume'] = self.dataplayer.get_volume()
 
-		self.musicdata['elapsed'] = int(self.dataplayer.get_time_elapsed())
-		self.musicdata['length'] = int(self.dataplayer.get_track_duration())
+		self.musicdata[u'elapsed'] = int(self.dataplayer.get_time_elapsed())
+		self.musicdata[u'length'] = int(self.dataplayer.get_track_duration())
 
 		# For backwards compatibility
-		self.musicdata['current'] = self.musicdata['elapsed']
-		self.musicdata['duration'] = self.musicdata['length']
+		self.musicdata[u'current'] = self.musicdata[u'elapsed']
+		self.musicdata[u'duration'] = self.musicdata[u'length']
 
 		playlist_mode = int(self.dataplayer.request("playlist repeat ?", True))
 		if playlist_mode == 0:
-			self.musicdata['single'] = self.musicdata['repeat'] = False
+			self.musicdata[u'single'] = self.musicdata[u'repeat'] = False
 		elif playlist_mode == 1:
-			self.musicdata['single'] = True
-			self.musicdata['repeat'] = False
+			self.musicdata[u'single'] = True
+			self.musicdata[u'repeat'] = False
 		elif playlist_mode == 2:
-			self.musicdata['single'] = False
-			self.musicdata['repeat'] = True
+			self.musicdata[u'single'] = False
+			self.musicdata[u'repeat'] = True
 		else:
 			logging.debug(u"Unexpected value received when querying playlist mode status (e.g. single, repeat)")
-			self.musicdata['single'] = self.musicdata['repeat'] = False
+			self.musicdata[u'single'] = self.musicdata[u'repeat'] = False
 
 		shuffle_mode = int(self.dataplayer.request("playlist shuffle ?", True))
 		if shuffle_mode == 0:
-			self.musicdata['random'] = False
+			self.musicdata[u'random'] = False
 		elif shuffle_mode == 1 or shuffle_mode == 2:
-			self.musicdata['random'] = True
+			self.musicdata[u'random'] = True
 		else:
 			logging.debug(u"Unexpected value received when querying playlist shuffle status")
-			self.musicdata['random'] =  False
+			self.musicdata[u'random'] =  False
 
 
-		plp = self.musicdata['playlist_position'] = int(self.dataplayer.request("playlist index ?"))+1
-		plc = self.musicdata['playlist_length'] = self.dataplayer.playlist_track_count()
+		plp = self.musicdata[u'playlist_position'] = int(self.dataplayer.request("playlist index ?"))+1
+		plc = self.musicdata[u'playlist_length'] = self.dataplayer.playlist_track_count()
 		# For backwards compatibility
-		self.musicdata['playlist_count'] = self.musicdata['playlist_length']
+		self.musicdata[u'playlist_count'] = self.musicdata[u'playlist_length']
 
 		playlist_display = u"{0}/{1}".format(plp, plc)
 		# If the track count is greater than 1, we are playing from a playlist and can display track position and track count
@@ -234,7 +234,7 @@ class musicdata_lms(musicdata.musicdata):
 		elif plc == 1:
 			try:
 				# if streaming
-				if self.dataplayer.playlist_get_info()[0]['duration'] == 0.0:
+				if self.dataplayer.playlist_get_info()[0][u'duration'] == 0.0:
 					playlist_display = u"Radio"
 				# it really is a short playlist
 				else:
@@ -246,91 +246,91 @@ class musicdata_lms(musicdata.musicdata):
 			logging.debug(u"In LMS track length is <= 0")
 			playlist_display = u""
 
-		self.musicdata['playlist_display'] = playlist_display
+		self.musicdata[u'playlist_display'] = playlist_display
 
-		self.musicdata['musicdatasource'] = u"LMS"
+		self.musicdata[u'musicdatasource'] = u"LMS"
 
 		url = self.dataplayer.get_track_path().decode()
-		self.musicdata['uri'] = url
+		self.musicdata[u'uri'] = url
 
 		urlp = urlparse.urlparse(url)
-		if urlp.scheme.lower() == 'wimp':
-			self.musicdata['actPlayer'] = u'tidal'
-		elif urlp.scheme.lower() == 'http':
+		if urlp.scheme.lower() == u'wimp':
+			self.musicdata[u'actPlayer'] = u'tidal'
+		elif urlp.scheme.lower() == u'http':
 			# Extract out domain name
 			try:
-				self.musicdata['actPlayer'] = urlp.netloc.split('.')[len(urlp.netloc.split('.'))-2]
+				self.musicdata[u'actPlayer'] = urlp.netloc.split(u'.')[len(urlp.netloc.split(u'.'))-2]
 			except IndexError:
-				self.musicdata['actPlayer'] = urlp.netloc
+				self.musicdata[u'actPlayer'] = urlp.netloc
 		else:
-			self.musicdata['actPlayer'] = urlp.scheme
+			self.musicdata[u'actPlayer'] = urlp.scheme
 
 
 		# Get bitrate and tracktype if they are available.  Try blocks used to prevent array out of bounds exception if values are not found
 		try:
-			self.musicdata['bitrate'] = urllib.unquote(str(self.dataplayer.request("songinfo 2 1 url:"+url+" tags:r", True))).decode('utf-8').split("bitrate:", 1)[1]
+			self.musicdata[u'bitrate'] = urllib.unquote(str(self.dataplayer.request("songinfo 2 1 url:"+url+" tags:r", True))).decode(u'utf-8').split(u"bitrate:", 1)[1]
 		except:
-			self.musicdata['bitrate'] = u""
+			self.musicdata[u'bitrate'] = u""
 
 		try:
-			self.musicdata['encoding'] = urllib.unquote(str(self.dataplayer.request("songinfo 2 1 url:"+url+" tags:o", True))).decode('utf-8').split("type:",1)[1]
+			self.musicdata[u'encoding'] = urllib.unquote(str(self.dataplayer.request("songinfo 2 1 url:"+url+" tags:o", True))).decode(u'utf-8').split(u"type:",1)[1]
 		except:
-			self.musicdata['encoding'] = u""
+			self.musicdata[u'encoding'] = u""
 
-		self.musicdata['tracktype'] = self.musicdata['encoding']
+		self.musicdata[u'tracktype'] = self.musicdata[u'encoding']
 
 		# if duration is not available, then suppress its display
-		if int(self.musicdata['duration']) > 0:
-			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
-			remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
+		if int(self.musicdata[u'length']) > 0:
+			timepos = time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata[u'elapsed']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata[u'length'])))
+			remaining = time.strftime(u"%-M:%S", time.gmtime( int(self.musicdata[u'length']) - int(self.musicdata[u'elapsed']) ) )
 		else:
-			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
+			timepos = time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata[u'current'])))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining.decode()
-		self.musicdata['elapsed_formatted'] = timepos.decode()
+		self.musicdata[u'remaining'] = remaining.decode()
+		self.musicdata[u'elapsed_formatted'] = timepos.decode()
 
 		# For backwards compatibility
-		self.musicdata['position'] = self.musicdata['elapsed_formatted']
+		self.musicdata[u'position'] = self.musicdata[u'elapsed_formatted']
 
 		# UNSUPPORTED VARIABLES
-		self.musicdata['bitdepth'] = u""
-		self.musicdata['samplerate'] = u""
-		self.musicdata['channels'] = 0
+		self.musicdata[u'bitdepth'] = u""
+		self.musicdata[u'samplerate'] = u""
+		self.musicdata[u'channels'] = 0
 
 		self.validatemusicvars(self.musicdata)
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
 
-	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_lms.log', level=logging.DEBUG)
+	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=u'musicdata_lms.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hs:p:u:w:l:",["server=","port=","user=","pwd=","player="])
+		opts, args = getopt.getopt(sys.argv[1:],u"hs:p:u:w:l:",[u"server=",u"port=",u"user=",u"pwd=",u"player="])
 	except getopt.GetoptError:
 		print u'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
 		sys.exit(2)
 
 	# Set defaults
-	server = 'localhost'
+	server = u'localhost'
 	port = 9090
 	user = ''
-	pwd= ''
-	player = ''
+	pwd= u''
+	player = u''
 
 	for opt, arg in opts:
-		if opt == '-h':
+		if opt == u'-h':
 			print u'musicdata_lms.py -s <server> -p <port> -u <user> -w <password> -l <player>'
 			sys.exit()
-		elif opt in ("-s", "--server"):
+		elif opt in (u"-s", u"--server"):
 			server = arg
-		elif opt in ("-p", "--port"):
+		elif opt in (u"-p", u"--port"):
 			port = arg
-		elif opt in ("-u", "--user"):
+		elif opt in (u"-u", u"--user"):
 			user = arg
-		elif opt in ("-w", "--pwd"):
+		elif opt in (u"-w", u"--pwd"):
 			pwd = arg
-		elif opt in ("-l", "--player"):
+		elif opt in (u"-l", u"--player"):
 			player = arg
 
 
@@ -345,16 +345,16 @@ if __name__ == '__main__':
 				break;
 			try:
 				item = q.get(timeout=1000)
-				print "+++++++++"
+				print u"+++++++++"
 				for k,v in item.iteritems():
 					print u"[{0}] '{1}' type {2}".format(k,v,type(v))
-				print "+++++++++"
+				print u"+++++++++"
 				print
 				q.task_done()
 			except Queue.Empty:
 				pass
 	except KeyboardInterrupt:
-		print ''
+		print u''
 		pass
 
-	print "Exiting..."
+	print u"Exiting..."

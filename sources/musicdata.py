@@ -57,12 +57,12 @@ class musicdata:
 	}
 
 	varcheck = {
-		'unicode':
-			[ 'state', 'actPlayer', 'musicdatasource', 'album', 'artist', 'title', 'uri', 'encoding', 'tracktype', 'bitdepth', 'bitrate', 'samplerate', 'elapsed_formatted', 'remaining', 'playlist_display', 'my_name' ],
-		'bool':
-			[ 'random', 'single', 'repeat' ],
-		'int':
-			[ 'channels', 'length', 'elapsed', 'playlist_position', 'playlist_length' ]
+		u'unicode':
+			[ u'state', u'actPlayer', u'musicdatasource', u'album', u'artist', u'title', u'uri', u'encoding', u'tracktype', u'bitdepth', u'bitrate', u'samplerate', u'elapsed_formatted', u'remaining', u'playlist_display', u'my_name' ],
+		u'bool':
+			[ u'random', u'single', u'repeat' ],
+		u'int':
+			[ u'channels', u'length', u'elapsed', u'playlist_position', u'playlist_length' ]
 	}
 
 
@@ -75,7 +75,7 @@ class musicdata:
 
 		for vtype, members in self.varcheck.iteritems():
 
-			if vtype == 'unicode':
+			if vtype == u'unicode':
 				for v in members:
 					try:
 						if type(vars[v]) is unicode:
@@ -92,7 +92,7 @@ class musicdata:
 					except KeyError:
 						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
 						vars[v] = u""
-			elif vtype == 'bool':
+			elif vtype == u'bool':
 				for v in members:
 					try:
 						if type(vars[v]) is bool:
@@ -108,7 +108,7 @@ class musicdata:
 					except KeyError:
 						logging.debug(u"Missing required value {0}.  Adding empty version".format(v))
 						vars[v] = False
-			elif vtype == 'int':
+			elif vtype == u'int':
 				for v in members:
 					try:
 						if type(vars[v]) is int:
@@ -133,44 +133,44 @@ class musicdata:
 		# url - url of the station
 
 		# Only check for a radio station name if you are actively playing a track
-		if self.musicdata['state'] != u'play':
+		if self.musicdata[u'state'] != u'play':
 			return u''
 
 		retval = u''
-		logging.debug("Trying to get radio station name from {0}".format(url))
+		logging.debug(u"Trying to get radio station name from {0}".format(url))
 		with contextlib.closing(urllib2.urlopen(url)) as page:
 			cnt = 20
 			for line in page:
 				cnt -= 1
-				if line.startswith('#EXTINF:'):
+				if line.startswith(u'#EXTINF:'):
 					try:
-						retval = line.split('#EXTINF:')[1].split(',')[1].split(')')[1].strip()
+						retval = line.split(u'#EXTINF:')[1].split(',')[1].split(')')[1].strip()
 					except IndexError:
 						try:
-							retval = line.split('#EXTINF:')[1].split(',')[0].split(')')[1].strip()
+							retval = line.split(u'#EXTINF:')[1].split(',')[0].split(')')[1].strip()
 						except IndexError:
 							retval = u''
 					if retval != u'':
 						if retval is unicode:
-							logging.debug("Found {0}".format(retval))
+							logging.debug(u"Found {0}".format(retval))
 							return retval
 						else:
 							try:
-								logging.debug("Found {0}".format(retval))
+								logging.debug(u"Found {0}".format(retval))
 								return retval.decode()
 							except:
-								logging.debug("Not sure what I found {0}".format(retval))
+								logging.debug(u"Not sure what I found {0}".format(retval))
 								return u''
-				elif line.startswith('Title1='):
+				elif line.startswith(u'Title1='):
 					try:
-						retval = line.split('Title1=')[1].split(':')[1:2][0]
+						retval = line.split(u'Title1=')[1].split(':')[1:2][0]
 					except:
-						retval = line.split('Title1=')[0]
-					retval = retval.split('(')[0].strip()
+						retval = line.split(u'Title1=')[0]
+					retval = retval.split(u'(')[0].strip()
 					return retval.decode()
 
 				if cnt == 0: break
-			logging.debug("Didn't find a M3U header at {0}".format(url))
+			logging.debug(u"Didn't find a M3U header at {0}".format(url))
 
 
 	def sendUpdate(self):
@@ -185,7 +185,7 @@ class musicdata:
 		# Send md to queue if anything has changed
 		if len(md) > 0:
 			# elapsed is special as it needs to be sent to guarantee that the timer gets updated correctly.  Even if it hasn't changed, send it anyway
-			md['elapsed'] = self.musicdata['elapsed']
+			md[u'elapsed'] = self.musicdata[u'elapsed']
 			self.dataqueue.put(md)
 
 			# Update musicdata_prev

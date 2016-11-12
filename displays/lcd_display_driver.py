@@ -85,22 +85,22 @@ class lcd_display_driver:
 			# BLINKON - Turns blinking on
 			# BLINKOFF - Turns blinking off
 
-		if cmd == "CLEAR":
+		if cmd == u"CLEAR":
 			self.clear()
-		elif cmd == "DISPLAYON":
+		elif cmd == u"DISPLAYON":
 			self.displayon()
-		elif cmd == "DISPLAYOFF":
+		elif cmd == u"DISPLAYOFF":
 			self.displayoff()
-		elif cmd == "CURSORON":
+		elif cmd == u"CURSORON":
 			self.cursoron()
-		elif cmd == "CURSOROFF":
+		elif cmd == u"CURSOROFF":
 			self.cursoroff()
-		elif cmd == "BLINKON":
+		elif cmd == u"BLINKON":
 			self.blinkon()
-		elif cmd == "BLINKOFF":
+		elif cmd == u"BLINKOFF":
 			self.blinkoff()
 		else:
-			raise RuntimeError('Command {0} not supported'.format(cmd))
+			raise RuntimeError(u'Command {0} not supported'.format(cmd))
 
 	@abc.abstractmethod
 	def cleanup(self):

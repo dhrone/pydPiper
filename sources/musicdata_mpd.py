@@ -11,7 +11,7 @@ class musicdata_mpd(musicdata.musicdata):
 
 
 
-	def __init__(self, q, server='localhost', port=6600, pwd=''):
+	def __init__(self, q, server=u'localhost', port=6600, pwd=u''):
 		super(musicdata_mpd, self).__init__(q)
 		self.server = server
 		self.port = port
@@ -120,145 +120,145 @@ class musicdata_mpd(musicdata.musicdata):
 			# Caught something else.  Report it and then inform calling function that the connection is bad
 			e = sys.exc_info()[0]
 			logging.debug(u"Caught {0} trying to get status".format(e))
-			raise RuntimeError("Could not get status from MPD")
+			raise RuntimeError(u"Could not get status from MPD")
 
 
 
-		state = status.get('state')
-		if state != "play":
-			self.musicdata['state'] = u"stop"
+		state = status.get(u'state')
+		if state != u"play":
+			self.musicdata[u'state'] = u"stop"
 		else:
-			self.musicdata['state'] = u"play"
+			self.musicdata[u'state'] = u"play"
 
 		# Update remaining variables
-		self.musicdata['artist'] = current_song['artist'] if 'artist' in current_song else u""
-		self.musicdata['title'] = current_song['title'] if 'title' in current_song else u""
-		self.musicdata['album'] = current_song['album'] if 'album' in current_song else u""
-		self.musicdata['volume'] = self.intn(status['volume']) if 'volume' in status else 0
-		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'repeat' in status else False
-		self.musicdata['random'] = bool(self.intn(status['random'])) if 'random' in status else False
-		self.musicdata['single'] = bool(self.intn(status['single'])) if 'single' in status else False
-		self.musicdata['uri'] = current_song['file'] if 'file' in current_song else u""
+		self.musicdata[u'artist'] = current_song[u'artist'] if u'artist' in current_song else u""
+		self.musicdata[u'title'] = current_song[u'title'] if u'title' in current_song else u""
+		self.musicdata[u'album'] = current_song[u'album'] if u'album' in current_song else u""
+		self.musicdata[u'volume'] = self.intn(status[u'volume']) if u'volume' in status else 0
+		self.musicdata[u'repeat'] = bool(self.intn(status[u'repeat'])) if u'repeat' in status else False
+		self.musicdata[u'random'] = bool(self.intn(status[u'random'])) if u'random' in status else False
+		self.musicdata[u'single'] = bool(self.intn(status[u'single'])) if u'single' in status else False
+		self.musicdata[u'uri'] = current_song[u'file'] if u'file' in current_song else u""
 
 
 		# status['time'] is formatted as "current:duration" e.g. "24:243"
 		# split time into current and duration
-		temptime = status['time'] if 'time' in status else u'0:0'
-		(self.musicdata['elapsed'], self.musicdata['length']) = temptime.split(':')
+		temptime = status[u'time'] if u'time' in status else u'0:0'
+		(self.musicdata[u'elapsed'], self.musicdata[u'length']) = temptime.split(u':')
 
-		self.musicdata['elapsed'] = int(self.musicdata['elapsed'])
-		self.musicdata['length'] = int(self.musicdata['length'])
+		self.musicdata[u'elapsed'] = int(self.musicdata[u'elapsed'])
+		self.musicdata[u'length'] = int(self.musicdata[u'length'])
 
 		# for backwards compatibility
-		self.musicdata['current'] = self.musicdata['elapsed']
-		self.musicdata['duration'] = self.musicdata['length']
+		self.musicdata[u'current'] = self.musicdata[u'elapsed']
+		self.musicdata[u'duration'] = self.musicdata[u'length']
 
-		self.musicdata['actPlayer'] = u"MPD"
-		self.musicdata['musicdatasource'] = u"MPD"
+		self.musicdata[u'actPlayer'] = u"MPD"
+		self.musicdata[u'musicdatasource'] = u"MPD"
 
-		if self.musicdata['uri'].split(':')[0] == 'http':
+		if self.musicdata[u'uri'].split(u':')[0] == u'http':
 			encoding = u'webradio'
 		else:
-			encoding = self.musicdata['uri'].split(':')[0]
+			encoding = self.musicdata[u'uri'].split(u':')[0]
 
-		self.musicdata['encoding'] = encoding
+		self.musicdata[u'encoding'] = encoding
 
-		self.musicdata['bitrate'] = u"{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
+		self.musicdata[u'bitrate'] = u"{0} kbps".format(status[u'bitrate']) if u'bitrate' in status else u""
 
-		plp = self.musicdata['playlist_position'] = int(status['song'])+1 if 'song' in status else 0
-		plc = self.musicdata['playlist_length'] = int(status['playlistlength']) if 'playlistlength' in status else 0
+		plp = self.musicdata[u'playlist_position'] = int(status[u'song'])+1 if u'song' in status else 0
+		plc = self.musicdata[u'playlist_length'] = int(status[u'playlistlength']) if u'playlistlength' in status else 0
 
 		# For Backwards compatibility
-		self.musicdata['playlist_count'] = self.musicdata['playlist_length']
+		self.musicdata[u'playlist_count'] = self.musicdata[u'playlist_length']
 
 		# If playlist is length 1 and the song playing is from an http source it is streaming
-		if self.musicdata['encoding'] == 'webradio':
-			self.musicdata['playlist_display'] = u"Radio"
-			self.musicdata['artist'] = current_song['name'] if 'name' in current_song else u""
+		if self.musicdata[u'encoding'] == u'webradio':
+			self.musicdata[u'playlist_display'] = u"Radio"
+			self.musicdata[u'artist'] = current_song[u'name'] if u'name' in current_song else u""
 		else:
-				self.musicdata['playlist_display'] = u"{0}/{1}".format(self.musicdata['playlist_position'], self.musicdata['playlist_count'])
+				self.musicdata[u'playlist_display'] = u"{0}/{1}".format(self.musicdata[u'playlist_position'], self.musicdata[u'playlist_count'])
 
-		audio = status['audio'] if 'audio' in status else None
+		audio = status[u'audio'] if u'audio' in status else None
 		bitdepth = u""
 		samplerate = u""
 		chnum = 0
 
-		if self.musicdata['encoding']:
-			tracktype = self.musicdata['encoding']
+		if self.musicdata[u'encoding']:
+			tracktype = self.musicdata[u'encoding']
 		else:
 			tracktype = u"MPD"
 
 		if audio is not None:
-			audio = audio.split(':')
+			audio = audio.split(u':')
 			if len(audio) == 3:
 				sample = round(float(audio[0])/1000,1)
 			 	bits = audio[1]
 				chnum = int(audio[2])
-			 	if audio[2] == '1':
-					channels = 'Mono'
-			 	elif audio[2] == '2':
-				 	channels = 'Stereo'
+			 	if audio[2] == u'1':
+					channels = u'Mono'
+			 	elif audio[2] == u'2':
+				 	channels = u'Stereo'
 			 	elif int(audio[2]) > 2:
-				 	channels = 'Multi'
+				 	channels = u'Multi'
 			 	else:
 				 	channels = u""
 
-		 		tracktype = u"{0} {1} {2} bit {3} kHz".format(self.musicdata['encoding'], channels, bits, sample).strip()
+		 		tracktype = u"{0} {1} {2} bit {3} kHz".format(self.musicdata[u'encoding'], channels, bits, sample).strip()
 
 				bitdepth = u"{0} bits".format(bits)
 				samplerate = u"{0} kHz".format(sample)
 
-		self.musicdata['tracktype'] = tracktype
-		self.musicdata['bitdepth'] = bitdepth
-		self.musicdata['samplerate'] = samplerate
-		self.musicdata['channels'] = chnum
+		self.musicdata[u'tracktype'] = tracktype
+		self.musicdata[u'bitdepth'] = bitdepth
+		self.musicdata[u'samplerate'] = samplerate
+		self.musicdata[u'channels'] = chnum
 
 		# if duration is not available, then suppress its display
-		if int(self.musicdata['duration']) > 0:
-			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['duration'])))
-			remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['duration']) - int(self.musicdata['current']) ) )
+		if int(self.musicdata[u'length']) > 0:
+			timepos = time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata[u'elapsed']))) + u"/" + time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata[u'length'])))
+			remaining = time.strftime(u"%-M:%S", time.gmtime( int(self.musicdata[u'length']) - int(self.musicdata[u'elapsed']) ) )
 		else:
-			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['current'])))
+			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed'])))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining.decode()
-		self.musicdata['elapsed_formatted'] = timepos.decode()
+		self.musicdata[u'remaining'] = remaining.decode()
+		self.musicdata[u'elapsed_formatted'] = timepos.decode()
 
 		# For backwards compatibility
-		self.musicdata['position'] = self.musicdata['elapsed_formatted']
+		self.musicdata[u'position'] = self.musicdata[u'elapsed_formatted']
 
 		self.validatemusicvars(self.musicdata)
 
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
 
-	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_mpd.log', level=logging.DEBUG)
+	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=u'musicdata_mpd.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
 	# Suppress MPD libraries INFO messages
-	loggingMPD = logging.getLogger("mpd")
+	loggingMPD = logging.getLogger(u"mpd")
 	loggingMPD.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hs:p:w:",["server=","port=","pwd="])
+		opts, args = getopt.getopt(sys.argv[1:],u"hs:p:w:",[u"server=",u"port=",u"pwd="])
 	except getopt.GetoptError:
-		print 'musicdata_mpd.py -s <server> -p <port> -w <password>'
+		print u'musicdata_mpd.py -s <server> -p <port> -w <password>'
 		sys.exit(2)
 
 	# Set defaults
-	server = 'localhost'
+	server = u'localhost'
 	port = 6600
-	pwd= ''
+	pwd= u''
 
 	for opt, arg in opts:
-		if opt == '-h':
-			print 'musicdata_mpd.py -s <server> -p <port> -w <password>'
+		if opt == u'-h':
+			print u'musicdata_mpd.py -s <server> -p <port> -w <password>'
 			sys.exit()
-		elif opt in ("-s", "--server"):
+		elif opt in (u"-s", u"--server"):
 			server = arg
-		elif opt in ("-p", "--port"):
+		elif opt in (u"-p", u"--port"):
 			port = arg
-		elif opt in ("-w", "--pwd"):
+		elif opt in (u"-w", u"--pwd"):
 			pwd = arg
 
 	q = Queue.Queue()
@@ -271,17 +271,16 @@ if __name__ == '__main__':
 				break;
 			try:
 				item = q.get(timeout=1000)
-				print "+++++++++"
+				print u"+++++++++"
 				for k,v in item.iteritems():
 					print u"[{0}] '{1}' type {2}".format(k,v,type(v))
-
-				print "+++++++++"
+				print u"+++++++++"
 				print
 				q.task_done()
 			except Queue.Empty:
 				pass
 	except KeyboardInterrupt:
-		print ''
+		print u''
 		pass
 
-	print "Exiting..."
+	print u"Exiting..."

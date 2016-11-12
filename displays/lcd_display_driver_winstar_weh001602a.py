@@ -298,7 +298,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 		# Only 8 special characters allowed with the Winstar
 
 		if len(fontdata) + char > 8:
-			logging.debug("Can not load fontset at position {0}.  Not enough room left".format(char))
+			logging.debug(u"Can not load fontset at position {0}.  Not enough room left".format(char))
 			raise IndexError
 
 		# Set pointer to position char in CGRAM

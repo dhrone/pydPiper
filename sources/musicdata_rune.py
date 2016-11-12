@@ -9,7 +9,7 @@ import musicdata
 
 class musicdata_rune(musicdata.musicdata):
 
-	def __init__(self, q, server='localhost', port=6379, pwd=''):
+	def __init__(self, q, server=u'localhost', port=6379, pwd=u''):
 		super(musicdata_rune, self).__init__(q)
 		self.server = server
 		self.port = port
@@ -34,16 +34,16 @@ class musicdata_rune(musicdata.musicdata):
 
 		while True:
 			if self.connection_failed >= 10:
-				logging.debug("Could not connect to Rune Redis service")
-				raise RuntimeError("Could not connect to Rune Redis service")
+				logging.debug(u"Could not connect to Rune Redis service")
+				raise RuntimeError(u"Could not connect to Rune Redis service")
 			try:
 				# Connection to REDIS
 				client = redis.StrictRedis(self.server, self.port, self.pwd)
 
 				# Configure REDIS to send keyspace messages for set events
-				client.config_set('notify-keyspace-events', 'KEA')
+				client.config_set(u'notify-keyspace-events', u'KEA')
 				self.dataclient = client
-				logging.debug("Connected to Rune Redis service")
+				logging.debug(u"Connected to Rune Redis service")
 				break
 			except:
 				self.dataclient = None
@@ -60,7 +60,7 @@ class musicdata_rune(musicdata.musicdata):
 			self.pubsub = self.dataclient.pubsub(ignore_subscribe_messages=True)
 
 			# Subscribe to act_player_info keyspace events
-			self.pubsub.psubscribe('__key*__:act_player_info')
+			self.pubsub.psubscribe(u'__key*__:act_player_info')
 		except redis.ConnectionError:
 			self.connect()
 
@@ -69,11 +69,11 @@ class musicdata_rune(musicdata.musicdata):
 			self.pubsub = self.dataclient.pubsub(ignore_subscribe_messages=True)
 
 			# Subscribe to act_player_info keyspace events
-			self.pubsub.subscribe('__key*__:act_player_info')
+			self.pubsub.subscribe(u'__key*__:act_player_info')
 
 	def run(self):
 
-		logging.debug("RUNE musicdata service starting")
+		logging.debug(u"RUNE musicdata service starting")
 
 		while True:
 			if self.dataclient is None:
@@ -100,7 +100,7 @@ class musicdata_rune(musicdata.musicdata):
 				# if we lose our connection while trying to query DB
 				# sleep 5 and then return to top to try again
 				self.dataclient = None
-				logging.debug("Could not get status from Rune Redis service")
+				logging.debug(u"Could not get status from Rune Redis service")
 				time.sleep(5)
 				continue
 
@@ -108,92 +108,92 @@ class musicdata_rune(musicdata.musicdata):
 	def status(self):
 		# Read musicplayer status and update musicdata
 		try:
-			msg = self.dataclient.get('act_player_info')
+			msg = self.dataclient.get(u'act_player_info')
 			status = json.loads(msg)
 		except ValueError:
 			logging.debug(u"Bad status message received.  Contents were {0}".format(msg))
-			raise RuntimeError("Bad status message received.")
+			raise RuntimeError(u"Bad status message received.")
 		except:
 			# Caught something else.  Report it and then inform calling function that the connection is bad
 			e = sys.exc_info()[0]
 			logging.debug(u"Caught {0} trying to get status from Rune".format(e))
-			raise RuntimeError("Could not get status from Rune")
+			raise RuntimeError(u"Could not get status from Rune")
 
 
 
-		state = status.get('state')
-		if state != "play":
-			self.musicdata['state'] = u"stop"
+		state = status.get(u'state')
+		if state != u"play":
+			self.musicdata[u'state'] = u"stop"
 		else:
-			self.musicdata['state'] = u"play"
+			self.musicdata[u'state'] = u"play"
 
 		# Update remaining variables
-		self.musicdata['artist'] = status['currentartist'] if 'currentartist' in status else u""
-		self.musicdata['title'] = status['currentsong'] if 'currentsong' in status else u""
-		self.musicdata['album'] = status['currentalbum'] if 'currentalbum' in status else u""
-		self.musicdata['volume'] = self.intn(status['volume']) if 'volume' in status else 0
-		self.musicdata['length'] = self.intn(status['time']) if 'time' in status else 0
-		self.musicdata['elapsed'] = self.intn(status['elapsed']) if 'elapsed' in status else 0
-		self.musicdata['actPlayer'] = status['actPlayer'] if 'actPlayer' in status else u""
-		self.musicdata['single'] = bool(self.intn(status['single'])) if 'single' in status else False
-		self.musicdata['random'] = bool(self.intn(status['random'])) if 'random' in status else False
-		self.musicdata['repeat'] = bool(self.intn(status['repeat'])) if 'repeat' in status else False
-		self.musicdata['musicdatasource'] = u"Rune"
+		self.musicdata[u'artist'] = status[u'currentartist'] if u'currentartist' in status else u""
+		self.musicdata[u'title'] = status[u'currentsong'] if u'currentsong' in status else u""
+		self.musicdata[u'album'] = status[u'currentalbum'] if u'currentalbum' in status else u""
+		self.musicdata[u'volume'] = self.intn(status[u'volume']) if u'volume' in status else 0
+		self.musicdata[u'length'] = self.intn(status[u'time']) if u'time' in status else 0
+		self.musicdata[u'elapsed'] = self.intn(status[u'elapsed']) if u'elapsed' in status else 0
+		self.musicdata[u'actPlayer'] = status[u'actPlayer'] if u'actPlayer' in status else u""
+		self.musicdata[u'single'] = bool(self.intn(status[u'single'])) if u'single' in status else False
+		self.musicdata[u'random'] = bool(self.intn(status[u'random'])) if u'random' in status else False
+		self.musicdata[u'repeat'] = bool(self.intn(status[u'repeat'])) if u'repeat' in status else False
+		self.musicdata[u'musicdatasource'] = u"Rune"
 
 		# For backwards compatibility
-		self.musicdata['duration'] = self.musicdata['length']
-		self.musicdata['current'] = self.musicdata['elapsed']
+		self.musicdata[u'duration'] = self.musicdata[u'length']
+		self.musicdata[u'current'] = self.musicdata[u'elapsed']
 
 		# Set default values
-		self.musicdata['samplerate'] = u""
-		self.musicdata['bitrate'] = u""
-		self.musicdata['channels'] = 0
-		self.musicdata['bitdepth'] = u""
-		self.musicdata['tracktype'] = u""
-		self.musicdata['encoding'] = u""
-		self.musicdata['tracktype'] = u""
+		self.musicdata[u'samplerate'] = u""
+		self.musicdata[u'bitrate'] = u""
+		self.musicdata[u'channels'] = 0
+		self.musicdata[u'bitdepth'] = u""
+		self.musicdata[u'tracktype'] = u""
+		self.musicdata[u'encoding'] = u""
+		self.musicdata[u'tracktype'] = u""
 
-		if self.musicdata['actPlayer'] == 'Spotify':
-			self.musicdata['bitrate'] = u"320 kbps"
-			plp = self.musicdata['playlist_position'] = self.intn(status['song'])+1 if 'song' in status else 0
-			plc = self.musicdata['playlist_length'] = self.intn(status['playlistlength']) if 'playlistlength' in status else 0
+		if self.musicdata[u'actPlayer'] == u'Spotify':
+			self.musicdata[u'bitrate'] = u"320 kbps"
+			plp = self.musicdata[u'playlist_position'] = self.intn(status[u'song'])+1 if u'song' in status else 0
+			plc = self.musicdata[u'playlist_length'] = self.intn(status[u'playlistlength']) if u'playlistlength' in status else 0
 
 			# For backwards compatibility
-			self.musicdata['playlist_count'] = self.musicdata['playlist_length']
+			self.musicdata[u'playlist_count'] = self.musicdata[u'playlist_length']
 
-			self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
-			self.musicdata['actPlayer'] = u"Spotify"
-			self.musicdata['tracktype'] = u"Spotify"
+			self.musicdata[u'playlist_display'] = u"{0}/{1}".format(plp, plc)
+			self.musicdata[u'actPlayer'] = u"Spotify"
+			self.musicdata[u'tracktype'] = u"Spotify"
 
-		elif self.musicdata['actPlayer'] == u'MPD':
-			plp = self.musicdata['playlist_position'] = self.intn(status['song'])+1 if 'song' in status else 0
-			plc = self.musicdata['playlist_count'] = self.intn(status['playlistlength']) if 'playlistlength' in status else 0
+		elif self.musicdata[u'actPlayer'] == u'MPD':
+			plp = self.musicdata[u'playlist_position'] = self.intn(status[u'song'])+1 if u'song' in status else 0
+			plc = self.musicdata[u'playlist_count'] = self.intn(status[u'playlistlength']) if u'playlistlength' in status else 0
 
-			self.musicdata['bitrate'] = u"{0} kbps".format(status['bitrate']) if 'bitrate' in status else u""
+			self.musicdata[u'bitrate'] = u"{0} kbps".format(status[u'bitrate']) if u'bitrate' in status else u""
 
 			# if radioname is None then this is coming from a playlist (e.g. not streaming)
-			if status.get('radioname') == None:
-				self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
+			if status.get(u'radioname') == None:
+				self.musicdata[u'playlist_display'] = u"{0}/{1}".format(plp, plc)
 			else:
-				self.musicdata['playlist_display'] = u"Radio"
+				self.musicdata[u'playlist_display'] = u"Radio"
 				# if artist is empty, place radioname in artist field
-				if self.musicdata['artist'] == u"" or self.musicdata['artist'] is None:
-					self.musicdata['artist'] = status['radioname'] if 'radioname' in status else u""
+				if self.musicdata[u'artist'] == u"" or self.musicdata[u'artist'] is None:
+					self.musicdata[u'artist'] = status[u'radioname'] if u'radioname' in status else u""
 
 
-			audio = status['audio'] if 'audio' in status else None
+			audio = status[u'audio'] if u'audio' in status else None
 			chnum = 0
 			if audio is None:
 				tracktype = u"MPD"
 			else:
-				audio = audio.split(':')
+				audio = audio.split(u':')
 				if len(audio) == 3:
 					sample = round(float(audio[0])/1000,1)
 				 	bits = audio[1]
 					chnum = int(audio[2])
-				 	if audio[2] == '1':
+				 	if audio[2] == u'1':
 						channels = u'Mono'
-				 	elif audio[2] == '2':
+				 	elif audio[2] == u'2':
 					 	channels = u'Stereo'
 				 	elif int(audio[2]) > 2:
 					 	channels = u'Multi'
@@ -208,65 +208,65 @@ class musicdata_rune(musicdata.musicdata):
 					# If audio information not available just send that MPD is the source
 					tracktype = u"MPD"
 
-			self.musicdata['tracktype'] = tracktype
-			self.musicdata['channels'] = chnum
+			self.musicdata[u'tracktype'] = tracktype
+			self.musicdata[u'channels'] = chnum
 
-		elif self.musicdata['actPlayer'] == u'Airplay':
-			self.musicdata['playlist_position'] = 1
-			self.musicdata['playlist_count'] = 1
-			self.musicdata['tracktype'] = u"Airplay"
-			self.musicdata['playlist_display'] = u"Aplay"
+		elif self.musicdata[u'actPlayer'] == u'Airplay':
+			self.musicdata[u'playlist_position'] = 1
+			self.musicdata[u'playlist_count'] = 1
+			self.musicdata[u'tracktype'] = u"Airplay"
+			self.musicdata[u'playlist_display'] = u"Aplay"
 
 		else:
 			# Unexpected player type
 			logging.debug(u"Unexpected player type {0} discovered".format(actPlayer))
-			self.musicdata['playlist_position'] = 1
-			self.musicdata['playlist_count'] = 1
-			self.musicdata['tracktype'] = actPlayer
-			self.musicdata['playlist_display'] = u"Radio"
+			self.musicdata[u'playlist_position'] = 1
+			self.musicdata[u'playlist_count'] = 1
+			self.musicdata[u'tracktype'] = actPlayer
+			self.musicdata[u'playlist_display'] = u"Radio"
 
 		# if duration is not available, then suppress its display
-		if int(self.musicdata['length']) > 0:
-			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed']))) + "/" + time.strftime("%-M:%S", time.gmtime(int(self.musicdata['length'])))
-			remaining = time.strftime("%-M:%S", time.gmtime( int(self.musicdata['length']) - int(self.musicdata['elapsed']) ) )
+		if int(self.musicdata[u'length']) > 0:
+			timepos = time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata[u'elapsed']))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata[u'length'])))
+			remaining = time.strftime(u"%-M:%S", time.gmtime( int(self.musicdata[u'length']) - int(self.musicdata[u'elapsed']) ) )
 		else:
-			timepos = time.strftime("%-M:%S", time.gmtime(int(self.musicdata['elapsed'])))
+			timepos = time.strftime(u"%-M:%S", time.gmtime(int(self.musicdata[u'elapsed'])))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining.decode()
-		self.musicdata['elapsed_formatted'] = timepos.decode()
+		self.musicdata[u'remaining'] = remaining.decode()
+		self.musicdata[u'elapsed_formatted'] = timepos.decode()
 
 		# For backwards compatibility
-		self.musicdata['position'] = self.musicdata['elapsed_formatted']
+		self.musicdata[u'position'] = self.musicdata[u'elapsed_formatted']
 
 		self.validatemusicvars(self.musicdata)
 
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
 
-	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_rune.log', level=logging.DEBUG)
+	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=u'musicdata_rune.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hs:p:w:",["server=","port=","pwd="])
+		opts, args = getopt.getopt(sys.argv[1:],u"hs:p:w:",[u"server=",u"port=",u"pwd="])
 	except getopt.GetoptError:
-		print 'musicdata_rune.py -s <server> -p <port> -w <password>'
+		print u'musicdata_rune.py -s <server> -p <port> -w <password>'
 		sys.exit(2)
 
 	# Set defaults
-	server = 'localhost'
+	server = u'localhost'
 	port = 6379
-	pwd= ''
+	pwd= u''
 
 	for opt, arg in opts:
-		if opt == '-h':
-			print 'musicdata_rune.py -s <server> -p <port> -w <password>'
+		if opt == u'-h':
+			print u'musicdata_rune.py -s <server> -p <port> -w <password>'
 			sys.exit()
-		elif opt in ("-s", "--server"):
+		elif opt in (u"-s", u"--server"):
 			server = arg
-		elif opt in ("-p", "--port"):
+		elif opt in (u"-p", u"--port"):
 			port = arg
-		elif opt in ("-w", "--pwd"):
+		elif opt in (u"-w", u"--pwd"):
 			pwd = arg
 
 
@@ -290,7 +290,7 @@ if __name__ == '__main__':
 			except Queue.Empty:
 				pass
 	except KeyboardInterrupt:
-		print ''
+		print u''
 		pass
 
 	print u"Exiting..."

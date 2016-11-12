@@ -1,4 +1,4 @@
-__all__ = [ "musicdata_lms", "musicdata_mpd", "musicdata_spop", "musicdata_rune", "musicdata_volumio2" ]
+__all__ = [ u"musicdata_lms", u"musicdata_mpd", u"musicdata_spop", u"musicdata_rune", u"musicdata_volumio2" ]
 
 
 try:

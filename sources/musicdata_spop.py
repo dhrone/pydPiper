@@ -10,7 +10,7 @@ import musicdata
 class musicdata_spop(musicdata.musicdata):
 
 
-	def __init__(self, q, server='localhost', port=6602, pwd=''):
+	def __init__(self, q, server=u'localhost', port=6602, pwd=u''):
 		super(musicdata_spop, self).__init__(q)
 		self.server = server
 		self.port = port
@@ -42,8 +42,8 @@ class musicdata_spop(musicdata.musicdata):
 			if self.idle_state:
 				try:
 					#self.dataclient.noidle()
-					self.dataclient.write("notify\n")
-					self.dataclient.read_until("\n")
+					self.dataclient.write(u"notify\n")
+					self.dataclient.read_until(u"\n")
 				except (IOError, AttributeError):
 					# If not idle (or not created yet) return to sleeping
 					pass
@@ -115,93 +115,93 @@ class musicdata_spop(musicdata.musicdata):
 		# Read musicplayer status and update musicdata
 
 		try:
-			self.dataclient.write("status\n")
+			self.dataclient.write(u"status\n")
 			msg = self.dataclient.read_until("\n").strip()
 			status = json.loads(msg)
 		except (IOError, ValueError):
 			logging.debug(u"Bad status message received.  Contents were {0}".format(msg))
-			raise RuntimeError("Bad status message received.")
+			raise RuntimeError(u"Bad status message received.")
 		except:
 			# Caught something else.  Report it and then inform calling function that the connection is bad
 			e = sys.exc_info()[0]
 			logging.debug(u"Caught {0} trying to get status from SPOP".format(e))
-			raise RuntimeError("Could not get status from SPOP")
+			raise RuntimeError(u"Could not get status from SPOP")
 
-		state = status.get('status')
-		if state != "playing":
-			self.musicdata['state'] = u"stop"
+		state = status.get(u'status')
+		if state != u"playing":
+			self.musicdata[u'state'] = u"stop"
 		else:
-			self.musicdata['state'] = u"play"
+			self.musicdata[u'state'] = u"play"
 
 		# Update remaining variables
-		self.musicdata['artist'] = status['artist'] if 'artist' in status else u""
-		self.musicdata['title'] = status['title'] if 'title' in status else u""
-		self.musicdata['album'] = status['album'] if 'album' in status else u""
-		self.musicdata['volume'] = 0
-		self.musicdata['length'] = self.intn(status['duration']/1000) if 'duration' in status else 0
-		self.musicdata['elapsed'] = self.intn(status['position']) if 'position' in status else 0
-		self.musicdata['playlist_position'] = self.intn(status['current_track']) if 'current_track' in status else 0
-		self.musicdata['playlist_length'] = self.musicdata['playlist_count'] = self.intn(status['total_tracks']) if 'total_tracks' in status else 0
-		self.musicdata['uri'] = status['uri'] if 'uri' in status else u""
-		self.musicdata['repeat'] = status['repeat'] if 'repeat' in status else False
-		self.musicdata['random'] = status['shuffle'] if 'shuffle' in status else False
+		self.musicdata[u'artist'] = status[u'artist'] if u'artist' in status else u""
+		self.musicdata[u'title'] = status[u'title'] if u'title' in status else u""
+		self.musicdata[u'album'] = status[u'album'] if u'album' in status else u""
+		self.musicdata[u'volume'] = 0
+		self.musicdata[u'length'] = self.intn(status[u'duration']/1000) if u'duration' in status else 0
+		self.musicdata[u'elapsed'] = self.intn(status[u'position']) if u'position' in status else 0
+		self.musicdata[u'playlist_position'] = self.intn(status[u'current_track']) if u'current_track' in status else 0
+		self.musicdata[u'playlist_length'] = self.musicdata[u'playlist_count'] = self.intn(status[u'total_tracks']) if u'total_tracks' in status else 0
+		self.musicdata[u'uri'] = status[u'uri'] if u'uri' in status else u""
+		self.musicdata[u'repeat'] = status[u'repeat'] if u'repeat' in status else False
+		self.musicdata[u'random'] = status[u'shuffle'] if u'shuffle' in status else False
 
-		self.musicdata['single'] = False # Not support in SPOP
+		self.musicdata[u'single'] = False # Not support in SPOP
 
-		self.musicdata['current'] = self.musicdata['elapsed']
-		self.musicdata['duration'] = self.musicdata['length']
+		self.musicdata[u'current'] = self.musicdata[u'elapsed']
+		self.musicdata[u'duration'] = self.musicdata[u'length']
 
-		self.musicdata['actPlayer'] = u"SPOP"
-		self.musicdata['musicdatasource'] = u"SPOP"
+		self.musicdata[u'actPlayer'] = u"SPOP"
+		self.musicdata[u'musicdatasource'] = u"SPOP"
 
-		self.musicdata['bitrate'] = u""
-		self.musicdata['tracktype'] = u""
+		self.musicdata[u'bitrate'] = u""
+		self.musicdata[u'tracktype'] = u""
 
-		plp = self.musicdata['playlist_position']
-		plc = self.musicdata['playlist_length']
+		plp = self.musicdata[u'playlist_position']
+		plc = self.musicdata[u'playlist_length']
 
-		if self.musicdata['length'] > 0:
-			timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['length']))
-			remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['length'] - self.musicdata['duration'] ) )
+		if self.musicdata[u'length'] > 0:
+			timepos = time.strftime(u"%-M:%S", time.gmtime(self.musicdata[u'elapsed'])) + "/" + time.strftime(u"%-M:%S", time.gmtime(self.musicdata[u'length']))
+			remaining = time.strftime(u"%-M:%S", time.gmtime(self.musicdata[u'length'] - self.musicdata[u'duration'] ) )
 
 		else:
-			timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed']))
+			timepos = time.strftime(u"%-M:%S", time.gmtime(self.musicdata[u'elapsed']))
 			remaining = timepos
 
-		self.musicdata['remaining'] = remaining.decode()
-		self.musicdata['elapsed_formatted'] = self.musicdata['position'] = timepos.decode()
+		self.musicdata[u'remaining'] = remaining.decode()
+		self.musicdata[u'elapsed_formatted'] = self.musicdata[u'position'] = timepos.decode()
 
-		self.musicdata['playlist_display'] = u"{0}/{1}".format(plp, plc)
-		self.musicdata['tracktype'] = u"SPOP"
+		self.musicdata[u'playlist_display'] = u"{0}/{1}".format(plp, plc)
+		self.musicdata[u'tracktype'] = u"SPOP"
 
 		self.validatemusicvars(self.musicdata)
 
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
 
-	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename='musicdata_spop.log', level=logging.DEBUG)
+	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=u'musicdata_spop.log', level=logging.DEBUG)
 	logging.getLogger().addHandler(logging.StreamHandler())
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hs:p:w:",["server=","port=","pwd="])
+		opts, args = getopt.getopt(sys.argv[1:],u"hs:p:w:",[u"server=",u"port=",u"pwd="])
 	except getopt.GetoptError:
-		print 'musicdata_spop.py -s <server> -p <port> -w <password>'
+		print u'musicdata_spop.py -s <server> -p <port> -w <password>'
 		sys.exit(2)
 
 	# Set defaults
-	server = 'localhost'
+	server = u'localhost'
 	port = 6602
-	pwd= ''
+	pwd= u''
 
 	for opt, arg in opts:
-		if opt == '-h':
-			print 'musicdata_spop.py -s <server> -p <port> -w <password>'
+		if opt == u'-h':
+			print u'musicdata_spop.py -s <server> -p <port> -w <password>'
 			sys.exit()
-		elif opt in ("-s", "--server"):
+		elif opt in (u"-s", u"--server"):
 			server = arg
-		elif opt in ("-p", "--port"):
+		elif opt in (u"-p", u"--port"):
 			port = arg
-		elif opt in ("-w", "--pwd"):
+		elif opt in (u"-w", u"--pwd"):
 			pwd = arg
 
 
@@ -216,16 +216,16 @@ if __name__ == '__main__':
 				break;
 			try:
 				item = q.get(timeout=1000)
-				print "+++++++++"
+				print u"+++++++++"
 				for k,v in item.iteritems():
 					print u"[{0}] '{1}' type {2}".format(k,v,type(v))
-				print "+++++++++"
+				print u"+++++++++"
 				print
 				q.task_done()
 			except Queue.Empty:
 				pass
 	except KeyboardInterrupt:
-		print ''
+		print u''
 		pass
 
-	print "Exiting..."
+	print u"Exiting..."

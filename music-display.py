@@ -31,7 +31,7 @@ class display_controller(threading.Thread):
 		self.current_lines = [ ]
 
 		# Load default font
-		self.lcd.switchcustomchars(displays.fonts.map.map('default'))
+		self.lcd.switchcustomchars(displays.fonts.map.map(u'default'))
 
 
 	def scrollwindow(self, segment, window, direction, resetscrollposition=False):
@@ -42,20 +42,20 @@ class display_controller(threading.Thread):
 		#				It then reverses the scroll until the start of value reaches the left edge of the display
 
 		if resetscrollposition:
-			segment['scrollposition'] = 0
-			segment['hesitate_timer'] = time.time() + music_display_config.HESITATION_TIME
+			segment[u'scrollposition'] = 0
+			segment[u'hesitate_timer'] = time.time() + music_display_config.HESITATION_TIME
 
 
 		# Get current scroll position
-		sp = segment['scrollposition'] if 'scrollposition' in segment else 0
+		sp = segment[u'scrollposition'] if u'scrollposition' in segment else 0
 
 		# Get hesitate time value
 		try:
-			hesitate_timer = segment['hesitate_timer']
+			hesitate_timer = segment[u'hesitate_timer']
 		except KeyError:
-			segment['hesitate_timer'] = hesitate_timer = time.time() + music_display_config.HESITATION_TIME
+			segment[u'hesitate_timer'] = hesitate_timer = time.time() + music_display_config.HESITATION_TIME
 
-		value = segment['value'] if 'value' in segment else u''
+		value = segment[u'value'] if u'value' in segment else u''
 
 		try:
 			blank = music_display_config.SCROLL_BLANK_WIDTH
@@ -84,23 +84,23 @@ class display_controller(threading.Thread):
 
 		# If we need to scroll then update the scollposition
 		if len(value) > window and hesitate_timer < time.time():
-			if direction == 'left' or (direction == 'bounce' and cbounce == 'left'):
+			if direction == u'left' or (direction == u'bounce' and cbounce == u'left'):
 				if sp < len(value)+blank-1:
 					sp += 1
 				else:
-					cbounce = 'right'
-					if direction == 'left':
+					cbounce = u'right'
+					if direction == u'left':
 						sp = 0
-			elif direction =='right' or (direction == 'bounce' and cbounce == 'right'):
+			elif direction ==u'right' or (direction == u'bounce' and cbounce == u'right'):
 				if sp > 0:
 					sp -= 1
 				else:
-					cbounce = 'left'
-					if direction == 'right':
+					cbounce = u'left'
+					if direction == u'right':
 						sp = len(value)+blank-1
 
 			# Store current scroll position
-			segment['scrollposition'] = sp
+			segment[u'scrollposition'] = sp
 
 		# Return part of segment to display based upon scroll position
 		return buffer
@@ -112,16 +112,16 @@ class display_controller(threading.Thread):
 		pos = 0
 
 		for segment in segments:
-			start = segment['start'] if 'start' in segment else 0
-			end = segment['end'] if 'end' in segment else music_display_config.DISPLAY_WIDTH
-			scroll = segment['scroll'] if 'scroll' in segment else False
+			start = segment[u'start'] if u'start' in segment else 0
+			end = segment[u'end'] if u'end' in segment else music_display_config.DISPLAY_WIDTH
+			scroll = segment[u'scroll'] if u'scroll' in segment else False
 			window = end-start
 			if start > pos:
 				buffer += u"{0:<{1}}".format('',start-pos)
 
-			value = segment['value'] if 'value' in segment else u''
+			value = segment[u'value'] if u'value' in segment else u''
 			if scroll:
-				direction = segment['scrolldirection'] if 'scrolldirection' in segment else 'left'
+				direction = segment[u'scrolldirection'] if u'scrolldirection' in segment else u'left'
 				buffer += self.scrollwindow(segment, window, direction, resetscrollpositions)
 			else:
 				buffer += value[0:window]
@@ -146,14 +146,14 @@ class display_controller(threading.Thread):
 			self.displayqueue.task_done()
 
 			# if the first item is a font change request, process that and then try again
-			if qitem['type'] == 'font':
+			if qitem[u'type'] == u'font':
 				self.lcd.clear()
-				self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
-			elif qitem['type'] == 'display':
-				lines_value_current = qitem['lines']
+				self.lcd.switchcustomchars(displays.fonts.map.map(qitem[u'font']))
+			elif qitem[u'type'] == u'display':
+				lines_value_current = qitem[u'lines']
 				break
 			else:
-				logging.debug(u"Unexpected displayqueue message {0}".format(qitem['type']))
+				logging.debug(u"Unexpected displayqueue message {0}".format(qitem[u'type']))
 
 		self.lcd.clear()
 
@@ -167,7 +167,7 @@ class display_controller(threading.Thread):
 		# Zero values in segments so initial update will occur
 		for line in lines_value_prev:
 			for segment in line:
-				segment['value'] = u''
+				segment[u'value'] = u''
 
 
 		# Initialize the time display got updated
@@ -187,7 +187,7 @@ class display_controller(threading.Thread):
 
 					for segnr in range(0,len(lines_value_current[linenr])):
 						try:
-							if lines_value_current[linenr][segnr]['value'] != lines_value_prev[linenr][segnr]['value']:
+							if lines_value_current[linenr][segnr][u'value'] != lines_value_prev[linenr][segnr][u'value']:
 								line_changed = True
 								break
 						except (KeyError, IndexError):
@@ -215,9 +215,9 @@ class display_controller(threading.Thread):
 					qitem=self.displayqueue.get_nowait()
 					self.displayqueue.task_done()
 
-					if qitem['type'] == 'font':
+					if qitem[u'type'] == u'font':
 						self.lcd.clear()
-						self.lcd.switchcustomchars(displays.fonts.map.map(qitem['font']))
+						self.lcd.switchcustomchars(displays.fonts.map.map(qitem[u'font']))
 
 						linebuffers = [ ]
 						lines_value_current = [ ]
@@ -225,9 +225,9 @@ class display_controller(threading.Thread):
 						for i in range(0,self.lcd.rows):
 							linebuffers.append('')
 
-					elif qitem['type'] == 'display':
+					elif qitem[u'type'] == u'display':
 #						lines_value_current = qitem['lines']
-						new_lines = qitem['lines']
+						new_lines = qitem[u'lines']
 
 						# Need to make sure not to overwrite lines_value_current unless new_lines is coming from a new page
 						# If this is just a value update, then determine what has changed and update just that
@@ -244,11 +244,11 @@ class display_controller(threading.Thread):
 											# If any key has changed, update lines_value_current and set scroll position to 0
 											if ps[k] != v:
 												ps[k] = v
-												ps['scrollposition'] = 0
+												ps[u'scrollposition'] = 0
 										else:
 											# If they key is not there, add it to lines_value_current and set scroll position to 0
 											ps[k] = v
-											ps['scrollposition'] = 0
+											ps[u'scrollposition'] = 0
 						except:
 							# Structure of new_lines and lines_value_current is different
 							# Need to reset lines_value_current to new values
@@ -261,7 +261,7 @@ class display_controller(threading.Thread):
 
 						break
 					else:
-						logging.debug(u"Unexpected displayqueue message {0}".format(qitem['type']))
+						logging.debug(u"Unexpected displayqueue message {0}".format(qitem[u'type']))
 
 			# if no item available then...
 			except Queue.Empty:
@@ -345,26 +345,26 @@ class music_controller(threading.Thread):
 	def initservices(self):
 
 		# Make sure that if rune is selected that is is the only service that is selected
-		if "rune" in self.servicelist and len(self.servicelist) > 1:
-			logging.critical("Rune service can only be used alone")
-			raise RuntimeError("Rune service can only be used alone")
-		if "volumio" in self.servicelist and len(self.servicelist) > 1:
-			logging.critical("Volumio service can only be used alone")
-			raise RuntimeError("Volumio service can only be used alone")
+		if u"rune" in self.servicelist and len(self.servicelist) > 1:
+			logging.critical(u"Rune service can only be used alone")
+			raise RuntimeError(u"Rune service can only be used alone")
+		if u"volumio" in self.servicelist and len(self.servicelist) > 1:
+			logging.critical(u"Volumio service can only be used alone")
+			raise RuntimeError(u"Volumio service can only be used alone")
 
 		musicservice = None
 		for s in self.servicelist:
 			s = s.lower()
 			try:
-				if s == "mpd":
+				if s == u"mpd":
 					musicservice = sources.musicdata_mpd.musicdata_mpd(self.musicqueue, music_display_config.MPD_SERVER, music_display_config.MPD_PORT, music_display_config.MPD_PASSWORD)
-				elif s == "spop":
+				elif s == u"spop":
 					musicservice = sources.musicdata_spop.musicdata_spop(self.musicqueue, music_display_config.SPOP_SERVER, music_display_config.SPOP_PORT, music_display_config.SPOP_PASSWORD)
-				elif s == "lms":
+				elif s == u"lms":
 					musicservice = sources.musicdata_lms.musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
-				elif s == "rune":
+				elif s == u"rune":
 					musicservice = sources.musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
-				elif s == "volumio":
+				elif s == u"volumio":
 					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT, exitapp )
 				else:
 					logging.debug(u"Unsupported music service {0} requested".format(s))
@@ -406,15 +406,15 @@ class music_controller(threading.Thread):
 			for l in range(0,2):
 				if tc in u'0123456789':
 					for c in range(0,3):
-						retval[l] += chr(numbers[int(tc)][l][c])
+						retval[l] += unichr(numbers[int(tc)][l][c])
 				elif tc in u':':
-					retval[l] += 'o'
+					retval[l] += u'o'
 #				retval[l] += ' '
 
 		return retval
 
 
-	def volume_bar(self,vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
+	def volume_bar(self,vol_per, chars, fe=u'_', fh=u'/', ff=u'*', vle=u'_', vre=u'_', vrh=u'/'):
 		# Algorithm for computing the volume lines
 		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
 		ppb = percentperblock = 100.0 / chars
@@ -430,7 +430,7 @@ class music_controller(threading.Thread):
 		else:
 			# Shouldnt be here
 			logging.debug(u"Bad value in volume_bar")
-			buffer += 'Y'
+			buffer += u'Y'
 
 		for i in range(1, chars-1):
 			if vol_per <= (i+.25)*ppb:
@@ -442,7 +442,7 @@ class music_controller(threading.Thread):
 			else:
 				# Shouldnt be here
 				logging.debug(u"Bad value in volume_bar")
-				buffer += 'Y'
+				buffer += u'Y'
 
 		i = chars - 1
 		if vol_per <= (i+.25)*ppb:
@@ -454,7 +454,7 @@ class music_controller(threading.Thread):
 		else:
 			# Shouldnt be here
 			logging.debug(u"Bad value in volume_bar")
-			buffer += 'Y'
+			buffer += u'Y'
 
 
 		return buffer
@@ -481,11 +481,11 @@ class music_controller(threading.Thread):
 
 		# Reset all of the alert message cooling values
 		for pl in pages.ALERT_LIST:
-			pl['cooling_expires'] = 0
+			pl[u'cooling_expires'] = 0
 
 		# Force the system to recognize the start state as a change
 		#####  Need to determine how to force a display update on start-up #####
-		self.musicdata_prev['state'] = ""
+		self.musicdata_prev[u'state'] = ""
 
 		lastupdate = 0 # Initialize variable to be used to force updates every second regardless of the receipt of a source update
 		while not exitapp[0]:
@@ -506,39 +506,39 @@ class music_controller(threading.Thread):
 					self.musicdata[item] = value
 
 				# Update song timing variables
-				if 'elapsed' in updates:
-					self.musicdata['elapsed'] = self.musicdata['current'] = updates['elapsed']
-					timesongstarted = time.time() - self.musicdata['elapsed']
+				if u'elapsed' in updates:
+					self.musicdata[u'elapsed'] = self.musicdata[u'current'] = updates[u'elapsed']
+					timesongstarted = time.time() - self.musicdata[u'elapsed']
 
-				if self.musicdata['state'] == 'play':
-					if 'elapsed' not in updates:
+				if self.musicdata[u'state'] == u'play':
+					if u'elapsed' not in updates:
 						if timesongstarted > 0:
-							self.musicdata['elapsed'] = int(time.time() - timesongstarted)
+							self.musicdata[u'elapsed'] = int(time.time() - timesongstarted)
 						else:
 							# We got here without timesongstarted being set which is a problem...
-							logging.debug("Trying to update current song position with an uninitialized start time")
+							logging.debug(u"Trying to update current song position with an uninitialized start time")
 
 				# If the value of current has changed then update the other related timing variables
-				if self.musicdata['elapsed'] != self.musicdata_prev['elapsed']:
-					if self.musicdata['length'] > 0:
-						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata['length']))
-						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata['length'] - self.musicdata['elapsed'] ) )
+				if self.musicdata[u'elapsed'] != self.musicdata_prev[u'elapsed']:
+					if self.musicdata[u'length'] > 0:
+						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata[u'length']))
+						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'length'] - self.musicdata[u'elapsed'] ) )
 
 					else:
-						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata['elapsed']))
+						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'elapsed']))
 						remaining = timepos
 
-					self.musicdata['remaining'] = remaining.decode()
-					self.musicdata['elapsed_formatted'] = self.musicdata['position'] = timepos.decode()
+					self.musicdata[u'remaining'] = remaining.decode()
+					self.musicdata[u'elapsed_formatted'] = self.musicdata[u'position'] = timepos.decode()
 
 				# Update onoff variables (random, single, repeat)
-				self.musicdata['random_onoff'] = u"On" if self.musicdata['random'] else u"Off"
-				self.musicdata['single_onoff'] = u"On" if self.musicdata['single'] else u"Off"
-				self.musicdata['repeat_onoff'] = u"On" if self.musicdata['repeat'] else u"Off"
+				self.musicdata[u'random_onoff'] = u"On" if self.musicdata[u'random'] else u"Off"
+				self.musicdata[u'single_onoff'] = u"On" if self.musicdata[u'single'] else u"Off"
+				self.musicdata[u'repeat_onoff'] = u"On" if self.musicdata[u'repeat'] else u"Off"
 
 				# if volume has changed, update volume_bar_fancy
-				if 'volume' in updates:
-					self.musicdata['volume_bar_fancy'] = self.volume_bar(self.musicdata['volume'],
+				if u'volume' in updates:
+					self.musicdata[u'volume_bar_fancy'] = self.volume_bar(self.musicdata[u'volume'],
 					self.cols-2,
 					displays.fonts.size5x8.volume.e,
 					displays.fonts.size5x8.volume.h,
@@ -547,7 +547,7 @@ class music_controller(threading.Thread):
 					displays.fonts.size5x8.volume.er,
 					displays.fonts.size5x8.volume.hr )
 
-					self.musicdata['volume_bar_big'] = self.volume_bar(self.musicdata['volume'],
+					self.musicdata[u'volume_bar_big'] = self.volume_bar(self.musicdata[u'volume'],
 					self.cols-3,
 					displays.fonts.size5x8.speaker.e,
 					displays.fonts.size5x8.speaker.h,
@@ -562,7 +562,7 @@ class music_controller(threading.Thread):
 				self.updatepages()
 
 				if self.showupdates:
-					ctime = moment.utcnow().timezone("US/Eastern").strftime("%-I:%M:%S %p").strip()
+					ctime = moment.utcnow().timezone(u"US/Eastern").strftime("%-I:%M:%S %p").strip()
 					print u"Status at time {0}".format(ctime)
 
 					with self.musicdata_lock:
@@ -570,11 +570,11 @@ class music_controller(threading.Thread):
 							try:
 								print u"    [{0}]={1} {2}".format(item,repr(value), type(value))
 							except:
-								print "err"
+								print u"err"
 								print u"[{0}] =".format(item)
 								print type(value)
 								print repr(value)
-						print "\n"
+						print u"\n"
 
 				# Update musicdata_prev with anything that has changed
 #				if self.musicdata['current'] != self.musicdata_prev['current']:
@@ -598,17 +598,17 @@ class music_controller(threading.Thread):
 		# Use try block to skip page if variables are missing
 		try:
 			# Check to see what type of monitoring to perform
-			if pl['alert']['type'] == "change":
-				if self.musicdata[pl['alert']['variable']] != self.musicdata_prev[pl['alert']['variable']]:
+			if pl[u'alert'][u'type'] == u"change":
+				if self.musicdata[pl[u'alert'][u'variable']] != self.musicdata_prev[pl[u'alert'][u'variable']]:
 					# Some state changes cause variable changes like volume
 					# Check to see if these dependent variable changes
 					# should be suppressed
 					try:
-						if self.musicdata_prev['state'] == state or not pl['alert']['suppressonstatechange']:
-							if 'values' in pl['alert']:
-								if len(pl['alert']['values']) > 0:
-									for v in pl['alert']['values']:
-										if v == self.musicdata[pl['alert']['variable']]:
+						if self.musicdata_prev[u'state'] == state or not pl[u'alert'][u'suppressonstatechange']:
+							if u'values' in pl[u'alert']:
+								if len(pl[u'alert'][u'values']) > 0:
+									for v in pl[u'alert'][u'values']:
+										if v == self.musicdata[pl[u'alert'][u'variable']]:
 											return True
 								else:
 									return True
@@ -616,14 +616,14 @@ class music_controller(threading.Thread):
 								return True
 					except KeyError:
 						return False
-			elif pl['alert']['type'] == "above":
-				if self.musicdata[pl['alert']['variable']] > pl['alert']['values'][0]:
+			elif pl[u'alert'][u'type'] == u"above":
+				if self.musicdata[pl[u'alert'][u'variable']] > pl[u'alert'][u'values'][0]:
 					return True
-			elif pl['alert']['type'] == "below":
-				if self.musicdata[pl['alert']['variable']] < pl['alert']['values'][0]:
+			elif pl[u'alert'][u'type'] == u"below":
+				if self.musicdata[pl[u'alert'][u'variable']] < pl[u'alert'][u'values'][0]:
 					return True
-			elif pl['alert']['type'] == "range":
-				if self.musicdata[pl['alert']['variable']] > pl['alert']['values'][0] and self.musicdata[pl['alert']['variable']] < pl['alert']['values'][1]:
+			elif pl[u'alert'][u'type'] == u"range":
+				if self.musicdata[pl[u'alert'][u'variable']] > pl[u'alert'][u'values'][0] and self.musicdata[pl[u'alert'][u'variable']] < pl[u'alert'][u'values'][1]:
 					return True
 		except (KeyError, AttributeError, IndexError):
 			return False
@@ -634,48 +634,48 @@ class music_controller(threading.Thread):
 		self.current_pages = pl
 		self.current_page_number = 0
 		self.current_line_number = 0
-		self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['length']
+		self.page_expires = time.time() + self.current_pages[u'pages'][self.current_page_number][u'length']
 		self.curlines = []
 		self.hesitate_expires = []
 
 		# Set cooling expiry time.  If not coolingperiod directive, use default
 		try:
-			pl['cooling_expires'] = time.time() + pl['alert']['coolingperiod']
+			pl[u'cooling_expires'] = time.time() + pl[u'alert'][u'coolingperiod']
 		except KeyError:
 			try:
-				pl['cooling_expires'] = time.time() + music_display_config.COOLING_PERIOD
+				pl[u'cooling_expires'] = time.time() + music_display_config.COOLING_PERIOD
 			except AttributeError:
-				logging.debug("COOLING_PERIOD missing from music_display_config.py")
-				pl['cooling_expires'] = time.time() + 15
+				logging.debug(u"COOLING_PERIOD missing from music_display_config.py")
+				pl[u'cooling_expires'] = time.time() + 15
 
 
 	def movetonextpage(self):
 
 		# Move to next page and check to see if it should be displayed or hidden
-		for i in range(len(self.current_pages['pages'])):
+		for i in range(len(self.current_pages[u'pages'])):
 			self.current_page_number = self.current_page_number + 1
 
 			# if on last page, return to first page
-			if self.current_page_number > len(self.current_pages['pages'])-1:
+			if self.current_page_number > len(self.current_pages[u'pages'])-1:
 				self.current_page_number = 0
 
-			self.page_expires = time.time() + self.current_pages['pages'][self.current_page_number]['duration']
+			self.page_expires = time.time() + self.current_pages[u'pages'][self.current_page_number][u'duration']
 
-			cp = self.current_pages['pages'][self.current_page_number]
+			cp = self.current_pages[u'pages'][self.current_page_number]
 
-			hwe = cp['hidewhenempty'] if 'hidewhenempty' in cp else False
-			hwp = cp['hidewhenpresent'] if 'hidewhenpresent' in cp else False
+			hwe = cp[u'hidewhenempty'] if u'hidewhenempty' in cp else False
+			hwp = cp[u'hidewhenpresent'] if u'hidewhenpresent' in cp else False
 
 			# to prevent old pages format from causing problems, convert values to strings
 			if type(hwe) is bool:
-				hwe = str(hwe)
+				hwe = unicode(hwe)
 
 			if type(hwp) is bool:
-				hwp = str(hwp)
+				hwp = unicode(hwp)
 
-			if hwe.lower() == 'all' or hwe.lower() == 'true':
+			if hwe.lower() == u'all' or hwe.lower() == u'true':
 				allempty = True
-				hvars = cp['hidewhenemptyvars'] if 'hidewhenemptyvars' in cp else [ ]
+				hvars = cp[u'hidewhenemptyvars'] if u'hidewhenemptyvars' in cp else [ ]
 
 				for v in hvars:
 					try:
@@ -698,10 +698,10 @@ class music_controller(threading.Thread):
 						pass
 				if not allempty:
 					break
-			elif hwe.lower() == 'any':
+			elif hwe.lower() == u'any':
 				anyempty = False
 				try:
-					hvars = cp['hidewhenemptyvars']
+					hvars = cp[u'hidewhenemptyvars']
 				except KeyError:
 					hvars = [ ]
 
@@ -726,10 +726,10 @@ class music_controller(threading.Thread):
 				if not anyempty:
 					break
 
-			elif hwp.lower() == 'any':
+			elif hwp.lower() == u'any':
 				anypresent = False
 				try:
-					hvars = cp['hidewhenpresentvars']
+					hvars = cp[u'hidewhenpresentvars']
 				except KeyError:
 					hvars = [ ]
 
@@ -756,10 +756,10 @@ class music_controller(threading.Thread):
 				if not anypresent:
 					break
 
-			elif hwp.lower() == 'all' or hwp.lower() == 'true':
+			elif hwp.lower() == u'all' or hwp.lower() == u'true':
 				allpresent = True
 				try:
-					hvars = cp['hidewhenemptyvars']
+					hvars = cp[u'hidewhenemptyvars']
 				except KeyError:
 					hvars = [ ]
 
@@ -794,7 +794,7 @@ class music_controller(threading.Thread):
 		# then if variables are required a series of values seperated by '+' symbols
 
 
-		transforms = name.split('|')
+		transforms = name.split(u'|')
 		if len(transforms) == 0:
 			return ''
 		elif len(transforms) == 1:
@@ -803,38 +803,38 @@ class music_controller(threading.Thread):
 		retval = val
 		# Compute transforms
 		for i in range(1,len(transforms)):
-			transform_request = transforms[i].split('+')[0] # Pull request type away from variables
-			if transform_request in ['onoff','truefalse','yesno']:
+			transform_request = transforms[i].split(u'+')[0] # Pull request type away from variables
+			if transform_request in [u'onoff',u'truefalse',u'yesno']:
 				# Make sure input is a Boolean
 				if type(val) is bool:
 
-					if transform_request == 'onoff':
+					if transform_request == u'onoff':
 						retval = u'on' if val else u'off'
-					elif transform_request == 'truefalse':
+					elif transform_request == u'truefalse':
 						retval = u'true' if val else u'false'
-					elif transform_request == 'yesno':
+					elif transform_request == u'yesno':
 						retval = u'yes' if val else u'no'
 				else:
 					logging.debug(u"Request to perform boolean transform on {0} requires boolean input").format(name)
 					return val
-			elif transform_request in ['upper','capitalize','title','lower']:
+			elif transform_request in [u'upper',u'capitalize',u'title',u'lower']:
 				# These all require string input
 
 				if type(val) is str or type(val) is unicode:
 					if type(retval) is str:
 						retval = retval.decode()
-					if transform_request == 'upper':
+					if transform_request == u'upper':
 						retval = retval.upper()
-					elif transform_request == 'capitalize':
+					elif transform_request == u'capitalize':
 						retval = retval.capitalize()
-					elif transform_request == 'title':
+					elif transform_request == u'title':
 						retval = retval.title()
-					elif transform_request == 'lower':
+					elif transform_request == u'lower':
 						retval = retval.lower()
 				else:
 					logging.debug(u"Request to perform transform on {0} requires string input").format(name)
 					return val
-			elif transform_request in [ 'bigchars','bigplay' ]:
+			elif transform_request in [ u'bigchars',u'bigplay' ]:
 				# requires a string input
 				# bigchars requires a variable to specify which line of the msg to return
 
@@ -847,11 +847,11 @@ class music_controller(threading.Thread):
 
 				if len(tvalues) == 0:
 					# Requires at least one variable to specify line so will return error in retval
-					logging.debug("Expected one but received no variables")
+					logging.debug(u"Expected one but received no variables")
 					retval = u"Err"
 				else:
 
-					if transform_request == 'bigchars':
+					if transform_request == u'bigchars':
 						try:
 							if len(tvalues) == 2: # Request to add spaces between characters
 								es = u"{0:<{1}}".format('',int(tvalues[1]))
@@ -859,17 +859,17 @@ class music_controller(threading.Thread):
 
 							retval = displays.fonts.size5x8.bigchars.generate(val)[int(tvalues[0])]
 						except (IndexError, ValueError):
-							logging.debug("Bad value or line provided for bigchar")
+							logging.debug(u"Bad value or line provided for bigchar")
 							retval = u'Err'
-					elif transform_request == 'bigplay':
+					elif transform_request == u'bigplay':
 						try:
 							if len(tvalues) == 2: # Request to add spaces between characters
 								es = u"{0:<{1}}".format('',int(tvalues[1]))
 								val = es.join(val)
 
-							retval = displays.fonts.size5x8.bigplay.generate('symbol')[int(tvalues[0])] + '  ' + displays.fonts.size5x8.bigplay.generate('page')[int(tvalues[0])]
+							retval = displays.fonts.size5x8.bigplay.generate(u'symbol')[int(tvalues[0])] + '  ' + displays.fonts.size5x8.bigplay.generate(u'page')[int(tvalues[0])]
 						except (IndexError, ValueError):
-							logging.debug("Bad value or line provided for bigplay")
+							logging.debug(u"Bad value or line provided for bigplay")
 							retval = u'Err'
 
 
@@ -884,7 +884,7 @@ class music_controller(threading.Thread):
 		try:
 			for k in range(len(vars)):
 				try:
-					varname = vars[k].split('|')[0]
+					varname = vars[k].split(u'|')[0]
 					val = self.transformvariable(self.musicdata[varname], vars[k])
 #					if val is unicode:
 #						parms.append(val.encode('utf-8'))
@@ -903,16 +903,16 @@ class music_controller(threading.Thread):
 		try:
 			segval = format.format(*parms)
 		except:
-			logging.debug( "Var Error Format {0}, Parms {1} Vars {2}".format(format, parms, vars) )
+			logging.debug( u"Var Error Format {0}, Parms {1} Vars {2}".format(format, parms, vars) )
 			# Format doesn't match available variables
-			logging.debug("Var Error with parm type {0} and format type {1}".format(type(parms), type(format)))
+			logging.debug(u"Var Error with parm type {0} and format type {1}".format(type(parms), type(format)))
 			segval = u"VarErr"
 
 		# justify segment
 		try:
-			if just.lower() == "center":
+			if just.lower() == u"center":
 				segval = u"{0:^{1}}".format(segval, end-start)
-			elif just.lower() == "right":
+			elif just.lower() == u"right":
 				segval = u"{0:>{1}}".format(segval, end-start)
 		except KeyError:
 			pass
@@ -924,14 +924,14 @@ class music_controller(threading.Thread):
 	def updatepages(self):
 
 		# Using PAGES variables, compute what to display
-		state = self.musicdata.get('state')
+		state = self.musicdata.get(u'state')
 
 		self.alert_check = False
 
 		# Check to see if any alerts are triggered
 		for pl in pages.ALERT_LIST:
 			# Check to see if alert is in its cooling period
-			if pl['cooling_expires'] < time.time():
+			if pl[u'cooling_expires'] < time.time():
 				# Use try block to skip page if variables are missing
 				try:
 					self.alert_check = self.checkalert(pl, state)
@@ -953,21 +953,21 @@ class music_controller(threading.Thread):
 		# Set interruptible value.  If value not present, set to default value of True
 		try:
 			# interruptible is only an override until the page expires.  If page expires, allow page updates to continue.
-			interruptible = self.current_pages['interruptible']
+			interruptible = self.current_pages[u'interruptible']
 			if self.page_expires < time.time():
 				interruptible = True
 
 				# if page just expired on an alert page then force restore to current play state
 				if self.alert_mode:
 					self.alert_mode = False
-					self.musicdata_prev['state'] = ""
+					self.musicdata_prev[u'state'] = u""
 			else:
-				interruptible = self.current_pages['interruptible']
+				interruptible = self.current_pages[u'interruptible']
 		except KeyError:
 			interruptible = True
 
 		# check to see if we need to change the display to something new
-		if (self.alert_mode or state != self.musicdata_prev['state']) and interruptible:
+		if (self.alert_mode or state != self.musicdata_prev[u'state']) and interruptible:
 			self.current_page_number = -1
 			self.current_line_number = 0
 			self.page_expires = 0
@@ -976,10 +976,10 @@ class music_controller(threading.Thread):
 
 			# if change caused by state change and not alert
 			if self.alert_mode == False:
-				self.musicdata_prev['state'] = state
+				self.musicdata_prev[u'state'] = state
 
 				# Set to new display page
-				if state != "play":
+				if state != u"play":
 					self.current_pages = pages.PAGES_Stop
 				# else display the PAGES_Playing pages
 				else:
@@ -990,14 +990,14 @@ class music_controller(threading.Thread):
 			self.movetonextpage()
 
 		# Set current_page
-		current_page = self.current_pages['pages'][self.current_page_number]
+		current_page = self.current_pages[u'pages'][self.current_page_number]
 
 		# Change the font if requested
-		if 'font' in current_page:
-			if self.current_font != current_page['font']:
-				self.current_font = current_page['font']
+		if u'font' in current_page:
+			if self.current_font != current_page[u'font']:
+				self.current_font = current_page[u'font']
 
-				dispval = { 'type': 'font', 'font': current_page['font'] }
+				dispval = { u'type': u'font', u'font': current_page[u'font'] }
 
 				# Send font update to the queue
 				self.displayqueue.put(dispval)
@@ -1017,41 +1017,41 @@ class music_controller(threading.Thread):
 		#]
 
 		lines = []
-		for i in range(len(current_page['lines'])):
-			pagename = current_page['name'] if 'name' in current_page else "unknown"
-			current_line = current_page['lines'][i]
-			linename = current_line['name'] if 'name' in current_line else "unknown"
+		for i in range(len(current_page[u'lines'])):
+			pagename = current_page[u'name'] if u'name' in current_page else u"unknown"
+			current_line = current_page[u'lines'][i]
+			linename = current_line[u'name'] if u'name' in current_line else u"unknown"
 
 			segments = []
 
 			# If no segments in line, create line with one segment based upon the line level variables then add it to lines and go to next loop iteration
-			if 'segments' not in current_line:
+			if u'segments' not in current_line:
 				segment = { }
 
-				segment['start'] = 0
-				segment['end'] = self.cols
-				segment['variables'] = vars = current_line['variables'] if 'variables' in current_line else [ ]
-				segment['format'] = current_line['format'] if 'format' in current_line else u""
-				segment['justification'] = justification = current_line['justification'] if 'justification' in current_line else "left"
-				segment['scroll'] = scroll = current_line['scroll'] if 'scroll' in current_line else False
-				segment['scrolldirection'] = scrolldirection = current_line['scrolldirection'] if 'scrolldirection' in current_line else "left"
+				segment[u'start'] = 0
+				segment[u'end'] = self.cols
+				segment[u'variables'] = vars = current_line[u'variables'] if u'variables' in current_line else [ ]
+				segment[u'format'] = current_line[u'format'] if u'format' in current_line else u""
+				segment[u'justification'] = justification = current_line[u'justification'] if u'justification' in current_line else u"left"
+				segment[u'scroll'] = scroll = current_line[u'scroll'] if u'scroll' in current_line else False
+				segment[u'scrolldirection'] = scrolldirection = current_line[u'scrolldirection'] if u'scrolldirection' in current_line else u"left"
 
 				# Make sure format is a unicode value
-				if type(segment['format']) is not unicode:
+				if type(segment[u'format']) is not unicode:
 					try:
-						segment['format'] = segment['format'].decode()
+						segment[u'format'] = segment[u'format'].decode()
 					except:
 						logging.debug(u"On page {0}, line {1}, there is a segment with a bad format key".format(pagename, linename))
-						segment['format'] = 'FmtErr'
+						segment[u'format'] = u'FmtErr'
 
-				format = segment['format']
+				format = segment[u'format']
 
-				strftime = current_line['strftime'] if 'strftime' in current_line else "%-I:%M %p"
+				strftime = current_line[u'strftime'] if u'strftime' in current_line else u"%-I:%M %p"
 
 				if music_display_config.TIME24HOUR:
-					bigclockformat = "%H:%M"
+					bigclockformat = u"%H:%M"
 				else:
-					bigclockformat = "%I:%M"
+					bigclockformat = u"%I:%M"
 
 				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
 				bigclockoutput = self.bigclock(bigclockinput)
@@ -1059,15 +1059,15 @@ class music_controller(threading.Thread):
 				current_time_ampm = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%p").strip().decode()
 
 				with self.musicdata_lock:
-					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
-					self.musicdata['time_big_1'] = bigclockoutput[0]
-					self.musicdata['time_big_2'] = bigclockoutput[1]
-					self.musicdata['time_ampm'] = current_time_ampm
+					self.musicdata[u'time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata[u'time_big_1'] = bigclockoutput[0]
+					self.musicdata[u'time_big_2'] = bigclockoutput[1]
+					self.musicdata[u'time_ampm'] = current_time_ampm
 
 					# To support previous key used for this purpose
-					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
+					self.musicdata[u'current_time_formatted'] = self.musicdata[u'time_formatted']
 
-				segment['value'] = self.getsegmentvalue(vars, format, justification, segment['start'], segment['end'])
+				segment[u'value'] = self.getsegmentvalue(vars, format, justification, segment[u'start'], segment[u'end'])
 
 				segments.append(segment)
 				lines.append(segments)
@@ -1076,74 +1076,74 @@ class music_controller(threading.Thread):
 
 			segment_start = 0
 
-			for j in range(0, len(current_line['segments'])):
-				current_segment = current_line['segments'][j]
-				segname = current_segment['name'] if 'name' in current_segment else "unknown"
+			for j in range(0, len(current_line[u'segments'])):
+				current_segment = current_line[u'segments'][j]
+				segname = current_segment[u'name'] if u'name' in current_segment else u"unknown"
 
 				segment = { }
 
 				# Need to make sure start and end are available
-				segment['start'] = current_segment['start'] if 'start' in current_segment else 0
-				segment['end'] = current_segment['end'] if 'end' in current_segment else self.cols
+				segment[u'start'] = current_segment[u'start'] if u'start' in current_segment else 0
+				segment[u'end'] = current_segment[u'end'] if u'end' in current_segment else self.cols
 
 
-				segment['variables'] = variables = current_segment['variables'] if 'variables' in current_segment else [ ]
-				segment['format'] = current_segment['format'] if 'format' in current_segment else u""
-				segment['justification'] = justification = current_segment['justification'] if 'justification' in current_segment else "left"
-				segment['scroll'] = scroll = current_segment['scroll'] if 'scroll' in current_segment else False
-				segment['scrolldirection'] = scrolldirection = current_segment['scrolldirection'] if 'scrolldirection' in current_segment else "left"
+				segment[u'variables'] = variables = current_segment[u'variables'] if u'variables' in current_segment else [ ]
+				segment[u'format'] = current_segment[u'format'] if u'format' in current_segment else u""
+				segment[u'justification'] = justification = current_segment[u'justification'] if u'justification' in current_segment else u"left"
+				segment[u'scroll'] = scroll = current_segment[u'scroll'] if u'scroll' in current_segment else False
+				segment[u'scrolldirection'] = scrolldirection = current_segment[u'scrolldirection'] if u'scrolldirection' in current_segment else u"left"
 
 				# Make sure format is a unicode value
-				if type(segment['format']) is not unicode:
+				if type(segment[u'format']) is not unicode:
 					try:
-						segment['format'] = segment['format'].decode()
+						segment[u'format'] = segment[u'format'].decode()
 					except:
 						logging.debug(u"On page {0}, line {1}, there is a segment with a bad format key".format(pagename, linename))
-						segment['format'] = 'FmtErr'
+						segment[u'format'] = u'FmtErr'
 
-				format = segment['format']
+				format = segment[u'format']
 
 				# Check placement on line
-				if segment['start'] < segment_start:
+				if segment[u'start'] < segment_start:
 					# This segment starts before the end of the previous segment
 					# Skip it
-					logging.debug("Found a segment that starts before the end of a previous segment on page {0}, segment {1}".format(pagename,segname))
+					logging.debug(u"Found a segment that starts before the end of a previous segment on page {0}, segment {1}".format(pagename,segname))
 					continue
 
 				# Crop line if end past the current display width
-				if segment['end'] <= self.cols:
-					current_segment['end'] = segment['end']
+				if segment[u'end'] <= self.cols:
+					current_segment[u'end'] = segment[u'end']
 				else:
-					current_segment['end'] = self.cols
-					logging.debug("Cropping segment from page {0}, segment {1} to display width".format(pagename, segname))
+					current_segment[u'end'] = self.cols
+					logging.debug(u"Cropping segment from page {0}, segment {1} to display width".format(pagename, segname))
 
 				# Update the current start position so we can detect if the next segment starts after this one
-				segment_start = current_segment['end']
+				segment_start = current_segment[u'end']
 
 				# If you have specified a strftime format on the segment
 				# use it to add a formatted time to musicdata
 				# else use 12 hour clock as default
 
 				if music_display_config.TIME24HOUR:
-					bigclockformat = "%H:%M"
+					bigclockformat = u"%H:%M"
 				else:
-					bigclockformat = "%I:%M"
+					bigclockformat = u"%I:%M"
 
 				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
 				bigclockoutput = self.bigclock(bigclockinput)
 
-				strftime = current_segment['strftime'] if 'strftime' in current_segment else "%-I:%M %p"
+				strftime = current_segment[u'strftime'] if u'strftime' in current_segment else u"%-I:%M %p"
 
 				with self.musicdata_lock:
-					self.musicdata['time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
-					self.musicdata['time_big_1'] = bigclockoutput[0]
-					self.musicdata['time_big_2'] = bigclockoutput[1]
+					self.musicdata[u'time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata[u'time_big_1'] = bigclockoutput[0]
+					self.musicdata[u'time_big_2'] = bigclockoutput[1]
 
 					# To support previous key used for this purpose
-					self.musicdata['current_time_formatted'] = self.musicdata['time_formatted']
+					self.musicdata[u'current_time_formatted'] = self.musicdata[u'time_formatted']
 
 
-				segment['value'] = self.getsegmentvalue(variables, format, justification, segment['start'], segment['end'])
+				segment[u'value'] = self.getsegmentvalue(variables, format, justification, segment[u'start'], segment[u'end'])
 
 				# Add segment to array of segments
 				segments.append(segment)
@@ -1175,26 +1175,26 @@ class music_controller(threading.Thread):
 #				dispval['lines'].append(lines[i][0:self.cols])
 
 		# Send dispval to the queue
-		dispval = { 'type': 'display', 'lines': lines }
+		dispval = { u'type': u'display', u'lines': lines }
 		self.displayqueue.put(dispval)
 
 	def updatesystemvars(self):
 		while True:
 			try:
-				current_time_ampm = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%p").strip().decode()
+				current_time_ampm = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%p").strip().decode()
 				if music_display_config.TIME24HOUR == True:
-					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M").strip().decode()
-					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%H:%M:%S").strip().decode()
+					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%H:%M").strip().decode()
+					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%H:%M:%S").strip().decode()
 				else:
-					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M %p").strip().decode()
-					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%-I:%M:%S %p").strip().decode()
+					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%-I:%M %p").strip().decode()
+					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%-I:%M:%S %p").strip().decode()
 			except ValueError:
 				# Don't know why but on exit, the moment code is occasionally throwing a ValueError
 				current_time = u"00:00"
 				current_time_sec = u"00:00:00"
 				current_time_ampm = u''
 
-			current_ip = commands.getoutput("ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
+			current_ip = commands.getoutput(u"ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
 			outside_tempf = 0.0
 			outside_tempc = 0.0
@@ -1214,16 +1214,16 @@ class music_controller(threading.Thread):
 				dailyfc = f.get_weathers()
 				wea = obs.get_weather()
 
-				outside_tempf = wea.get_temperature('fahrenheit')['temp']
-				outside_temp_maxf = dailyfc[0].get_temperature('fahrenheit')['max']
-				outside_temp_minf = dailyfc[0].get_temperature('fahrenheit')['min']
+				outside_tempf = wea.get_temperature(u'fahrenheit')[u'temp']
+				outside_temp_maxf = dailyfc[0].get_temperature(u'fahrenheit')[u'max']
+				outside_temp_minf = dailyfc[0].get_temperature(u'fahrenheit')[u'min']
 
-				outside_tempc = wea.get_temperature('celsius')['temp']
-				outside_temp_maxc = dailyfc[0].get_temperature('celsius')['max']
-				outside_temp_minc = dailyfc[0].get_temperature('celsius')['min']
+				outside_tempc = wea.get_temperature(u'celsius')[u'temp']
+				outside_temp_maxc = dailyfc[0].get_temperature(u'celsius')[u'max']
+				outside_temp_minc = dailyfc[0].get_temperature(u'celsius')[u'min']
 
 				# Localize temperature value
-				if music_display_config.TEMPERATURE.lower() == 'celsius':
+				if music_display_config.TEMPERATURE.lower() == u'celsius':
 					outside_temp = outside_tempc
 					outside_temp_max = outside_temp_maxc
 					outside_temp_min = outside_temp_minc
@@ -1240,12 +1240,12 @@ class music_controller(threading.Thread):
 
 				outside_conditions = wea.get_detailed_status()
 			except:
-				logging.debug("Failed to get weather data.  Check OWM_API key.")
+				logging.debug(u"Failed to get weather data.  Check OWM_API key.")
 				pass
 
 
 			try:
-				with open("/sys/class/thermal/thermal_zone0/temp") as file:
+				with open(u"/sys/class/thermal/thermal_zone0/temp") as file:
 					system_tempc = int(file.read())
 
 				# Convert value to float and correct decimal place
@@ -1259,7 +1259,7 @@ class music_controller(threading.Thread):
 				system_tempf = 0.0
 
 			try:
-				if music_display_config.TEMPERATURE.lower() == 'celsius':
+				if music_display_config.TEMPERATURE.lower() == u'celsius':
 					system_temp = system_tempc
 					system_temp_formatted = u"{0}°c".format(int(system_temp))
 				else:
@@ -1271,9 +1271,9 @@ class music_controller(threading.Thread):
 
 			try:
 				# Check if running on OSX.  If yes, adjust df command
-				if sys.platform == "darwin":
-					with os.popen("df /") as p:
-						p = os.popen("df /")
+				if sys.platform == u"darwin":
+					with os.popen(u"df /") as p:
+						p = os.popen(u"df /")
 						line = p.readline()
 						line = p.readline()
 
@@ -1281,7 +1281,7 @@ class music_controller(threading.Thread):
 					line = "{0} {1}".format(va[3], va[4])
 				else:
 					# assume running on Raspberry linux
-					with os.popen("df --output='avail','pcent','used' /") as p:
+					with os.popen(u"df --output='avail','pcent','used' /") as p:
 						line = p.readline()
 						line = p.readline().strip()
 
@@ -1298,41 +1298,41 @@ class music_controller(threading.Thread):
 				used = 0
 
 			with self.musicdata_lock:
-				self.musicdata['system_temp'] = system_temp
-				self.musicdata['system_temp_formatted'] = system_temp_formatted
+				self.musicdata[u'system_temp'] = system_temp
+				self.musicdata[u'system_temp_formatted'] = system_temp_formatted
 
-				self.musicdata['system_tempc'] = system_tempc
-				self.musicdata['system_tempf'] = system_tempf
+				self.musicdata[u'system_tempc'] = system_tempc
+				self.musicdata[u'system_tempf'] = system_tempf
 
 				# For backward compatibility
-				self.musicdata['current_tempc'] = self.musicdata['system_tempc']
-				self.musicdata['current_tempf'] = self.musicdata['system_tempf']
+				self.musicdata[u'current_tempc'] = self.musicdata[u'system_tempc']
+				self.musicdata[u'current_tempf'] = self.musicdata[u'system_tempf']
 
-				self.musicdata['disk_avail'] = avail
-				self.musicdata['disk_availp'] = availp
-				self.musicdata['disk_used'] = used
-				self.musicdata['disk_usedp'] = usedp
+				self.musicdata[u'disk_avail'] = avail
+				self.musicdata[u'disk_availp'] = availp
+				self.musicdata[u'disk_used'] = used
+				self.musicdata[u'disk_usedp'] = usedp
 
-				self.musicdata['time'] = current_time
-				self.musicdata['time_ampm'] = current_time_ampm
+				self.musicdata[u'time'] = current_time
+				self.musicdata[u'time_ampm'] = current_time_ampm
 				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed
 
 				# For backwards compatibility
-				self.musicdata['current_time'] = current_time
-				self.musicdata['current_time_sec'] = current_time
+				self.musicdata[u'current_time'] = current_time
+				self.musicdata[u'current_time_sec'] = current_time
 
-				self.musicdata['ip'] = current_ip.decode()
+				self.musicdata[u'ip'] = current_ip.decode()
 
 				# For backwards compatibility
-				self.musicdata['current_ip'] = current_ip.decode()
+				self.musicdata[u'current_ip'] = current_ip.decode()
 
-				self.musicdata['outside_temp'] = outside_temp
-				self.musicdata['outside_temp_max'] = outside_temp_max
-				self.musicdata['outside_temp_min'] = outside_temp_min
-				self.musicdata['outside_temp_formatted'] = outside_temp_formatted
-				self.musicdata['outside_temp_max_formatted'] = outside_temp_max_formatted
-				self.musicdata['outside_temp_min_formatted'] = outside_temp_min_formatted
-				self.musicdata['outside_conditions'] = outside_conditions
+				self.musicdata[u'outside_temp'] = outside_temp
+				self.musicdata[u'outside_temp_max'] = outside_temp_max
+				self.musicdata[u'outside_temp_min'] = outside_temp_min
+				self.musicdata[u'outside_temp_formatted'] = outside_temp_formatted
+				self.musicdata[u'outside_temp_max_formatted'] = outside_temp_max_formatted
+				self.musicdata[u'outside_temp_min_formatted'] = outside_temp_min_formatted
+				self.musicdata[u'outside_conditions'] = outside_conditions
 
 			# Read environmentals every 20 seconds
 			time.sleep(20)
@@ -1363,15 +1363,15 @@ def validpages(pagesmodule):
 def sigterm_handler(_signo, _stack_frame):
         sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == u'__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
 
-	if sys.stdout.encoding != 'UTF-8':
-    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
+	if sys.stdout.encoding != u'UTF-8':
+    		sys.stdout = codecs.getwriter(u'utf-8')(sys.stdout, u'strict')
 
-	logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
+	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
 	logging.getLogger().addHandler(logging.StreamHandler())
-	logging.getLogger('socketIO-client').setLevel(logging.WARNING)
+	logging.getLogger(u'socketIO-client').setLevel(logging.WARNING)
 
 	# Move unhandled exception messages to log file
 	def handleuncaughtexceptions(exc_type, exc_value, exc_traceback):
@@ -1379,11 +1379,11 @@ if __name__ == '__main__':
 			sys.__excepthook__(exc_type, exc_value, exc_traceback)
 			return
 
-		logging.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+		logging.error(u"Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 		try:
 			if len(mc.musicdata) > 0:
-				logging.error("Player status at exception")
-				logging.error(str(mc.musicdata))
+				logging.error(u"Player status at exception")
+				logging.error(unicode(mc.musicdata))
 		except NameError:
 			# If this gets called before the music controller is instantiated, ignore it
 			pass
@@ -1394,13 +1394,13 @@ if __name__ == '__main__':
 	sys.excepthook = handleuncaughtexceptions
 
 	# Suppress MPD libraries INFO messages
-	loggingMPD = logging.getLogger("mpd")
+	loggingMPD = logging.getLogger(u"mpd")
 	loggingMPD.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"d:",["driver=", "lms","mpd","spop","rune","volumio","pages=", "showupdates"])
+		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"showupdates"])
 	except getopt.GetoptError:
-		print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
+		print u'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
 		sys.exit(2)
 
 	services_list = [ ]
@@ -1408,40 +1408,40 @@ if __name__ == '__main__':
 	showupdates = False
 
 	for opt, arg in opts:
-		if opt == '-h':
-			print 'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
+		if opt == u'-h':
+			print u'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
 			sys.exit()
-		elif opt in ("-d", "--driver"):
+		elif opt in (u"-d", u"--driver"):
 			driver = arg
-		elif opt in ("--mpd"):
-			services_list.append('mpd')
-		elif opt in ("--spop"):
-			services_list.append('spop')
-		elif opt in ("--lms"):
-			services_list.append('lms')
-		elif opt in ("--rune"):
-			services_list.append('rune')
-		elif opt in ("--volumio"):
-			services_list.append('volumio')
-		elif opt in ("--pages"):
-			print "Loading {0} as page file".format(arg)
+		elif opt in (u"--mpd"):
+			services_list.append(u'mpd')
+		elif opt in (u"--spop"):
+			services_list.append(u'spop')
+		elif opt in (u"--lms"):
+			services_list.append(u'lms')
+		elif opt in (u"--rune"):
+			services_list.append(u'rune')
+		elif opt in (u"--volumio"):
+			services_list.append(u'volumio')
+		elif opt in (u"--pages"):
+			print u"Loading {0} as page file".format(arg)
 			# If page file provided, try to load provided file on top of default pages file
 			try:
-				newpages = imp.load_source('pages', arg)
+				newpages = imp.load_source(u'pages', arg)
 				if validpages(newpages):
 					pages = newpages
 				else:
-					print "Invalid page file provided.  Using default pages."
+					print u"Invalid page file provided.  Using default pages."
 			except IOError:
 				# Page file not found
-				print "Page file {0} not found.  Using default pages".format(arg)
+				print u"Page file {0} not found.  Using default pages".format(arg)
 
-		elif opt in ("--showupdates"):
+		elif opt in (u"--showupdates"):
 			showupdates = True
 
 
 	if len(services_list) == 0:
-		logging.critical("Must have at least one music service to monitor")
+		logging.critical(u"Must have at least one music service to monitor")
 		sys.exit()
 
 	logging.info(music_display_config.STARTUP_LOGMSG)
@@ -1460,14 +1460,14 @@ if __name__ == '__main__':
 		driver = music_display_config.DISPLAY_DRIVER
 
 
-	if driver == "lcd_display_driver_winstar_weh001602a":
+	if driver == u"lcd_display_driver_winstar_weh001602a":
 		lcd = displays.lcd_display_driver_winstar_weh001602a.lcd_display_driver_winstar_weh001602a(rows, cols, pin_rs, pin_e, pins_data)
-	elif driver == "lcd_display_driver_hd44780":
+	elif driver == u"lcd_display_driver_hd44780":
 		lcd = displays.lcd_display_driver_hd44780.lcd_display_driver_hd44780(rows, cols, pin_rs, pin_e, pins_data)
-	elif driver == "lcd_display_driver_curses":
+	elif driver == u"lcd_display_driver_curses":
 		lcd = displays.lcd_display_driver_curses.lcd_display_driver_curses(rows, cols)
 	else:
-		logging.critical("No valid display found")
+		logging.critical(u"No valid display found")
 		sys.exit()
 
 	lcd.clear()
@@ -1487,11 +1487,11 @@ if __name__ == '__main__':
 		pass
 
 	finally:
-		print "Shutting down threads"
+		print u"Shutting down threads"
 		exitapp[0] = True
 		try:
 			lcd.clear()
-			lcd.message("Exiting...")
+			lcd.message(u"Exiting...")
 			time.sleep(1)
 			lcd.clear()
 			lcd.cleanup()
@@ -1499,4 +1499,4 @@ if __name__ == '__main__':
 			pass
 		dc.join()
 		mc.join()
-		logging.info("Exiting...")
+		logging.info(u"Exiting...")
