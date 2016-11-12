@@ -1366,8 +1366,9 @@ def sigterm_handler(_signo, _stack_frame):
 if __name__ == u'__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
 
-	if sys.stdout.encoding != u'UTF-8':
-    		sys.stdout = codecs.getwriter(u'utf-8')(sys.stdout, u'strict')
+	# Changing the system encoding should no longer be needed
+#	if sys.stdout.encoding != u'UTF-8':
+#    		sys.stdout = codecs.getwriter(u'utf-8')(sys.stdout, u'strict')
 
 	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
 	logging.getLogger().addHandler(logging.StreamHandler())
