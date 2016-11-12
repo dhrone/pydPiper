@@ -245,6 +245,10 @@ Big Character transforms
 ------------------------
 Input must be string.  Must be limited to characters from ascii 32 ' ' to ascii 95 '_'.  This includes all numbers and upper case letters. You can include lower case letters in your input string but they will be converted to upper.
 
-|bigchar+n+s - converts input into the values needed for the bigchars font.  Accepts two variables (n and s).  N selects what line of the display this value is for. S selects how many spaces to place between characters and defaults to zero.
+|bigchar+n+s - converts input into the values needed for the bigchars font.  You must have selected font size5x8.bigchars for the page.  Accepts two variables (n and s).  N selects what line of the display this value is for. S selects how many spaces to place between characters and defaults to zero.
 
-Example:  For the first line of the font use '|bigchar+0'.  If you wanted to add a space between each character you would use '|bigchar+0+1'.
+Example:  For the first line of the font use 'outside_temp_formatted|bigchar+0'.  If you wanted to add a space between each character you would use 'outside_temp_formatted|bigchar+0+1'.
+
+|bigplay+n+s - Returns the large PLAY display used for showing when the player has entered the playing state.  Must have font size5x8.bigplay selected for the page.  This transform actually doesn't transform anything and you can literally choose any variable to transform and it will produce the same output.  That said, it is normally used with the state variable.  You might wonder why this transform is needed instead of just using bigchars.  There are only eight custom font slots and bigchars needs all eight.  However, the special chars used to display the word 'PLAY' only require six of them.  That left an extra two slots that were used to add the play symbol.  However, this required a dedicated font just for the large PLAY page.
+
+Example:  For the first line of the display 'state|bigplay+0'.  For the second line of the display 'state|bigplay+1'

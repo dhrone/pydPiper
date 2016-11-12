@@ -96,7 +96,7 @@ class musicdata:
 			# Track information
 			u'channels',
 			u'length',
-			u'elapsed', 
+			u'elapsed',
 			u'playlist_position',
 			u'playlist_length'
 
@@ -175,7 +175,6 @@ class musicdata:
 			return u''
 
 		retval = u''
-		logging.debug(u"Trying to get radio station name from {0}".format(url))
 		with contextlib.closing(urllib2.urlopen(url)) as page:
 			cnt = 20
 			for line in page:
@@ -208,7 +207,7 @@ class musicdata:
 					return retval.decode()
 
 				if cnt == 0: break
-			logging.debug(u"Didn't find a M3U header at {0}".format(url))
+			logging.debug(u"Didn't find an appropriate header at {0}".format(url))
 
 
 	def sendUpdate(self):
