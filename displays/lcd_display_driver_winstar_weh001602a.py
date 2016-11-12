@@ -424,9 +424,9 @@ if __name__ == '__main__':
 		elif opt in ("--d7"):
 			d7  = int(arg)
 
-	import codecs
-	if sys.stdout.encoding != 'UTF-8':
-    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
+#	import codecs
+#	if sys.stdout.encoding != 'UTF-8':
+#    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
 
 	try:
 		pins = [d4, d5, d6, d7]

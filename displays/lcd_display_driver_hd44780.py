@@ -394,9 +394,9 @@ if __name__ == '__main__':
 		elif opt in ("--d7"):
 			d7  = int(arg)
 
-	import codecs
-	if sys.stdout.encoding != 'UTF-8':
-    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
+	#import codecs
+	#if sys.stdout.encoding != 'UTF-8':
+    #		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
 
 	try:
 
@@ -503,4 +503,4 @@ if __name__ == '__main__':
 		lcd.clear()
 		time.sleep(.5)
 		GPIO.cleanup()
-		print "LCD Display Test Complete"
+		print u"LCD Display Test Complete"
