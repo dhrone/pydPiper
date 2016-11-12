@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: UTF-8
 
-# Driver for testing music-display
+# Driver for testing pydPiper display
 # Uses the curses system to emulate a display
 # Written by: Ron Ritchey
 
