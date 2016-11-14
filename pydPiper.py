@@ -1,14 +1,14 @@
-#!/usr/bin/python.music-display
+#!/usr/bin/python.pydPiper
 # coding: UTF-8
 
-# music-display service to display music data to LCD and OLED character displays
+# pydPiper service to display music data to LCD and OLED character displays
 # Written by: Ron Ritchey
 
 import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp, codecs
 import pages
 import displays
 import sources
-import music_display_config
+import pydPiper_config
 
 try:
 	import pyowm
@@ -43,7 +43,7 @@ class display_controller(threading.Thread):
 
 		if resetscrollposition:
 			segment[u'scrollposition'] = 0
-			segment[u'hesitate_timer'] = time.time() + music_display_config.HESITATION_TIME
+			segment[u'hesitate_timer'] = time.time() + pydPiper_config.HESITATION_TIME
 
 
 		# Get current scroll position
@@ -53,12 +53,12 @@ class display_controller(threading.Thread):
 		try:
 			hesitate_timer = segment[u'hesitate_timer']
 		except KeyError:
-			segment[u'hesitate_timer'] = hesitate_timer = time.time() + music_display_config.HESITATION_TIME
+			segment[u'hesitate_timer'] = hesitate_timer = time.time() + pydPiper_config.HESITATION_TIME
 
 		value = segment[u'value'] if u'value' in segment else u''
 
 		try:
-			blank = music_display_config.SCROLL_BLANK_WIDTH
+			blank = pydPiper_config.SCROLL_BLANK_WIDTH
 		except AttributeError:
 			blank = 10
 
@@ -113,7 +113,7 @@ class display_controller(threading.Thread):
 
 		for segment in segments:
 			start = segment[u'start'] if u'start' in segment else 0
-			end = segment[u'end'] if u'end' in segment else music_display_config.DISPLAY_WIDTH
+			end = segment[u'end'] if u'end' in segment else pydPiper_config.DISPLAY_WIDTH
 			scroll = segment[u'scroll'] if u'scroll' in segment else False
 			window = end-start
 			if start > pos:
@@ -175,8 +175,8 @@ class display_controller(threading.Thread):
 
 		while not exitapp[0]:
 			# Smooth animation
-			if time.time() - time_prev < music_display_config.ANIMATION_SMOOTHING:
-				time.sleep(music_display_config.ANIMATION_SMOOTHING-(time.time()-time_prev))
+			if time.time() - time_prev < pydPiper_config.ANIMATION_SMOOTHING:
+				time.sleep(pydPiper_config.ANIMATION_SMOOTHING-(time.time()-time_prev))
 			try:
 				time_prev = time.time()
 
@@ -357,15 +357,15 @@ class music_controller(threading.Thread):
 			s = s.lower()
 			try:
 				if s == u"mpd":
-					musicservice = sources.musicdata_mpd.musicdata_mpd(self.musicqueue, music_display_config.MPD_SERVER, music_display_config.MPD_PORT, music_display_config.MPD_PASSWORD)
+					musicservice = sources.musicdata_mpd.musicdata_mpd(self.musicqueue, pydPiper_config.MPD_SERVER, pydPiper_config.MPD_PORT, pydPiper_config.MPD_PASSWORD)
 				elif s == u"spop":
-					musicservice = sources.musicdata_spop.musicdata_spop(self.musicqueue, music_display_config.SPOP_SERVER, music_display_config.SPOP_PORT, music_display_config.SPOP_PASSWORD)
+					musicservice = sources.musicdata_spop.musicdata_spop(self.musicqueue, pydPiper_config.SPOP_SERVER, pydPiper_config.SPOP_PORT, pydPiper_config.SPOP_PASSWORD)
 				elif s == u"lms":
-					musicservice = sources.musicdata_lms.musicdata_lms(self.musicqueue, music_display_config.LMS_SERVER, music_display_config.LMS_PORT, music_display_config.LMS_USER, music_display_config.LMS_PASSWORD, music_display_config.LMS_PLAYER)
+					musicservice = sources.musicdata_lms.musicdata_lms(self.musicqueue, pydPiper_config.LMS_SERVER, pydPiper_config.LMS_PORT, pydPiper_config.LMS_USER, pydPiper_config.LMS_PASSWORD, pydPiper_config.LMS_PLAYER)
 				elif s == u"rune":
-					musicservice = sources.musicdata_rune.musicdata_rune(self.musicqueue, music_display_config.RUNE_SERVER, music_display_config.RUNE_PORT, music_display_config.RUNE_PASSWORD)
+					musicservice = sources.musicdata_rune.musicdata_rune(self.musicqueue, pydPiper_config.RUNE_SERVER, pydPiper_config.RUNE_PORT, pydPiper_config.RUNE_PASSWORD)
 				elif s == u"volumio":
-					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, music_display_config.VOLUMIO_SERVER, music_display_config.VOLUMIO_PORT, exitapp )
+					musicservice = sources.musicdata_volumio2.musicdata_volumio2(self.musicqueue, pydPiper_config.VOLUMIO_SERVER, pydPiper_config.VOLUMIO_PORT, exitapp )
 				else:
 					logging.debug(u"Unsupported music service {0} requested".format(s))
 					continue
@@ -643,9 +643,9 @@ class music_controller(threading.Thread):
 			pl[u'cooling_expires'] = time.time() + pl[u'alert'][u'coolingperiod']
 		except KeyError:
 			try:
-				pl[u'cooling_expires'] = time.time() + music_display_config.COOLING_PERIOD
+				pl[u'cooling_expires'] = time.time() + pydPiper_config.COOLING_PERIOD
 			except AttributeError:
-				logging.debug(u"COOLING_PERIOD missing from music_display_config.py")
+				logging.debug(u"COOLING_PERIOD missing from pydPiper_config.py")
 				pl[u'cooling_expires'] = time.time() + 15
 
 
@@ -1048,18 +1048,18 @@ class music_controller(threading.Thread):
 
 				strftime = current_line[u'strftime'] if u'strftime' in current_line else u"%-I:%M %p"
 
-				if music_display_config.TIME24HOUR:
+				if pydPiper_config.TIME24HOUR:
 					bigclockformat = u"%H:%M"
 				else:
 					bigclockformat = u"%I:%M"
 
-				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
+				bigclockinput = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(bigclockformat).strip().decode()
 				bigclockoutput = self.bigclock(bigclockinput)
 
-				current_time_ampm = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime("%p").strip().decode()
+				current_time_ampm = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime("%p").strip().decode()
 
 				with self.musicdata_lock:
-					self.musicdata[u'time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata[u'time_formatted'] = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(strftime).strip().decode()
 					self.musicdata[u'time_big_1'] = bigclockoutput[0]
 					self.musicdata[u'time_big_2'] = bigclockoutput[1]
 					self.musicdata[u'time_ampm'] = current_time_ampm
@@ -1124,18 +1124,18 @@ class music_controller(threading.Thread):
 				# use it to add a formatted time to musicdata
 				# else use 12 hour clock as default
 
-				if music_display_config.TIME24HOUR:
+				if pydPiper_config.TIME24HOUR:
 					bigclockformat = u"%H:%M"
 				else:
 					bigclockformat = u"%I:%M"
 
-				bigclockinput = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(bigclockformat).strip().decode()
+				bigclockinput = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(bigclockformat).strip().decode()
 				bigclockoutput = self.bigclock(bigclockinput)
 
 				strftime = current_segment[u'strftime'] if u'strftime' in current_segment else u"%-I:%M %p"
 
 				with self.musicdata_lock:
-					self.musicdata[u'time_formatted'] = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(strftime).strip().decode()
+					self.musicdata[u'time_formatted'] = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(strftime).strip().decode()
 					self.musicdata[u'time_big_1'] = bigclockoutput[0]
 					self.musicdata[u'time_big_2'] = bigclockoutput[1]
 
@@ -1160,7 +1160,7 @@ class music_controller(threading.Thread):
 #				self.curlines[i] = lines[i]
 #				try:
 #					if current_line['scroll']:
-#						self.hesitate_expires[i] = time.time() + music_display_config.HESITATION_TIME
+#						self.hesitate_expires[i] = time.time() + pydPiper_config.HESITATION_TIME
 #					else:
 #						self.hesitate_expires[i] = time.time() + 86400 # Do not scroll
 #				except KeyError:
@@ -1181,13 +1181,13 @@ class music_controller(threading.Thread):
 	def updatesystemvars(self):
 		while True:
 			try:
-				current_time_ampm = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%p").strip().decode()
-				if music_display_config.TIME24HOUR == True:
-					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%H:%M").strip().decode()
-					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%H:%M:%S").strip().decode()
+				current_time_ampm = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%p").strip().decode()
+				if pydPiper_config.TIME24HOUR == True:
+					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M").strip().decode()
+					current_time_sec = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M:%S").strip().decode()
 				else:
-					current_time = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%-I:%M %p").strip().decode()
-					current_time_sec = moment.utcnow().timezone(music_display_config.TIMEZONE).strftime(u"%-I:%M:%S %p").strip().decode()
+					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%-I:%M %p").strip().decode()
+					current_time_sec = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%-I:%M:%S %p").strip().decode()
 			except ValueError:
 				# Don't know why but on exit, the moment code is occasionally throwing a ValueError
 				current_time = u"00:00"
@@ -1207,9 +1207,9 @@ class music_controller(threading.Thread):
 			outside_temp_min_formatted = u''
 
 			try:
-				owm = pyowm.OWM(music_display_config.OWM_API)
-				obs = owm.weather_at_place(music_display_config.OWM_LOCATION)
-				fc = owm.daily_forecast(music_display_config.OWM_LOCATION)
+				owm = pyowm.OWM(pydPiper_config.OWM_API)
+				obs = owm.weather_at_place(pydPiper_config.OWM_LOCATION)
+				fc = owm.daily_forecast(pydPiper_config.OWM_LOCATION)
 				f = fc.get_forecast()
 				dailyfc = f.get_weathers()
 				wea = obs.get_weather()
@@ -1223,7 +1223,7 @@ class music_controller(threading.Thread):
 				outside_temp_minc = dailyfc[0].get_temperature(u'celsius')[u'min']
 
 				# Localize temperature value
-				if music_display_config.TEMPERATURE.lower() == u'celsius':
+				if pydPiper_config.TEMPERATURE.lower() == u'celsius':
 					outside_temp = outside_tempc
 					outside_temp_max = outside_temp_maxc
 					outside_temp_min = outside_temp_minc
@@ -1259,7 +1259,7 @@ class music_controller(threading.Thread):
 				system_tempf = 0.0
 
 			try:
-				if music_display_config.TEMPERATURE.lower() == u'celsius':
+				if pydPiper_config.TEMPERATURE.lower() == u'celsius':
 					system_temp = system_tempc
 					system_temp_formatted = u"{0}°c".format(int(system_temp))
 				else:
@@ -1366,10 +1366,11 @@ def sigterm_handler(_signo, _stack_frame):
 if __name__ == u'__main__':
 	signal.signal(signal.SIGTERM, sigterm_handler)
 
-	if sys.stdout.encoding != u'UTF-8':
-    		sys.stdout = codecs.getwriter(u'utf-8')(sys.stdout, u'strict')
+	# Changing the system encoding should no longer be needed
+#	if sys.stdout.encoding != u'UTF-8':
+#    		sys.stdout = codecs.getwriter(u'utf-8')(sys.stdout, u'strict')
 
-	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', filename=music_display_config.LOGFILE, level=music_display_config.LOGLEVEL)
+	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', filename=pydPiper_config.LOGFILE, level=pydPiper_config.LOGLEVEL)
 	logging.getLogger().addHandler(logging.StreamHandler())
 	logging.getLogger(u'socketIO-client').setLevel(logging.WARNING)
 
@@ -1400,7 +1401,7 @@ if __name__ == u'__main__':
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"showupdates"])
 	except getopt.GetoptError:
-		print u'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
+		print u'pydPiper.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
 		sys.exit(2)
 
 	services_list = [ ]
@@ -1409,7 +1410,7 @@ if __name__ == u'__main__':
 
 	for opt, arg in opts:
 		if opt == u'-h':
-			print u'music-display.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
+			print u'pydPiper.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
 			sys.exit()
 		elif opt in (u"-d", u"--driver"):
 			driver = arg
@@ -1444,20 +1445,20 @@ if __name__ == u'__main__':
 		logging.critical(u"Must have at least one music service to monitor")
 		sys.exit()
 
-	logging.info(music_display_config.STARTUP_LOGMSG)
+	logging.info(pydPiper_config.STARTUP_LOGMSG)
 
 	dq = Queue.Queue()
 
-	pin_rs = music_display_config.DISPLAY_PIN_RS
-	pin_e = music_display_config.DISPLAY_PIN_E
-	pins_data = music_display_config.DISPLAY_PINS_DATA
-	rows = music_display_config.DISPLAY_HEIGHT
-	cols = music_display_config.DISPLAY_WIDTH
+	pin_rs = pydPiper_config.DISPLAY_PIN_RS
+	pin_e = pydPiper_config.DISPLAY_PIN_E
+	pins_data = pydPiper_config.DISPLAY_PINS_DATA
+	rows = pydPiper_config.DISPLAY_HEIGHT
+	cols = pydPiper_config.DISPLAY_WIDTH
 
 	# Choose display
 
 	if not driver:
-		driver = music_display_config.DISPLAY_DRIVER
+		driver = pydPiper_config.DISPLAY_DRIVER
 
 
 	if driver == u"lcd_display_driver_winstar_weh001602a":
@@ -1471,7 +1472,7 @@ if __name__ == u'__main__':
 		sys.exit()
 
 	lcd.clear()
-	lcd.message(music_display_config.STARTUP_MSG)
+	lcd.message(pydPiper_config.STARTUP_MSG)
 
 	mc = music_controller(dq, services_list, lcd.rows, lcd.cols, showupdates)
 	time.sleep(2)

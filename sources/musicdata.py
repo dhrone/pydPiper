@@ -58,11 +58,49 @@ class musicdata:
 
 	varcheck = {
 		u'unicode':
-			[ u'state', u'actPlayer', u'musicdatasource', u'album', u'artist', u'title', u'uri', u'encoding', u'tracktype', u'bitdepth', u'bitrate', u'samplerate', u'elapsed_formatted', u'remaining', u'playlist_display', u'my_name' ],
+		[
+			# Player state
+			u'state',
+			u'actPlayer',
+			u'musicdatasource',
+			'volume_bar_big',
+			'volume_bar_fancy',
+
+			# Track information
+			u'album',
+			u'artist',
+			u'title',
+			u'uri',
+			u'encoding',
+			u'tracktype',
+			u'bitdepth',
+			u'bitrate',
+			u'samplerate',
+			u'elapsed_formatted',
+			u'remaining',
+			u'playlist_display',
+			u'my_name'
+		],
 		u'bool':
-			[ u'random', u'single', u'repeat' ],
+		[
+			# Player state
+			u'random',
+			u'single',
+			u'repeat'
+		],
 		u'int':
-			[ u'channels', u'length', u'elapsed', u'playlist_position', u'playlist_length' ]
+		[
+			# Player state
+			u'volume',
+
+			# Track information
+			u'channels',
+			u'length',
+			u'elapsed',
+			u'playlist_position',
+			u'playlist_length'
+
+		]
 	}
 
 
@@ -137,7 +175,6 @@ class musicdata:
 			return u''
 
 		retval = u''
-		logging.debug(u"Trying to get radio station name from {0}".format(url))
 		with contextlib.closing(urllib2.urlopen(url)) as page:
 			cnt = 20
 			for line in page:
@@ -170,7 +207,7 @@ class musicdata:
 					return retval.decode()
 
 				if cnt == 0: break
-			logging.debug(u"Didn't find a M3U header at {0}".format(url))
+			logging.debug(u"Didn't find an appropriate header at {0}".format(url))
 
 
 	def sendUpdate(self):

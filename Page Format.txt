@@ -1,4 +1,4 @@
-The Music-Display program allows the display to be configured to show content in a more flexible way.	Each state of the system (e.g. Play, Stop) has a PageList which is a collection of pages, each of which determines what to show, and how long to show it.	While in a particular state, the system walks through each page of a PageList, displaying the page for the duration specified within the Page definition.	Here is a quick description of each part of a PageList.
+The pydPiper program allows the display to be configured to show content in a more flexible way.	Each state of the system (e.g. Play, Stop) has a PageList which is a collection of pages, each of which determines what to show, and how long to show it.	While in a particular state, the system walks through each page of a PageList, displaying the page for the duration specified within the Page definition.	Here is a quick description of each part of a PageList.
 
 PageList consists of...
 	name: The name of the page list.

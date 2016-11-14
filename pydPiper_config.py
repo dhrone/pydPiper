@@ -23,11 +23,11 @@ ANIMATION_SMOOTHING = .15 # Amount of time in seconds before repainting display
 
 # System Parameters
 # This is where the log file will be written
-LOGFILE=u'/var/log/music-display.log'
-#LOGFILE=u'./log/RaspDacDisplay.log'
+LOGFILE=u'/var/log/pydPiper.log'
+#LOGFILE=u'./log/pydPiper.log'
 
-STATUSLOGFILE=u'/var/log/music-display-status.log'
-#STATUSLOGFILE=u'./log/RaspDacDisplayStatus.log'
+STATUSLOGFILE=u'/var/log/pydPiper-status.log'
+#STATUSLOGFILE=u'./log/pydPiper-Status.log'
 STATUSLOGGING = False
 
 # Logging level
