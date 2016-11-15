@@ -427,19 +427,19 @@ if __name__ == '__main__':
 
 		lcd.clear()
 
-#		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
+		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
 		#for char in accent_min: print char, ord(char)
-#		lcd.message(accent_min)
-#		time.sleep(2)
+		lcd.message(accent_min)
+		time.sleep(2)
 
-#		lcd.clear()
+		lcd.clear()
 
-#		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
+		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
 		#for char in accent_maj: print char, ord(char)
-#		lcd.message(accent_maj)
+		lcd.message(accent_maj)
 
-		# time.sleep(2)
-		# lcd.clear()
+		time.sleep(2)
+		lcd.clear()
 		#
 		# lcd.msgtest("\x00 Stop")
 		# lcd.msgtest("\x01 Play")
