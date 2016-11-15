@@ -296,6 +296,13 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 				c = ord(char)
 				try:
 					cdata = fonts.size5x8.latin1.fontpkg[format(ord(char),u"02x")]
+					if len(cdata) > 2:
+						cdata = fonts.size5x8.latin1.fontpkg[format(ord(char),u"04x")]
+					if len(cdata) > 4:
+						cdata = fonts.size5x8.latin1.fontpkg[format(ord(char),u"06x")]
+					if len(cdata) > 6:
+						# Give up!  The font table already doesnt have it so why worry
+						continue
 					for byte in cdata:
 						self.write4bits(byte, True)
 				except KeyError:
