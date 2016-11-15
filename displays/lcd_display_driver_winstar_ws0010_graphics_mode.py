@@ -300,18 +300,15 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 				# and then send it to display.  Use space if character is out of range.
 				c = ord(char)
 				try:
-					cdata = fonts.size5x8.latin1.fontpkg[format(ord(char),u"02x")]
-					if len(cdata) > 2:
-						cdata = fonts.size5x8.latin1.fontpkg[format(ord(char),u"04x")]
-					if len(cdata) > 4:
-						cdata = fonts.size5x8.latin1.fontpkg[format(ord(char),u"06x")]
-					if len(cdata) > 6:
-						# Give up!  The font table already doesnt have it so why worry
-						continue
+					unival = format(ord(char),u'02x').upper()
+					if len(unival) > 2:
+						unival = format(ord(char),u'04x').upper()
+					cdata = fonts.size5x8.latin1.fontpkg[unival]
+
 					for byte in cdata:
 						self.write4bits(byte, True)
 				except KeyError:
-					print "Cannot find {0} in latin-1 font table".format(char)
+					print "Cannot find {0} in latin-1 font table".format(unival)
 					# Char not found
 					pass
 
