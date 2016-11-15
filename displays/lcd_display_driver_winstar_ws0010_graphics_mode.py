@@ -26,7 +26,7 @@ import lcd_display_driver
 import fonts
 
 
-class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_driver):
+class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_display_driver):
 
 	# commands
 	LCD_CLEARDISPLAY = 0x01
@@ -133,7 +133,7 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 
 	def clear(self):
 		# Set cursor back to 0,0
-		self.setcursor(0,0) # set cursor position to zero
+		self.setCursor(0,0) # set cursor position to zero
 
 		# And then clear the screen
 		self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display
@@ -285,10 +285,15 @@ class lcd_display_driver_winstar_weh001602a(lcd_display_driver.lcd_display_drive
 			raise IndexError
 
 		self.setCursor(row, col)
+		crow = row
 
 		for char in text:
 			if char == '\n':
-				self.write4bits(0xC0) # next line
+#				self.write4bits(0xC0) # next line
+				crow += 1
+				if crow >= self.rows:
+					raise IndexError
+				self.setCursor(crow,0)
 
 			else:
 				# Translate incoming character into correct value for European charset
@@ -411,7 +416,7 @@ if __name__ == '__main__':
 		lcd.clear()
 
 		lcd.message("Winstar OLED\nPi Powered")
-		time.sleep(2)
+		time.sleep(5)
 
 		lcd.clear()
 
