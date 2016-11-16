@@ -1208,8 +1208,8 @@ class music_controller(threading.Thread):
 
 			try:
 				owm = pyowm.OWM(pydPiper_config.OWM_API)
-				obs = owm.weather_at_place(pydPiper_config.OWM_LOCATION)
-				fc = owm.daily_forecast(pydPiper_config.OWM_LOCATION)
+				obs = owm.weather_at_coords(pydPiper_config.OWM_LAT, pydPiper_config.OWM_LON)
+				fc = owm.daily_forecast_at_coords(pydPiper_config.OWM_LAT, pydPiper_config.OWM_LON)
 				f = fc.get_forecast()
 				dailyfc = f.get_weathers()
 				wea = obs.get_weather()

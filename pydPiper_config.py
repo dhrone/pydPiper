@@ -47,7 +47,8 @@ TEMPERATURE=u'fahrenheit'
 
 # WEATHER Parameters
 OWM_API = u'52dfe63ba1fd89b1eda781a02d456842'
-OWM_LOCATION = u"Fairfax, VA"
+OWM_LAT = 40.72
+OWM_LON = -74.07
 
 
 
@@ -66,7 +67,7 @@ SPOP_PASSWORD = ''
 VOLUMIO_SERVER = u'localhost'
 VOLUMIO_PORT = 3000
 
-LMS_SERVER = u"192.168.254.251"
+LMS_SERVER = u"localhost"
 LMS_PORT = 9090
 LMS_USER = u""
 LMS_PASSWORD = u""
