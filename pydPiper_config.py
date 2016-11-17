@@ -2,8 +2,8 @@ import logging
 
 
 # Messages
-STARTUP_MSG = u"Music Display\nStarting"
-STARTUP_LOGMSG = u"Music Display Starting"
+STARTUP_MSG = u"pydPiper\nStarting"
+STARTUP_LOGMSG = u"pydPiper Starting"
 
 # Display Parameters
 DISPLAY_WIDTH = 16 # the character width of the display
@@ -46,7 +46,9 @@ TEMPERATURE=u'fahrenheit'
 #TEMPERATURE=u'celsius'
 
 # WEATHER Parameters
-OWM_API = u'52dfe63ba1fd89b1eda781a02d456842'
+# You must get your own API key from http://openweathermap.org/appid
+OWM_API = u''
+# NY Metro area.  Replace with your location.
 OWM_LAT = 40.72
 OWM_LON = -74.07
 
@@ -79,7 +81,6 @@ LMS_PASSWORD = u""
 #       To fix this, go to the SqueezeServer interface and change move the player to the
 #       correct server.
 #LMS_PLAYER = u"00:01:02:aa:bb:cc"
-LMS_PLAYER = u"00:04:20:06:43:10"
 
 
 # If you are using RuneAudio you can pull the information from the REDIS database that RuneAudio maintains
