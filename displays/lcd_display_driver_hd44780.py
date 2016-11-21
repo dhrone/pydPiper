@@ -449,9 +449,9 @@ if __name__ == '__main__':
 
 		# Print large numbers
 #		lcd.clear()
-		lcd.switchcustomchars(fonts.size5x8.bigchar.fontpkg)
+		lcd.switchcustomchars(fonts.size5x8.bigchars.fontpkg)
 		numbers = fonts.size5x8.bigclock.numbers
-		bigchars = fonts.size5x8.bigchar.bigchars
+		bigchars = fonts.size5x8.bigchars.bigchars
 #
 #		for n in range (0,10):
 #			s = [ '', '' ]
