@@ -63,7 +63,7 @@ def getframe(buffer,x,y,height,width):
 	# [
 	#   [ ], # Array of bytes for line 0
 	#   [ ]  # Array of bytes for line 1
-	#                 ...
+	#				 ...
 	#   [ ]  # Array of bytes for line n
 	# ]
 
@@ -168,6 +168,22 @@ def msgwidth(msg, fontpkg, varwidth=False):
 	retval.append(clp-1)
 
 	return retval
+
+	# From https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+	def line(buf,x0, y0, x1, y1)
+		deltax = x1 - x0
+		deltay = y1 - y0
+		error = -1.0
+		deltaerr = abs(float(deltay) / float(deltax))	# Assume deltax != 0 (line is not vertical),
+		# note that this division needs to be done in a way that preserves the fractional part
+
+		y = y0
+		from x in range(x0,x1)
+			set(buf,x,y,1)
+			error = error + deltaerr
+			if error >= 0.0 then
+				y = y + 1
+				error = error - 1.0
 
 def message(buffer,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width=0):
 

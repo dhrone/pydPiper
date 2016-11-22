@@ -462,28 +462,33 @@ if __name__ == '__main__':
 			lcd.update(nf)
 			time.sleep(.001)
 		time.sleep(2)
-		
+
 		for i in range(0,(height+4)*4):
 			g.scrollbuffer(buf,height+4,maxw+20,u'up')
 			nf = g.getframe(buf,0,0,rows,cols)
 			lcd.update(nf)
 			time.sleep(.001)
 		time.sleep(2)
-		
+
 		for i in range(0,(maxw+20)):
 			g.scrollbuffer(buf,height+4,maxw+20,u'right')
 			nf = g.getframe(buf,0,0,rows,cols)
 			lcd.update(nf)
 			time.sleep(.001)
 		time.sleep(2)
-		
+
 		for i in range(0,(height+4)*4):
 			g.scrollbuffer(buf,height+4,maxw+20,u'down')
 			nf = g.getframe(buf,0,0,rows,cols)
 			lcd.update(nf)
 			time.sleep(.001)
+		time.sleep(2)
+
+		g.line(buf,0,12,50,12)
+		nf = g.getframe(buf,0,0,rows,cols)
+		lcd.update(nf)
 		time.sleep(5)
-		
+
 		lcd.clear()
 		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
 		#for char in accent_min: print char, ord(char)
