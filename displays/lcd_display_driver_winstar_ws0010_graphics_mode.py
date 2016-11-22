@@ -433,7 +433,7 @@ if __name__ == '__main__':
 		lcd.clear()
 
 		lcd.message("Winstar OLED\nPi Powered")
-		time.sleep(5)
+		time.sleep(3)
 
 		lcd.clear()
 
@@ -441,8 +441,8 @@ if __name__ == '__main__':
 		buf = { }
 		g.message(buf,"12:35 pm",0,0, fp)
 		nf = g.getframe(buf,0,0,rows,cols)
-		self.update(nf)
-		time.sleep(2)
+		lcd.update(nf)
+		time.sleep(5)
 		
 		lcd.clear()
 		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
