@@ -20,10 +20,11 @@
 # Documenation for the similar Winstar WS0010 board currently available at
 # http://www.picaxe.com/docs/oled.pdf
 
-import time
+import time, math
 import RPi.GPIO as GPIO
 import lcd_display_driver
 import fonts
+import graphics as g
 
 
 class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_display_driver):
@@ -72,7 +73,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 
 
-	def __init__(self, rows=2, cols=80, rs=7, e=8, datalines=[25, 24, 23, 27]):
+	def __init__(self, rows=16, cols=80, rs=7, e=8, datalines=[25, 24, 23, 27]):
 		# Default arguments are appropriate for Raspdac V3 only!!!
 
 		self.pins_db = datalines
@@ -81,6 +82,8 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 		self.rows = rows
 		self.cols = cols
+
+		self.fb = [[]]
 
 		self.FONTS_SUPPORTED = True
 
@@ -134,6 +137,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 	def clear(self):
 		# Set cursor back to 0,0
 		self.setCursor(0,0) # set cursor position to zero
+		self.fb = [[]]
 
 		# And then clear the screen
 		self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display
@@ -143,6 +147,9 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 		if row >= self.rows or col >= self.cols:
 			raise IndexError
+
+		# Convert from pixels to bytes
+		row = int(math.ceil(row/8.0))
 
 		self.write4bits(self.LCD_SETDDRAMADDR | col)
 		self.write4bits(self.LCD_SETCGRAMADDR | row)
@@ -290,7 +297,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		for char in text:
 			if char == '\n':
 #				self.write4bits(0xC0) # next line
-				crow += 1
+				crow += 8
 				if crow >= self.rows:
 					raise IndexError
 				self.setCursor(crow,0)
@@ -304,11 +311,20 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 					for byte in cdata:
 						self.write4bits(byte, True)
+					self.write4bits(0x00, True)
 				except KeyError:
 					print "Cannot find {0} in latin-1 font table".format(format(c,"02x"))
 					# Char not found
 					pass
 
+	def update(self, newbuf):
+
+		rows = int(math.ceil(self.rows/8.0))
+		for j in range(0, rows):
+			self.setCursor(j,0)
+			for i in range(0, self.cols):
+				for byte in newbuf[j]:
+					self.write4bits(byte, True)
 
 	def cleanup(self):
 		GPIO.cleanup()
@@ -373,8 +389,8 @@ if __name__ == '__main__':
 
 	# Set defaults
 	# These are for the wiring used by a Raspdac V3
-	rows = 2
-	cols = 16
+	rows = 16
+	cols = 100
 	rs = 7
 	e = 8
 	d4 = 25
@@ -421,6 +437,14 @@ if __name__ == '__main__':
 
 		lcd.clear()
 
+		fp = fonts.size5x8.latin1.fontpkg
+		buf = { }
+		g.message(buf,"12:35 pm",0,0, fp)
+		nf = g.getframe(buf,0,0,rows,cols)
+		self.update(nf)
+		time.sleep(2)
+		
+		lcd.clear()
 		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
 		#for char in accent_min: print char, ord(char)
 		lcd.message(accent_min)
