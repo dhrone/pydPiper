@@ -170,20 +170,28 @@ def msgwidth(msg, fontpkg, varwidth=False):
 	return retval
 
 # From https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-def line(buf,x0, y0, x1, y1)
+def line(buf,x0, y0, x1, y1):
 	deltax = x1 - x0
 	deltay = y1 - y0
 	error = -1.0
-	deltaerr = abs(float(deltay) / float(deltax))	# Assume deltax != 0 (line is not vertical),
-	# note that this division needs to be done in a way that preserves the fractional part
+	try:
+		deltaerr = abs(float(deltay) / float(deltax))	# Assume deltax != 0 (line is not vertical),
+		# note that this division needs to be done in a way that preserves the fractional part
+	except:
+		deltaerr = 0
 
-	y = y0
-	from x in range(x0,x1)
-		set(buf,x,y,1)
-		error = error + deltaerr
-		if error >= 0.0 then
-			y = y + 1
-			error = error - 1.0
+	if deltax:
+		y = y0
+		for x in range(x0,x1):
+			set(buf,y,x,1)
+			error = error + deltaerr
+			if error >= 0.0:
+				y = y + 1
+				error = error - 1.0
+	else:
+		# line is vertical
+		for y in range(y0,y1):
+			set(buf,y,x0,1)
 
 def message(buffer,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width=0):
 
