@@ -321,7 +321,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 		rows = int(math.ceil(self.rows/8.0))
 		for j in range(0, rows):
-			self.setCursor(j,0)
+			self.setCursor(j*8,0)
 			for i in range(0, self.cols):
 				for byte in newbuf[j]:
 					self.write4bits(byte, True)
@@ -441,6 +441,7 @@ if __name__ == '__main__':
 		buf = { }
 		g.message(buf,"12:35 pm",0,0, fp)
 		nf = g.getframe(buf,0,0,rows,cols)
+
 		lcd.update(nf)
 		time.sleep(5)
 		
