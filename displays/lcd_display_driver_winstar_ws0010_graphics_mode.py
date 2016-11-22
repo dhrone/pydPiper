@@ -321,7 +321,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 		rows = int(math.ceil(self.rows/8.0))
 		for j in range(0, rows):
-			self.setCursor(j,0)
+			self.setCursor(j*8,0)
 			for i in range(0, self.cols):
 				for byte in newbuf[j]:
 					self.write4bits(byte, True)
@@ -443,7 +443,7 @@ if __name__ == '__main__':
 		nf = g.getframe(buf,0,0,rows,cols)
 		self.update(nf)
 		time.sleep(2)
-		
+
 		lcd.clear()
 		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
 		#for char in accent_min: print char, ord(char)
