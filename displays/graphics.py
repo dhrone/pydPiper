@@ -170,7 +170,7 @@ def msgwidth(msg, fontpkg, varwidth=False):
 	return retval
 
 	# From https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-	def line(buf,x0, y0, x1, y1)
+	def line(buf,x0, y0, x1, y1):
 		deltax = x1 - x0
 		deltay = y1 - y0
 		error = -1.0
@@ -178,10 +178,10 @@ def msgwidth(msg, fontpkg, varwidth=False):
 		# note that this division needs to be done in a way that preserves the fractional part
 
 		y = y0
-		from x in range(x0,x1)
+		for x in range(x0,x1):
 			set(buf,x,y,1)
 			error = error + deltaerr
-			if error >= 0.0 then
+			if error >= 0.0: 
 				y = y + 1
 				error = error - 1.0
 
