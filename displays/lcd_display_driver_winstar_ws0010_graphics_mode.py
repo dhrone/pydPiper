@@ -323,8 +323,11 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		for j in range(0, rows):
 			self.setCursor(j*8,0)
 			for i in range(0, self.cols):
-				for byte in newbuf[j]:
-					self.write4bits(byte, True)
+				try:
+					byte = newbuf[j][i]
+				except IndexError:
+					byte = 0
+				self.write4bits(byte, True)
 
 	def cleanup(self):
 		GPIO.cleanup()
@@ -439,10 +442,46 @@ if __name__ == '__main__':
 
 		fp = fonts.size5x8.latin1.fontpkg
 		buf = { }
-		g.message(buf,"12:35 pm",0,0, fp)
+		g.message(buf,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
 		nf = g.getframe(buf,0,0,rows,cols)
-
 		lcd.update(nf)
+		time.sleep(2)
+
+
+		width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
+		maxw = 0
+		for i in width:
+			if i > maxw:
+				maxw = i
+		height = len(width)*8
+
+
+		for i in range(0,(maxw+20)):
+			g.scrollbuffer(buf,height+4,maxw+20,u'left')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
+		time.sleep(2)
+		
+		for i in range(0,(height+4)*4):
+			g.scrollbuffer(buf,height+4,maxw+20,u'up')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
+		time.sleep(2)
+		
+		for i in range(0,(maxw+20)):
+			g.scrollbuffer(buf,height+4,maxw+20,u'right')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
+		time.sleep(2)
+		
+		for i in range(0,(height+4)*4):
+			g.scrollbuffer(buf,height+4,maxw+20,u'down')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
 		time.sleep(5)
 		
 		lcd.clear()
