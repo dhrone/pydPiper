@@ -443,14 +443,14 @@ if __name__ == '__main__':
 		fp = fonts.size5x8.latin1.fontpkg
 		buf = { }
 
-		g.line(buf,0,0,0,8) # vertical left line
-		g.line(buf,0,0,99,0) # horizontal top line
-		g.line(buf,99,0,99,9) # vertical right line
-		g.line(buf,0,8,99,8) # horizontal bottom line
-		nf = g.getframe(buf,0,0,rows,cols)
-		lcd.update(nf)
-		time.sleep(4)
-		lcd.clear()
+		# g.line(buf,0,0,0,8) # vertical left line
+		# g.line(buf,0,0,99,0) # horizontal top line
+		# g.line(buf,99,0,99,9) # vertical right line
+		# g.line(buf,0,8,99,8) # horizontal bottom line
+		# nf = g.getframe(buf,0,0,rows,cols)
+		# lcd.update(nf)
+		# time.sleep(4)
+		# lcd.clear()
 
 		g.message(buf,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
 		nf = g.getframe(buf,0,0,rows,cols)
@@ -464,11 +464,15 @@ if __name__ == '__main__':
 				maxw = i
 		height = len(width)*8
 
+		nfarray = [ ]
 		for i in range(0,(maxw+20)):
 			g.scrollbuffer(buf,height+4,maxw+20,u'left')
 			nf = g.getframe(buf,0,0,rows,cols)
-			lcd.update(nf)
-			time.sleep(.001)
+			nfarray.append(nf)
+			#lcd.update(nf)
+			#time.sleep(.001)
+		for i in range(0,(maxw+20)):
+			lcd.update(nfarray[i])
 		time.sleep(2)
 
 		for i in range(0,(height+4)*4):
