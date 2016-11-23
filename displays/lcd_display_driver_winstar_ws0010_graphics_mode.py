@@ -464,33 +464,33 @@ if __name__ == '__main__':
 				maxw = i
 		height = len(width)*8
 
-#		for i in range(0,(maxw+20)):
-#			g.scrollbuffer(buf,height+4,maxw+20,u'left')
-#			nf = g.getframe(buf,0,0,rows,cols)
-#			lcd.update(nf)
-#			time.sleep(.001)
-#		time.sleep(2)
-#
-#		for i in range(0,(height+4)*4):
-#			g.scrollbuffer(buf,height+4,maxw+20,u'up')
-#			nf = g.getframe(buf,0,0,rows,cols)
-#			lcd.update(nf)
-#			time.sleep(.001)
-#		time.sleep(2)
+		for i in range(0,(maxw+20)):
+			g.scrollbuffer(buf,height+4,maxw+20,u'left')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
+		time.sleep(2)
 
-#		for i in range(0,(maxw+20)):
-#			g.scrollbuffer(buf,height+4,maxw+20,u'right')
-#			nf = g.getframe(buf,0,0,rows,cols)
-#			lcd.update(nf)
-#			time.sleep(.001)
-#		time.sleep(2)
+		for i in range(0,(height+4)*4):
+			g.scrollbuffer(buf,height+4,maxw+20,u'up')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
+		time.sleep(2)
 
-#		for i in range(0,(height+4)*4):
-#			g.scrollbuffer(buf,height+4,maxw+20,u'down')
-#			nf = g.getframe(buf,0,0,rows,cols)
-#			lcd.update(nf)
-#			time.sleep(.001)
-#		time.sleep(2)
+		for i in range(0,(maxw+20)):
+			g.scrollbuffer(buf,height+4,maxw+20,u'right')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
+		time.sleep(2)
+
+		for i in range(0,(height+4)*4):
+			g.scrollbuffer(buf,height+4,maxw+20,u'down')
+			nf = g.getframe(buf,0,0,rows,cols)
+			lcd.update(nf)
+			time.sleep(.001)
+		time.sleep(2)
 
 		g.line(buf,0,0,0,8) # vertical left line
 		g.line(buf,0,0,100,0) # horizontal top line
