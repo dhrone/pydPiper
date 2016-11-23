@@ -20,7 +20,7 @@
 # Documenation for the similar Winstar WS0010 board currently available at
 # http://www.picaxe.com/docs/oled.pdf
 
-import time, math
+import time, math,copy
 import RPi.GPIO as GPIO
 import lcd_display_driver
 import fonts
@@ -464,13 +464,16 @@ if __name__ == '__main__':
 				maxw = i
 		height = len(width)*8
 
+		print "Computing scroll"
 		nfarray = [ ]
 		for i in range(0,(maxw+20)):
 			g.scrollbuffer(buf,height+4,maxw+20,u'left')
 			nf = g.getframe(buf,0,0,rows,cols)
-			nfarray.append(nf)
+			nfarray.append(copy.deepcopy(nf))
 			#lcd.update(nf)
 			#time.sleep(.001)
+
+		print "Starting scroll"
 		for i in range(0,(maxw+20)):
 			lcd.update(nfarray[i])
 		time.sleep(2)
