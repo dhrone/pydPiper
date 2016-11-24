@@ -455,7 +455,7 @@ if __name__ == '__main__':
 		# lcd.clear()
 
 
-		
+
 		width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
 		maxw = 0
 		for i in width:
@@ -463,7 +463,7 @@ if __name__ == '__main__':
 				maxw = i
 		height = len(width)*8
 
-		img = Image.new("1", (maxw+20, height+4), 0)	
+		img = Image.new("1", (maxw+20, height+4), 0)
 		g.message(img,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
 		nf = g.getframe(img,0,0,rows,cols)
 		lcd.update(nf)
@@ -491,25 +491,25 @@ if __name__ == '__main__':
 		print "and {0} to send the lines to the display".format(timevals[2])
 		time.sleep(2)
 
-		for i in range(0,(height+4)*4):
-			g.scrollbuffer(img,u'up')
-			nf = g.getframe(img,0,0,rows,cols)
-			lcd.update(nf)
-			time.sleep(.001)
-		time.sleep(2)
-
+		# for i in range(0,(height+4)*4):
+		# 	g.scrollbuffer(img,u'up')
+		# 	nf = g.getframe(img,0,0,rows,cols)
+		# 	lcd.update(nf)
+		# 	time.sleep(.001)
+		# time.sleep(2)
+		# 
 		for i in range(0,(maxw+20)):
-			g.scrollbuffer(img,u'right')
+			g.scrollbuffer(img,u'left')
 			nf = g.getframe(img,0,0,rows,cols)
 			lcd.update(nf)
 			time.sleep(.001)
 		time.sleep(2)
-
-		for i in range(0,(height+4)*4):
-			g.scrollbuffer(img,u'down')
-			nf = g.getframe(img,0,0,rows,cols)
-			lcd.update(nf)
-			time.sleep(.001)
+		#
+		# for i in range(0,(height+4)*4):
+		# 	g.scrollbuffer(img,u'down')
+		# 	nf = g.getframe(img,0,0,rows,cols)
+		# 	lcd.update(nf)
+		# 	time.sleep(.001)
 		# time.sleep(2)
 
 		# g.line(buf,0,0,0,8) # vertical left line

@@ -73,7 +73,6 @@ def invertbits(byte):
 	retval = retval >> 1
 	return retval
 
-
 def getframe(image,x,y,width,height):
 	# Returns an array of arrays
 	# [
@@ -92,9 +91,9 @@ def getframe(image,x,y,width,height):
 
 	retval = []
 
-	for row in xrange(bheight):
+	for row in range(0, bheight):
 		# Slice image in byte sized chunks
-		slice = img.crop( (0,0,width,8) )
+		slice = img.crop( (0,row*8,width,(row+1)*8) )
 
 		# Convert data into a two dimensional array
 		data = np.asarray(slice)
@@ -143,7 +142,7 @@ def scrollbuffer(image, direction=u'left', distance=1):
 
 	if direction == u'left':
 		region = image.crop((0,0, distance, height))
-		body = image.crop((distance,0, width-distance, height))
+		body = image.crop((distance,0, width, height))
 		image.paste(body, (0,0))
 		image.paste(region, ((width-distance),0) )
 	elif direction == u'right':
@@ -163,21 +162,19 @@ def scrollbuffer(image, direction=u'left', distance=1):
 		image.paste(region, (0,0) )
 
 
-# def show(buffer,width, height):
-#
-# 		for row in buffer:
-# 			for col in row:
-# 				for
-#
-#  		for i in range(0,height):
-#  			for j in range(0,width):
-#  				if get(buf,i,j):
-#  					sys.stdout.write('*')
-#  					sys.stdout.flush()
-#  				else:
-#  					sys.stdout.write(' ')
-#  					sys.stdout.flush()
-#  			print ''
+def show(bytebuffer,width, height):
+
+	for i in range(0,height):
+		for k in xrange(8):
+				for j in range(0,width):
+					mask = 1 << k
+					if bytebuffer[i][j]&mask:
+						sys.stdout.write('*')
+						sys.stdout.flush()
+					else:
+						sys.stdout.write(' ')
+						sys.stdout.flush()
+				print ''
 
 def clear(image,x,y,height,width):
 	draw = ImageDraw.Draw(image)
