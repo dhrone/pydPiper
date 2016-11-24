@@ -74,7 +74,7 @@ def invertbits(byte):
 	return retval
 
 
-def getframe(image,x,y,height,width):
+def getframe(image,x,y,width,height):
 	# Returns an array of arrays
 	# [
 	#   [ ], # Array of bytes for line 0
@@ -84,7 +84,7 @@ def getframe(image,x,y,height,width):
 	# ]
 
 	# Select portion of image to work with
-	img = image.crop( (x,y,height, width) )
+	img = image.crop( (x,y, width, height) )
 
 
 	width, height = img.size
@@ -163,18 +163,21 @@ def scrollbuffer(image, direction=u'left', distance=1):
 		image.paste(region, (0,0) )
 
 
-# def show(buffer,x,y,height,width):
-# 		buf = getbuffer(buffer,x,y,height,width)
+# def show(buffer,width, height):
 #
-# 		for i in range(0,height):
-# 			for j in range(0,width):
-# 				if get(buf,i,j):
-# 					sys.stdout.write('*')
-# 					sys.stdout.flush()
-# 				else:
-# 					sys.stdout.write(' ')
-# 					sys.stdout.flush()
-# 			print ''
+# 		for row in buffer:
+# 			for col in row:
+# 				for
+#
+#  		for i in range(0,height):
+#  			for j in range(0,width):
+#  				if get(buf,i,j):
+#  					sys.stdout.write('*')
+#  					sys.stdout.flush()
+#  				else:
+#  					sys.stdout.write(' ')
+#  					sys.stdout.flush()
+#  			print ''
 
 def clear(image,x,y,height,width):
 	draw = ImageDraw.Draw(image)
