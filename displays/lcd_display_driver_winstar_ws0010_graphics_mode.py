@@ -25,6 +25,8 @@ import RPi.GPIO as GPIO
 import lcd_display_driver
 import fonts
 import graphics as g
+from PIL import Image
+import numpy as np
 
 
 class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_display_driver):
@@ -452,11 +454,8 @@ if __name__ == '__main__':
 		# time.sleep(4)
 		# lcd.clear()
 
-		g.message(buf,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
-		nf = g.getframe(buf,0,0,rows,cols)
-		lcd.update(nf)
-		time.sleep(2)
 
+		
 		width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
 		maxw = 0
 		for i in width:
@@ -464,14 +463,21 @@ if __name__ == '__main__':
 				maxw = i
 		height = len(width)*8
 
+		img = Image.new("1", (maxw+20, height+4), 0)	
+		g.message(img,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
+		nf = g.getframe(img,0,0,rows,cols)
+		lcd.update(nf)
+		time.sleep(2)
+
+
 		nfarray = [ ]
 		timevals = [ 0, 0, 0]
 		for i in range(0,(maxw+20)):
 			start = time.time()
-			g.scrollbuffer(buf,height+4,maxw+20,u'left')
+			g.scrollbuffer(img,u'left')
 			timevals[0] += time.time()-start
 			start = time.time()
-			nf = g.getframe(buf,0,0,rows,cols)
+			nf = g.getframe(img,0,0,rows,cols)
 			timevals[1] += time.time()-start
 			nfarray.append(nf)
 			#lcd.update(nf)
@@ -486,22 +492,22 @@ if __name__ == '__main__':
 		time.sleep(2)
 
 		for i in range(0,(height+4)*4):
-			g.scrollbuffer(buf,height+4,maxw+20,u'up')
-			nf = g.getframe(buf,0,0,rows,cols)
+			g.scrollbuffer(img,u'up')
+			nf = g.getframe(img,0,0,rows,cols)
 			lcd.update(nf)
 			time.sleep(.001)
 		time.sleep(2)
 
 		for i in range(0,(maxw+20)):
-			g.scrollbuffer(buf,height+4,maxw+20,u'right')
-			nf = g.getframe(buf,0,0,rows,cols)
+			g.scrollbuffer(img,u'right')
+			nf = g.getframe(img,0,0,rows,cols)
 			lcd.update(nf)
 			time.sleep(.001)
 		time.sleep(2)
 
 		for i in range(0,(height+4)*4):
-			g.scrollbuffer(buf,height+4,maxw+20,u'down')
-			nf = g.getframe(buf,0,0,rows,cols)
+			g.scrollbuffer(img,u'down')
+			nf = g.getframe(img,0,0,rows,cols)
 			lcd.update(nf)
 			time.sleep(.001)
 		# time.sleep(2)
