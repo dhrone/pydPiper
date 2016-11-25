@@ -90,8 +90,8 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		self.FONTS_SUPPORTED = True
 
 		# Initialize the default font
-		fonts = fonts.bmfont.bmfont('latin1_5x8.fnt')
-		self.fp = fonts.fontpkg
+		font = fonts.bmfont.bmfont('latin1_5x8.fnt')
+		self.fp = font.fontpkg
 
 		# Set GPIO pins to handle communications to display
 		GPIO.setmode(GPIO.BCM)
@@ -474,60 +474,29 @@ if __name__ == '__main__':
 		lcd.update(nf)
 		time.sleep(2)
 
-		nfarray = [ ]
-		timevals = [ 0, 0, 0]
 		for i in range(0,(maxw+20)):
-			start = time.time()
 			g.scrollbuffer(img,u'left')
-			timevals[0] += time.time()-start
-			start = time.time()
 			nf = g.getframe(img,0,0,cols,rows)
-			timevals[1] += time.time()-start
-			nfarray.append(nf)
-			#lcd.update(nf)
-			#time.sleep(.001)
-		print "It took {0} seconds to compute scrollbuffer and {1} to compute frame".format(timevals[0], timevals[1])
-
-		for i in range(0,(maxw+20)):
-			start = time.time()
-			lcd.update(nfarray[i])
-			timevals[2] += time.time()-start
-		print "and {0} to send the lines to the display".format(timevals[2])
+			lcd.update(nf)
 		time.sleep(2)
 
 		for i in range(0,(height+4)*4):
 			g.scrollbuffer(img,u'up')
 			nf = g.getframe(img,0,0,cols,rows)
 			lcd.update(nf)
-			time.sleep(.001)
 		time.sleep(2)
 
 		for i in range(0,(maxw+20)):
 			g.scrollbuffer(img,u'right')
 			nf = g.getframe(img,0,0,cols,rows)
 			lcd.update(nf)
-			time.sleep(.001)
 		time.sleep(2)
 
 		for i in range(0,(height+4)*4):
 			g.scrollbuffer(img,u'down')
 			nf = g.getframe(img,0,0,cols,rows)
 			lcd.update(nf)
-			time.sleep(.001)
 		time.sleep(2)
-
-		# g.line(img,0,0,cols,rows,1)
-		# nf = g.getframe(img,0,0,cols,rows)
-		# lcd.update(nf)
-		# for i in range(0,99):
-		# 	j = i+1
-		# 	g.line(img,i,0,cols-i,rows,0)
-		# 	g.line(img,j,0,cols-j,rows,1)
-		# 	nf = g.getframe(img,0,0,cols,rows)
-		# 	lcd.update(nf)
-		# g.line(img,j,0,cols-j,rows,0)
-		# nf = g.getframe(img,0,0,cols,rows)
-		# lcd.update(nf)
 
 		g.line(img,0,0,cols,rows,1)
 		fb = g.getframe(img,0,0,cols,rows)
@@ -556,9 +525,7 @@ if __name__ == '__main__':
 		fb = g.getframe(img,0,0,cols,rows)
 		lcd.update(fb)
 
-
-
-		time.sleep(2)
+		time.sleep(1)
 
 		g.line(img,0,0,0,8) # vertical left line
 		g.line(img,0,0,100,0) # horizontal top line
