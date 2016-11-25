@@ -512,10 +512,10 @@ if __name__ == '__main__':
 			time.sleep(.001)
 		time.sleep(2)
 
-		g.line(buf,0,0,0,8) # vertical left line
-		g.line(buf,0,0,100,0) # horizontal top line
-		g.line(buf,99,0,99,8) # vertical right line
-		g.line(buf,0,8,100,8) # horizontal bottom line
+		g.line(img,0,0,0,8) # vertical left line
+		g.line(img,0,0,100,0) # horizontal top line
+		g.line(img,99,0,99,8) # vertical right line
+		g.line(img,0,8,100,8) # horizontal bottom line
 		nf = g.getframe(buf,0,0,cols,rows)
 		lcd.update(nf)
 		time.sleep(5)
