@@ -477,7 +477,7 @@ if __name__ == '__main__':
 			g.scrollbuffer(img,u'left')
 			timevals[0] += time.time()-start
 			start = time.time()
-			nf = g.getframe(img,0,0,rows,cols)
+			nf = g.getframe(img,0,0,cols,rows)
 			timevals[1] += time.time()-start
 			nfarray.append(nf)
 			#lcd.update(nf)
@@ -497,10 +497,10 @@ if __name__ == '__main__':
 		# 	lcd.update(nf)
 		# 	time.sleep(.001)
 		# time.sleep(2)
-		# 
+		#
 		for i in range(0,(maxw+20)):
 			g.scrollbuffer(img,u'left')
-			nf = g.getframe(img,0,0,rows,cols)
+			nf = g.getframe(img,0,0,cols,rows)
 			lcd.update(nf)
 			time.sleep(.001)
 		time.sleep(2)
