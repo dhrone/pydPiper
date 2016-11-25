@@ -307,7 +307,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		img = Image.new("1", (maxw, height), 0)
 		g.message(img,text,0,0, self.fp, varwidth)
 		nf = g.getframe(img,0,0,self.cols,self.rows)
-		lcd.update(nf)
+		self.update(nf)
 
 # 		self.setCursor(row, col)
 # 		crow = row
