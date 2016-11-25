@@ -512,6 +512,21 @@ if __name__ == '__main__':
 			time.sleep(.001)
 		time.sleep(2)
 
+		g.line(0,0,cols,rows,1)
+		nf = g.getframe(img,0,0,cols,rows)
+		lcd.update(nf)
+		for i in range(0,99):
+			j = i+1
+			g.line(i,0,cols-i,rows,0)
+			g.line(j,0,cols-j,rows,1)
+			nf = g.getframe(img,0,0,cols,rows)
+			lcd.update(nf)
+		g.line(j,0,cols-j,rows,0)
+		nf = g.getframe(img,0,0,cols,rows)
+		lcd.update(nf)
+
+		time.sleep(2)
+		
 		g.line(img,0,0,0,8) # vertical left line
 		g.line(img,0,0,100,0) # horizontal top line
 		g.line(img,99,0,99,8) # vertical right line

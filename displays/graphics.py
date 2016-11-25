@@ -244,7 +244,7 @@ def msgwidth(msg, fontpkg, varwidth=False):
  	return retval
 
 # From https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-def line(image,x0, y0, x1, y1):
+def line(image,x0, y0, x1, y1, color=1):
 	deltax = x1 - x0
 	deltay = y1 - y0
 	error = -1.0
@@ -257,7 +257,7 @@ def line(image,x0, y0, x1, y1):
 	if deltax:
 		y = y0
 		for x in range(x0,x1):
-			image.putpixel((x,y),1)
+			image.putpixel((x,y),color)
 			error = error + deltaerr
 			if error >= 0.0:
 				y = y + 1
@@ -265,7 +265,7 @@ def line(image,x0, y0, x1, y1):
 	else:
 		# line is vertical
 		for y in range(y0,y1):
-			image.putpixel((x0,y),1)
+			image.putpixel((x0,y),color)
 
 def message(image,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width=0):
 
