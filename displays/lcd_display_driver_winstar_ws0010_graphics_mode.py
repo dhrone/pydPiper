@@ -516,7 +516,7 @@ if __name__ == '__main__':
 		g.line(img,0,0,100,0) # horizontal top line
 		g.line(img,99,0,99,8) # vertical right line
 		g.line(img,0,8,100,8) # horizontal bottom line
-		nf = g.getframe(buf,0,0,cols,rows)
+		nf = g.getframe(img,0,0,cols,rows)
 		lcd.update(nf)
 		time.sleep(5)
 
