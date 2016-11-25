@@ -65,7 +65,7 @@ def invertbits(byte):
 	if byte < 0 | byte > 255:
 		raise ValueError
 	retval = 0
-	for i in xrange(8):
+	for i in range(0,8):
 		if byte & 1:
 			retval |= 1
 		byte = byte >> 1
@@ -88,25 +88,51 @@ def getframe(image,x,y,width,height):
 
 	width, height = img.size
 	bheight = int(math.ceil(height / 8.0))
+	imgdata = list(img.getdata())
 
-	retval = []
 
-	for row in range(0, bheight):
-		# Slice image in byte sized chunks
-		slice = img.crop( (0,row*8,width,(row+1)*8) )
+	retval = []	# The variable to hold the return value (an array of byte arrays)
+	retline = [0]*width # Line to hold the first byte of image data
+	bh = 0 # Used to determine when we've consumed a byte worth of the line
 
-		# Convert data into a two dimensional array
-		data = np.asarray(slice)
-
-		retline = [ ]
-
-		# Iterate through resulting array in column order
-		for byte in np.nditer(data, flags=['external_loop'], order='F'):
-			val = np.packbits(np.uint8(byte))
-			val = invertbits(val)
-			retline.append(val)
+	# Perform a horizontal iteration of the image data
+	for i in range(0,height):
+		for j in range(0,width):
+			# if the value is true then mask a bit into the byte within retline
+			if imgdata[(i*width)+j]:
+				try:
+					retline[j] |= 1<<bh
+				except IndexError as e:
+					# WTF
+					print "width = {0}".format(width)
+					raise e
+		# If we've written a full byte, start a new retline
+		bh += 1
+		if bh == 8: # We reached a byte boundary
+			bh = 0
+			retval.append(retline)
+			retline = [0]*width
+	if bh > 0:
 		retval.append(retline)
+
 	return retval
+	#
+	# for row in range(0, bheight):
+	# 	# Slice image in byte sized chunks
+	# 	slice = img.crop( (0,row*8,width,(row+1)*8) )
+	#
+	# 	# Convert data into a two dimensional array
+	# 	data = np.asarray(slice)
+	#
+	# 	retline = [ ]
+	#
+	# 	# Iterate through resulting array in column order
+	# 	for byte in np.nditer(data, flags=['external_loop'], order='F'):
+	# 		val = np.packbits(np.uint8(byte))
+	# 		val = invertbits(val)
+	# 		retline.append(val)
+	# 	retval.append(retline)
+	# return retval
 
 	# buf = getbuffer(buffer,x,y,height,width)
 	# retval = []
@@ -165,7 +191,7 @@ def scrollbuffer(image, direction=u'left', distance=1):
 def show(bytebuffer,width, height):
 
 	for i in range(0,height):
-		for k in xrange(8):
+		for k in range(0,8):
 				for j in range(0,width):
 					mask = 1 << k
 					if bytebuffer[i][j]&mask:
