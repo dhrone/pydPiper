@@ -512,16 +512,16 @@ if __name__ == '__main__':
 			time.sleep(.001)
 		time.sleep(2)
 
-		g.line(0,0,cols,rows,1)
+		g.line(img,0,0,cols,rows,1)
 		nf = g.getframe(img,0,0,cols,rows)
 		lcd.update(nf)
 		for i in range(0,99):
 			j = i+1
-			g.line(i,0,cols-i,rows,0)
-			g.line(j,0,cols-j,rows,1)
+			g.line(img,i,0,cols-i,rows,0)
+			g.line(img,j,0,cols-j,rows,1)
 			nf = g.getframe(img,0,0,cols,rows)
 			lcd.update(nf)
-		g.line(j,0,cols-j,rows,0)
+		g.line(img,j,0,cols-j,rows,0)
 		nf = g.getframe(img,0,0,cols,rows)
 		lcd.update(nf)
 
