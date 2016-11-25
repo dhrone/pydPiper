@@ -182,7 +182,7 @@ def scrollbuffer(image, direction=u'left', distance=1):
 		image.paste(body, (0,0) )
 		image.paste(region, (0,height-distance) )
 	elif direction == u'down':
-		region = image.crop((0,height-distance, width, distance))
+		region = image.crop((0,height-distance, width, height))
 		body = image.crop((0,0, width, height-distance))
 		image.paste(body, (0,distance) )
 		image.paste(region, (0,0) )
