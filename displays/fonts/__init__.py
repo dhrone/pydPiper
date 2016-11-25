@@ -1,4 +1,4 @@
-__all__ = [ "size5x8", "map" ]
+__all__ = [ "size5x8", "map", "bmfont" ]
 
 
 try:
@@ -9,4 +9,9 @@ except ImportError:
 try:
 	import map
 except ImportError:
+	pass
+
+try:
+	import bmfont
+except bmfont:
 	pass

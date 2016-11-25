@@ -527,7 +527,7 @@ if __name__ == '__main__':
 
 		g.line(img,0,0,cols,rows,1)
 		fb = g.getframe(img,0,0,cols,rows)
-		g.show(fb,100,2)
+		lcd.update(fb)
 		j=0
 		for i in range(0,99):
 			j = i+1
