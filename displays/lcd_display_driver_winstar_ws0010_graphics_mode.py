@@ -458,8 +458,8 @@ if __name__ == '__main__':
 
 		lcd.clear()
 
-		fonts = fonts.bmfont.bmfont('latin1_5x8.fnt')
-		fp = fonts.fontpkg
+		font = fonts.bmfont.bmfont('latin1_5x8.fnt')
+		fp = font.fontpkg
 
 		width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
 		maxw = 0
@@ -525,7 +525,7 @@ if __name__ == '__main__':
 		fb = g.getframe(img,0,0,cols,rows)
 		lcd.update(fb)
 
-		time.sleep(1)
+		time.sleep(2)
 
 		g.line(img,0,0,0,8) # vertical left line
 		g.line(img,0,0,100,0) # horizontal top line
@@ -549,6 +549,25 @@ if __name__ == '__main__':
 
 		time.sleep(2)
 		lcd.clear()
+
+		fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
+		fpV = fontV.fontpkg
+
+		width = g.msgwidth("12:35 pm", fp, True)
+		maxw = 0
+		for i in width:
+			if i > maxw:
+				maxw = i
+		height = len(width)*8
+
+		img = Image.new("1", (maxw+20, height+4), 0)
+		g.message(img,"12:35 pm",0,0, fp, True)
+		nf = g.getframe(img,0,0,cols,rows)
+		lcd.update(nf)
+		time.sleep(4)
+
+
+
 		#
 		# lcd.msgtest("\x00 Stop")
 		# lcd.msgtest("\x01 Play")
