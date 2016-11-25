@@ -512,21 +512,50 @@ if __name__ == '__main__':
 			time.sleep(.001)
 		time.sleep(2)
 
+		# g.line(img,0,0,cols,rows,1)
+		# nf = g.getframe(img,0,0,cols,rows)
+		# lcd.update(nf)
+		# for i in range(0,99):
+		# 	j = i+1
+		# 	g.line(img,i,0,cols-i,rows,0)
+		# 	g.line(img,j,0,cols-j,rows,1)
+		# 	nf = g.getframe(img,0,0,cols,rows)
+		# 	lcd.update(nf)
+		# g.line(img,j,0,cols-j,rows,0)
+		# nf = g.getframe(img,0,0,cols,rows)
+		# lcd.update(nf)
+
 		g.line(img,0,0,cols,rows,1)
-		nf = g.getframe(img,0,0,cols,rows)
-		lcd.update(nf)
+		fb = g.getframe(img,0,0,cols,rows)
+		g.show(fb,100,2)
+		j=0
 		for i in range(0,99):
 			j = i+1
 			g.line(img,i,0,cols-i,rows,0)
 			g.line(img,j,0,cols-j,rows,1)
-			nf = g.getframe(img,0,0,cols,rows)
-			lcd.update(nf)
+			fb = g.getframe(img,0,0,cols,rows)
+			lcd.update(fb)
 		g.line(img,j,0,cols-j,rows,0)
-		nf = g.getframe(img,0,0,cols,rows)
-		lcd.update(nf)
+		fb = g.getframe(img,0,0,cols,rows)
+		lcd.update(fb)
+
+		g.line(img,cols,0,0,rows,1)
+		fb = g.getframe(img,0,0,cols,rows)
+		lcd.update(fb)
+		for i in range(0,16):
+			j = i+1
+			g.line(img,cols,i,0,rows-i,0)
+			g.line(img,cols,j,0,rows-j,1)
+			fb = g.getframe(img,0,0,cols,rows)
+			lcd.update(fb)
+		g.line(img,0,0,cols,rows,0)
+		fb = g.getframe(img,0,0,cols,rows)
+		lcd.update(fb)
+
+
 
 		time.sleep(2)
-		
+
 		g.line(img,0,0,0,8) # vertical left line
 		g.line(img,0,0,100,0) # horizontal top line
 		g.line(img,99,0,99,8) # vertical right line
