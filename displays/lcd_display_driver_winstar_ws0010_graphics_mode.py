@@ -75,7 +75,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 
 
-	def __init__(self, rows=16, cols=80, rs=7, e=8, datalines=[25, 24, 23, 27]):
+	def __init__(self, rows=16, cols=100, rs=7, e=8, datalines=[25, 24, 23, 27]):
 		# Default arguments are appropriate for Raspdac V3 only!!!
 
 		self.pins_db = datalines
@@ -88,6 +88,10 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		self.fb = [[]]
 
 		self.FONTS_SUPPORTED = True
+
+		# Initialize the default font
+		fonts = fonts.bmfont.bmfont('latin1_5x8.fnt')
+		self.fp = fonts.fontpkg
 
 		# Set GPIO pins to handle communications to display
 		GPIO.setmode(GPIO.BCM)
@@ -287,37 +291,49 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 			for byte in font:
 				self.write4bits(byte, True)
 
-	def message(self, text, row=0, col=0):
+	def message(self, text, row=0, col=0, varwidth=True):
 		''' Send string to LCD. Newline wraps to second line'''
 
 		if row >= self.rows or col >= self.cols:
 			raise IndexError
 
-		self.setCursor(row, col)
-		crow = row
+		width = g.msgwidth(text, self.fp, varwidth)
+		maxw = 0
+		for i in width:
+			if i > maxw:
+				maxw = i
+		height = len(width)*8
 
-		for char in text:
-			if char == '\n':
-#				self.write4bits(0xC0) # next line
-				crow += 8
-				if crow >= self.rows:
-					raise IndexError
-				self.setCursor(crow,0)
+		img = Image.new("1", (maxw, height), 0)
+		g.message(img,text,0,0, self.fp, varwidth)
+		nf = g.getframe(img,0,0,self.cols,self.rows)
+		lcd.update(nf)
 
-			else:
-				# Translate incoming character into correct value for European charset
-				# and then send it to display.  Use space if character is out of range.
-				c = ord(char)
-				try:
-					cdata = fonts.size5x8.latin1.fontpkg[c]
-
-					for byte in cdata:
-						self.write4bits(byte, True)
-					self.write4bits(0x00, True)
-				except KeyError:
-					print "Cannot find {0} in font table".format(format(c,"02x"))
-					# Char not found
-					pass
+# 		self.setCursor(row, col)
+# 		crow = row
+#
+# 		for char in text:
+# 			if char == '\n':
+# #				self.write4bits(0xC0) # next line
+# 				crow += 8
+# 				if crow >= self.rows:
+# 					raise IndexError
+# 				self.setCursor(crow,0)
+#
+# 			else:
+# 				# Translate incoming character into correct value for European charset
+# 				# and then send it to display.  Use space if character is out of range.
+# 				c = ord(char)
+# 				try:
+# 					cdata = fonts.size5x8.latin1.fontpkg[c]
+#
+# 					for byte in cdata:
+# 						self.write4bits(byte, True)
+# 					self.write4bits(0x00, True)
+# 				except KeyError:
+# 					print "Cannot find {0} in font table".format(format(c,"02x"))
+# 					# Char not found
+# 					pass
 
 	def update(self, newbuf):
 
