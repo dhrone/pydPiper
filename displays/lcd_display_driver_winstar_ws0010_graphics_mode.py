@@ -315,7 +315,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 						self.write4bits(byte, True)
 					self.write4bits(0x00, True)
 				except KeyError:
-					print "Cannot find {0} in latin-1 font table".format(format(c,"02x"))
+					print "Cannot find {0} in font table".format(format(c,"02x"))
 					# Char not found
 					pass
 
@@ -442,19 +442,8 @@ if __name__ == '__main__':
 
 		lcd.clear()
 
-		fp = fonts.size5x8.latin1.fontpkg
-		buf = { }
-
-		# g.line(buf,0,0,0,8) # vertical left line
-		# g.line(buf,0,0,99,0) # horizontal top line
-		# g.line(buf,99,0,99,9) # vertical right line
-		# g.line(buf,0,8,99,8) # horizontal bottom line
-		# nf = g.getframe(buf,0,0,rows,cols)
-		# lcd.update(nf)
-		# time.sleep(4)
-		# lcd.clear()
-
-
+		fonts = fonts.bmfont.bmfont('latin1_5x8.fnt')
+		fp = fonts.fontpkg
 
 		width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
 		maxw = 0
@@ -468,7 +457,6 @@ if __name__ == '__main__':
 		nf = g.getframe(img,0,0,cols,rows)
 		lcd.update(nf)
 		time.sleep(2)
-
 
 		nfarray = [ ]
 		timevals = [ 0, 0, 0]
