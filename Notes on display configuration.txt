@@ -1,0 +1,76 @@
+Format for the display configuration
+
+All of these are types of display objects which always return an image.  These images should NOT be assumed to be static.
+
+Canvas
+A display space that widgets can be composed in to
+Contains an array of widgets
+	name - Name of the canvas. Used to refer to the canvas when placing within a renderer
+	size - (w.h) size of the canvas in pixels
+
+
+Widgets
+An element to place on a canvas
+	name -- Name of the widget.  Used to refer to the widget when including it in a canvas
+	location -- (x,y) Upper left of where to place widget.  Relative to the containing object
+	size -- (w,h) bounding size of display object
+	justification - how to place widget on the screen (relative to itself and its bounding size). (left, right, center)
+	type -- type of display object to render
+		Choice from...
+
+		Widget container -- array of widgets (yes widgets can contain widgets).  For each item...
+		 	name -- name of widget to include
+			location -- (x,y) where to place the widget within the set
+		Text
+			format -- format string to structure text content
+			variables -- array of variable names to combine with format string
+		Image
+			file -- name of file to retrieve
+			crop -- (x,y,w,h) Subsection of the image to display
+		Progress bar
+			style -- type of progress bar to render (rounded, square)
+			size - (w,h) how tall and wide the bar should be
+			variable -- the variable that contains the progress value
+			range -- (x,y) the top and bottom possible values for the variable
+		line
+			start -- (x,y) Where to start the line draw
+			end -- (x,y) Where to end the line draw
+			width -- How wide to draw the line
+		rectangle
+			location -- (x,y) Upper left of the rectangle
+			size -- (w,h) size of the rectangle
+			width -- How wide to draw the lines that make up the rectangle
+
+* Animated widgets will only be updated if they are part of a canvas that is currently being rendered
+
+Renderers
+Place a canvas on the display
+	name - name of renderer
+	canvas - name of canvas
+	type -- type of render.  Choice of...
+	Canvas.  Most basic renderer.  Shows the image contained on the canvas.
+		location - (x,y).  Place within the canvas to send to the display
+		appears - How the canvas initially gets drawn (fromleft,fromright,fromtop,frombottom,instant)
+	Popup.  Displays the top of the canvas and then periodically scrolls up to display the bottom of the canvas for a short time.
+		Frequency -- How many seconds between pop ups
+		Duration -- How many seconds to stay popped up
+
+
+
+Sequence
+Determine the order to display a set of renderers
+
+Conditional -- When should this sequence be active
+Cool down -- Length of time this sequence should be inactive after being active
+Priority -- An integer that is used to deconflict between two active sequences.  Lower numbers are higher priority (like DNS MX records).  Suggest using 0-10 for alerts, 100-200 for normal pages.
+Renderers -- A list of renders.  For each item...
+	name -- The name of the renderer
+	Duration -- How long to display the page
+	Conditional -- Should this page get displayed
+
+Only one sequence can be displayed at a time.  If two sequences are active, the one with higher priority will get displayed.  If two have the same priority, the one that is higher in the config file will take priority.
+
+
+
+Conditionals express a boolean that is used to make display decisions. Each contains
+	eval -- a string that contains the boolean expression to evaluate.  Can contain variable names.
