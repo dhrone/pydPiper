@@ -457,6 +457,21 @@ if __name__ == '__main__':
 		time.sleep(3)
 
 		lcd.clear()
+		fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
+		fpV = fontV.fontpkg
+
+		width = g.msgwidth("12:35 pm", fpV, True)
+		maxw = 0
+		for i in width:
+			if i > maxw:
+				maxw = i
+		height = len(width)*16
+
+		img = Image.new("1", (maxw+20, height+4), 0)
+		g.message(img,"12:35 pm",0,0, fpV, True)
+		nf = g.getframe(img,0,0,cols,rows)
+		lcd.update(nf)
+		time.sleep(10)
 
 		font = fonts.bmfont.bmfont('latin1_5x8.fnt')
 		fp = font.fontpkg
@@ -553,15 +568,15 @@ if __name__ == '__main__':
 		fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
 		fpV = fontV.fontpkg
 
-		width = g.msgwidth("12:35 pm", fp, True)
+		width = g.msgwidth("12:35 pm", fpV, True)
 		maxw = 0
 		for i in width:
 			if i > maxw:
 				maxw = i
-		height = len(width)*8
+		height = len(width)*16
 
 		img = Image.new("1", (maxw+20, height+4), 0)
-		g.message(img,"12:35 pm",0,0, fp, True)
+		g.message(img,"12:35 pm",0,0, fpV, True)
 		nf = g.getframe(img,0,0,cols,rows)
 		lcd.update(nf)
 		time.sleep(4)
