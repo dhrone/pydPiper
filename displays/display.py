@@ -8,363 +8,249 @@ import sys, copy, math, abc
 class widget:
 	__metaclass__ = abc.ABCMeta
 
-	def __init__(self, rows, columns):
-		self.rows = rows
-		self.columns = columns
+	# width and height.  In pixels for graphics displays and characters for character displays
+	width = 0
+	height = 0
 
+	# type.  What type of widget this is.  Used to determine what to do on a refresh.
+	type = None
+
+	# image.  A render of the current contents of the widget.
+	image = None
+
+# Widgets
+# An element to place on a canvas.
+# Static except when needing to be refreshed when any underlying variable gets changed.
+# 	name -- Name of the widget.  Used to refer to the widget when including it in a canvas
+# 	location -- (x,y) Upper left of where to place widget.  Relative to the containing object
+# 	size -- (w,h) bounding size of display object
+# 	justification - how to place widget on the screen (relative to itself and its bounding size). (left, right, center)
+# 	type -- type of display object to render
+# 		Choice from...
+#
+# 		Text
+# 			format -- format string to structure text content
+# 			variables -- array of variable names to combine with format string
+# 		Image
+# 			file -- name of file to retrieve
+# 			crop -- (x,y,w,h) Subsection of the image to display
+# 		Progress bar
+# 			style -- type of progress bar to render (rounded, square)
+# 			size - (w,h) how tall and wide the bar should be
+# 			variable -- the variable that contains the progress value
+# 			range -- (x,y) the top and bottom possible values for the variable
+# 		line
+# 			start -- (x,y) Where to start the line draw
+# 			end -- (x,y) Where to end the line draw
+# 			width -- How wide to draw the line
+# 		rectangle
+# 			location -- (x,y) Upper left of the rectangle
+# 			size -- (w,h) size of the rectangle
+# 			width -- How wide to draw the lines that make up the rectangle
+
+	@abc.abstractmethod
+	def __init__(self, (width, height), name, variabledict)):
+		# name is the reference that will be used to access the widget.  Must be unique.
+		# (width,height) is the requested size of the widget
+		# variabledict is the database that contains the current values of all display variables
+
+		# self.width = width
+		# self.height = height
+		# self.name = name
+		# self.variabledict = variabledict
+		return
+
+	@abc.abstractmethod
+	def update(self):
+		# Refresh content based upon current variables
+		return
 
 	# Widgets
 	@abc.abstractmethod
-	def text(msg, (x,y) = (0,0), (h,w)=(0,0), do=Null, fontpkg=Null, varwidth = False, just='left', vjust='top'):
+	def text(self, formatstring, variables, (h,w)=(0,0), fontpkg=Null, varwidth = False, just='left', vjust='top'):
 		# Input
 		# 	msg (unicode) -- msg to display
-		#	(x,y) (integer tuple) -- Coordinates to place the message within display object
-		#	(h,w) (integer tuple) -- Bounds of the rectangle that message will be written into.  If set to 0, no restriction on size.
-		#	do (display object) -- If provided, the message will be placed within the provided display object
+		#	(w,h) (integer tuple) -- Bounds of the rectangle that message will be written into.  If set to 0, no restriction on size.
 		#	fontpkg (font object) -- The font that the message should be rendered in.
-		#	varwidth (bool) -- Whether the font should be displaced monospaced or variable
+		#	varwidth (bool) -- Whether the font should be shown monospaced or with variable pitch
 		#	just (unicode) -- Determines how to justify the text horizontally.  Allowed values [ 'left','right','center' ]
 		#	vjust (unicode) -- Determines how to justify the text vertically.  Allowed values [ 'top', 'bottom', 'center' ]
-		# Returns
-		#	display object.  Will create a new one just large enought to hold the message if do is Null.
 		return
 
-	@abc.abstractmethod
-	def image(file, (x,y)=(0,0), (h,w)=(0,0), do=Null)
-		# Input
-		#	file (unicode) -- filename of file to retrieve image from.  Must be located within the images directory.
-		#	(x,y) (integer tuple) -- Coordinates to place the image within display object
-		#	(h,w) (integer tuple) -- Bounds of the rectangle that image will be written into.  If set to 0, no restriction on size.
-		#	do (display object) -- If provided, the image will be placed within the provided display object
-		# Returns
-		#	display object.  Will create a new one just large enought to hold the image if do is Null.
-		return
+	# @abc.abstractmethod
+	# def image(self, file,(h,w)=(0,0)):
+	# 	# Input
+	# 	#	file (unicode) -- filename of file to retrieve image from.  Must be located within the images directory.
+	# 	#	(h,w) (integer tuple) -- Bounds of the rectangle that image will be written into.  If set to 0, no restriction on size.
+	# 	return
 
 	@abc.abstractmethod
-	def progressbar(value, range, size, style, (x,y)=(0,0), do=Null)
+	def progressbar(self, value, range, size, style):
 		# Input
 		#	value (numeric) -- Value of the variable showing progress.
 		#	range (numeric tuple) -- Range of possible values.  Used to calculate percentage complete.
 		#	size (number tuple) -- width and height to draw progress boundary
 		#	style (unicode) -- Sets the style of the progress bar.  Allowed values [ 'rounded', 'square' ]
-		#	(x,y) (integer tuple) -- Coordinates to place the progress bar within display object
-		#	do (display object) -- If provided, the image will be placed within the provided display object
-		# Returns
-		#	display object.  Will create a new one just large enought to hold the image if do is Null.
 		return
 
 	@abc.abstractmethod
-	def line( (x0,y0,x1,y1), (x,y)=(0,0), width=1, do=Null)
+	def line(self,  (x0,y0,x1,y1), color=1, width=1):
 		# Input
 		#	(x0,y0, x1, y1) (integer quad tuple) -- Points to draw a line between.
-		#	(x,y) (integer tuple) -- Coordinates to place the image within display object
 		#	width (integer) -- number of pixels/blocks wide the line should be drawn
 		#	do (display object) -- If provided, the image will be placed within the provided display object
-		# Returns
-		#	display object.  Will create a new one just large enought to hold the image if do is Null.
 		return
 
 	@abc.abstractmethod
-	def rectangle( (x0,y0,x1,y1), width=1, do=Null)
+	def rectangle(self,  (x0,y0,x1,y1), width=1):
 		# Input
 		#	(x0,y0, x1, y1) (integer quad tuple) -- Upper left and lower right corners of the rectangle.
 		#	width (integer) -- number of pixels/blocks wide the lines of the rectangle should be drawn
 		#	do (display object) -- If provided, the image will be placed within the provided display object
-		# Returns
-		#	display object.  Will create a new one just large enought to hold the image if do is Null.
 		return
 
 	@abc.abstractmethod
-	def rectangle( (x0,y0,x1,y1), width=1, do=Null)
-		# Input
-		#	(x0,y0, x1, y1) (integer quad tuple) -- Upper left and lower right corners of the rectangle.
-		#	width (integer) -- number of pixels/blocks wide the lines of the rectangle should be drawn
-		#	do (display object) -- If provided, the image will be placed within the provided display object
-		# Returns
-		#	display object.  Will create a new one just large enought to hold the image if do is Null.
+	def getimage(self):
+		# returns a graphical or character image suitable for including in a graphical or character based canvas
 		return
 
+	# Utility functions
+	def evaltext(formatstring, variables):
+		# return a string that places variables according to formatstring instructions
+		return
 
-# def set(image,x,y,val):
-# 	# Sets pixel at x,y to value
-# 	# x is the distance in pixels from the top of the buffer (not the number of bytes)
-#
-# 	# Figure out what byte we are in
-# 	bx = int(x/8) # Byte we are in
-# 	bo = x % 8	# Offset within the byte
-#
-# 	# Add byte at coordinates if needed
-# 	try:
-# 		newval = buffer[(bx,y)]
-# 	except KeyError:
-# 		buffer[(bx,y)] = 0
-# 		newval = 0
-#
-# 	newval = buffer[(bx,y)]
-# 	if val:
-# 		newval |= 1 << bo # Set bit
-# 	else:
-# 		newval = ~(1<<bo)&0xFFFF&newval # Clear bit
-# 	buffer[(bx,y)] = newval
+class gwidget(widget):
 
-# def get(buffer,x,y):
-# 	# Get current value of pixel at coordinates x,y
-#
-# 	bx = int(x/8)
-# 	bo = x % 8
-#
-# 	try:
-# 		vb = buffer[(bx,y)]
-# 	except KeyError:
-# 		return 0
-#
-# 	if vb & (1<<bo):
-# 		return 1
-# 	else:
-# 		return 0
+		def __init__(self, (width, height), name, variabledict)):
+			# name is the reference that will be used to access the widget.  Must be unique.
+			# (width,height) is the requested size of the widget
+			# variabledict is the database that contains the current values of all display variables
 
-# def getbuffer(buffer,x,y,height,width):
-# 	# Return buffer that is referenced from coordinates starting x,y and is the size of height,width
-# 	# x,y - coordinates of the upper left portion of the display
-# 	# height,width - size of the display buffer to Return
-#
-# 	retval = { }
-#
-# 	for i in range (0, width):
-# 		for j in range(0, height):
-# 			val = get(buffer,x+j, y+i)
-# 			set(retval,j,i,val)
-#
-# 	return retval
-def invertbits(byte):
-	# Assumes 8 bit value
-	if byte < 0 | byte > 255:
-		raise ValueError
-	retval = 0
-	for i in range(0,8):
-		if byte & 1:
-			retval |= 1
-		byte = byte >> 1
-		retval = retval << 1
-	retval = retval >> 1
-	return retval
+			self.width = width
+			self.height = height
+			self.name = name
+			self.variabledict = variabledict
+			self.image = None
+			self.type = None
 
-def getframe(image,x,y,width,height):
-	# Returns an array of arrays
-	# [
-	#   [ ], # Array of bytes for line 0
-	#   [ ]  # Array of bytes for line 1
-	#				 ...
-	#   [ ]  # Array of bytes for line n
-	# ]
+		def update(self):
+			return
 
-	# Select portion of image to work with
-	img = image.crop( (x,y, width, height) )
+		# Widgets
+		def text(self, formatstring, variables, size=(0,0), fontpkg=Null, varwidth = False, just='left', vjust='top'):
+			# Input
+			# 	msg (unicode) -- msg to display
+			#	(w,h) (integer tuple) -- Bounds of the rectangle that message will be written into.  If set to 0, no restriction on size.
+			#	fontpkg (font object) -- The font that the message should be rendered in.
+			#	varwidth (bool) -- Whether the font should be shown monospaced or with variable pitch
+			#	just (unicode) -- Determines how to justify the text horizontally.  Allowed values [ 'left','right','center' ]
+			#	vjust (unicode) -- Determines how to justify the text vertically.  Allowed values [ 'top', 'bottom', 'center' ]
+
+			self.type = u'text'
+
+			(fx,fy) = fontpkg['size']
+			w,h = size
+			cx = 0
+			cy = 0
+			cw = 0
+
+			msg = self.evaltext(formatstring, variables)
+
+			# initialize image if needed
+			if self.image is None:
+				# initialize image
+				msglines = msg.split('\n')
+				maxw = 0
+				for line in msglines:
+					if maxw < len(line):
+						max = len(line):
+				maxw = maxw * fx
+				maxh = len(msglines) * fy
+				self.image = Image.new("1", (maxw, maxh), 0)
 
 
-	width, height = img.size
-	bheight = int(math.ceil(height / 8.0))
-	imgdata = list(img.getdata())
+			for c in msg:
 
+				# If newline, move y to next line (based upon font height) and return x to beginning of line
+				if c == u'\n':
+					cy = cy + fy
+					cx = 0
+					continue
 
-	retval = []	# The variable to hold the return value (an array of byte arrays)
-	retline = [0]*width # Line to hold the first byte of image data
-	bh = 0 # Used to determine when we've consumed a byte worth of the line
-
-	# Perform a horizontal iteration of the image data
-	for i in range(0,height):
-		for j in range(0,width):
-			# if the value is true then mask a bit into the byte within retline
-			if imgdata[(i*width)+j]:
 				try:
-					retline[j] |= 1<<bh
-				except IndexError as e:
-					# WTF
-					print "width = {0}".format(width)
-					raise e
-		# If we've written a full byte, start a new retline
-		bh += 1
-		if bh == 8: # We reached a byte boundary
-			bh = 0
-			retval.append(retline)
-			retline = [0]*width
-	if bh > 0:
-		retval.append(retline)
-
-	return retval
-
-def scrollbuffer(image, direction=u'left', distance=1):
-	direction = direction.lower()
-
-	# Save region to be overwritten
-	# Move body
-	# Restore region to cleared space
-
-	width, height = image.size
-
-	if direction == u'left':
-		region = image.crop((0,0, distance, height))
-		body = image.crop((distance,0, width, height))
-		image.paste(body, (0,0))
-		image.paste(region, ((width-distance),0) )
-	elif direction == u'right':
-		region = image.crop((width-distance,0, width, height))
-		body = image.crop((0,0, width-distance, height))
-		image.paste(body, (distance,0) )
-		image.paste(region, (0,0) )
-	elif direction == u'up':
-		region = image.crop((0,0, width, distance))
-		body = image.crop((0,distance, width, height))
-		image.paste(body, (0,0) )
-		image.paste(region, (0,height-distance) )
-	elif direction == u'down':
-		region = image.crop((0,height-distance, width, height))
-		body = image.crop((0,0, width, height-distance))
-		image.paste(body, (0,distance) )
-		image.paste(region, (0,0) )
+					charimg = fontpkg[ord(c)]
+				except KeyError:
+					# Requested character does not exist in font.  Replace with '?'
+					charimg = fontpkg[ord('?')]
 
 
-def show(bytebuffer,width, height):
+				# Adjust charimg if varwidth is False
+				if not varwidth:
+					offset = (fx-charimg.width)/2
+					charimg = copy.copy(charimg).crop( (-offset,0,fx-offset,fy) )
 
-	for i in range(0,height):
-		for k in range(0,8):
-				for j in range(0,width):
-					mask = 1 << k
-					if bytebuffer[i][j]&mask:
-						sys.stdout.write('*')
-						sys.stdout.flush()
-					else:
-						sys.stdout.write(' ')
-						sys.stdout.flush()
-				print ''
+				# Paste character into frame
+				self.image.paste(charimg, (cx,cy))
 
-def clear(image,x,y,width,height):
-	draw = ImageDraw.Draw(image)
-	draw.rectangle((x,y, x+width-1, y+height-1),0)
+				# Erase space between characters
+				clear(image,cx+charimg.width,cy,1,fy)
 
-def msgwidth(msg, fontpkg, varwidth=False):
- 	(fx, fy) = fontpkg['size']
- 	retval = [ ]
- 	clp = 0 # Current line pixel used count
+				# Move to next character position
+				if varwidth:
+					cx += charimg.width+1
+				else:
+					cx += fx+1
 
-	for c in msg:
-		if c == u'\n':
-			if clp == 0:
-				retval.append(0)
+			# Resize image
+			if size == (0,0):
+				# resize to exact requirement of message
+				self.image.crop(0,0,cx-1, cy+fy)
 			else:
-				retval.append(clp-1)
-			clp = 0
-			continue
+				self.image.crop(0,0,w,h)
+			self.size = (self.width, self.height)
 
-		if varwidth:
-			try:
-				clp += fontpkg[ord(c)].width+1
-			except:
-				clp += fontpkg[ord('?')].width+1
-		else:
-			clp += fx+1
-	retval.append(clp-1)
-	return retval
+			return self.image
 
- # 	for c in msg:
- # 		if c == u'\n':
- # 			retval.append(clp-1)
- # 			clp = 0
- # 			continue
-	#
- # 		bytearray = copy.copy(fontpkg[ord(c)])
- # 		if varwidth and ord(c) != 0x20: # if variable width requested and char is not a space
- # 			try:
- # 				# Trim left
- # 				while bytearray[0] == 0:
- # 					del bytearray[0]
- # 				# Trim right
- # 				for i in range(len(bytearray)-1,0,-1):
- # 					if bytearray[i] == 0:
- # 						del bytearray[i]
- # 			except IndexError:
- # 				# bytearray for this character was empty
- # 				pass
-	#
- # 		for val in bytearray:
- # 			clp += 1
- # 		# Add pixel wide gap between characters
- # 		clp += 1
- # 	retval.append(clp-1)
-	#
- # 	return retval
+		# def image(self, file,(h,w)=(0,0)):
+		# 	# Input
+		# 	#	file (unicode) -- filename of file to retrieve image from.  Must be located within the images directory.
+		# 	#	(h,w) (integer tuple) -- Bounds of the rectangle that image will be written into.  If set to 0, no restriction on size.
+		# 	return
 
-def line(image,x0, y0, x1, y1, color=1):
-	draw = ImageDraw.Draw(image)
-	draw.line((x0,y0,x1,y1),color)
+		def progressbar(self, value, range, size, style):
+			# Input
+			#	value (numeric) -- Value of the variable showing progress.
+			#	range (numeric tuple) -- Range of possible values.  Used to calculate percentage complete.
+			#	size (number tuple) -- width and height to draw progress boundary
+			#	style (unicode) -- Sets the style of the progress bar.  Allowed values [ 'rounded', 'square' ]
+			return
 
-def message(image,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width=0):
+		@abc.abstractmethod
+		def line(self, (x0,y0,x1,y1), color=1, width=1):
+			# Input
+			#	(x0,y0, x1, y1) (integer quad tuple) -- Points to draw a line between.
+			#	width (integer) -- number of pixels/blocks wide the line should be drawn
+			#	do (display object) -- If provided, the image will be placed within the provided display object
 
-	(fx,fy) = fontpkg['size']
-	cx = x
-	cy = y
+			draw = ImageDraw.Draw(self.image)
+			draw.line( (x0,y0,x1,y1) ,color)
+			self.size = self.image.size
 
-	for c in msg:
+			return
 
-		# If newline, move y to next line (based upon font height) and return x to beginning of line
-		if c == u'\n':
-			cy = cy + fy
-			cx = x
-			continue
+		def rectangle(self,  (x0,y0,x1,y1), color=1, width=1):
+			# Input
+			#	(x0,y0, x1, y1) (integer quad tuple) -- Upper left and lower right corners of the rectangle.
+			#	width (integer) -- number of pixels/blocks wide the lines of the rectangle should be drawn
+			#	do (display object) -- If provided, the image will be placed within the provided display object
 
-		try:
-			charimg = fontpkg[ord(c)]
-		except KeyError:
-			# Requested character does not exist in font.  Replace with '?'
-			charimg = fontpkg[ord('?')]
+			draw = ImageDraw.Draw(self.image)
+			draw.rectangle((x0,y0,x1,y1),color)
+			self.size = self.image.size
+			return
 
-		# if varwidth and ord(c) != 0x20: # if variable width requested and char is not a space
-		# 	try:
-		# 		# Trim left
-		# 		while bytearray[0] == 0:
-		# 			del bytearray[0]
-		# 		# Trim right
-		# 		for i in range(len(bytearray)-1,0,-1):
-		# 			if bytearray[i] == 0:
-		# 				del bytearray[i]
-		# 	except IndexError:
-		# 		# bytearray for this character was empty
-		# 		pass
 
-		# # Place character bitmap into frame buffer
-		# for val in bytearray:
-		# 	cy = y
-		# 	for i in range(0,fy):
-		# 		# Test bit
-		# 		tb = 1
-		# 		if val & (1<<i):
-		# 			tv = 1
-		# 		else:
-		# 			tv = 0
-		# 		image.putpixel((cx,cy),tv)
-		# 		cy += 1
-		# 	cx += 1
-		#
-		# # Add pixel wide gap between characters
-		# cy = y
-		# for i in range(0,fy):
-		# 	image.putpixel((cx,cy),0)
-		# 	cy += 1
-		# cx += 1
-
-		# Adjust charimg if varwidth is False
-		if not varwidth:
-			offset = (fx-charimg.width)/2
-			charimg = copy.copy(charimg).crop( (-offset,0,fx-offset,fy) )
-
-		# Paste character into frame
-		image.paste(charimg, (cx,cy))
-
-		# Erase space between characters
-		clear(image,cx+charimg.width,cy,1,fy)
-
-		# Move to next character position
-		if varwidth:
-			cx += charimg.width+1
-		else:
-			cx += fx+1
+		@abc.abstractmethod
+		def getimage(self):
+			# returns a graphical image suitable for including in a graphical based canvas
+			return
