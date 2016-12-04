@@ -41,7 +41,7 @@ class widget:
 # 			width -- How wide to draw the lines that make up the rectangle
 
 
-	def __init__(self, name, variabledict=None):
+	def __init__(self, variabledict={ }):
 		# name is the reference that will be used to access the widget.  Must be unique.
 		# (width,height) is the requested size of the widget
 		# variabledict is the database that contains the current values of all display variables
@@ -50,27 +50,11 @@ class widget:
 		self.width = 0
 		self.height = 0
 		self.size = (0,0)
-
-		# type.  What type of widget this is.  Used to determine what to do on a refresh.
-		self.type = None
-
-		# image.  A render of the current contents of the widget.
-		self.image = None
-
-		# variables.  Names of variables in to-be-used order
-		self.variables = []
-
-		# currentvarcict.  A record of any variables that have been used and their last value
-		self.currentvardict = { }
-
-		# variabledict.  A pointer to the current active list of system variables
-		self.variabledict = None
-
-		self.name = name
-		self.currentvardict = { }
-		self.variabledict = variabledict
-		self.image = None
-		self.type = None
+		self.type = None					# What type of widget this is.  Used to determine what to do on a refresh.
+		self.image = None					# A render of the current contents of the widget.
+		self.variables = []					# Names of variables in to-be-used order
+		self.currentvardict = { }			# A record of any variables that have been used and their last value
+		self.variabledict = variabledict	# variabledict.  A pointer to the current active list of system variables
 
 	@abc.abstractmethod
 	def update(self):
@@ -79,7 +63,7 @@ class widget:
 
 	# Widgets
 	@abc.abstractmethod
-	def text(self, formatstring, variables, fontpkg, varwidth = False, just=u'left'):
+	def text(self, formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'):
 		# Input
 		# 	msg (unicode) -- msg to display
 		#	(w,h) (integer tuple) -- Bounds of the rectangle that message will be written into.  If set to 0, no restriction on size.
@@ -88,15 +72,8 @@ class widget:
 		#	just (unicode) -- Determines how to justify the text horizontally.  Allowed values [ 'left','right','center' ]
 		return
 
-	# @abc.abstractmethod
-	# def image(self, file,(h,w)=(0,0)):
-	# 	# Input
-	# 	#	file (unicode) -- filename of file to retrieve image from.  Must be located within the images directory.
-	# 	#	(h,w) (integer tuple) -- Bounds of the rectangle that image will be written into.  If set to 0, no restriction on size.
-	# 	return
-
 	@abc.abstractmethod
-	def progressbar(self, value, rangeval, size, style=u'square', variabledict=None):
+	def progressbar(self, value, rangeval, size, style=u'square',variabledict={ }):
 		# Input
 		#	value (numeric) -- Value of the variable showing progress.
 		#	range (numeric tuple) -- Range of possible values.  Used to calculate percentage complete.
@@ -112,18 +89,46 @@ class widget:
 		return
 
 	@abc.abstractmethod
-	def rectangle(self, (x,y), color=1):
+	def rectangle(self, (x,y), fill=0, outline=1):
 		# Input
 		#	(x,y) (integer  tuple) -- Lower right of rectanble drawn from the origin
 		#	color (integer) -- color of the rectangle
 		return
 
-	# @abc.abstractmethod
-	# def getimage(self):
-	# 	# returns a graphical or character image suitable for including in a graphical or character based canvas
-	# 	return
+	@abc.abstractmethod
+	def canvas(self, (w,h)):
+		# Input
+		#	(w,h) (integer  tuple) -- size of canvas
+		return
+
+	@abc.abstractmethod
+	def popup(self, widget, dheight, duration=15, pduration=10):
+		# Input
+		#	widget (widget) -- Widget to pop up
+		#	dheight (integer) -- Sets the height of the window which will get displayed from the canvas
+		#	duration (float) -- How long to display the top of the canvas
+		#	pduration (float) -- How long to stay popped up
+		return
+
+	@abc.abstractmethod
+	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2):
+		# Input
+		#	widget (widget) -- Widget to scroll
+		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
+		#	hesitatetype (unicode) -- the type of hesitation to use ['none', 'onstart', 'onloop']
+		#	hesitatetime (float) -- how long in seconds to hesistate
+		return
 
 	# Utility functions
+	def updatesize(self):
+		if self.image != None:
+			self.width = self.image.width
+			self.height = self.image.height
+			self.size = self.image.size
+		else:
+			self.width = 0
+			self.height = 0
+			self.size = (0,0)
 
 	def transformvariable(self, val, name):
 		# Implement transformation logic (e.g. |yesno, |onoff |upper |bigchars+0)
@@ -217,9 +222,6 @@ class widget:
 
 	def evaltext(self, formatstring, variables):
 		# return a string that places variables according to formatstring instructions
-		parms = []
-		for v in variables:
-			parms.append(self.variabledict[v])
 
 		parms = []
 		try:
@@ -259,8 +261,10 @@ class widget:
 class gwidget(widget):
 
 	def update(self):
-		if not self.changed(self.variables):
-			return False
+
+		if self.type in ['text', 'progressbar']:
+			if not self.changed(self.variables):
+				return False
 
 		if self.type == 'text':
 			self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.size, self.just)
@@ -268,9 +272,76 @@ class gwidget(widget):
 		elif self.type == 'progressbar':
 			self.progressbar(self.value, self.rangeval, self.size, self.style)
 			return True
+		elif self.type == 'canvas':
+			retval = False
+			for e in self.widgets:
+				widget,x,y,w,h = e
+				if widget.update():
+					retval = True
+			# If a widget has changed
+			if retval:
+				# Clear canvas
+				self.clear()
+				# Replace all of the widgets
+				for e in self.widgets:
+					widget,x,y,w,h = e
+					self.place(widget, (x,y), (w,h))
+			return retval
+		elif self.type == u'scroll':
+			return self.scroll(self.widget, self.direction, self.distance, self.gap, self.hesitatetype, self.hesitatetime)
+		elif self.type == u'popup':
+			return self.popup(self.widget, self.dheight, self.duration, self.pduration)
 		else:
 			return False
 
+	# WIDGETS
+
+	# CANVAS widget functions
+	def canvas(self, (w,h)):
+		self.type = u'canvas'
+		self.image = Image.new("1", (w,h) )
+		self.updatesize()
+
+	def add(self, widget, (x,y), (w,h)=(0,0)): # Add a widget to the canvas
+
+		if self.type != u'canvas':
+			logging.warning("Trying to add a widget to something that is not a canvas")
+			return
+
+		try:
+			self.widgets
+		except:
+			# initialize widgets array
+			self.widgets = []
+
+		self.widgets.append( (widget,x,y,w,h) )
+		self.place(widget, (x,y), (w,h) )
+		return self
+
+	def clear(self): # Erase canvas
+		if self.type != u'canvas':
+			logging.warning('Trying to clear a widget that is not a canvas')
+			return
+		self.image = Image.new("1", (self.image.width, self.image.height))
+
+	def place(self, widget, (x,y), size=(0,0)): # Place a widget's image on the canvas
+		# Input
+		#	widget (widget): widget to place
+		#	(x,y) (integer tuple): where to place it
+		#	size (integer tuple): how big should it be
+		if self.type != u'canvas':
+			logging.warning(u"Trying to place a widget on something that is not a canvas")
+			return
+
+		w,h = size
+		if w > 0 or h > 0:
+			img = widget.image.crop( (0,0,0+w,0+h) )
+		else:
+			img = widget.image
+
+		self.image.paste(img, (x,y))
+
+	# TEXT widget functions
 	def textsize(self, msg, fontpkg, varwidth): # returns the size needed to contain provided message
 		# Input
 		#	msg (unicode): string that contains the message for the calculation
@@ -308,7 +379,6 @@ class gwidget(widget):
 
 		return ((maxw, maxh))
 
-	# Widgets
 	def text(self, formatstring, variables, fontpkg, varwidth = False, size=(0,0), just=u'left'):
 		# Input
 		# 	formatstring (unicode) -- format string
@@ -335,7 +405,6 @@ class gwidget(widget):
 		cx = 0
 		cy = 0
 		cw = 0
-
 
 		msg = self.evaltext(formatstring, variables)
 
@@ -392,7 +461,8 @@ class gwidget(widget):
 			lineimage.paste(charimg, (cx,0))
 
 			# Erase space between characters
-			self.clear(lineimage,cx+charimg.width,0,1,fy)
+			draw = ImageDraw.Draw(lineimage)
+			draw.rectangle((cx+charimg.width,0, cx+charimg.width, fy-1),0)
 
 			# Move to next character position
 			if varwidth:
@@ -403,7 +473,6 @@ class gwidget(widget):
 		# # resize to exact requirement of message
 		# self.image.crop((0,0,cx-1, cy+fy))
 
-
 		# Place last line into image
 		if just == u'left':
 			ax = 0
@@ -413,9 +482,7 @@ class gwidget(widget):
 			ax = (maxw-cx)
 		self.image.paste(lineimage, (ax, cy))
 
-		self.size = self.image.size
-		self.width = self.image.width
-		self.height = self.image.height
+		self.updatesize()
 
 		return self.image
 
@@ -425,15 +492,13 @@ class gwidget(widget):
 	# 	#	(h,w) (integer tuple) -- Bounds of the rectangle that image will be written into.  If set to 0, no restriction on size.
 	# 	return
 
+	# PROGRESSBAR widget function
 	def progressbar(self, value, rangeval, size, style=u'square'):
 		# Input
 		#	value (numeric) -- Value of the variable showing progress.
 		#	rangeval (numeric tuple) -- Range of possible values.  Used to calculate percentage complete.
 		#	size (number tuple) -- width and height to draw progress bar
 		#	style (unicode) -- Sets the style of the progress bar.  Allowed values [ 'rounded', 'square' ]
-
-		if self.variabledict is None:
-			self.variabledict = { }
 
 		self.variables = []
 
@@ -468,6 +533,11 @@ class gwidget(widget):
 		else:
 			rvhigh = 0
 
+		# Save variables used for this progressbar widget
+		self.currentvardict = { }
+		for sv in variables:
+			self.currentvardict[sv] = self.variabledict[sv]
+
 		width, height = size
 
 		# correct values if needed
@@ -494,10 +564,9 @@ class gwidget(widget):
 				self.image.putpixel((i+1,height-1), 1)
 			draw.line( (width-1,0,width-1,height-1),1)
 
-		self.size = self.image.size
-		self.width = self.image.width
-		self.height = self.image.height
+		self.updatesize()
 
+		# Save parameters for update
 		self.value = value
 		self.rangeval = rangeval
 		self.style = style
@@ -505,6 +574,7 @@ class gwidget(widget):
 
 		return self.image
 
+	# LINE widget function
 	def line(self, (x,y), color=1):
 		# Input
 		#	(x,y) (integer tuple) -- Draw a line from the origin to x,y
@@ -520,12 +590,16 @@ class gwidget(widget):
 
 		draw = ImageDraw.Draw(self.image)
 		draw.line( (0,0,x,y) ,color)
-		self.size = self.image.size
-		self.width = self.image.width
-		self.height = self.image.height
+
+		self.updatesize()
+
+		# save parameters
+		self.xy = (x,y)
+		self.color = color
 
 		return self.image
 
+	# RECTANGLE widget function
 	def rectangle(self, (x,y), fill=0, outline=1):
 		# Input
 		#	(x,y) (integer tuple) -- Bottom left and bottom right of rectangle drawn from origin
@@ -541,137 +615,20 @@ class gwidget(widget):
 
 		draw = ImageDraw.Draw(self.image)
 		draw.rectangle((0,0,x,y),fill, outline)
-		self.size = self.image.size
-		self.width = self.image.width
-		self.height = self.image.height
+
+		self.updatesize()
+
+		# save parameters
+		self.xy = (x,y)
+		self.fill = fill
+		self.outline = outline
 
 		return self.image
 
-	def getimage(self):
-		# returns a graphical image suitable for including in a graphical based canvas
-
-		return self.Image
-
-class gwidgetText(gwidget):
-	def __init__(self, name, formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'):
-		super(gwidgetText, self).__init__(name, variabledict)
-		self.text(formatstring, variables, fontpkg, varwidth, size, just)
-
-class gwidgetProgressBar(gwidget):
-	def __init__(self, name, value, rangeval, size, style=u'square',variabledict=None):
-		super(gwidgetProgressBar, self).__init__(name, variabledict)
-		self.progressbar(value, rangeval, size, style)
-
-class gwidgetLine(gwidget):
-	def __init__(self, name, (x,y), color=1):
-		super(gwidgetLine, self).__init__(name)
-		self.line((x,y), color)
-
-class gwidgetRectangle(gwidget):
-	def __init__(self, name, (x,y), fill=0, outline=1):
-		super(gwidgetRectangle, self).__init__(name)
-		self.line((x,y), fill, outline)
-
-class canvas():
-	__metaclass__ = abc.ABCMeta
-
-	@abc.abstractmethod
-	def __init__(self, name):
-		return
-
-	@abc.abstractmethod
-	def add(self, widget, (x,y), size): # Add a widget to the canvas
+	# POPUP widget function
+	def popup(self, widget, dheight, duration=15, pduration=10): # Set up for pop-up display
 		# Input
-		#	widget (widget): widget to add to canvas
-		#	(x,y) (integer tuple): location to place widget on canvas
-		#	size (integer tuple): size to limit widget to.  (0,0) means no restriction.
-		return
-
-	@abc.abstractmethod
-	def place(self, widget, (x,y), size):
-		# Input
-		#	widget (widget): widget to place
-		#	(x,y) (integer tuple): where to place it
-		#	size (integer tuple): how big should it be
-		return
-
-	@abc.abstractmethod
-	def update(self): # Update all widgets and refresh canvas
-		return
-
-class gcanvas(canvas):
-
-	def __init__(self, name, (w,h)): # Initialize class
-		self.name = name
-		self.widgets = []
-		self.image = Image.new("1", (w,h) )
-		self.width = w
-		self.height = h
-
-	def add(self, widget, (x,y), (w,h)=(0,0)): # Add a widget to the canvas
-		self.widgets.append( (widget,x,y,w,h) )
-		a,b,c,d,e = self.widgets[-1]
-
-		self.place(widget, (x,y), (w,h) )
-
-	def clear(self): # Erase canvas
-		self.image = Image.new("1", (self.image.width, self.image.height))
-
-	def place(self, widget, (x,y), size=(0,0)): # Place a widget's image on the canvas
-		# Input
-		#	widget (widget): widget to place
-		#	(x,y) (integer tuple): where to place it
-		#	size (integer tuple): how big should it be
-		w,h = size
-		if w > 0 or h > 0:
-			img = widget.image.crop( (0,0,0+w,0+h) )
-		else:
-			img = widget.image
-
-		self.image.paste(img, (x,y))
-
-	def update(self): # Update all widgets and refresh canvas
-
-		retval = False
-		for e in self.widgets:
-			widget,x,y,w,h = e
-			if widget.update():
-				retval = True
-
-		# If a widget has changed
-		if retval:
-			# Clear canvas
-			self.clear()
-
-			# Replace all of the widgets
-			for e in self.widgets:
-				widget,x,y,w,h = e
-				self.place(widget, (x,y), (w,h))
-
-		return retval
-
-class renderer(object):
-
-	def __init__(self, name, canvas):
-		# Input
-		#	name (unicode) -- the name of the render object
-		#	canvas (canvas) -- the canvas to render
-		self.name = name
-		self.canvas = canvas
-		self.type = None
-
-class grenderer(renderer):
-
-	def __init__(self, name, canvas):
-		super(grenderer, self).__init__(name, canvas)
-		self.image = canvas.image.copy()
-
-	def static(self, appears='instant'): # Set up for static display
-		self.type = u'static'
-		return
-
-	def popup(self, dheight, duration=15, pduration=5): # Set up for pop-up display
-		# Input
+		#	widget (widget) -- Widget to pop up
 		#	dheight (integer) -- Sets the height of the window which will get displayed from the canvas
 		#	duration (float) -- How long to display the top of the canvas
 		#	pduration (float) -- How long to stay popped up
@@ -683,24 +640,23 @@ class grenderer(renderer):
 			self.type = u'popup'
 			self.popped = False
 			self.end = time.time() + duration
-			self.image = self.canvas.image
-			self.width = self.image.width
-			self.height = self.image.height
+			self.image = widget.image
+			self.updatesize()
 			self.index = 0
 
 			# Save parameters
+			self.widget = widget
 			self.dheight = dheight
 			self.duration = duration
 			self.pduration = pduration
 
-		# Update the canvas if needed
-		updated = False
-		if self.canvas.update():
-			updated = True
+		# Update the widget if needed
+		self.widget.update()
 
-		# If we are waiting for a transition, return True if display needs to be repainted, otherwise False
+		# If we are waiting for a transition
 		if self.end > time.time():
-			self.image = self.canvas.image.crop( (0, self.index, self.canvas.width-1, self.index+self.dheight) )
+			self.image = self.widget.image.crop( (0, self.index, self.widget.width-1, self.index+self.dheight) )
+			self.updatesize()
 			return True
 
 		if self.popped:
@@ -712,17 +668,21 @@ class grenderer(renderer):
 				self.end = time.time()+self.duration
 		else:
 			# Move into popped mode
-			if self.index < self.canvas.height - self.dheight:
+			if self.index < self.widget.height - self.dheight:
 				self.index += 1
 			else:
 				self.popped = True
 				self.end = time.time() + self.pduration
 
-		self.image = self.canvas.image.crop( (0, self.index, self.canvas.width-1, self.index+self.dheight) )
+		self.image = self.widget.image.crop( (0, self.index, self.widget.width-1, self.index+self.dheight) )
+		self.updatesize()
+
 		return True
 
-	def scroll(self, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2): # Set up for scrolling
+	# SCROLL widget function
+	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2): # Set up for scrolling
 		# Input
+		#	widget (widget) -- Widget to scroll
 		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
 		#	hesitatetype (unicode) -- the type of hesitation to use ['none', 'onstart', 'onloop']
 		#	hesitatetime (float) -- how long in seconds to hesistate
@@ -738,13 +698,12 @@ class grenderer(renderer):
 				self.end = 0
 			else:
 				self.end = self.start + hesitatetime
-			self.image = self.canvas.image.copy()
+			self.image = widget.image.copy()
 			self.index = 0
-			self.width = self.image.width
-			self.height = self.image.height
-			self.index = 0
+			self.updatesize()
 
 			# Save parameters
+			self.widget = widget
 			direction = direction.lower()
 			self.direction = direction
 			self.distance = distance
@@ -755,46 +714,35 @@ class grenderer(renderer):
 
 			# Expand canvas
 			if direction in ['left','right']:
-				self.image = Image.new("1", (self.canvas.width+gap, self.canvas.height))
-				self.image.paste(self.canvas.image, (0,0))
-				self.width = self.image.width
-				self.height = self.image.height
-				self.size = self.image.size
+				self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
+				self.image.paste(self.widget.image, (0,0))
+				self.updatesize()
 			elif direction in ['up','down']:
-				self.image = Image.new("1", (self.canvas.width, self.canvas.height+gap))
-				self.image.paste(self.canvas.image, (0,0))
-				self.width = self.image.width
-				self.height = self.image.height
-				self.size = self.image.size
+				self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
+				self.image.paste(self.widget.image, (0,0))
+				self.updatesize()
 
 
-		if self.canvas.update():
+		if self.widget.update():
 			# something has changed
 			self.start = time.time()
 			if hesitatetype not in ['onstart', 'onloop']:
 				self.end = 0
 			else:
 				self.end = self.start + hesitatetime
-			self.image = self.canvas.image.copy()
+			self.image = self.widget.image.copy()
 			self.index = 0
-			self.width = self.image.width
-			self.height = self.image.height
-			self.index = 0
+			self.updatesize()
 
 			# Expand canvas
 			if direction in ['left','right']:
-				self.image = Image.new("1", (self.canvas.width+gap, self.canvas.height))
-				self.image.paste(self.canvas.image, (0,0))
-				self.width = self.image.width
-				self.height = self.image.height
-				self.size = self.image.size
-
+				self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
+				self.image.paste(self.widget.image, (0,0))
+				self.updatesize()
 			elif direction in ['up','down']:
-				self.image = Image.new("1", (self.canvas.width, self.canvas.height+gap))
-				self.image.paste(self.canvas.image, (0,0))
-				self.width = self.image.width
-				self.height = self.image.height
-				self.size = self.image.size
+				self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
+				self.image.paste(self.widget.image, (0,0))
+				self.updatesize()
 
 		# Hesitate if needed
 		if self.end > time.time():
@@ -855,90 +803,40 @@ class grenderer(renderer):
 
 		return True
 
-	def update(self): # Do the next step of any animation that is required
+class gwidgetText(gwidget):
+	def __init__(self, formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'):
+		super(gwidgetText, self).__init__(variabledict)
+		self.text(formatstring, variables, fontpkg, varwidth, size, just)
 
-		if self.type == u'scroll':
-			return self.scroll(self.direction, self.distance, self.gap, self.hesitatetype, self.hesitatetime)
-		elif self.type == u'popup':
-			return self.popup(self.dheight, self.duration, self.pduration)
-		return False
+class gwidgetProgressBar(gwidget):
+	def __init__(self, value, rangeval, size, style=u'square',variabledict={ }):
+		super(gwidgetProgressBar, self).__init__(variabledict)
+		self.progressbar(value, rangeval, size, style)
 
+class gwidgetLine(gwidget):
+	def __init__(self, (x,y), color=1):
+		super(gwidgetLine, self).__init__()
+		self.line((x,y), color)
 
-class page():
-	__metaclass__ = abc.ABCMeta
+class gwidgetRectangle(gwidget):
+	def __init__(self, (x,y), fill=0, outline=1):
+		super(gwidgetRectangle, self).__init__()
+		self.rectangle((x,y), fill, outline)
 
-	@abc.abstractmethod
-	def __init__(self, name):
-		return
+class gwidgetCanvas(gwidget):
+	def __init__(self, (w,h)):
+		super(gwidgetCanvas, self).__init__()
+		self.canvas((w,h))
 
-	@abc.abstractmethod
-	def add(self, widget, (x,y), size): # Add a canvas to the page
-		# Input
-		#	widget (widget): widget to add to canvas
-		#	(x,y) (integer tuple): location to place widget on canvas
-		#	size (integer tuple): size to limit widget to.  (0,0) means no restriction.
-		return
+class gwidgetPopup(gwidget):
+	def __init__(self, widget, dheight, duration=15, pduration=10):
+		super(gwidgetPopup, self).__init__()
+		self.popup(widget, dheight, duration, pduration)
 
-	@abc.abstractmethod
-	def place(self, canvas, (x,y), size):
-		# Input
-		#	canvas (canvas): canvas to place
-		#	(x,y) (integer tuple): where to place it
-		#	size (integer tuple): how big should it be
-		return
-
-	@abc.abstractmethod
-	def update(self): # Update all canvases and refresh page
-		return
-
-class gpage(page):
-
-	def __init__(self, name, (w,h)): # Initialize class
-		self.name = name
-		self.canvases = []
-		self.image = Image.new("1", (w,h) )
-		self.width = w
-		self.height = h
-
-	def add(self, canvas, (x,y), (w,h)=(0,0)): # Add a canvas to the page
-		self.canvases.append( (canvas,x,y,w,h) )
-		self.place(canvas, (x,y), (w,h) )
-
-	def clear(self): # Erase canvas
-		self.image = Image.new("1", (self.image.width, self.image.height))
-
-	def place(self, canvas, (x,y), size=(0,0)): # Place a canvas's image on the page
-		# Input
-		#	widget (widget): widget to place
-		#	(x,y) (integer tuple): where to place it
-		#	size (integer tuple): how big should it be
-		w,h = size
-		if w > 0 or h > 0:
-			img = canvas.image.crop( (0,0,0+w,0+h) )
-		else:
-			img = canvas.image
-
-		self.image.paste(img, (x,y))
-
-	def update(self): # Update all canvases and refresh page
-
-		retval = False
-		for e in self.canvases:
-			canvas,x,y,w,h = e
-			if canvas.update():
-				retval = True
-
-		# If a widget has changed
-		if retval:
-			# Clear canvas
-			self.clear()
-
-			# Replace all of the widgets
-			for e in self.canvases:
-				canvas,x,y,w,h = e
-				self.place(canvas, (x,y), (w,h))
-
-		return retval
+class gwidgetScroll(gwidget):
+	def __init__(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2):
+		super(gwidgetScroll, self).__init__()
+		self.scroll(widget, direction, distance, gap, hesitatetype, hesitatetime)
 
 if __name__ == '__main__':
 
@@ -956,40 +854,23 @@ if __name__ == '__main__':
 	# artistw = gwidget(u'artist', variabledict)
 	# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
 
-	artistw = gwidgetText(u'artist',"{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+	artistw = gwidgetText("{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+	titlew = gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
+	linew = gwidgetLine( (99,0) )
+	rectw = gwidgetRectangle( (99,15) )
+	progw = gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
 
-	titlew = gwidget(u'title', variabledict)
-	titlew.text(u"{0}",[u'title'], fp_HD44780, True)
+	artistcanvas = gwidgetCanvas( (artistw.width,14) )
+	titlecanvas = gwidgetCanvas( (artistw.width,8) )
 
-	linew = gwidget(u'line1')
-	linew.line( (99,0) )
+	artistcanvas = gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
+	titlecanvas = gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
 
-	rectw = gwidget('rect1')
-	rectw.rectangle( (99,15) )
-
-	# progw = gwidget('prog1')
-	# progw.progressbar( 50, (0,100), (80,6) )
-
-	progw = gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,6), u'square', variabledict)
-
-	gc1 = gcanvas('can1', (artistw.width,14) )
-	gc2 = gcanvas('can2', (artistw.width,8) )
-
-	gc1.add( artistw, (0,0) )
-	gc2.add( titlew, (0,0) )
-	# gc.add( linew, (0,22) )
-	# gc.add( progw, (10,24) )
-
-	gr1 = grenderer('testgr2',gc1)
-	gr1.scroll('left')
-	gr2 = grenderer('testgr2',gc2)
-	gr2.scroll('up')
-
-	firstpage = gpage('first', (100,32))
-	firstpage.add(gr1, (0,0))
-	firstpage.add(gr2, (0,14), (100,8))
-	firstpage.add(linew, (0,22))
-	firstpage.add(progw, (4,24))
+	page = gwidgetCanvas( (100,32) )
+	page.add(artistcanvas, (0,0))
+	page.add(titlecanvas, (0,14), (100,8))
+	page.add(linew, (0,22))
+	page.add(progw, (4,24))
 
 	end = time.time() + 20
 	flag = True
@@ -1003,25 +884,21 @@ if __name__ == '__main__':
 		if end < time.time()+10 and flag:
 			variabledict['title'] = u"Purple Rain"
 			flag = False
-		if firstpage.update():
-			frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
-			g.show( frame, firstpage.width, int(math.ceil(firstpage.height/8.0)))
+		if page.update():
+			frame = g.getframe( page.image, 0,0, page.width, page.height)
+			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
 			time.sleep(.03)
 
 #-------------
-	# gr2 = grenderer('testgr2',gc2)
-	# gr2.scroll('left')
+
 	variabledict['title'] = "When Dove's Cry"
-	progw = gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,4), u'square', variabledict)
-	gc3 = gcanvas('testgc3', (100,32))
-	gc3.add(gr1, (0,0))
-	gc3.add(gc2, (0,18), (gr2.width, 8))
-	gc3.add(linew, (0,26))
-	gc3.add(progw, (0,28))
-	gr3 = grenderer('testgr3', gc3)
-	gr3.popup(14)
-	firstpage = gpage('first', (100,14))
-	firstpage.add(gr3, (0,0))
+	progw = gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
+	page = gwidgetCanvas( (100,32) )
+	page.add( artistcanvas, (0,0) )
+	page.add( titlecanvas, (0,18) )
+	page.add( linew, (0,26) )
+	page.add( progw, (0,28) )
+	page = gwidgetPopup(page, 14)
 
 	end = time.time() + 25
 	flag = True
@@ -1035,7 +912,7 @@ if __name__ == '__main__':
 		if end < time.time()+15 and flag:
 			variabledict['title'] = u"Purple Rain"
 			flag = False
-		if firstpage.update():
-			frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
-			g.show( frame, firstpage.width, int(math.ceil(firstpage.height/8.0)))
+		if page.update():
+			frame = g.getframe( page.image, 0,0, page.width, page.height)
+			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
 		time.sleep(.03)
