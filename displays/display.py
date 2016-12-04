@@ -3,7 +3,7 @@
 
 # Abstract Base class to provide display primitives
 # Written by: Ron Ritchey
-import sys, copy, math, abc, logging, math, time, copy
+import sys, math, abc, logging, math, time, copy
 from PIL import Image
 from PIL import ImageDraw
 
@@ -386,7 +386,7 @@ class gwidget(widget):
 			# Adjust charimg if varwidth is False
 			if not varwidth:
 				offset = (fx-charimg.width)/2
-				charimg = copy.copy(charimg).crop( (-offset,0,fx-offset,fy) )
+				charimg = charimg.crop( (-offset,0,fx-offset,fy) ).load()
 
 			# Paste character into frame
 			lineimage.paste(charimg, (cx,0))
@@ -624,7 +624,7 @@ class gcanvas(canvas):
 		#	size (integer tuple): how big should it be
 		w,h = size
 		if w > 0 or h > 0:
-			img = widget.image.crop(0,0,0+w-1,0+h-1)
+			img = widget.image.crop( (0,0,0+w,0+h) )
 		else:
 			img = widget.image
 
@@ -664,18 +664,62 @@ class grenderer(renderer):
 
 	def __init__(self, name, canvas):
 		super(grenderer, self).__init__(name, canvas)
-		self.image = copy.deepcopy(canvas.image)
+		self.image = canvas.image.copy()
 
 	def static(self, appears='instant'): # Set up for static display
 		self.type = u'static'
 		return
 
-	def popup(self, frequency=15, duration=5): # Set up for pop-up display
+	def popup(self, dheight, duration=15, pduration=5): # Set up for pop-up display
 		# Input
-		#	frequency (float) -- How long to display the top of the canvas
-		#	duration (float) -- How long to stay popped up
-		self.type = u'popup'
-		return
+		#	dheight (integer) -- Sets the height of the window which will get displayed from the canvas
+		#	duration (float) -- How long to display the top of the canvas
+		#	pduration (float) -- How long to stay popped up
+
+		# If this is the first pass, initialize state variables
+		try:
+			self.popped
+		except:
+			self.type = u'popup'
+			self.popped = False
+			self.end = time.time() + duration
+			self.image = self.canvas.image
+			self.width = self.image.width
+			self.height = self.image.height
+			self.index = 0
+
+			# Save parameters
+			self.dheight = dheight
+			self.duration = duration
+			self.pduration = pduration
+
+		# Update the canvas if needed
+		updated = False
+		if self.canvas.update():
+			updated = True
+
+		# If we are waiting for a transition, return True if display needs to be repainted, otherwise False
+		if self.end > time.time():
+			self.image = self.canvas.image.crop( (0, self.index, self.canvas.width-1, self.index+self.dheight) )
+			return True
+
+		if self.popped:
+			# Move back into non-popped mode
+			if self.index > 0:
+				self.index -= 1
+			else:
+				self.popped = False
+				self.end = time.time()+self.duration
+		else:
+			# Move into popped mode
+			if self.index < self.canvas.height - self.dheight:
+				self.index += 1
+			else:
+				self.popped = True
+				self.end = time.time() + self.pduration
+
+		self.image = self.canvas.image.crop( (0, self.index, self.canvas.width-1, self.index+self.dheight) )
+		return True
 
 	def scroll(self, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2): # Set up for scrolling
 		# Input
@@ -685,33 +729,22 @@ class grenderer(renderer):
 
 		# If this is the first pass, initialize state variables
 		try:
-			self.start
-			self.end
-			self.image
-			self.index
-			self.width
-			self.height
 			self.type
-			self.direction
-			self.distance
-			self.gap
-			self.hesitatetype
-			self.hesitatetime
-			self.index
+			self.end
 		except:
+			self.type= u'scroll'
 			self.start = time.time()
 			if hesitatetype not in ['onstart', 'onloop']:
 				self.end = 0
 			else:
 				self.end = self.start + hesitatetime
-			self.image = copy.deepcopy(self.canvas.image)
+			self.image = self.canvas.image.copy()
 			self.index = 0
 			self.width = self.image.width
 			self.height = self.image.height
 			self.index = 0
 
 			# Save parameters
-			self.type= u'scroll'
 			direction = direction.lower()
 			self.direction = direction
 			self.distance = distance
@@ -742,7 +775,7 @@ class grenderer(renderer):
 				self.end = 0
 			else:
 				self.end = self.start + hesitatetime
-			self.image = copy.copy(self.canvas.image)
+			self.image = self.canvas.image.copy()
 			self.index = 0
 			self.width = self.image.width
 			self.height = self.image.height
@@ -826,9 +859,9 @@ class grenderer(renderer):
 
 		if self.type == u'scroll':
 			return self.scroll(self.direction, self.distance, self.gap, self.hesitatetype, self.hesitatetime)
-
+		elif self.type == u'popup':
+			return self.popup(self.dheight, self.duration, self.pduration)
 		return False
-
 
 
 class page():
@@ -956,7 +989,39 @@ if __name__ == '__main__':
 	firstpage.add(gr1, (0,0))
 	firstpage.add(gr2, (0,14), (100,8))
 	firstpage.add(linew, (0,22))
-	firstpage.add(progw, (0,24))
+	firstpage.add(progw, (4,24))
+
+	end = time.time() + 20
+	flag = True
+	i = 0
+	variabledict['volume'] = i
+	while end > time.time():
+		i += 1
+		if i > 100:
+			i = 0
+		variabledict['volume'] = i
+		if end < time.time()+10 and flag:
+			variabledict['title'] = u"Purple Rain"
+			flag = False
+		if firstpage.update():
+			frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
+			g.show( frame, firstpage.width, int(math.ceil(firstpage.height/8.0)))
+			time.sleep(.03)
+
+#-------------
+	# gr2 = grenderer('testgr2',gc2)
+	# gr2.scroll('left')
+	variabledict['title'] = "When Dove's Cry"
+	progw = gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,4), u'square', variabledict)
+	gc3 = gcanvas('testgc3', (100,32))
+	gc3.add(gr1, (0,0))
+	gc3.add(gc2, (0,18), (gr2.width, 8))
+	gc3.add(linew, (0,26))
+	gc3.add(progw, (0,28))
+	gr3 = grenderer('testgr3', gc3)
+	gr3.popup(14)
+	firstpage = gpage('first', (100,14))
+	firstpage.add(gr3, (0,0))
 
 	end = time.time() + 25
 	flag = True
@@ -973,4 +1038,4 @@ if __name__ == '__main__':
 		if firstpage.update():
 			frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
 			g.show( frame, firstpage.width, int(math.ceil(firstpage.height/8.0)))
-			time.sleep(.03)
+		time.sleep(.03)

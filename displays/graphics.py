@@ -82,7 +82,7 @@ def getframe(image,x,y,width,height):
 	# ]
 
 	# Select portion of image to work with
-	img = copy.deepcopy(image)
+	img = image.copy()
 	img.crop( (x,y, width, height) )
 
 
@@ -296,7 +296,7 @@ def message(image,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width
 		# Adjust charimg if varwidth is False
 		if not varwidth:
 			offset = (fx-charimg.width)/2
-			charimg = copy.copy(charimg).crop( (-offset,0,fx-offset,fy) )
+			charimg = charimg.crop( (-offset,0,fx-offset,fy) ).load()
 
 		# Paste character into frame
 		image.paste(charimg, (cx,cy))
