@@ -647,6 +647,21 @@ if __name__ == '__main__':
 				lcd.update(frame)
 				time.sleep(.03)
 
+		secondpage = display.gpage('second', (100,32))
+		secondpage.add(gr1, (0,0))
+		secondpage.add(progw, (10,10))
+		end = time.time() + 10
+		while end > time.time():
+			i += 1
+			if i > 100:
+				i = 0
+			variabledict['volume'] = i
+			if secondpage.update():
+				frame = g.getframe( secondpage.image, 0,0, secondpage.width, secondpage.height)
+				lcd.update(frame)
+				time.sleep(.03)
+		
+
 
 		#
 		# lcd.msgtest("\x00 Stop")
