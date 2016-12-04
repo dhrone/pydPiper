@@ -10,51 +10,16 @@ from PIL import ImageDraw
 class widget:
 	__metaclass__ = abc.ABCMeta
 
-	# Widgets
-# An element to place on a canvas.
-# Static except when needing to be refreshed when any underlying variable gets changed.
-# 	name -- Name of the widget.  Used to refer to the widget when including it in a canvas
-# 	location -- (x,y) Upper left of where to place widget.  Relative to the containing object
-# 	size -- (w,h) bounding size of display object
-# 	justification - how to place widget on the screen (relative to itself and its bounding size). (left, right, center)
-# 	type -- type of display object to render
-# 		Choice from...
-#
-# 		Text
-# 			format -- format string to structure text content
-# 			variables -- array of variable names to combine with format string
-# 		Image
-# 			file -- name of file to retrieve
-# 			crop -- (x,y,w,h) Subsection of the image to display
-# 		Progress bar
-# 			style -- type of progress bar to render (rounded, square)
-# 			size - (w,h) how tall and wide the bar should be
-# 			variable -- the variable that contains the progress value
-# 			range -- (x,y) the top and bottom possible values for the variable
-# 		line
-# 			start -- (x,y) Where to start the line draw
-# 			end -- (x,y) Where to end the line draw
-# 			width -- How wide to draw the line
-# 		rectangle
-# 			location -- (x,y) Upper left of the rectangle
-# 			size -- (w,h) size of the rectangle
-# 			width -- How wide to draw the lines that make up the rectangle
-
-
 	def __init__(self, variabledict={ }):
-		# name is the reference that will be used to access the widget.  Must be unique.
-		# (width,height) is the requested size of the widget
-		# variabledict is the database that contains the current values of all display variables
-
 		# width and height.  In pixels for graphics displays and characters for character displays
-		self.width = 0
-		self.height = 0
-		self.size = (0,0)
+		self.width = 0						# Width of the widget
+		self.height = 0						# Height of the widget
+		self.size = (0,0)					# Size of the widget
 		self.type = None					# What type of widget this is.  Used to determine what to do on a refresh.
 		self.image = None					# A render of the current contents of the widget.
 		self.variables = []					# Names of variables in to-be-used order
 		self.currentvardict = { }			# A record of any variables that have been used and their last value
-		self.variabledict = variabledict	# variabledict.  A pointer to the current active list of system variables
+		self.variabledict = variabledict	# variabledict.  A pointer to the current active system variable db
 
 	@abc.abstractmethod
 	def update(self):

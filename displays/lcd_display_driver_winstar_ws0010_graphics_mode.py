@@ -459,130 +459,6 @@ if __name__ == '__main__':
 		time.sleep(3)
 
 		lcd.clear()
-		# fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
-		# fpV = fontV.fontpkg
-		#
-		# width = g.msgwidth("12:35 pm", fpV, True)
-		# maxw = 0
-		# for i in width:
-		# 	if i > maxw:
-		# 		maxw = i
-		# height = len(width)*16
-		#
-		# img = Image.new("1", (maxw+20, height+4), 0)
-		# g.message(img,"12:35 pm",0,0, fpV, True)
-		# nf = g.getframe(img,0,0,cols,rows)
-		# lcd.update(nf)
-		# time.sleep(10)
-		#
-		# font = fonts.bmfont.bmfont('latin1_5x8.fnt')
-		# fp = font.fontpkg
-		#
-		# width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
-		# maxw = 0
-		# for i in width:
-		# 	if i > maxw:
-		# 		maxw = i
-		# height = len(width)*8
-		#
-		# img = Image.new("1", (maxw+20, height+4), 0)
-		# g.message(img,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
-		# nf = g.getframe(img,0,0,cols,rows)
-		# lcd.update(nf)
-		# time.sleep(2)
-		#
-		# for i in range(0,(maxw+20)):
-		# 	g.scrollbuffer(img,u'left')
-		# 	nf = g.getframe(img,0,0,cols,rows)
-		# 	lcd.update(nf)
-		# time.sleep(2)
-		#
-		# for i in range(0,(height+4)*4):
-		# 	g.scrollbuffer(img,u'up')
-		# 	nf = g.getframe(img,0,0,cols,rows)
-		# 	lcd.update(nf)
-		# time.sleep(2)
-		#
-		# for i in range(0,(maxw+20)):
-		# 	g.scrollbuffer(img,u'right')
-		# 	nf = g.getframe(img,0,0,cols,rows)
-		# 	lcd.update(nf)
-		# time.sleep(2)
-		#
-		# for i in range(0,(height+4)*4):
-		# 	g.scrollbuffer(img,u'down')
-		# 	nf = g.getframe(img,0,0,cols,rows)
-		# 	lcd.update(nf)
-		# time.sleep(2)
-		#
-		# g.line(img,0,0,cols,rows,1)
-		# fb = g.getframe(img,0,0,cols,rows)
-		# lcd.update(fb)
-		# j=0
-		# for i in range(0,99):
-		# 	j = i+1
-		# 	g.line(img,i,0,cols-i,rows,0)
-		# 	g.line(img,j,0,cols-j,rows,1)
-		# 	fb = g.getframe(img,0,0,cols,rows)
-		# 	lcd.update(fb)
-		# g.line(img,j,0,cols-j,rows,0)
-		# fb = g.getframe(img,0,0,cols,rows)
-		# lcd.update(fb)
-		#
-		# g.line(img,cols,0,0,rows,1)
-		# fb = g.getframe(img,0,0,cols,rows)
-		# lcd.update(fb)
-		# for i in range(0,16):
-		# 	j = i+1
-		# 	g.line(img,cols,i,0,rows-i,0)
-		# 	g.line(img,cols,j,0,rows-j,1)
-		# 	fb = g.getframe(img,0,0,cols,rows)
-		# 	lcd.update(fb)
-		# g.line(img,0,0,cols,rows,0)
-		# fb = g.getframe(img,0,0,cols,rows)
-		# lcd.update(fb)
-		#
-		# time.sleep(2)
-		#
-		# g.line(img,0,0,0,8) # vertical left line
-		# g.line(img,0,0,100,0) # horizontal top line
-		# g.line(img,99,0,99,8) # vertical right line
-		# g.line(img,0,8,100,8) # horizontal bottom line
-		# nf = g.getframe(img,0,0,cols,rows)
-		# lcd.update(nf)
-		# time.sleep(5)
-		#
-		# lcd.clear()
-		# accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
-		# #for char in accent_min: print char, ord(char)
-		# lcd.message(accent_min)
-		# time.sleep(2)
-		#
-		# lcd.clear()
-		#
-		# accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
-		# #for char in accent_maj: print char, ord(char)
-		# lcd.message(accent_maj)
-		#
-		# time.sleep(2)
-		# lcd.clear()
-		#
-		# fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
-		# fpV = fontV.fontpkg
-		#
-		# width = g.msgwidth("12:35 pm", fpV, True)
-		# maxw = 0
-		# for i in width:
-		# 	if i > maxw:
-		# 		maxw = i
-		# height = len(width)*16
-		#
-		# img = Image.new("1", (maxw+20, height+4), 0)
-		# g.message(img,"12:35 pm",0,0, fpV, True)
-		# nf = g.getframe(img,0,0,cols,rows)
-		# lcd.update(nf)
-		# time.sleep(4)
-
 
 		variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
 		variables = [ u'artist', u'title' ]
@@ -595,42 +471,25 @@ if __name__ == '__main__':
 		# artistw = gwidget(u'artist', variabledict)
 		# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
 
-		artistw = display.gwidgetText(u'artist',"{0}",fp_HD44780, variabledict, [u'artist'], True)
+		artistw = display.gwidgetText("{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+		titlew = display.gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
+		linew = display.gwidgetLine( (99,0) )
+		rectw = display.gwidgetRectangle( (99,15) )
+		progw = display.gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
 
-		titlew = display.gwidget(u'title', variabledict)
-		titlew.text(u"{0}",[u'title'], fp_HD44780, True)
+		artistcanvas = display.gwidgetCanvas( (artistw.width,14) )
+		titlecanvas = display.gwidgetCanvas( (artistw.width,8) )
 
-		linew = display.gwidget(u'line1')
-		linew.line( (99,0) )
+		artistcanvas = display.gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
+		titlecanvas = display.gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
 
-		rectw = display.gwidget('rect1')
-		rectw.rectangle( (99,15) )
+		page = display.gwidgetCanvas( (100,32) )
+		page.add(artistcanvas, (0,0))
+		page.add(titlecanvas, (0,14), (100,8))
+		page.add(linew, (0,22))
+		page.add(progw, (4,24))
 
-		# progw = gwidget('prog1')
-		# progw.progressbar( 50, (0,100), (80,6) )
-
-		progw = display.gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,6), u'square', variabledict)
-
-		gc1 = display.gcanvas('can1', (artistw.width,8) )
-		gc2 = display.gcanvas('can2', (artistw.width,8) )
-
-		gc1.add( artistw, (0,0) )
-		gc2.add( titlew, (0,0) )
-		# gc.add( linew, (0,22) )
-		# gc.add( progw, (10,24) )
-
-		gr1 = display.grenderer('testgr2',gc1)
-		gr1.scroll('left')
-		gr2 = display.grenderer('testgr2',gc2)
-		gr2.scroll('up')
-
-		firstpage = display.gpage('first', (100,32))
-		firstpage.add(gr1, (0,0))
-		firstpage.add(gr2, (0,8), (100,8))
-		firstpage.add(linew, (0,22))
-		firstpage.add(progw, (0,24))
-
-		end = time.time() + 25
+		end = time.time() + 20
 		flag = True
 		i = 0
 		variabledict['volume'] = i
@@ -639,31 +498,24 @@ if __name__ == '__main__':
 			if i > 100:
 				i = 0
 			variabledict['volume'] = i
-			if end < time.time()+15 and flag:
+			if end < time.time()+10 and flag:
 				variabledict['title'] = u"Purple Rain"
 				flag = False
-			if firstpage.update():
-				frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
+			if page.update():
+				frame = g.getframe( page.image, 0,0, page.width, page.height)
 				lcd.update(frame)
-			time.sleep(.03)
+				time.sleep(.03)
 
-		artistw = display.gwidgetText(u'artist',"{0}",fp_Vint10x16, variabledict, [u'artist'], True)
-		gc1 = display.gcanvas('can1', (artistw.width,16) )
-		gc1.add( artistw, (0,0) )
-		gr1 = display.grenderer('testgr2',gc1)
-		gr1.scroll('left')
+	#-------------
 
 		variabledict['title'] = "When Dove's Cry"
-		progw = display.gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,4), u'square', variabledict)
-		gc3 = display.gcanvas('testgc3', (100,32))
-		gc3.add(gr1, (0,0))
-		gc3.add(gc2, (0,18), (gr2.width, 8))
-		gc3.add(linew, (0,26))
-		gc3.add(progw, (0,28))
-		gr3 = display.grenderer('testgr3', gc3)
-		gr3.popup(14,10,10)
-		firstpage = display.gpage('first', (100,16))
-		firstpage.add(gr3, (0,0))
+		progw = display.gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
+		page = display.gwidgetCanvas( (100,32) )
+		page.add( artistcanvas, (0,0) )
+		page.add( titlecanvas, (0,18) )
+		page.add( linew, (0,26) )
+		page.add( progw, (0,28) )
+		page = display.gwidgetPopup(page, 14)
 
 		end = time.time() + 25
 		flag = True
@@ -677,64 +529,10 @@ if __name__ == '__main__':
 			if end < time.time()+15 and flag:
 				variabledict['title'] = u"Purple Rain"
 				flag = False
-			if firstpage.update():
-				frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
+			if page.update():
+				frame = g.getframe( page.image, 0,0, page.width, page.height)
 				lcd.update(frame)
 			time.sleep(.03)
-
-
-		#
-		# lcd.msgtest("\x00 Stop")
-		# lcd.msgtest("\x01 Play")
-		# lcd.msgtest("\x02 Pause")
-		# lcd.msgtest("\x03 Ethernet")
-		# lcd.msgtest("\x04 Wireless")
-		# lcd.msgtest("\x05 Music")
-		# lcd.msgtest("\x06 Power")
-		# lcd.clear()
-		#
-		# lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
-		# lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
-		# lcd.switchcustomchars(fonts.size5x8.shuffle.fontpkg)
-		# lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
-		# lcd.switchcustomchars(fonts.size5x8.repeat_all.fontpkg)
-		# lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
-		# lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
-		# lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
-		#
-		# lcd.switchcustomchars(fonts.size5x8.bigchars.fontpkg)
-		# numbers = fonts.size5x8.bigclock.numbers
-		# bigchars = fonts.size5x8.bigchars.bigchars
-		#
-		# # Print large letters
-		# for c in bigchars:
-		# 	s = [ '', '' ]
-		# 	for row in range(0,c['row']):
-		# 		for col in range(0,c['col']):
-		# 			s[row] += unichr(c['data'][row][col])
-		# 	lcd.message(u"{0}  {1}\n{2}".format(s[0],c['char'],s[1]))
-		# 	time.sleep(2)
-		# 	lcd.clear()
-		#
-		#
-		#
-		# lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
-		# for i in range (0,101):
-		# 	volbar = volume_bar(i,
-		# 		14,
-		# 		fonts.size5x8.volume.e,
-		# 		fonts.size5x8.volume.h,
-		# 		fonts.size5x8.volume.f,
-		# 		fonts.size5x8.volume.el,
-		# 		fonts.size5x8.volume.er,
-		# 		fonts.size5x8.volume.hr )
-		# 	lcd.clear()
-		# 	lcd.message("Volume {0}".format(i),0,0)
-		# 	lcd.message("\x06 {0}".format(volbar),1,0)
-		# 	time.sleep(.05)
-		#
-		# time.sleep(2)
-
 
 	except KeyboardInterrupt:
 		pass
