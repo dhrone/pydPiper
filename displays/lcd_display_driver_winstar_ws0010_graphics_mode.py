@@ -444,6 +444,8 @@ if __name__ == '__main__':
 #	if sys.stdout.encoding != 'UTF-8':
 #    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
 
+	import display
+
 	try:
 		pins = [d4, d5, d6, d7]
 		print "Winstar OLED Display Test"
@@ -457,129 +459,129 @@ if __name__ == '__main__':
 		time.sleep(3)
 
 		lcd.clear()
-		fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
-		fpV = fontV.fontpkg
-
-		width = g.msgwidth("12:35 pm", fpV, True)
-		maxw = 0
-		for i in width:
-			if i > maxw:
-				maxw = i
-		height = len(width)*16
-
-		img = Image.new("1", (maxw+20, height+4), 0)
-		g.message(img,"12:35 pm",0,0, fpV, True)
-		nf = g.getframe(img,0,0,cols,rows)
-		lcd.update(nf)
-		time.sleep(10)
-
-		font = fonts.bmfont.bmfont('latin1_5x8.fnt')
-		fp = font.fontpkg
-
-		width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
-		maxw = 0
-		for i in width:
-			if i > maxw:
-				maxw = i
-		height = len(width)*8
-
-		img = Image.new("1", (maxw+20, height+4), 0)
-		g.message(img,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
-		nf = g.getframe(img,0,0,cols,rows)
-		lcd.update(nf)
-		time.sleep(2)
-
-		for i in range(0,(maxw+20)):
-			g.scrollbuffer(img,u'left')
-			nf = g.getframe(img,0,0,cols,rows)
-			lcd.update(nf)
-		time.sleep(2)
-
-		for i in range(0,(height+4)*4):
-			g.scrollbuffer(img,u'up')
-			nf = g.getframe(img,0,0,cols,rows)
-			lcd.update(nf)
-		time.sleep(2)
-
-		for i in range(0,(maxw+20)):
-			g.scrollbuffer(img,u'right')
-			nf = g.getframe(img,0,0,cols,rows)
-			lcd.update(nf)
-		time.sleep(2)
-
-		for i in range(0,(height+4)*4):
-			g.scrollbuffer(img,u'down')
-			nf = g.getframe(img,0,0,cols,rows)
-			lcd.update(nf)
-		time.sleep(2)
-
-		g.line(img,0,0,cols,rows,1)
-		fb = g.getframe(img,0,0,cols,rows)
-		lcd.update(fb)
-		j=0
-		for i in range(0,99):
-			j = i+1
-			g.line(img,i,0,cols-i,rows,0)
-			g.line(img,j,0,cols-j,rows,1)
-			fb = g.getframe(img,0,0,cols,rows)
-			lcd.update(fb)
-		g.line(img,j,0,cols-j,rows,0)
-		fb = g.getframe(img,0,0,cols,rows)
-		lcd.update(fb)
-
-		g.line(img,cols,0,0,rows,1)
-		fb = g.getframe(img,0,0,cols,rows)
-		lcd.update(fb)
-		for i in range(0,16):
-			j = i+1
-			g.line(img,cols,i,0,rows-i,0)
-			g.line(img,cols,j,0,rows-j,1)
-			fb = g.getframe(img,0,0,cols,rows)
-			lcd.update(fb)
-		g.line(img,0,0,cols,rows,0)
-		fb = g.getframe(img,0,0,cols,rows)
-		lcd.update(fb)
-
-		time.sleep(2)
-
-		g.line(img,0,0,0,8) # vertical left line
-		g.line(img,0,0,100,0) # horizontal top line
-		g.line(img,99,0,99,8) # vertical right line
-		g.line(img,0,8,100,8) # horizontal bottom line
-		nf = g.getframe(img,0,0,cols,rows)
-		lcd.update(nf)
-		time.sleep(5)
-
-		lcd.clear()
-		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
-		#for char in accent_min: print char, ord(char)
-		lcd.message(accent_min)
-		time.sleep(2)
-
-		lcd.clear()
-
-		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
-		#for char in accent_maj: print char, ord(char)
-		lcd.message(accent_maj)
-
-		time.sleep(2)
-		lcd.clear()
-
-		fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
-		fpV = fontV.fontpkg
-
-		width = g.msgwidth("12:35 pm", fpV, True)
-		maxw = 0
-		for i in width:
-			if i > maxw:
-				maxw = i
-		height = len(width)*16
-
-		img = Image.new("1", (maxw+20, height+4), 0)
-		g.message(img,"12:35 pm",0,0, fpV, True)
-		nf = g.getframe(img,0,0,cols,rows)
-		lcd.update(nf)
-		time.sleep(4)
+		# fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
+		# fpV = fontV.fontpkg
+		#
+		# width = g.msgwidth("12:35 pm", fpV, True)
+		# maxw = 0
+		# for i in width:
+		# 	if i > maxw:
+		# 		maxw = i
+		# height = len(width)*16
+		#
+		# img = Image.new("1", (maxw+20, height+4), 0)
+		# g.message(img,"12:35 pm",0,0, fpV, True)
+		# nf = g.getframe(img,0,0,cols,rows)
+		# lcd.update(nf)
+		# time.sleep(10)
+		#
+		# font = fonts.bmfont.bmfont('latin1_5x8.fnt')
+		# fp = font.fontpkg
+		#
+		# width = g.msgwidth("Prince and the Revolutions\nPurple Rain", fp, True)
+		# maxw = 0
+		# for i in width:
+		# 	if i > maxw:
+		# 		maxw = i
+		# height = len(width)*8
+		#
+		# img = Image.new("1", (maxw+20, height+4), 0)
+		# g.message(img,"Prince and the Revolutions\nPurple Rain",0,0, fp, True)
+		# nf = g.getframe(img,0,0,cols,rows)
+		# lcd.update(nf)
+		# time.sleep(2)
+		#
+		# for i in range(0,(maxw+20)):
+		# 	g.scrollbuffer(img,u'left')
+		# 	nf = g.getframe(img,0,0,cols,rows)
+		# 	lcd.update(nf)
+		# time.sleep(2)
+		#
+		# for i in range(0,(height+4)*4):
+		# 	g.scrollbuffer(img,u'up')
+		# 	nf = g.getframe(img,0,0,cols,rows)
+		# 	lcd.update(nf)
+		# time.sleep(2)
+		#
+		# for i in range(0,(maxw+20)):
+		# 	g.scrollbuffer(img,u'right')
+		# 	nf = g.getframe(img,0,0,cols,rows)
+		# 	lcd.update(nf)
+		# time.sleep(2)
+		#
+		# for i in range(0,(height+4)*4):
+		# 	g.scrollbuffer(img,u'down')
+		# 	nf = g.getframe(img,0,0,cols,rows)
+		# 	lcd.update(nf)
+		# time.sleep(2)
+		#
+		# g.line(img,0,0,cols,rows,1)
+		# fb = g.getframe(img,0,0,cols,rows)
+		# lcd.update(fb)
+		# j=0
+		# for i in range(0,99):
+		# 	j = i+1
+		# 	g.line(img,i,0,cols-i,rows,0)
+		# 	g.line(img,j,0,cols-j,rows,1)
+		# 	fb = g.getframe(img,0,0,cols,rows)
+		# 	lcd.update(fb)
+		# g.line(img,j,0,cols-j,rows,0)
+		# fb = g.getframe(img,0,0,cols,rows)
+		# lcd.update(fb)
+		#
+		# g.line(img,cols,0,0,rows,1)
+		# fb = g.getframe(img,0,0,cols,rows)
+		# lcd.update(fb)
+		# for i in range(0,16):
+		# 	j = i+1
+		# 	g.line(img,cols,i,0,rows-i,0)
+		# 	g.line(img,cols,j,0,rows-j,1)
+		# 	fb = g.getframe(img,0,0,cols,rows)
+		# 	lcd.update(fb)
+		# g.line(img,0,0,cols,rows,0)
+		# fb = g.getframe(img,0,0,cols,rows)
+		# lcd.update(fb)
+		#
+		# time.sleep(2)
+		#
+		# g.line(img,0,0,0,8) # vertical left line
+		# g.line(img,0,0,100,0) # horizontal top line
+		# g.line(img,99,0,99,8) # vertical right line
+		# g.line(img,0,8,100,8) # horizontal bottom line
+		# nf = g.getframe(img,0,0,cols,rows)
+		# lcd.update(nf)
+		# time.sleep(5)
+		#
+		# lcd.clear()
+		# accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
+		# #for char in accent_min: print char, ord(char)
+		# lcd.message(accent_min)
+		# time.sleep(2)
+		#
+		# lcd.clear()
+		#
+		# accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
+		# #for char in accent_maj: print char, ord(char)
+		# lcd.message(accent_maj)
+		#
+		# time.sleep(2)
+		# lcd.clear()
+		#
+		# fontV = fonts.bmfont.bmfont('Vintl01_10x16.fnt')
+		# fpV = fontV.fontpkg
+		#
+		# width = g.msgwidth("12:35 pm", fpV, True)
+		# maxw = 0
+		# for i in width:
+		# 	if i > maxw:
+		# 		maxw = i
+		# height = len(width)*16
+		#
+		# img = Image.new("1", (maxw+20, height+4), 0)
+		# g.message(img,"12:35 pm",0,0, fpV, True)
+		# nf = g.getframe(img,0,0,cols,rows)
+		# lcd.update(nf)
+		# time.sleep(4)
 
 
 		variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
@@ -593,36 +595,36 @@ if __name__ == '__main__':
 		# artistw = gwidget(u'artist', variabledict)
 		# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
 
-		artistw = gwidgetText(u'artist',"{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+		artistw = display.gwidgetText(u'artist',"{0}",fp_Vint10x16, variabledict, [u'artist'], True)
 
-		titlew = gwidget(u'title', variabledict)
+		titlew = display.gwidget(u'title', variabledict)
 		titlew.text(u"{0}",[u'title'], fp_HD44780, True)
 
-		linew = gwidget(u'line1')
+		linew = display.gwidget(u'line1')
 		linew.line( (99,0) )
 
-		rectw = gwidget('rect1')
+		rectw = display.gwidget('rect1')
 		rectw.rectangle( (99,15) )
 
 		# progw = gwidget('prog1')
 		# progw.progressbar( 50, (0,100), (80,6) )
 
-		progw = gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,6), u'square', variabledict)
+		progw = display.gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,6), u'square', variabledict)
 
-		gc1 = gcanvas('can1', (artistw.width,14) )
-		gc2 = gcanvas('can2', (artistw.width,8) )
+		gc1 = display.gcanvas('can1', (artistw.width,14) )
+		gc2 = display.gcanvas('can2', (artistw.width,8) )
 
 		gc1.add( artistw, (0,0) )
 		gc2.add( titlew, (0,0) )
 		# gc.add( linew, (0,22) )
 		# gc.add( progw, (10,24) )
 
-		gr1 = grenderer('testgr2',gc1)
+		gr1 = display.grenderer('testgr2',gc1)
 		gr1.scroll('left')
-		gr2 = grenderer('testgr2',gc2)
+		gr2 = display.grenderer('testgr2',gc2)
 		gr2.scroll('up')
 
-		firstpage = gpage('first', (100,32))
+		firstpage = display.gpage('first', (100,32))
 		firstpage.add(gr1, (0,0))
 		firstpage.add(gr2, (0,14), (100,8))
 		firstpage.add(linew, (0,22))
