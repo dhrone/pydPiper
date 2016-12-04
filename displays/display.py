@@ -500,7 +500,7 @@ class gwidget(widget):
 
 		# Save variables used for this progressbar widget
 		self.currentvardict = { }
-		for sv in variables:
+		for sv in self.variables:
 			self.currentvardict[sv] = self.variabledict[sv]
 
 		width, height = size
