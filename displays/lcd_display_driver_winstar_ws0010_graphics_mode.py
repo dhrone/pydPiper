@@ -463,15 +463,13 @@ if __name__ == '__main__':
 		variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
 		variables = [ u'artist', u'title' ]
 
-		f_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt')
-		fp_HD44780 = f_HD44780.fontpkg
-
+		fp_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
 		fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
 
 		# artistw = gwidget(u'artist', variabledict)
 		# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
 
-		artistw = display.gwidgetText("{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+		artistw = display.gwidgetText("{0}",fp_HD44780, variabledict, [u'artist'], True)
 		titlew = display.gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
 		linew = display.gwidgetLine( (99,0) )
 		rectw = display.gwidgetRectangle( (99,15) )
@@ -480,14 +478,15 @@ if __name__ == '__main__':
 		artistcanvas = display.gwidgetCanvas( (artistw.width,14) )
 		titlecanvas = display.gwidgetCanvas( (artistw.width,8) )
 
-		artistcanvas = display.gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
-		titlecanvas = display.gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
+		artistcanvas = display.gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left',1,20,u'onloop',2,100)
+		titlecanvas = display.gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up',1,4,u'onloop',2,8)
 
 		page = display.gwidgetCanvas( (100,32) )
 		page.add(artistcanvas, (0,0))
-		page.add(titlecanvas, (0,14), (100,8))
-		page.add(linew, (0,22))
-		page.add(progw, (4,24))
+		page.add(titlecanvas, (0,8), (100,8))
+		page.add(display.gwidgetText("Percent complete",fp_HD44780), (4,17))
+		page.add(linew, (0,16))
+		page.add(progw, (4,26))
 
 		end = time.time() + 20
 		flag = True

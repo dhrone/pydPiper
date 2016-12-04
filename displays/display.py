@@ -76,12 +76,13 @@ class widget:
 		return
 
 	@abc.abstractmethod
-	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2):
+	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0):
 		# Input
 		#	widget (widget) -- Widget to scroll
 		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
 		#	hesitatetype (unicode) -- the type of hesitation to use ['none', 'onstart', 'onloop']
 		#	hesitatetime (float) -- how long in seconds to hesistate
+		#	threshold (integer) -- scroll only if widget larger than threshold
 		return
 
 	# Utility functions
@@ -645,12 +646,15 @@ class gwidget(widget):
 		return True
 
 	# SCROLL widget function
-	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2): # Set up for scrolling
+	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0): # Set up for scrolling
 		# Input
 		#	widget (widget) -- Widget to scroll
 		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
 		#	hesitatetype (unicode) -- the type of hesitation to use ['none', 'onstart', 'onloop']
 		#	hesitatetime (float) -- how long in seconds to hesistate
+		#	threshold (integer) -- scroll only if widget larger than threshold
+
+
 
 		# If this is the first pass, initialize state variables
 		try:
@@ -667,6 +671,8 @@ class gwidget(widget):
 			self.index = 0
 			self.updatesize()
 
+			self.shouldscroll = False
+
 			# Save parameters
 			self.widget = widget
 			direction = direction.lower()
@@ -676,16 +682,30 @@ class gwidget(widget):
 			hesitatetype = hesitatetype.lower()
 			self.hesitatetype = hesitatetype
 			self.hesitatetime = hesitatetime
+			self.threshold = threshold
+
+			# Check to see if scrolling is needed
+			if self.direction in ['left','right']:
+				if self.widget.width > self.threshold:
+					self.shouldscroll = True
+				else:
+					self.shouldscroll = False
+			elif self.direction in ['up','down']:
+				if self.widget.height > self.threshold:
+					self.shouldscroll = True
+				else:
+					self.shouldscroll = False
 
 			# Expand canvas
-			if direction in ['left','right']:
-				self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
-				self.image.paste(self.widget.image, (0,0))
-				self.updatesize()
-			elif direction in ['up','down']:
-				self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
-				self.image.paste(self.widget.image, (0,0))
-				self.updatesize()
+			if self.shouldscroll:
+				if direction in ['left','right']:
+					self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
+					self.image.paste(self.widget.image, (0,0))
+					self.updatesize()
+				elif direction in ['up','down']:
+					self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
+					self.image.paste(self.widget.image, (0,0))
+					self.updatesize()
 
 
 		if self.widget.update():
@@ -699,18 +719,31 @@ class gwidget(widget):
 			self.index = 0
 			self.updatesize()
 
-			# Expand canvas
-			if direction in ['left','right']:
-				self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
-				self.image.paste(self.widget.image, (0,0))
-				self.updatesize()
-			elif direction in ['up','down']:
-				self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
-				self.image.paste(self.widget.image, (0,0))
-				self.updatesize()
+			# Check to see if scrolling is needed
+			if self.direction in ['left','right']:
+				if self.widget.width > self.threshold:
+					self.shouldscroll = True
+				else:
+					self.shouldscroll = False
+			elif self.direction in ['up','down']:
+				if self.widget.height > self.threshold:
+					self.shouldscroll = True
+				else:
+					self.shouldscroll = False
 
-		# Hesitate if needed
-		if self.end > time.time():
+			if self.shouldscroll:
+				# Expand canvas
+				if direction in ['left','right']:
+					self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
+					self.image.paste(self.widget.image, (0,0))
+					self.updatesize()
+				elif direction in ['up','down']:
+					self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
+					self.image.paste(self.widget.image, (0,0))
+					self.updatesize()
+
+		# If Hesitate is needed or scrolling is not needed, return
+		if self.end > time.time() or not self.shouldscroll:
 			return False
 
 		# Save region to be overwritten
@@ -799,9 +832,79 @@ class gwidgetPopup(gwidget):
 		self.popup(widget, dheight, duration, pduration)
 
 class gwidgetScroll(gwidget):
-	def __init__(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2):
+	def __init__(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0):
 		super(gwidgetScroll, self).__init__()
-		self.scroll(widget, direction, distance, gap, hesitatetype, hesitatetime)
+		self.scroll(widget, direction, distance, gap, hesitatetype, hesitatetime,threshold)
+
+
+class sequence(object): # Holds a sequence of widgets to display on the screen in turn
+	def __init__(self, conditional, variabledict): # initialize class
+		# Input
+		#	conditional (unicode) -- a string containing an evaluable boolean logic statement which determines whether the sequence is active
+		#	variabledict (dict) -- A dictionary that points to system variable db
+
+		self.widgets = []					# Array to hold widget list
+		self.conditional = conditional		# Sequence conditional.  Must be true for sequence to be displayed
+		self.variabledict = variabledict	# System variable db
+		self.end = 0						# Variable to mark the time that the current widget expires
+		self.currentwidget = 0				# Marks the index of the current widget
+		return
+
+	def add(self, widget, duration, conditional): # Add a widget to the display sequence
+		# Input
+		#	widget (widget) -- The widget to add to the display seqeunce
+		#	duration (float) -- How long in seconds to display this widget
+		#	conditional (unicode) -- A string containing an evaluable boolean logic statement which determines whether the widget should be included in the sequence
+		self.widgets.append( (widget, duration, conditional) )
+
+	def evalconditional(self, conditional): # Evaluate the conditional statement
+		# Input
+		#	conditional (unicode) -- A string containing an evaluable boolean logic statement
+
+		# This is NOT a safe routine.  Make sure that any input sent to this function is from a trusted source
+
+		db = self.variabledict
+		try:
+			return eval(conditional)
+		except:
+			# Could not evaluate conditional so returning False
+			return False
+
+ 	def run(self, restart=False): # Return current widget (or None) if none are active
+		# Input
+		#	restart (bool) -- If True resets the sequence to the first widget on the list
+
+		# Evaluate sequence conditional.  If it is false, return None.
+		if not self.evalconditional(self.conditional):
+			return None
+
+		widget, duration, conditional = self.widgets[self.currentwidget]
+
+		# Check and respond to restart.
+		if restart:
+			self.currentwidget = 0
+			widget, duration, conditional = self.widgets[self.currentwidget]
+			self.end = duration + time.time()
+
+		# See if current widget has expired (or has gone inactive).
+		if self.end < time.time() or not self.evalconditional(conditional):
+			# If it has, iterate through list to find the next active widget
+			startpos = self.currentwidget
+			self.currentwidget += 1
+			while self.currentwidget != startpos:
+				if self.currentwidget >= len(self.widgets):
+					self.currentwidget = 0
+				widget, duration, conditional = self.widgets[self.currentwidget]
+				if self.evalconditional(conditional):
+					self.end = duration + time.time()
+					return widget
+				self.currentwidget += 1
+
+			# If you go through the whole list without finding an active widget then return None
+			return None
+		else:
+			# If current widget is active and has not expired, then return it
+			return widget
 
 if __name__ == '__main__':
 
@@ -828,8 +931,10 @@ if __name__ == '__main__':
 	artistcanvas = gwidgetCanvas( (artistw.width,14) )
 	titlecanvas = gwidgetCanvas( (artistw.width,8) )
 
-	artistcanvas = gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
-	titlecanvas = gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
+	# artistcanvas = gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
+	# titlecanvas = gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
+	artistcanvas = gwidgetScroll(artistw,u'left',1,20,u'onloop',2,100)
+	titlecanvas = gwidgetScroll(titlew,u'left',1,4,u'onloop',2,100)
 
 	page = gwidgetCanvas( (100,32) )
 	page.add(artistcanvas, (0,0))
