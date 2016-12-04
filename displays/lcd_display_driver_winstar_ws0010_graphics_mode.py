@@ -661,6 +661,7 @@ if __name__ == '__main__':
 		flag = True
 		i = 0
 		variabledict['volume'] = i
+
 		while end > time.time():
 			i += 1
 			if i > 100:
@@ -702,6 +703,7 @@ if __name__ == '__main__':
 				frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
 				lcd.update(frame)
 			time.sleep(.03)
+
 
 		#
 		# lcd.msgtest("\x00 Stop")
