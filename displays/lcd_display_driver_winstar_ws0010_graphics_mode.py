@@ -595,7 +595,7 @@ if __name__ == '__main__':
 		# artistw = gwidget(u'artist', variabledict)
 		# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
 
-		artistw = display.gwidgetText(u'artist',"{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+		artistw = display.gwidgetText(u'artist',"{0}",fp_HD44780, variabledict, [u'artist'], True)
 
 		titlew = display.gwidget(u'title', variabledict)
 		titlew.text(u"{0}",[u'title'], fp_HD44780, True)
@@ -611,7 +611,7 @@ if __name__ == '__main__':
 
 		progw = display.gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,6), u'square', variabledict)
 
-		gc1 = display.gcanvas('can1', (artistw.width,14) )
+		gc1 = display.gcanvas('can1', (artistw.width,8) )
 		gc2 = display.gcanvas('can2', (artistw.width,8) )
 
 		gc1.add( artistw, (0,0) )
@@ -626,7 +626,7 @@ if __name__ == '__main__':
 
 		firstpage = display.gpage('first', (100,32))
 		firstpage.add(gr1, (0,0))
-		firstpage.add(gr2, (0,14), (100,8))
+		firstpage.add(gr2, (0,8), (100,8))
 		firstpage.add(linew, (0,22))
 		firstpage.add(progw, (0,24))
 
