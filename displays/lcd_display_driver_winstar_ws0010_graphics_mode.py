@@ -647,34 +647,6 @@ if __name__ == '__main__':
 				lcd.update(frame)
 			time.sleep(.03)
 
-		gc3 = display.gcanvas('testgc3', (100,32))
-		gc3.add(gr1, (0,0))
-		gc3.add(gr2, (0,8))
-		gc3.add(linew, (0,22))
-		gc3.add(progw, (0,24))
-		gr3 = display.grenderer('testgr3', gc3)
-		gr3.popup(16)
-		firstpage = display.gpage('first', (100,16))
-		firstpage.add(gr3, (0,0))
-
-		end = time.time() + 25
-		flag = True
-		i = 0
-		variabledict['volume'] = i
-
-		while end > time.time():
-			i += 1
-			if i > 100:
-				i = 0
-			variabledict['volume'] = i
-			if end < time.time()+15 and flag:
-				variabledict['title'] = u"Purple Rain"
-				flag = False
-			if firstpage.update():
-				frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
-				lcd.update(frame)
-			time.sleep(.03)
-
 		variabledict['title'] = "When Dove's Cry"
 		progw = display.gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,4), u'square', variabledict)
 		gc3 = display.gcanvas('testgc3', (100,32))
