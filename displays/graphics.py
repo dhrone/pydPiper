@@ -82,7 +82,8 @@ def getframe(image,x,y,width,height):
 	# ]
 
 	# Select portion of image to work with
-	img = image.crop( (x,y, width, height) )
+	img = copy.deepcopy(image)
+	img.crop( (x,y, width, height) )
 
 
 	width, height = img.size
@@ -149,8 +150,16 @@ def scrollbuffer(image, direction=u'left', distance=1):
 
 def show(bytebuffer,width, height):
 
+	sys.stdout.write('|')
+	for j in range(0,width):
+		sys.stdout.write('-')
+	sys.stdout.write('|')
+	sys.stdout.flush()
+	print ''
+
 	for i in range(0,height):
 		for k in range(0,8):
+				sys.stdout.write('|')
 				for j in range(0,width):
 					mask = 1 << k
 					if bytebuffer[i][j]&mask:
@@ -159,7 +168,16 @@ def show(bytebuffer,width, height):
 					else:
 						sys.stdout.write(' ')
 						sys.stdout.flush()
+				sys.stdout.write('|')
+				sys.stdout.flush()
 				print ''
+	sys.stdout.write('|')
+	for j in range(0,width):
+		sys.stdout.write('-')
+	sys.stdout.write('|')
+	sys.stdout.flush()
+	print ''
+
 
 def clear(image,x,y,width,height):
 	draw = ImageDraw.Draw(image)

@@ -58,11 +58,10 @@ Render the canvas for display.  Creates animation effects.
 	canvas - name of canvas
 	type -- type of render.  Choice of...
 	Static.  Most basic renderer.  Shows the image contained on the canvas.
-		location - (x,y).  Place within the canvas to send to the display
 		appears - How the canvas initially gets drawn (fromleft,fromright,fromtop,frombottom,instant)
 	Scroll.  Scrolls the canvas in the direction chosen
 		Direction -- Left, Right, Up, Down
-		Hesitation -- Should scroll hesitate periodically.  Choices are [no, start, loop].
+		Hesitation -- Should scroll hesitate periodically.  Choices are [none, onstart, onloop].
 	Popup.  Displays the top of the canvas and then periodically scrolls up to display the bottom of the canvas for a short time.
 		Frequency -- How many seconds between pop ups
 		Duration -- How many seconds to stay popped up
