@@ -648,7 +648,7 @@ if __name__ == '__main__':
 			time.sleep(.03)
 
 		artistw = display.gwidgetText(u'artist',"{0}",fp_Vint10x16, variabledict, [u'artist'], True)
-		gc1 = display.gcanvas('can1', (artistw.width,8) )
+		gc1 = display.gcanvas('can1', (artistw.width,16) )
 		gc1.add( artistw, (0,0) )
 		gr1 = display.grenderer('testgr2',gc1)
 		gr1.scroll('left')
