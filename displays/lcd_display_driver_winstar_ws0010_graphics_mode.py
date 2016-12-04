@@ -582,6 +582,69 @@ if __name__ == '__main__':
 		time.sleep(4)
 
 
+		variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
+		variables = [ u'artist', u'title' ]
+
+		f_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt')
+		fp_HD44780 = f_HD44780.fontpkg
+
+		fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
+
+		# artistw = gwidget(u'artist', variabledict)
+		# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
+
+		artistw = gwidgetText(u'artist',"{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+
+		titlew = gwidget(u'title', variabledict)
+		titlew.text(u"{0}",[u'title'], fp_HD44780, True)
+
+		linew = gwidget(u'line1')
+		linew.line( (99,0) )
+
+		rectw = gwidget('rect1')
+		rectw.rectangle( (99,15) )
+
+		# progw = gwidget('prog1')
+		# progw.progressbar( 50, (0,100), (80,6) )
+
+		progw = gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,6), u'square', variabledict)
+
+		gc1 = gcanvas('can1', (artistw.width,14) )
+		gc2 = gcanvas('can2', (artistw.width,8) )
+
+		gc1.add( artistw, (0,0) )
+		gc2.add( titlew, (0,0) )
+		# gc.add( linew, (0,22) )
+		# gc.add( progw, (10,24) )
+
+		gr1 = grenderer('testgr2',gc1)
+		gr1.scroll('left')
+		gr2 = grenderer('testgr2',gc2)
+		gr2.scroll('up')
+
+		firstpage = gpage('first', (100,32))
+		firstpage.add(gr1, (0,0))
+		firstpage.add(gr2, (0,14), (100,8))
+		firstpage.add(linew, (0,22))
+		firstpage.add(progw, (0,24))
+
+		end = time.time() + 25
+		flag = True
+		i = 0
+		variabledict['volume'] = i
+		while end > time.time():
+			i += 1
+			if i > 100:
+				i = 0
+			variabledict['volume'] = i
+			if end < time.time()+15 and flag:
+				variabledict['title'] = u"Purple Rain"
+				flag = False
+			if firstpage.update():
+				frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
+				lcd.update(frame)
+				time.sleep(.03)
+
 
 		#
 		# lcd.msgtest("\x00 Stop")
