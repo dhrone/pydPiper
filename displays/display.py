@@ -658,12 +658,13 @@ class renderer(object):
 		#	canvas (canvas) -- the canvas to render
 		self.name = name
 		self.canvas = canvas
+		self.type = None
 
 class grenderer(renderer):
 
 	def __init__(self, name, canvas):
 		super(grenderer, self).__init__(name, canvas)
-
+		self.image = copy.deepcopy(canvas.image)
 
 	def static(self, appears='instant'): # Set up for static display
 		self.type = u'static'
@@ -749,9 +750,18 @@ class grenderer(renderer):
 
 			# Expand canvas
 			if direction in ['left','right']:
-				self.image.crop( (0,0,self.width-1+gap, self.height-1 ) )
+				self.image = Image.new("1", (self.canvas.width+gap, self.canvas.height))
+				self.image.paste(self.canvas.image, (0,0))
+				self.width = self.image.width
+				self.height = self.image.height
+				self.size = self.image.size
+
 			elif direction in ['up','down']:
-				self.image.crop( (0,0,self.width-1, self.height-1+gap ) )
+				self.image = Image.new("1", (self.canvas.width, self.canvas.height+gap))
+				self.image.paste(self.canvas.image, (0,0))
+				self.width = self.image.width
+				self.height = self.image.height
+				self.size = self.image.size
 
 		# Hesitate if needed
 		if self.end > time.time():
@@ -871,7 +881,7 @@ class gpage(page):
 		#	size (integer tuple): how big should it be
 		w,h = size
 		if w > 0 or h > 0:
-			img = canvas.image.crop(0,0,0+w-1,0+h-1)
+			img = canvas.image.crop( (0,0,0+w,0+h) )
 		else:
 			img = canvas.image
 
@@ -902,7 +912,7 @@ if __name__ == '__main__':
 	import graphics as g
 	import fonts
 
-	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Purple Rain', u'volume':50 }
+	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
 	variables = [ u'artist', u'title' ]
 
 	f_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt')
@@ -929,72 +939,38 @@ if __name__ == '__main__':
 
 	progw = gwidgetProgressBar(u'progbar1',u'volume', (0,100), (80,6), u'square', variabledict)
 
-	gc = gcanvas('testcanvas', (artistw.width,22) )
+	gc1 = gcanvas('can1', (artistw.width,14) )
+	gc2 = gcanvas('can2', (artistw.width,8) )
 
-	gc.add( artistw, (0,0) )
-	gc.add( titlew, (0,14) )
+	gc1.add( artistw, (0,0) )
+	gc2.add( titlew, (0,0) )
 	# gc.add( linew, (0,22) )
 	# gc.add( progw, (10,24) )
 
-	frame = g.getframe( gc.image, 0,0, gc.width, gc.height)
-	g.show( frame, gc.width, int(math.ceil(gc.height/8.0)))
+	gr1 = grenderer('testgr2',gc1)
+	gr1.scroll('left')
+	gr2 = grenderer('testgr2',gc2)
+	gr2.scroll('up')
 
-	variabledict['title'] = "When Doves Cry"
-	variabledict['volume'] = 95
-
-	gc.update()
-	frame = g.getframe( gc.image, 0,0, gc.width, gc.height)
-	g.show( frame, gc.width, int(math.ceil(gc.height/8.0)))
-
-	gr = grenderer('test',gc)
-	gr.scroll('left')
 	firstpage = gpage('first', (100,32))
-	firstpage.add(gr, (0,0))
+	firstpage.add(gr1, (0,0))
+	firstpage.add(gr2, (0,14), (100,8))
 	firstpage.add(linew, (0,22))
 	firstpage.add(progw, (0,24))
 
-	end = time.time() + 10
+	end = time.time() + 25
+	flag = True
+	i = 0
+	variabledict['volume'] = i
 	while end > time.time():
+		i += 1
+		if i > 100:
+			i = 0
+		variabledict['volume'] = i
+		if end < time.time()+15 and flag:
+			variabledict['title'] = u"Purple Rain"
+			flag = False
 		if firstpage.update():
 			frame = g.getframe( firstpage.image, 0,0, firstpage.width, firstpage.height)
 			g.show( frame, firstpage.width, int(math.ceil(firstpage.height/8.0)))
-
-	gr = grenderer('test',gc)
-	end = time.time() + 10
-	while end > time.time():
-		if gr.scroll('up',1,4):
-			frame = g.getframe( gr.image, 0,0, gr.width, gr.height)
-			g.show( frame, gr.width, int(math.ceil(gr.height/8.0)))
-		time.sleep(.01)
-
-	gr = grenderer('test',gc)
-	end = time.time() + 10
-	while end > time.time():
-		if gr.scroll('right'):
-			frame = g.getframe( gr.image, 0,0, gr.width, gr.height)
-			g.show( frame, gr.width, int(math.ceil(gr.height/8.0)))
-		time.sleep(.01)
-
-	gr = grenderer('test',gc)
-	end = time.time() + 10
-	while end > time.time():
-		if gr.scroll('down',1,4):
-			frame = g.getframe( gr.image, 0,0, gr.width, gr.height)
-			g.show( frame, gr.width, int(math.ceil(gr.height/8.0)))
-		time.sleep(.01)
-
-	# print "W {0} H{1}".format(titlew.width, titlew.height)
-	# frame = g.getframe( titlew.image, 0,0, titlew.image.width, titlew.image.height )
-	# g.show(frame, titlew.image.width, int(math.ceil(titlew.image.height/8.0)))
-	#
-	# print "W {0} H{1}".format(linew.width, linew.height)
-	# frame = g.getframe( linew.image, 0,0, linew.image.width, linew.image.height )
-	# g.show(frame, linew.image.width, int(math.ceil(linew.image.height/8.0)))
-	#
-	# print "W {0} H{1}".format(rectw.width, rectw.height)
-	# frame = g.getframe( rectw.image, 0,0, rectw.image.width, rectw.image.height )
-	# g.show(frame, rectw.image.width, int(math.ceil(rectw.image.height/8.0)))
-	#
-	# print "W {0} H{1}".format(rectw.width, rectw.height)
-	# frame = g.getframe( progw.image, 0,0, progw.image.width, progw.image.height )
-	# g.show(frame, progw.image.width, int(math.ceil(progw.image.height/8.0)))
+			time.sleep(.03)
