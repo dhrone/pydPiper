@@ -439,8 +439,8 @@ class gwidget(widget):
 
 		# Convert variable to value if needed
 		if type(value) is unicode:
-			v = variabledict[value] if value in variabledict else 0
-			if value in variabledict:
+			v = self.variabledict[value] if value in self.variabledict else 0
+			if value in self.variabledict:
 				self.variables.append(value)
 		elif type(value) is int or type(value) is float:
 			v = value
@@ -450,8 +450,8 @@ class gwidget(widget):
 		l,h = rangeval
 		# Convert range low to value if needed
 		if type(l) is unicode:
-			rvlow = variabledict[l] if l in variabledict else 0
-			if l in variabledict:
+			rvlow = self.variabledict[l] if l in self.variabledict else 0
+			if l in self.variabledict:
 				self.variables.append(l)
 		elif type(l) is int or type(l) is float:
 			rvlow = l
@@ -460,8 +460,8 @@ class gwidget(widget):
 
 		# Convert range high to value if needed
 		if type(h) is unicode:
-			rvhigh = variabledict[h] if h in variabledict else 0
-			if h in variabledict:
+			rvhigh = self.variabledict[h] if h in self.variabledict else 0
+			if h in self.variabledict:
 				self.variables.append(h)
 		elif type(h) is int or type(h) is float:
 			rvhigh = h
