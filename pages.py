@@ -1,3 +1,9 @@
+#!/usr/bin/python.pydPiper
+# coding: UTF-8
+
+from __future__ import unicode_literals
+
+
 # Page Definitions
 # See Page Format.txt for instructions and examples on how to modify your display settings
 
@@ -15,14 +21,14 @@ FONTS = {
 
 # Load the Widgets that will be used to produce the display pages
 WIDGETS = {
-	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small', 'scroll':'onloop', 'threshold':100},
-	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','scroll':'onloop', 'threshold':100},
-	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','scroll':'onloop', 'threshold':100},
+	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small', 'effect':('scroll','left',1,20,'onloop',2,100) },
+	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
+	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
 	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small'},
 	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8)},
 	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large' 'just':'center', 'size':(100,16) },
-	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions'], 'font':'small','scroll':'onloop', 'threshold':100}
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)}
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'small' },
 	'volume': { 'type':'text', 'format':'Volume {0}', 'variables':['volume'], 'font':'small', 'just':'center', size(80,8)},
 	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':'(0,100)', 'size':(80,6) },
@@ -31,49 +37,21 @@ WIDGETS = {
 	'showrandom': { 'type':'text', 'format':'\0xe020 Random', 'font':'large' },
 	'showrepeatonce': { 'type':'text', 'format':'\0xe030 Repeat Once', 'font':'large' },
 	'showrepeatall': { 'type':'text', 'format':'\0xe040 Repeat All', 'font':'large' },
-	'temptoohigh': { 'type':'text', 'format':'\xe100 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'scroll':'onstart': 'threshold':100 }
+	'temptoohigh': { 'type':'text', 'format':'\xe100 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'effect':('scroll','left',1,20,'onstart',2,100) }
 }
 
 # Assemble the widgets into canvases.  Note, canvases are actually widgets and you can add any widget to a canvas, including other canvases
-
+# The only differences between placing a widget in CANVASES as opposed to WIDGETS is that the type is assumed to be 'type':'canvas'.
 CANVASES = {
-	'playartist': {
-		'widgets':  [ ('artist',0,0), ('playlist_display',0,8), ('elapsed',50,8) ],
-		'size':(100,16)
-	},
-	'playartist_radio': {
-		'widgets':  [ ('artist',0,0),  ('radio',0,0), ('elapsed',0,0) ],
-		'size':(100,16)
-	},
-	'playalbum': {
-		'widgets':  [ ('album',0,0), ('playlist_display',0,8), ('elapsed',50,8) ],
-		'size':(100,16)
-	},
-	'playalbum_radio': {
-		'widgets':  [ ('album',0,0), ('radio',0,0), ('elapsed',0,0) ],
-		'size':(100,16)
-	},
-	'playtitle': {
-		'widgets':  [ ('title',0,0), ('playlist_display',0,8), ('elapsed',50,8) ],
-		'size':(100,16)
-	},
-	'playtitle_radio': {
-		'widgets':  [ ('title',0,0), ('radio',0,0), ('elapsed',0,0) ],
-		'size':(100,16)
-	},
-	'blank': {
-		'widgets': [],
-		'size':(100,16)
-	},
-	'timetemp_popup': {
-		'widgets': [ ('time',0,0), ('temp',0,16) ],
-		'size':(100,32),
-		'effect': ('popup',15,10,16 )
-	},
-	'volume_changed': {
-		'widgets': [ ('volume',0,0), ('volumebar',0,8) ],
-		'size':(80,16),
-	}
+	'playartist': { 'widgets': [ ('artist',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
+	'playartist_radio': { 'widgets': [ ('artist',0,0),  ('radio',0,0), ('elapsed',0,0) ], 'size':(100,16) },
+	'playalbum': { 'widgets': [ ('album',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
+	'playalbum_radio': { 'widgets':  [ ('album',0,0), ('radio',0,0), ('elapsed',0,0) ], 'size':(100,16) },
+	'playtitle': { 'widgets':  [ ('title',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
+	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,0), ('elapsed',0,0) ], 'size':(100,16) },
+	'blank': { 'widgets': [], 'size':(100,16) },
+	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('temp',0,16) ], 'size':(100,32), 'effect': ('popup',15,10,16 ) },
+	'volume_changed': { 'widgets': [ ('volume',0,0), ('volumebar',0,8) ], 'size':(80,16) },
 }
 
 # Place the canvases into sequences to display when their condition is met
@@ -102,52 +80,36 @@ SEQUENCES = {
 		'conditional': "db['state']=='play'"
 	}
 	'stop': {
-		'canvases': [
-			{ 'name':'timetemp_popup' }
-		],
+		'canvases': [ { 'name':'timetemp_popup' } ],
 		'conditional': "db['state']=='stop'"
 	},
 	'volume': {
 		'coordinates':(10,0),
-		'canvases': [
-			{ 'name':'volume_changed', 'duration':2 }
-		],
+		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
 		'conditional': "db['volume'] != dbp['volume']",
 	},
 	'announceplay': {
-		'canvases': [
-			{ 'name':'showplay', 'duration':2 }
-		],
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['state'] != dbp['state'] and db['state']=='play'",
 	},
 	'announcestop': {
-		'canvases': [
-			{ 'name':'showplay', 'duration':2 }
-		],
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['state'] != dbp['state'] and db['state']=='stop'",
 	},
 	'announcerandom': {
-		'canvases': [
-			{ 'name':'showplay', 'duration':2 }
-		],
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['random'] != dbp['random'] and db['random'] ",
 	},
 	'announcerepeatonce': {
-		'canvases': [
-			{ 'name':'showplay', 'duration':2 }
-		],
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['single'] != dbp['single'] and db['single']",
 	},
 	'announcerepeatall': {
-		'canvases': [
-			{ 'name':'showplay', 'duration':2 }
-		],
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['repeat'] != dbp['repeat'] and db['repeat']",
 	},
 	'announcetoohot': {
-		'canvases': [
-			{ 'name':'temptoohigh', 'duration':5 }
-		],
+		'canvases': [ { 'name':'temptoohigh', 'duration':5 } ],
 		'conditional': "db['system_tempc'] > 85",
 		'coolingperiod':30
 	}
