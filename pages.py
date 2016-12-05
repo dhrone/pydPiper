@@ -1,6 +1,159 @@
 # Page Definitions
 # See Page Format.txt for instructions and examples on how to modify your display settings
 
+# Load the fonts needed for this system
+FONTS = {
+	'small': {
+		'file':'latin1_5x8.fnt',
+		'size':(5x8)
+	},
+	'large': {
+		'file':'Vintl01_10x16.fnt',
+		'size':(10,16)
+	}
+}
+
+# Load the Widgets that will be used to produce the display pages
+WIDGETS = {
+	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small', 'scroll':'onloop', 'threshold':100},
+	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','scroll':'onloop', 'threshold':100},
+	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','scroll':'onloop', 'threshold':100},
+	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small'},
+	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8)},
+	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
+	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large' 'just':'center', 'size':(100,16) },
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions'], 'font':'small','scroll':'onloop', 'threshold':100}
+	'radio': { 'type':'text', 'format':"RADIO", 'font':'small' },
+	'volume': { 'type':'text', 'format':'Volume {0}', 'variables':['volume'], 'font':'small', 'just':'center', size(80,8)},
+	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':'(0,100)', 'size':(80,6) },
+	'showplay': { 'type':'text', 'format':'\0xe000 PLAY', 'font':'large' },
+	'showstop': { 'type':'text', 'format':'\0xe010 STOP', 'font':'large' },
+	'showrandom': { 'type':'text', 'format':'\0xe020 Random', 'font':'large' },
+	'showrepeatonce': { 'type':'text', 'format':'\0xe030 Repeat Once', 'font':'large' },
+	'showrepeatall': { 'type':'text', 'format':'\0xe040 Repeat All', 'font':'large' },
+	'temptoohigh': { 'type':'text', 'format':'\xe100 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'scroll':'onstart': 'threshold':100 }
+}
+
+# Assemble the widgets into canvases.  Note, canvases are actually widgets and you can add any widget to a canvas, including other canvases
+
+CANVASES = {
+	'playartist': {
+		'widgets':  [ ('artist',0,0), ('playlist_display',0,8), ('elapsed',50,8) ],
+		'size':(100,16)
+	},
+	'playartist_radio': {
+		'widgets':  [ ('artist',0,0),  ('radio',0,0), ('elapsed',0,0) ],
+		'size':(100,16)
+	},
+	'playalbum': {
+		'widgets':  [ ('album',0,0), ('playlist_display',0,8), ('elapsed',50,8) ],
+		'size':(100,16)
+	},
+	'playalbum_radio': {
+		'widgets':  [ ('album',0,0), ('radio',0,0), ('elapsed',0,0) ],
+		'size':(100,16)
+	},
+	'playtitle': {
+		'widgets':  [ ('title',0,0), ('playlist_display',0,8), ('elapsed',50,8) ],
+		'size':(100,16)
+	},
+	'playtitle_radio': {
+		'widgets':  [ ('title',0,0), ('radio',0,0), ('elapsed',0,0) ],
+		'size':(100,16)
+	},
+	'blank': {
+		'widgets': [],
+		'size':(100,16)
+	},
+	'timetemp_popup': {
+		'widgets': [ ('time',0,0), ('temp',0,16) ],
+		'size':(100,32),
+		'effect': ('popup',15,10,16 )
+	},
+	'volume_changed': {
+		'widgets': [ ('volume',0,0), ('volumebar',0,8) ],
+		'size':(80,16),
+	}
+}
+
+# Place the canvases into sequences to display when their condition is met
+# More than one sequence can be active at the same time to allow for alert messages
+# Also remember that canvases are actually widgets (so widgets are also canvases).
+# This means you are allowed to include a widget in the sequence without placing it on a canvas
+
+# Note about Conditionals
+# Conditionals must evaluate to a True or False resulting
+# To access system variables, refer to them within the db dictionary (e.g. db['title'])
+# To access the most recent previous state of a variable, refer to them within the dbp dictionary (e.g. dbp['title'])
+
+SEQUENCES = {
+	'play': {
+		'canvases': [
+			{ 'name':'playartist', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playartist_radio', 'duration':15, 'conditional':"db['streaming']" },
+			{ 'name':'blank', 'duration':0.5 },
+			{ 'name':'playalbum', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playalbum_radio', 'duration':15, 'conditional':"db['streaming']" },
+			{ 'name':'blank', 'duration':0.5 },
+			{ 'name':'playtitle', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playtitle_radio', 'duration':15, 'conditional':"db['streaming']" },
+			{ 'name':'blank', 'duration':0.5 }
+		],
+		'conditional': "db['state']=='play'"
+	}
+	'stop': {
+		'canvases': [
+			{ 'name':'timetemp_popup' }
+		],
+		'conditional': "db['state']=='stop'"
+	},
+	'volume': {
+		'coordinates':(10,0),
+		'canvases': [
+			{ 'name':'volume_changed', 'duration':2 }
+		],
+		'conditional': "db['volume'] != dbp['volume']",
+	},
+	'announceplay': {
+		'canvases': [
+			{ 'name':'showplay', 'duration':2 }
+		],
+		'conditional': "db['state'] != dbp['state'] and db['state']=='play'",
+	},
+	'announcestop': {
+		'canvases': [
+			{ 'name':'showplay', 'duration':2 }
+		],
+		'conditional': "db['state'] != dbp['state'] and db['state']=='stop'",
+	},
+	'announcerandom': {
+		'canvases': [
+			{ 'name':'showplay', 'duration':2 }
+		],
+		'conditional': "db['random'] != dbp['random'] and db['random'] ",
+	},
+	'announcerepeatonce': {
+		'canvases': [
+			{ 'name':'showplay', 'duration':2 }
+		],
+		'conditional': "db['single'] != dbp['single'] and db['single']",
+	},
+	'announcerepeatall': {
+		'canvases': [
+			{ 'name':'showplay', 'duration':2 }
+		],
+		'conditional': "db['repeat'] != dbp['repeat'] and db['repeat']",
+	},
+	'announcetoohot': {
+		'canvases': [
+			{ 'name':'temptoohigh', 'duration':5 }
+		],
+		'conditional': "db['system_tempc'] > 85",
+		'coolingperiod':30
+	}
+}
+
+
 PAGES_Play = {
   'name':"Play",
   'pages':

@@ -593,7 +593,7 @@ class music_controller(threading.Thread):
 			time.sleep(.25)
 
 	def checkalert(self, pl, state):
-		# Determines whether a alert show be displayed
+		# Determines whether a alert should be displayed
 
 		# Use try block to skip page if variables are missing
 		try:
