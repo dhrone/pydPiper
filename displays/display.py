@@ -3,7 +3,7 @@
 
 # Abstract Base class to provide display primitives
 # Written by: Ron Ritchey
-import sys, math, abc, logging, math, time, copy
+import math, abc, logging, time
 from PIL import Image
 from PIL import ImageDraw
 
@@ -838,14 +838,19 @@ class gwidgetScroll(gwidget):
 
 
 class sequence(object): # Holds a sequence of widgets to display on the screen in turn
-	def __init__(self, conditional, variabledict): # initialize class
+	def __init__(self, conditional, db, dbprevous, coolingperiod): # initialize class
 		# Input
 		#	conditional (unicode) -- a string containing an evaluable boolean logic statement which determines whether the sequence is active
-		#	variabledict (dict) -- A dictionary that points to system variable db
+		#	db (dict) -- A dictionary that points to system variable db
+		#	dbp (dict) -- A dictionary that points to the previous state of the system variable db
+		#	coolingperiod (float) -- Amount of time to wait before a sequence can be displayed again
 
 		self.widgets = []					# Array to hold widget list
 		self.conditional = conditional		# Sequence conditional.  Must be true for sequence to be displayed
-		self.variabledict = variabledict	# System variable db
+		self.db = db						# System variable db
+		self.dbp = dbprevious				# System variable db for previous values (to allow system to detect changes)
+		self.coolingperiod = coolingperiod	# Wait for coolingperiod seconds before allowing this sequence to be displayed again
+		self.coolingexpires = 0				# Variable to mark the time that the sequence exits its coolingperiod
 		self.end = 0						# Variable to mark the time that the current widget expires
 		self.currentwidget = 0				# Marks the index of the current widget
 		return
@@ -863,26 +868,29 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 
 		# This is NOT a safe routine.  Make sure that any input sent to this function is from a trusted source
 
-		db = self.variabledict
+		db = self.db
+		dbp = self.dbprevious
+
 		try:
 			return eval(conditional)
 		except:
 			# Could not evaluate conditional so returning False
 			return False
 
- 	def run(self, restart=False): # Return current widget (or None) if none are active
+ 	def get(self, restart=False): # Return current widget (or None) if none are active
 		# Input
 		#	restart (bool) -- If True resets the sequence to the first widget on the list
 
-		# Evaluate sequence conditional.  If it is false, return None.
-		if not self.evalconditional(self.conditional):
+		# Evaluate sequence conditional and check for cooling period.
+		if not self.evalconditional(self.conditional) or self.coolingexpires > time.time():
 			return None
 
 		widget, duration, conditional = self.widgets[self.currentwidget]
 
-		# Check and respond to restart.
+		# Check and respond to restart
 		if restart:
 			self.currentwidget = 0
+			self.coolingexpires = 0
 			widget, duration, conditional = self.widgets[self.currentwidget]
 			self.end = duration + time.time()
 
@@ -897,6 +905,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 				widget, duration, conditional = self.widgets[self.currentwidget]
 				if self.evalconditional(conditional):
 					self.end = duration + time.time()
+					widget.update()
 					return widget
 				self.currentwidget += 1
 
@@ -905,6 +914,250 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		else:
 			# If current widget is active and has not expired, then return it
 			return widget
+
+class display_controller(object):
+	def __init__(self, file, db, dbp):
+		self.file = file
+		self.db = db
+		self.dbp = dbp
+		self.sequences = []
+		load(file)
+
+	def load(self, file): # Load config file and initialize sequences
+		# Input
+		#	file (unicode) -- file that contains a valid display configuration
+
+		self.pages = None
+		self.widgets = None
+		self.sequences = None
+
+		logging.debug("Loading {0} as page file".format(file))
+		# If page file provided, try to load provided file on top of default pages file
+		try:
+			newpages = imp.load_source('pages', file)
+				# Need to have the following structures to be valid
+			self.pages = newpages
+		except:
+			logging.critical('Page file {0} was unable to be loaded'.format(file))
+			self.pages = None
+
+		# Load fonts
+		for k,v in self.pages.FONTS.iteritems():
+			fontfile = v['file'] if 'file' in v else ''
+			if fontfile:
+				try:
+					v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
+				except:
+					# Font load failed
+					logging.critical('Attempt to load font {0} failed'.format(fontfile))
+			else:
+				logging.critical('Expected a font file for {0} but none provided'.format(k))
+
+		loadwidgets(self.pages.WIDGETS)
+		loadwidgets(self.pages.CANVASES)
+		loadsequences(self.pages.SEQUENCES)
+
+
+
+
+	def loadwidgets(self, pageWidgets): # Load widgets. Return any widgets that could not be loaded because a widget contained within it was not found
+
+		# Load widgets
+		for k,v in self.pageWidgets.iteritems():
+			type = v['type'].lower() if 'type' in v else ''
+
+			if type not in ['canvas', 'text', 'progressbar', 'line', 'rectangle' ]:
+				if type:
+					logging.warning('Attempted to add widget {0} with an unsupported widget type {1}.  Skipping...'.format(k,type))
+				else:
+					logging.warning('Attempted to add widget {0} without a type specified.  Skipping...'.format(k))
+				continue
+
+			# type if valid
+			if type == 'text':
+				format = v['format'] if 'format' in v else ''
+				variables = v['variables'] if 'variables in v else []
+				font = v['font'] if 'font' in v else ''
+				just = v['just'] if 'just' in v else 'left'
+				size = v['size'] if 'size' in v else (0,0)
+				varwidth = v['varwidth'] if 'varwidth' in v else False
+
+				if not format or not font:
+					logging.warning('Attempted to add text widget {0} without a format or font specified.  Skipping...'.format(k))
+					continue
+				widget = gwidgetText(format, font, self.db, variables, varwidth, size, just)
+			elif type == 'progressbar':
+				value = v['value'] if 'value' in v else None
+				rangeval = v['rangeval'] if 'rangeval' in v else (0,100)
+				size = v['size'] if 'size' in v else None
+				style = v['style'] if 'style' in v else 'square'
+				if not value or not size:
+					logging.warning('Attempted to add progressbar widget {0} without a value or size.  Skipping...'.format(k))
+					continue
+				widget = gwidgetProgressBar(value, rangeval, size, style, self.db)
+			elif type == 'line':
+				point = v['point'] if 'point' in v else None
+				color = v['color'] if 'color' in v else 1
+				if not point:
+					logging.warning('Attempted to add line widget {0} without a point.  Skipping...'.format(k))
+					continue
+				widget = gwidgetLine(point, color)
+			elif type == 'rectangle':
+				point = v['point'] if 'point' in v else None
+				fill = v['fill'] if 'fill' in v else 0
+				outline = v['outline'] if 'outline' in v else 1
+				if not point:
+					logging.warning('Attempted to add rectangle widget {0} without a point.  Skipping...'.format(k))
+					continue
+				widget = gwidgetRectangle(point, fill, outline)
+			elif type == 'canvas':
+				widgets = v['widgets'] if 'widgets' in v else []
+				size = v['size'] if 'size' in v else None
+
+				if not widgets or not size:
+					logging.warning('Attempted to add create a canvas without widgets or a size.  Skipping...'.format(k))
+					continue
+
+				widget = gwidgetCanvas(size):
+				for wtuple in widgets:
+					 try:
+						 wname, x, y = wtuple
+					except ValueError:
+						logging.warning('Canvas {0} included widget that does not have the appropriate number of parameters. Skipping widget...'.format(k))
+						continue
+					if type(x) is not int or type(y) is not int:
+						logging.warning('Canvas {0} included a widget with an invalid point to place the widget. Skipping widget...'.format(k))
+						continue
+
+					widtoadd = self.widgets[wname] if wname in self.widgets else None
+					if not widtoadd:
+						logging.warning('Canvas {0} attempted to add widget {1} but it was not found in the widget list'.format(k, wname))
+						continue
+
+					widget.add(widtoadd, (x,y))
+
+			# Add effect if requested
+			effect = v['effect'] if 'effect' in v else None
+			if effect != None:
+				try:
+					etype = effect[0]
+				except IndexError:
+					etype = ''
+				if etype in ['scroll', 'popup']:
+					if etype == 'scroll':
+						widget = gwidgetScroll(widget, *effect[1:])
+					elif etype == 'popup':
+						widget = gwidgetPopup(widget, *effect[1:])
+				else:
+					if etype:
+						logging.warning('Attempted to add an unrecognized effect ({0}) to widget {1}.  Ignoring...'.format(etype,k))
+					else:
+						logging.warning('Attempted to an effect to widget {0} without specifying the details.  Ignoring...'.format(,k))
+
+			# Add widget to widget list
+			self.widgets[k] = widget
+
+
+	def next(self): # Compute and return the next image to display
+		active = []
+		for s in self.sequences:
+			w = s.get()
+			if w != None:
+				active.append(w)
+				# If sequence does not have an active coolingperiod timer set then set one
+				if s.coolingexpires < time.time():
+					s.coolingexpires = s.coolingperiod + time.time()
+		img = None
+		for w in active:
+			if not img:
+				img = w.image
+			else:
+				# If more than one sequence is active, paste together.
+				w = w.image.width if w.image.width > img.width else img.width
+				h = w.image.height if w.image.height > img.height else img.height
+				if w > img.width or h > img.height:
+					img.crop(0,0,w,h)
+				img.paste(w.image,(0,0))
+		return img
+
+	def loadsequences(self, sequences):
+
+		for k,v in sequences.iteritems():
+			conditional = v['conditional'] if 'conditional' in v else 'False'
+			coolingperiod = v['coolingperiod'] if 'coolingperiod' in v else 0
+			newseq = self.sequence(conditional,self.db,self.dbp, coolingperiod)
+			self.sequences.append(newseq)
+			canvases = v['canvases'] if 'canvases' in v else []
+			if canvases:
+				for c in canvases:
+					name = c['name'] if 'name' in c else ''
+					duration = c['duration'] if 'duration' in c else 0
+					conditional = c['conditional'] if 'conditional' in c else 'False'
+					if name and duration and eval(conditional):
+						widget = self.widgets[name] if name in self.widgets else None
+						if widget:
+							newseq.add(widget,duration, conditional)
+						else:
+							logging.warning('Trying to add widget {0} to sequence {1} but widget was not found'.format(name, k))
+
+			# If no canvases were added to the sequence, remove it
+			if len(newseq.widgets) == 0:
+				logging.warning('Unable to create sequence {0}.  No widgets'.format(k))
+				del self.sequences[-1]
+
+
+SEQUENCES = {
+	'play': {
+		'canvases': [
+			{ 'name':'playartist', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playartist_radio', 'duration':15, 'conditional':"db['streaming']" },
+			{ 'name':'blank', 'duration':0.5 },
+			{ 'name':'playalbum', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playalbum_radio', 'duration':15, 'conditional':"db['streaming']" },
+			{ 'name':'blank', 'duration':0.5 },
+			{ 'name':'playtitle', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playtitle_radio', 'duration':15, 'conditional':"db['streaming']" },
+			{ 'name':'blank', 'duration':0.5 }
+		],
+		'conditional': "db['state']=='play'"
+	}
+	'stop': {
+		'canvases': [ { 'name':'timetemp_popup' } ],
+		'conditional': "db['state']=='stop'"
+	},
+	'volume': {
+		'coordinates':(10,0),
+		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
+		'conditional': "db['volume'] != dbp['volume']",
+	},
+	'announceplay': {
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
+		'conditional': "db['state'] != dbp['state'] and db['state']=='play'",
+	},
+	'announcestop': {
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
+		'conditional': "db['state'] != dbp['state'] and db['state']=='stop'",
+	},
+	'announcerandom': {
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
+		'conditional': "db['random'] != dbp['random'] and db['random'] ",
+	},
+	'announcerepeatonce': {
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
+		'conditional': "db['single'] != dbp['single'] and db['single']",
+	},
+	'announcerepeatall': {
+		'canvases': [ { 'name':'showplay', 'duration':2 } ],
+		'conditional': "db['repeat'] != dbp['repeat'] and db['repeat']",
+	},
+	'announcetoohot': {
+		'canvases': [ { 'name':'temptoohigh', 'duration':5 } ],
+		'conditional': "db['system_tempc'] > 85",
+		'coolingperiod':30
+	}
+}
+
+
 
 if __name__ == '__main__':
 
