@@ -542,19 +542,19 @@ if __name__ == '__main__':
 
 		# formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'
 
-		fontpkg = dc.pages.FONTS['small']['fontpkg']
-		# fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
-		elapsedw = display.gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
-		artistw = display.gwidgetText("{0}", fontpkg, db, [u'album'], False )
-		playlist_displayw = display.gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
-		canvasw = display.gwidgetCanvas( (100,16) )
-		canvasw.add(artistw, (0,0) )
-		canvasw.add(playlist_displayw, (0,8))
-		canvasw.add(elapsedw, (40,8))
-
-		frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
-		# g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
-
+		# fontpkg = dc.pages.FONTS['small']['fontpkg']
+		# # fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
+		# elapsedw = display.gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
+		# artistw = display.gwidgetText("{0}", fontpkg, db, [u'album'], False )
+		# playlist_displayw = display.gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
+		# canvasw = display.gwidgetCanvas( (100,16) )
+		# canvasw.add(artistw, (0,0) )
+		# canvasw.add(playlist_displayw, (0,8))
+		# canvasw.add(elapsedw, (40,8))
+		#
+		# frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
+		# # g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
+		#
 
 		starttime = time.time()
 		elapsed = int(time.time()-starttime)
