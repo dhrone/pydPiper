@@ -11,7 +11,7 @@ from __future__ import unicode_literals
 FONTS = {
 	'small': {
 		'file':'latin1_5x8.fnt',
-		'size':(5x8)
+		'size':(5,8)
 	},
 	'large': {
 		'file':'Vintl01_10x16.fnt',
@@ -21,17 +21,17 @@ FONTS = {
 
 # Load the Widgets that will be used to produce the display pages
 WIDGETS = {
-	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small', 'effect':('scroll','left',1,20,'onloop',2,100) },
+	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
-	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small'},
-	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8)},
+	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small', 'varwidth':True },
+	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8), 'varwidth':True },
 	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
-	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large' 'just':'center', 'size':(100,16) },
-	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)}
+	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'small' },
-	'volume': { 'type':'text', 'format':'Volume {0}', 'variables':['volume'], 'font':'small', 'just':'center', size(80,8)},
-	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':'(0,100)', 'size':(80,6) },
+	'volume': { 'type':'text', 'format':'Volume {0}', 'variables':['volume'], 'font':'small', 'just':'center', 'size':(80,8)},
+	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':(0,100), 'size':(80,6) },
 	'showplay': { 'type':'text', 'format':'\0xe000 PLAY', 'font':'large' },
 	'showstop': { 'type':'text', 'format':'\0xe010 STOP', 'font':'large' },
 	'showrandom': { 'type':'text', 'format':'\0xe020 Random', 'font':'large' },
@@ -70,17 +70,17 @@ SEQUENCES = {
 			{ 'name':'playartist', 'duration':15, 'conditional':"not db['streaming']" },
 			{ 'name':'playartist_radio', 'duration':15, 'conditional':"db['streaming']" },
 			{ 'name':'blank', 'duration':0.5 },
-			{ 'name':'playalbum', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playalbum', 'duration':5, 'conditional':"not db['streaming']" },
 			{ 'name':'playalbum_radio', 'duration':15, 'conditional':"db['streaming']" },
 			{ 'name':'blank', 'duration':0.5 },
-			{ 'name':'playtitle', 'duration':15, 'conditional':"not db['streaming']" },
+			{ 'name':'playtitle', 'duration':5, 'conditional':"not db['streaming']" },
 			{ 'name':'playtitle_radio', 'duration':15, 'conditional':"db['streaming']" },
 			{ 'name':'blank', 'duration':0.5 }
 		],
 		'conditional': "db['state']=='play'"
-	}
+	},
 	'stop': {
-		'canvases': [ { 'name':'timetemp_popup' } ],
+		'canvases': [ { 'name':'stoptimetemp_popup', 'duration':9999 } ],
 		'conditional': "db['state']=='stop'"
 	},
 	'volume': {

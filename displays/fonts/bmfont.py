@@ -125,8 +125,8 @@ class bmfont:
 
 			for k,v in self.chardata.iteritems():
 				x,y,w,h = v
-				self.fontpkg[k] = im.crop( (x,y,x+w,y+h) )
-
+				img = im.crop( (x,y,x+w,y+h) )
+				self.fontpkg[k] = img
 
 		# except IOError:
 		# 	print u'Sprite file {0} was not found.'.format(self.file)

@@ -3,7 +3,7 @@
 
 # Abstract Base class to provide display primitives
 # Written by: Ron Ritchey
-import math, abc, logging, time
+import math, abc, logging, time, imp
 from PIL import Image
 from PIL import ImageDraw
 
@@ -76,13 +76,14 @@ class widget:
 		return
 
 	@abc.abstractmethod
-	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0):
+	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0,reset=False):
 		# Input
 		#	widget (widget) -- Widget to scroll
 		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
 		#	hesitatetype (unicode) -- the type of hesitation to use ['none', 'onstart', 'onloop']
 		#	hesitatetime (float) -- how long in seconds to hesistate
 		#	threshold (integer) -- scroll only if widget larger than threshold
+		#	reset (bool) -- Should the hesitation timer be reset
 		return
 
 	# Utility functions
@@ -226,7 +227,7 @@ class widget:
 
 class gwidget(widget):
 
-	def update(self):
+	def update(self, reset=False):
 
 		if self.type in ['text', 'progressbar']:
 			if not self.changed(self.variables):
@@ -239,10 +240,10 @@ class gwidget(widget):
 			self.progressbar(self.value, self.rangeval, self.size, self.style)
 			return True
 		elif self.type == 'canvas':
-			retval = False
+			retval = True if reset else False
 			for e in self.widgets:
 				widget,x,y,w,h = e
-				if widget.update():
+				if widget.update(reset):
 					retval = True
 			# If a widget has changed
 			if retval:
@@ -254,7 +255,7 @@ class gwidget(widget):
 					self.place(widget, (x,y), (w,h))
 			return retval
 		elif self.type == u'scroll':
-			return self.scroll(self.widget, self.direction, self.distance, self.gap, self.hesitatetype, self.hesitatetime)
+			return self.scroll(self.widget, self.direction, self.distance, self.gap, self.hesitatetype, self.hesitatetime,self.threshold, reset)
 		elif self.type == u'popup':
 			return self.popup(self.widget, self.dheight, self.duration, self.pduration)
 		else:
@@ -421,7 +422,8 @@ class gwidget(widget):
 			# Adjust charimg if varwidth is False
 			if not varwidth:
 				offset = (fx-charimg.width)/2
-				charimg = charimg.crop( (-offset,0,fx-offset,fy) ).load()
+				charimg = charimg.crop( (-offset,0,fx-offset,fy) )
+				charimg.load()
 
 			# Paste character into frame
 			lineimage.paste(charimg, (cx,0))
@@ -646,7 +648,7 @@ class gwidget(widget):
 		return True
 
 	# SCROLL widget function
-	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0): # Set up for scrolling
+	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0, reset=False): # Set up for scrolling
 		# Input
 		#	widget (widget) -- Widget to scroll
 		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
@@ -654,13 +656,20 @@ class gwidget(widget):
 		#	hesitatetime (float) -- how long in seconds to hesistate
 		#	threshold (integer) -- scroll only if widget larger than threshold
 
-
+		retval = False
+		if reset:
+			self.start = time.time()
+			if hesitatetype not in ['onstart', 'onloop']:
+				self.end = 0
+			else:
+				self.end = self.start + hesitatetime
 
 		# If this is the first pass, initialize state variables
 		try:
 			self.type
 			self.end
 		except:
+			retval = True
 			self.type= u'scroll'
 			self.start = time.time()
 			if hesitatetype not in ['onstart', 'onloop']:
@@ -708,8 +717,9 @@ class gwidget(widget):
 					self.updatesize()
 
 
-		if self.widget.update():
+		if self.widget.update(reset):
 			# something has changed
+			retval = True
 			self.start = time.time()
 			if hesitatetype not in ['onstart', 'onloop']:
 				self.end = 0
@@ -744,7 +754,7 @@ class gwidget(widget):
 
 		# If Hesitate is needed or scrolling is not needed, return
 		if self.end > time.time() or not self.shouldscroll:
-			return False
+			return retval
 
 		# Save region to be overwritten
 		# Move body
@@ -832,13 +842,13 @@ class gwidgetPopup(gwidget):
 		self.popup(widget, dheight, duration, pduration)
 
 class gwidgetScroll(gwidget):
-	def __init__(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0):
+	def __init__(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0, reset=False):
 		super(gwidgetScroll, self).__init__()
-		self.scroll(widget, direction, distance, gap, hesitatetype, hesitatetime,threshold)
+		self.scroll(widget, direction, distance, gap, hesitatetype, hesitatetime,threshold,reset)
 
 
 class sequence(object): # Holds a sequence of widgets to display on the screen in turn
-	def __init__(self, conditional, db, dbprevous, coolingperiod): # initialize class
+	def __init__(self, conditional, db, dbprevious, coolingperiod): # initialize class
 		# Input
 		#	conditional (unicode) -- a string containing an evaluable boolean logic statement which determines whether the sequence is active
 		#	db (dict) -- A dictionary that points to system variable db
@@ -869,7 +879,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		# This is NOT a safe routine.  Make sure that any input sent to this function is from a trusted source
 
 		db = self.db
-		dbp = self.dbprevious
+		dbp = self.dbp
 
 		try:
 			return eval(conditional)
@@ -897,22 +907,27 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		# See if current widget has expired (or has gone inactive).
 		if self.end < time.time() or not self.evalconditional(conditional):
 			# If it has, iterate through list to find the next active widget
-			startpos = self.currentwidget
 			self.currentwidget += 1
-			while self.currentwidget != startpos:
-				if self.currentwidget >= len(self.widgets):
-					self.currentwidget = 0
+			if self.currentwidget >= len(self.widgets):
+				self.currentwidget = 0
+
+			for i in range(len(self.widgets)):
 				widget, duration, conditional = self.widgets[self.currentwidget]
 				if self.evalconditional(conditional):
 					self.end = duration + time.time()
-					widget.update()
+					widget.update(True)
 					return widget
-				self.currentwidget += 1
+				else:
+					self.currentwidget += 1
+					if self.currentwidget >= len(self.widgets):
+						self.currentwidget = 0
+
 
 			# If you go through the whole list without finding an active widget then return None
 			return None
 		else:
 			# If current widget is active and has not expired, then return it
+			widget.update()
 			return widget
 
 class display_controller(object):
@@ -920,16 +935,15 @@ class display_controller(object):
 		self.file = file
 		self.db = db
 		self.dbp = dbp
-		self.sequences = []
-		load(file)
+		self.load(file)
 
 	def load(self, file): # Load config file and initialize sequences
 		# Input
 		#	file (unicode) -- file that contains a valid display configuration
 
 		self.pages = None
-		self.widgets = None
-		self.sequences = None
+		self.widgets = { }
+		self.sequences = []
 
 		logging.debug("Loading {0} as page file".format(file))
 		# If page file provided, try to load provided file on top of default pages file
@@ -953,9 +967,14 @@ class display_controller(object):
 			else:
 				logging.critical('Expected a font file for {0} but none provided'.format(k))
 
-		loadwidgets(self.pages.WIDGETS)
-		loadwidgets(self.pages.CANVASES)
-		loadsequences(self.pages.SEQUENCES)
+
+		# Add type field to CANVAS widgets
+		for k,v in self.pages.CANVASES.iteritems():
+			v['type'] = 'canvas'
+
+		self.loadwidgets(self.pages.WIDGETS)
+		self.loadwidgets(self.pages.CANVASES)
+		self.loadsequences(self.pages.SEQUENCES)
 
 
 
@@ -963,30 +982,31 @@ class display_controller(object):
 	def loadwidgets(self, pageWidgets): # Load widgets. Return any widgets that could not be loaded because a widget contained within it was not found
 
 		# Load widgets
-		for k,v in self.pageWidgets.iteritems():
-			type = v['type'].lower() if 'type' in v else ''
+		for k,v in pageWidgets.iteritems():
+			typeval = v['type'].lower() if 'type' in v else ''
 
-			if type not in ['canvas', 'text', 'progressbar', 'line', 'rectangle' ]:
-				if type:
-					logging.warning('Attempted to add widget {0} with an unsupported widget type {1}.  Skipping...'.format(k,type))
+			if typeval not in ['canvas', 'text', 'progressbar', 'line', 'rectangle' ]:
+				if typeval:
+					logging.warning('Attempted to add widget {0} with an unsupported widget type {1}.  Skipping...'.format(k,typeval))
 				else:
 					logging.warning('Attempted to add widget {0} without a type specified.  Skipping...'.format(k))
 				continue
 
 			# type if valid
-			if type == 'text':
+			if typeval == 'text':
 				format = v['format'] if 'format' in v else ''
-				variables = v['variables'] if 'variables in v else []
+				variables = v['variables'] if 'variables' in v else []
 				font = v['font'] if 'font' in v else ''
 				just = v['just'] if 'just' in v else 'left'
 				size = v['size'] if 'size' in v else (0,0)
 				varwidth = v['varwidth'] if 'varwidth' in v else False
-
-				if not format or not font:
+				fontentry = self.pages.FONTS[font] if font in self.pages.FONTS else None
+				fontpkg = fontentry['fontpkg'] if 'fontpkg' in fontentry else None
+				if not format or not fontpkg:
 					logging.warning('Attempted to add text widget {0} without a format or font specified.  Skipping...'.format(k))
 					continue
-				widget = gwidgetText(format, font, self.db, variables, varwidth, size, just)
-			elif type == 'progressbar':
+				widget = gwidgetText(format, fontpkg, self.db, variables, varwidth, size, just)
+			elif typeval == 'progressbar':
 				value = v['value'] if 'value' in v else None
 				rangeval = v['rangeval'] if 'rangeval' in v else (0,100)
 				size = v['size'] if 'size' in v else None
@@ -995,14 +1015,14 @@ class display_controller(object):
 					logging.warning('Attempted to add progressbar widget {0} without a value or size.  Skipping...'.format(k))
 					continue
 				widget = gwidgetProgressBar(value, rangeval, size, style, self.db)
-			elif type == 'line':
+			elif typeval == 'line':
 				point = v['point'] if 'point' in v else None
 				color = v['color'] if 'color' in v else 1
 				if not point:
 					logging.warning('Attempted to add line widget {0} without a point.  Skipping...'.format(k))
 					continue
 				widget = gwidgetLine(point, color)
-			elif type == 'rectangle':
+			elif typeval == 'rectangle':
 				point = v['point'] if 'point' in v else None
 				fill = v['fill'] if 'fill' in v else 0
 				outline = v['outline'] if 'outline' in v else 1
@@ -1010,17 +1030,17 @@ class display_controller(object):
 					logging.warning('Attempted to add rectangle widget {0} without a point.  Skipping...'.format(k))
 					continue
 				widget = gwidgetRectangle(point, fill, outline)
-			elif type == 'canvas':
-				widgets = v['widgets'] if 'widgets' in v else []
+			elif typeval == 'canvas':
+				widgetentries = v['widgets'] if 'widgets' in v else []
 				size = v['size'] if 'size' in v else None
 
-				if not widgets or not size:
-					logging.warning('Attempted to add create a canvas without widgets or a size.  Skipping...'.format(k))
+				if not size:
+					logging.warning('Attempted to add create canvas {0} without a size.  Skipping...'.format(k))
 					continue
 
-				widget = gwidgetCanvas(size):
-				for wtuple in widgets:
-					 try:
+				widget = gwidgetCanvas(size)
+				for wtuple in widgetentries:
+					try:
 						 wname, x, y = wtuple
 					except ValueError:
 						logging.warning('Canvas {0} included widget that does not have the appropriate number of parameters. Skipping widget...'.format(k))
@@ -1052,11 +1072,11 @@ class display_controller(object):
 					if etype:
 						logging.warning('Attempted to add an unrecognized effect ({0}) to widget {1}.  Ignoring...'.format(etype,k))
 					else:
-						logging.warning('Attempted to an effect to widget {0} without specifying the details.  Ignoring...'.format(,k))
+						logging.warning('Attempted to an effect to widget {0} without specifying the details.  Ignoring...'.format(k))
 
 			# Add widget to widget list
 			self.widgets[k] = widget
-
+			print "Adding widget {0}".format(k)
 
 	def next(self): # Compute and return the next image to display
 		active = []
@@ -1076,7 +1096,7 @@ class display_controller(object):
 				w = w.image.width if w.image.width > img.width else img.width
 				h = w.image.height if w.image.height > img.height else img.height
 				if w > img.width or h > img.height:
-					img.crop(0,0,w,h)
+					img = img.crop(0,0,w,h)
 				img.paste(w.image,(0,0))
 		return img
 
@@ -1085,7 +1105,7 @@ class display_controller(object):
 		for k,v in sequences.iteritems():
 			conditional = v['conditional'] if 'conditional' in v else 'False'
 			coolingperiod = v['coolingperiod'] if 'coolingperiod' in v else 0
-			newseq = self.sequence(conditional,self.db,self.dbp, coolingperiod)
+			newseq = sequence(conditional,self.db,self.dbp, coolingperiod)
 			self.sequences.append(newseq)
 			canvases = v['canvases'] if 'canvases' in v else []
 			if canvases:
@@ -1093,7 +1113,7 @@ class display_controller(object):
 					name = c['name'] if 'name' in c else ''
 					duration = c['duration'] if 'duration' in c else 0
 					conditional = c['conditional'] if 'conditional' in c else 'False'
-					if name and duration and eval(conditional):
+					if name and duration and conditional:
 						widget = self.widgets[name] if name in self.widgets else None
 						if widget:
 							newseq.add(widget,duration, conditional)
@@ -1106,57 +1126,12 @@ class display_controller(object):
 				del self.sequences[-1]
 
 
-SEQUENCES = {
-	'play': {
-		'canvases': [
-			{ 'name':'playartist', 'duration':15, 'conditional':"not db['streaming']" },
-			{ 'name':'playartist_radio', 'duration':15, 'conditional':"db['streaming']" },
-			{ 'name':'blank', 'duration':0.5 },
-			{ 'name':'playalbum', 'duration':15, 'conditional':"not db['streaming']" },
-			{ 'name':'playalbum_radio', 'duration':15, 'conditional':"db['streaming']" },
-			{ 'name':'blank', 'duration':0.5 },
-			{ 'name':'playtitle', 'duration':15, 'conditional':"not db['streaming']" },
-			{ 'name':'playtitle_radio', 'duration':15, 'conditional':"db['streaming']" },
-			{ 'name':'blank', 'duration':0.5 }
-		],
-		'conditional': "db['state']=='play'"
-	}
-	'stop': {
-		'canvases': [ { 'name':'timetemp_popup' } ],
-		'conditional': "db['state']=='stop'"
-	},
-	'volume': {
-		'coordinates':(10,0),
-		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
-		'conditional': "db['volume'] != dbp['volume']",
-	},
-	'announceplay': {
-		'canvases': [ { 'name':'showplay', 'duration':2 } ],
-		'conditional': "db['state'] != dbp['state'] and db['state']=='play'",
-	},
-	'announcestop': {
-		'canvases': [ { 'name':'showplay', 'duration':2 } ],
-		'conditional': "db['state'] != dbp['state'] and db['state']=='stop'",
-	},
-	'announcerandom': {
-		'canvases': [ { 'name':'showplay', 'duration':2 } ],
-		'conditional': "db['random'] != dbp['random'] and db['random'] ",
-	},
-	'announcerepeatonce': {
-		'canvases': [ { 'name':'showplay', 'duration':2 } ],
-		'conditional': "db['single'] != dbp['single'] and db['single']",
-	},
-	'announcerepeatall': {
-		'canvases': [ { 'name':'showplay', 'duration':2 } ],
-		'conditional': "db['repeat'] != dbp['repeat'] and db['repeat']",
-	},
-	'announcetoohot': {
-		'canvases': [ { 'name':'temptoohigh', 'duration':5 } ],
-		'conditional': "db['system_tempc'] > 85",
-		'coolingperiod':30
-	}
-}
-
+def printsequences(seq):
+	for s in seq:
+		print "SEQUENCE"
+		print '  Canvases      : {0}'.format(len(s.widgets))
+		print '  Conditional   : {0}'.format(s.conditional)
+		print '  Cooling Period: {0}'.format(s.coolingperiod)
 
 
 if __name__ == '__main__':
@@ -1164,78 +1139,156 @@ if __name__ == '__main__':
 	import graphics as g
 	import fonts
 
-	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
-	variables = [ u'artist', u'title' ]
+	starttime = time.time()
+	elapsed = int(time.time()-starttime)
+	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-	f_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt')
-	fp_HD44780 = f_HD44780.fontpkg
+	db = {
+	 		'title':"When dove's cry",
+			'artist':"Prince and the Revolutions",
+			'album':'Purple Rain',
+			'playlist_display':'01/10',
+			'elapsed_formatted':timepos,
+			'time_formatted':'12:34p',
+			'outside_temp_formatted':'72\xb0F',
+			'outside_conditions':'Windy',
+			'volume':88,
+			'system_temp_formatted':'98\xb0C',
+			'streaming':False,
+			'state':'play',
+			'random':False,
+			'single':False,
+			'repeat':False,
+			'system_tempc':98.0
+		}
 
-	fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
 
-	# artistw = gwidget(u'artist', variabledict)
-	# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
+	dbp = {
+	 		'title':"When dove's cry",
+			'artist':"Prince and the Revolutions",
+			'album':'Purple Rain',
+			'playlist_display':'01/10',
+			'elapsed_formatted':'1:32/4:03',
+			'time_formatted':'12:34p',
+			'outside_temp_formatted':'72\xb0F',
+			'outside_conditions':'Windy',
+			'volume':88,
+			'system_temp_formatted':'98\xb0C',
+			'streaming':False,
+			'state':'play',
+			'random':False,
+			'single':False,
+			'repeat':False,
+			'system_tempc':98.0
+		}
 
-	artistw = gwidgetText("{0}",fp_Vint10x16, variabledict, [u'artist'], True)
-	titlew = gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
-	linew = gwidgetLine( (99,0) )
-	rectw = gwidgetRectangle( (99,15) )
-	progw = gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
+	dc = display_controller('../pages.py', db,dbp)
+	printsequences(dc.sequences)
 
-	artistcanvas = gwidgetCanvas( (artistw.width,14) )
-	titlecanvas = gwidgetCanvas( (artistw.width,8) )
+	# titlew = dc.widgets['title']
 
-	# artistcanvas = gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
-	# titlecanvas = gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
-	artistcanvas = gwidgetScroll(artistw,u'left',1,20,u'onloop',2,100)
-	titlecanvas = gwidgetScroll(titlew,u'left',1,4,u'onloop',2,100)
+	# formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'
 
-	page = gwidgetCanvas( (100,32) )
-	page.add(artistcanvas, (0,0))
-	page.add(titlecanvas, (0,14), (100,8))
-	page.add(linew, (0,22))
-	page.add(progw, (4,24))
+	fontpkg = dc.pages.FONTS['small']['fontpkg']
+	# fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
+	elapsedw = gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
+	artistw = gwidgetText("{0}", fontpkg, db, [u'album'], False )
+	playlist_displayw = gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
+	canvasw = gwidgetCanvas( (100,16) )
+	canvasw.add(artistw, (0,0) )
+	canvasw.add(playlist_displayw, (0,8))
+	canvasw.add(elapsedw, (40,8))
 
-	end = time.time() + 20
-	flag = True
-	i = 0
-	variabledict['volume'] = i
-	while end > time.time():
-		i += 1
-		if i > 100:
-			i = 0
-		variabledict['volume'] = i
-		if end < time.time()+10 and flag:
-			variabledict['title'] = u"Purple Rain"
-			flag = False
-		if page.update():
-			frame = g.getframe( page.image, 0,0, page.width, page.height)
-			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
-			time.sleep(.03)
+	frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
+	g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
 
-#-------------
 
-	variabledict['title'] = "When Dove's Cry"
-	progw = gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
-	page = gwidgetCanvas( (100,32) )
-	page.add( artistcanvas, (0,0) )
-	page.add( titlecanvas, (0,18) )
-	page.add( linew, (0,26) )
-	page.add( progw, (0,28) )
-	page = gwidgetPopup(page, 14)
+	starttime = time.time()
+	elapsed = int(time.time()-starttime)
+	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-	end = time.time() + 25
-	flag = True
-	i = 0
-	variabledict['volume'] = i
-	while end > time.time():
-		i += 1
-		if i > 100:
-			i = 0
-		variabledict['volume'] = i
-		if end < time.time()+15 and flag:
-			variabledict['title'] = u"Purple Rain"
-			flag = False
-		if page.update():
-			frame = g.getframe( page.image, 0,0, page.width, page.height)
-			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
-		time.sleep(.03)
+	time.sleep(2)
+	while True:
+		elapsed = int(time.time()-starttime)
+		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
+		db['elapsed_formatted'] = timepos
+		img = dc.next()
+		frame = g.getframe( img, 0,0, 100,16 )
+		g.show( frame, 100, int(math.ceil(16/8.0)))
+		time.sleep(.1)
+
+# 	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
+# 	variables = [ u'artist', u'title' ]
+#
+# 	f_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt')
+# 	fp_HD44780 = f_HD44780.fontpkg
+#
+# 	fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
+#
+# 	# artistw = gwidget(u'artist', variabledict)
+# 	# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
+#
+# 	artistw = gwidgetText("{0}",fp_Vint10x16, variabledict, [u'artist'], True)
+# 	titlew = gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
+# 	linew = gwidgetLine( (99,0) )
+# 	rectw = gwidgetRectangle( (99,15) )
+# 	progw = gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
+#
+# 	artistcanvas = gwidgetCanvas( (artistw.width,14) )
+# 	titlecanvas = gwidgetCanvas( (artistw.width,8) )
+#
+# 	# artistcanvas = gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
+# 	# titlecanvas = gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
+# 	artistcanvas = gwidgetScroll(artistw,u'left',1,20,u'onloop',2,100)
+# 	titlecanvas = gwidgetScroll(titlew,u'left',1,4,u'onloop',2,100)
+#
+# 	page = gwidgetCanvas( (100,32) )
+# 	page.add(artistcanvas, (0,0))
+# 	page.add(titlecanvas, (0,14), (100,8))
+# 	page.add(linew, (0,22))
+# 	page.add(progw, (4,24))
+#
+# 	end = time.time() + 20
+# 	flag = True
+# 	i = 0
+# 	variabledict['volume'] = i
+# 	while end > time.time():
+# 		i += 1
+# 		if i > 100:
+# 			i = 0
+# 		variabledict['volume'] = i
+# 		if end < time.time()+10 and flag:
+# 			variabledict['title'] = u"Purple Rain"
+# 			flag = False
+# 		if page.update():
+# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
+# 			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
+# 			time.sleep(.03)
+#
+# #-------------
+#
+# 	variabledict['title'] = "When Dove's Cry"
+# 	progw = gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
+# 	page = gwidgetCanvas( (100,32) )
+# 	page.add( artistcanvas, (0,0) )
+# 	page.add( titlecanvas, (0,18) )
+# 	page.add( linew, (0,26) )
+# 	page.add( progw, (0,28) )
+# 	page = gwidgetPopup(page, 14)
+#
+# 	end = time.time() + 25
+# 	flag = True
+# 	i = 0
+# 	variabledict['volume'] = i
+# 	while end > time.time():
+# 		i += 1
+# 		if i > 100:
+# 			i = 0
+# 		variabledict['volume'] = i
+# 		if end < time.time()+15 and flag:
+# 			variabledict['title'] = u"Purple Rain"
+# 			flag = False
+# 		if page.update():
+# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
+# 			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
+# 		time.sleep(.03)
