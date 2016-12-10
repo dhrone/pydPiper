@@ -461,6 +461,7 @@ if __name__ == '__main__':
 
 		import graphics as g
 		import fonts
+		import display
 
 		starttime = time.time()
 		elapsed = int(time.time()-starttime)
@@ -507,8 +508,7 @@ if __name__ == '__main__':
 				'system_tempc':81.0
 			}
 
-		dc = display_controller('../pages.py', db,dbp)
-		printsequences(dc.sequences)
+		dc = display.display_controller('../pages.py', db,dbp)
 
 		# titlew = dc.widgets['title']
 
@@ -516,16 +516,16 @@ if __name__ == '__main__':
 
 		fontpkg = dc.pages.FONTS['small']['fontpkg']
 		# fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
-		elapsedw = gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
-		artistw = gwidgetText("{0}", fontpkg, db, [u'album'], False )
-		playlist_displayw = gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
-		canvasw = gwidgetCanvas( (100,16) )
+		elapsedw = display.gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
+		artistw = display.gwidgetText("{0}", fontpkg, db, [u'album'], False )
+		playlist_displayw = display.gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
+		canvasw = display.gwidgetCanvas( (100,16) )
 		canvasw.add(artistw, (0,0) )
 		canvasw.add(playlist_displayw, (0,8))
 		canvasw.add(elapsedw, (40,8))
 
 		frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
-		g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
+		# g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
 
 
 		starttime = time.time()
@@ -533,7 +533,7 @@ if __name__ == '__main__':
 		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
 		import moment
-		time.sleep(2)
+		# time.sleep(2)
 
 		starttime=time.time()
 		while True:
