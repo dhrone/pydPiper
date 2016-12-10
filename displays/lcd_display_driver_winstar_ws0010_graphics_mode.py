@@ -467,7 +467,7 @@ if __name__ == '__main__':
 		elapsed = int(time.time()-starttime)
 		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-		db = {
+		db_old = {
 		 		'title':"15 glasses left (240 oz)",
 				'artist':"Rye IPA",
 				'album':'7.2 ABV',
@@ -487,8 +487,36 @@ if __name__ == '__main__':
 				'system_tempc':81.0
 			}
 
+		db = {
+		 		'remaining':"15 glasses left (240 oz)",
+				'name':"Rye IPA",
+				'abv':'7.2 ABV',
+				'description':'Malty and bitter with a IBU of 72',
+				'time_formatted':'12:34p',
+				'outside_temp_formatted':'72 F',
+	#			'outside_temp_formatted':'72F',
+				'outside_conditions':'Windy',
+				'system_temp_formatted':'98\xb0C',
+				'state':'play',
+				'system_tempc':81.0
+			}
 
 		dbp = {
+		 		'remaining':"15 glasses left (240 oz)",
+				'name':"Rye IPA",
+				'abv':'7.2 ABV',
+				'description':'Malty and bitter with a IBU of 72',
+				'time_formatted':'12:34p',
+				'outside_temp_formatted':'72 F',
+	#			'outside_temp_formatted':'72F',
+				'outside_conditions':'Windy',
+				'system_temp_formatted':'98\xb0C',
+				'state':'play',
+				'system_tempc':81.0
+			}
+
+
+		dbp_old = {
 		 		'title':"15 glasses left (240 oz)",
 				'artist':"Rye IPA",
 				'album':'7.2 ABV',

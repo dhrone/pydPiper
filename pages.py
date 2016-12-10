@@ -20,7 +20,16 @@ FONTS = {
 }
 
 # Load the Widgets that will be used to produce the display pages
+
 WIDGETS = {
+	'name': { 'type':'text', 'format':'{0}', 'variables':['name'], 'font':'large','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100) },
+	'description': { 'type':'text', 'format':'{0} {1}', 'variables':['description','abv'], 'font':'small','varwidth':True, 'size':(100,16), 'effect':('scroll','left',1,20,'onloop',2,100)},
+	'remaining': { 'type':'text', 'format':'{0}', 'variables':['remaining'], 'font':'small', 'varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100)},
+	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
+	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(100,16) }
+}
+
+WIDGETS_old = {
 	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
@@ -43,6 +52,12 @@ WIDGETS = {
 # Assemble the widgets into canvases.  Note, canvases are actually widgets and you can add any widget to a canvas, including other canvases
 # The only differences between placing a widget in CANVASES as opposed to WIDGETS is that the type is assumed to be 'type':'canvas'.
 CANVASES = {
+	'showdesc': { 'widgets': [ ('description',0,0), ('remaining',0,8) ], 'size':(100,16) },
+	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('temp',0,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
+}
+
+
+CANVASES_old = {
 	'playartist': { 'widgets': [ ('artist',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'playartist_radio': { 'widgets': [ ('artist',0,0),  ('radio',0,0), ('elapsed',0,0) ], 'size':(100,16) },
 	'playalbum': { 'widgets': [ ('album',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
@@ -65,6 +80,20 @@ CANVASES = {
 # To access the most recent previous state of a variable, refer to them within the dbp dictionary (e.g. dbp['title'])
 
 SEQUENCES = {
+	'100': {
+		'canvases': [
+			{ 'name':'name', 'duration':15, 'conditional':"True" },
+			{ 'name':'showdesc', 'duration':15, 'conditional':"True" }
+		],
+		'conditional': "db['state']=='play'"
+	},
+	'101': {
+		'canvases': [ { 'name':'stoptimetemp_popup', 'duration':9999 } ],
+		'conditional': "db['state']=='stop'"
+	}
+}
+
+SEQUENCES_old = {
 	'100': {
 		'canvases': [
 			{ 'name':'playartist', 'duration':15, 'conditional':"not db['streaming']" },

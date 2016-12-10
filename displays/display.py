@@ -1157,6 +1157,35 @@ if __name__ == '__main__':
 	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
 	db = {
+	 		'remaining':"15 glasses left (240 oz)",
+			'name':"Rye IPA",
+			'abv':'7.2 ABV',
+			'description':'Malty and bitter with a IBU of 72',
+			'time_formatted':'12:34p',
+			'outside_temp_formatted':'72 F',
+#			'outside_temp_formatted':'72F',
+			'outside_conditions':'Windy',
+			'system_temp_formatted':'98\xb0C',
+			'state':'play',
+			'system_tempc':81.0
+		}
+
+	dbp = {
+	 		'remaining':"15 glasses left (240 oz)",
+			'name':"Rye IPA",
+			'abv':'7.2 ABV',
+			'description':'Malty and bitter with a IBU of 72',
+			'time_formatted':'12:34p',
+			'outside_temp_formatted':'72 F',
+#			'outside_temp_formatted':'72F',
+			'outside_conditions':'Windy',
+			'system_temp_formatted':'98\xb0C',
+			'state':'play',
+			'system_tempc':81.0
+		}
+
+
+	db_old = {
 	 		'title':"When dove's cry",
 			'artist':"Prince and the Revolutions",
 			'album':'Purple Rain',
@@ -1177,7 +1206,7 @@ if __name__ == '__main__':
 		}
 
 
-	dbp = {
+	dbp_old = {
 	 		'title':"When dove's cry",
 			'artist':"Prince and the Revolutions",
 			'album':'Purple Rain',
@@ -1204,26 +1233,26 @@ if __name__ == '__main__':
 
 	# formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'
 
-	fontpkg = dc.pages.FONTS['small']['fontpkg']
-	# fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
-	elapsedw = gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
-	artistw = gwidgetText("{0}", fontpkg, db, [u'album'], False )
-	playlist_displayw = gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
-	canvasw = gwidgetCanvas( (100,16) )
-	canvasw.add(artistw, (0,0) )
-	canvasw.add(playlist_displayw, (0,8))
-	canvasw.add(elapsedw, (40,8))
-
-	frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
-	g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
-
+	# fontpkg = dc.pages.FONTS['small']['fontpkg']
+	# # fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
+	# elapsedw = gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
+	# artistw = gwidgetText("{0}", fontpkg, db, [u'album'], False )
+	# playlist_displayw = gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
+	# canvasw = gwidgetCanvas( (100,16) )
+	# canvasw.add(artistw, (0,0) )
+	# canvasw.add(playlist_displayw, (0,8))
+	# canvasw.add(elapsedw, (40,8))
+	#
+	# frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
+	# g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
+	#
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)
 	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
 	import moment
-	time.sleep(2)
+	# time.sleep(2)
 
 	starttime=time.time()
 	while True:
@@ -1237,16 +1266,16 @@ if __name__ == '__main__':
 		img = img.crop( (0,0,100,16) )
 		frame = g.getframe( img, 0,0, 100,16 )
 		g.show( frame, 100, int(math.ceil(16/8.0)))
-		if db['volume'] == 40:
-			dbp['volume']= 40
-		if db['state'] == 'stop':
-			dbp['state'] = 'stop'
-		time.sleep(.1)
-		if starttime + 5 < time.time():
-			db['state'] = 'stop'
-
-		if starttime + 10 < time.time():
-			db['volume'] = 40
+		# if db['volume'] == 40:
+		# 	dbp['volume']= 40
+		# if db['state'] == 'stop':
+		# 	dbp['state'] = 'stop'
+		# time.sleep(.1)
+		# if starttime + 5 < time.time():
+		# 	db['state'] = 'stop'
+		#
+		# if starttime + 10 < time.time():
+		# 	db['volume'] = 40
 
 
 # 	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
