@@ -50,7 +50,7 @@ CANVASES = {
 	'playtitle': { 'widgets':  [ ('title',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,0), ('elapsed',0,0) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
-	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('temp',0,16) ], 'size':(100,32), 'effect': ('popup',15,10,16 ) },
+	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('temp',0,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
 	'volume_changed': { 'widgets': [ ('volume',0,0), ('volumebar',0,8) ], 'size':(80,16) },
 }
 
@@ -65,7 +65,7 @@ CANVASES = {
 # To access the most recent previous state of a variable, refer to them within the dbp dictionary (e.g. dbp['title'])
 
 SEQUENCES = {
-	'play': {
+	'100': {
 		'canvases': [
 			{ 'name':'playartist', 'duration':15, 'conditional':"not db['streaming']" },
 			{ 'name':'playartist_radio', 'duration':15, 'conditional':"db['streaming']" },
@@ -79,36 +79,37 @@ SEQUENCES = {
 		],
 		'conditional': "db['state']=='play'"
 	},
-	'stop': {
+	'101': {
 		'canvases': [ { 'name':'stoptimetemp_popup', 'duration':9999 } ],
 		'conditional': "db['state']=='stop'"
 	},
-	'volume': {
+	'50': {
 		'coordinates':(10,0),
 		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
 		'conditional': "db['volume'] != dbp['volume']",
+		'minimum':6,
 	},
-	'announceplay': {
+	'26': {
 		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['state'] != dbp['state'] and db['state']=='play'",
 	},
-	'announcestop': {
+	'25': {
 		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['state'] != dbp['state'] and db['state']=='stop'",
 	},
-	'announcerandom': {
+	'30': {
 		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['random'] != dbp['random'] and db['random'] ",
 	},
-	'announcerepeatonce': {
+	'31': {
 		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['single'] != dbp['single'] and db['single']",
 	},
-	'announcerepeatall': {
+	'32': {
 		'canvases': [ { 'name':'showplay', 'duration':2 } ],
 		'conditional': "db['repeat'] != dbp['repeat'] and db['repeat']",
 	},
-	'announcetoohot': {
+	'10': {
 		'canvases': [ { 'name':'temptoohigh', 'duration':5 } ],
 		'conditional': "db['system_tempc'] > 85",
 		'coolingperiod':30

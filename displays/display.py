@@ -3,6 +3,9 @@
 
 # Abstract Base class to provide display primitives
 # Written by: Ron Ritchey
+
+from __future__ import unicode_literals
+
 import math, abc, logging, time, imp
 from PIL import Image
 from PIL import ImageDraw
@@ -268,18 +271,13 @@ class gwidget(widget):
 		self.type = u'canvas'
 		self.image = Image.new("1", (w,h) )
 		self.updatesize()
+		self.widgets = []
 
 	def add(self, widget, (x,y), (w,h)=(0,0)): # Add a widget to the canvas
 
 		if self.type != u'canvas':
 			logging.warning("Trying to add a widget to something that is not a canvas")
 			return
-
-		try:
-			self.widgets
-		except:
-			# initialize widgets array
-			self.widgets = []
 
 		self.widgets.append( (widget,x,y,w,h) )
 		self.place(widget, (x,y), (w,h) )
@@ -617,6 +615,7 @@ class gwidget(widget):
 			self.dheight = dheight
 			self.duration = duration
 			self.pduration = pduration
+			print "duration = {0} pduration {1}".format(self.duration, self.pduration)
 
 		# Update the widget if needed
 		self.widget.update()
@@ -717,7 +716,8 @@ class gwidget(widget):
 					self.updatesize()
 
 
-		if self.widget.update(reset):
+		# If the widget has changed or a reset was commanded then reset the scroll to the starting position
+		if self.widget.update(reset) or reset:
 			# something has changed
 			retval = True
 			self.start = time.time()
@@ -848,7 +848,7 @@ class gwidgetScroll(gwidget):
 
 
 class sequence(object): # Holds a sequence of widgets to display on the screen in turn
-	def __init__(self, conditional, db, dbprevious, coolingperiod): # initialize class
+	def __init__(self, conditional, db, dbprevious, coolingperiod,minimum): # initialize class
 		# Input
 		#	conditional (unicode) -- a string containing an evaluable boolean logic statement which determines whether the sequence is active
 		#	db (dict) -- A dictionary that points to system variable db
@@ -863,6 +863,9 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		self.coolingexpires = 0				# Variable to mark the time that the sequence exits its coolingperiod
 		self.end = 0						# Variable to mark the time that the current widget expires
 		self.currentwidget = 0				# Marks the index of the current widget
+		self.minimum = minimum				# When this sequence activates, keep in active for a least minimum seconds
+		self.expires = 0					# Time that this sequence can be allowed to go inactive
+
 		return
 
 	def add(self, widget, duration, conditional): # Add a widget to the display sequence
@@ -892,8 +895,14 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		#	restart (bool) -- If True resets the sequence to the first widget on the list
 
 		# Evaluate sequence conditional and check for cooling period.
-		if not self.evalconditional(self.conditional) or self.coolingexpires > time.time():
+		print "Evaluating {0} : {1}".format(self.conditional, self.evalconditional(self.conditional))
+		print "Cooling expired {0}".format(self.coolingexpires > time.time())
+		if self.expires < time.time() and (not self.evalconditional(self.conditional) or self.coolingexpires > time.time()):
 			return None
+
+		# If the condition is true and the sequence has already passed it's minimum time reset the timer
+		if self.expires < time.time():
+			self.expires = time.time() + self.minimum
 
 		widget, duration, conditional = self.widgets[self.currentwidget]
 
@@ -922,7 +931,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 					if self.currentwidget >= len(self.widgets):
 						self.currentwidget = 0
 
-
+			print "Didn't find an active widget"
 			# If you go through the whole list without finding an active widget then return None
 			return None
 		else:
@@ -1080,6 +1089,7 @@ class display_controller(object):
 
 	def next(self): # Compute and return the next image to display
 		active = []
+
 		for s in self.sequences:
 			w = s.get()
 			if w != None:
@@ -1088,41 +1098,44 @@ class display_controller(object):
 				if s.coolingexpires < time.time():
 					s.coolingexpires = s.coolingperiod + time.time()
 		img = None
-		for w in active:
+		for wid in active:
 			if not img:
-				img = w.image
+				img = wid.image
 			else:
 				# If more than one sequence is active, paste together.
-				w = w.image.width if w.image.width > img.width else img.width
-				h = w.image.height if w.image.height > img.height else img.height
+				w = wid.image.width if wid.image.width > img.width else img.width
+				h = wid.image.height if wid.image.height > img.height else img.height
 				if w > img.width or h > img.height:
-					img = img.crop(0,0,w,h)
-				img.paste(w.image,(0,0))
+					img = img.crop((0,0,w,h))
+				img.paste(wid.image,(0,0))
 		return img
 
 	def loadsequences(self, sequences):
 
-		for k,v in sequences.iteritems():
-			conditional = v['conditional'] if 'conditional' in v else 'False'
-			coolingperiod = v['coolingperiod'] if 'coolingperiod' in v else 0
-			newseq = sequence(conditional,self.db,self.dbp, coolingperiod)
+		for key,value in sorted(sequences.iteritems(), key=lambda (k,v): (v,k)):
+			print 'key {0}'.format(key)
+			conditional = value['conditional'] if 'conditional' in value else 'True'
+			coolingperiod = value['coolingperiod'] if 'coolingperiod' in value else 0
+			minimum = value['minimum'] if 'minimum' in value else 0
+
+			newseq = sequence(conditional,self.db,self.dbp, coolingperiod, minimum)
 			self.sequences.append(newseq)
-			canvases = v['canvases'] if 'canvases' in v else []
+			canvases = value['canvases'] if 'canvases' in value else []
 			if canvases:
 				for c in canvases:
 					name = c['name'] if 'name' in c else ''
 					duration = c['duration'] if 'duration' in c else 0
-					conditional = c['conditional'] if 'conditional' in c else 'False'
+					conditional = c['conditional'] if 'conditional' in c else 'True'
 					if name and duration and conditional:
 						widget = self.widgets[name] if name in self.widgets else None
 						if widget:
 							newseq.add(widget,duration, conditional)
 						else:
-							logging.warning('Trying to add widget {0} to sequence {1} but widget was not found'.format(name, k))
+							logging.warning('Trying to add widget {0} to sequence {1} but widget was not found'.format(name, key))
 
 			# If no canvases were added to the sequence, remove it
 			if len(newseq.widgets) == 0:
-				logging.warning('Unable to create sequence {0}.  No widgets'.format(k))
+				logging.warning('Unable to create sequence {0}.  No widgets'.format(key))
 				del self.sequences[-1]
 
 
@@ -1151,6 +1164,7 @@ if __name__ == '__main__':
 			'elapsed_formatted':timepos,
 			'time_formatted':'12:34p',
 			'outside_temp_formatted':'72\xb0F',
+#			'outside_temp_formatted':'72F',
 			'outside_conditions':'Windy',
 			'volume':88,
 			'system_temp_formatted':'98\xb0C',
@@ -1159,7 +1173,7 @@ if __name__ == '__main__':
 			'random':False,
 			'single':False,
 			'repeat':False,
-			'system_tempc':98.0
+			'system_tempc':81.0
 		}
 
 
@@ -1171,6 +1185,7 @@ if __name__ == '__main__':
 			'elapsed_formatted':'1:32/4:03',
 			'time_formatted':'12:34p',
 			'outside_temp_formatted':'72\xb0F',
+#			'outside_temp_formatted':'72F',
 			'outside_conditions':'Windy',
 			'volume':88,
 			'system_temp_formatted':'98\xb0C',
@@ -1179,7 +1194,7 @@ if __name__ == '__main__':
 			'random':False,
 			'single':False,
 			'repeat':False,
-			'system_tempc':98.0
+			'system_tempc':81.0
 		}
 
 	dc = display_controller('../pages.py', db,dbp)
@@ -1207,15 +1222,32 @@ if __name__ == '__main__':
 	elapsed = int(time.time()-starttime)
 	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
+	import moment
 	time.sleep(2)
+
+	starttime=time.time()
 	while True:
 		elapsed = int(time.time()-starttime)
 		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
+		current_time = moment.utcnow().timezone('US/Eastern').strftime(u"%H:%M:%S").strip().decode()
 		db['elapsed_formatted'] = timepos
+		db['time_formatted'] = current_time
 		img = dc.next()
+		print "img size = {0}".format(img.size)
+		img = img.crop( (0,0,100,16) )
 		frame = g.getframe( img, 0,0, 100,16 )
 		g.show( frame, 100, int(math.ceil(16/8.0)))
+		if db['volume'] == 40:
+			dbp['volume']= 40
+		if db['state'] == 'stop':
+			dbp['state'] = 'stop'
 		time.sleep(.1)
+		if starttime + 5 < time.time():
+			db['state'] = 'stop'
+
+		if starttime + 10 < time.time():
+			db['volume'] = 40
+
 
 # 	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
 # 	variables = [ u'artist', u'title' ]
