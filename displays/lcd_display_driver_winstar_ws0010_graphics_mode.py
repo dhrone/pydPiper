@@ -548,16 +548,16 @@ if __name__ == '__main__':
 			frame = g.getframe( img, 0,0, 100,16 )
 			# g.show( frame, 100, int(math.ceil(16/8.0)))
 			lcd.update(frame)
-			if db['volume'] == 40:
-				dbp['volume']= 40
-			if db['state'] == 'stop':
-				dbp['state'] = 'stop'
+#			if db['volume'] == 40:
+#				dbp['volume']= 40
+#			if db['state'] == 'stop':
+#				dbp['state'] = 'stop'
 			time.sleep(.1)
 			if starttime + 60 < time.time():
 				db['state'] = 'stop'
 
-			if starttime + 10 < time.time():
-				db['volume'] = 40
+#			if starttime + 10 < time.time():
+#				db['volume'] = 40
 
 
 

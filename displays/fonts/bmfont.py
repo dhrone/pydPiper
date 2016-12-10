@@ -19,6 +19,7 @@ class bmfont:
 		# Read file
 		try:
 			f_path = os.path.join(os.path.dirname(__file__), fontfile)
+			print f_path
 			with open(f_path, 'r') as f:
 
 				# Read info line of font file

@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 import math, abc, logging, time, imp
 from PIL import Image
 from PIL import ImageDraw
+import fonts
 
 class widget:
 	__metaclass__ = abc.ABCMeta
@@ -968,11 +969,11 @@ class display_controller(object):
 		for k,v in self.pages.FONTS.iteritems():
 			fontfile = v['file'] if 'file' in v else ''
 			if fontfile:
-				try:
-					v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
-				except:
+#				try:
+				v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
+#				except:
 					# Font load failed
-					logging.critical('Attempt to load font {0} failed'.format(fontfile))
+#					logging.critical('Attempt to load font {0} failed'.format(fontfile))
 			else:
 				logging.critical('Expected a font file for {0} but none provided'.format(k))
 
@@ -1150,7 +1151,6 @@ def printsequences(seq):
 if __name__ == '__main__':
 
 	import graphics as g
-	import fonts
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)
