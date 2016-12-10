@@ -446,92 +446,194 @@ if __name__ == '__main__':
 
 	import display
 
+
 	try:
 		pins = [d4, d5, d6, d7]
 		print "Winstar OLED Display Test"
 		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins)
 
 		lcd = lcd_display_driver_winstar_ws0010_graphics_mode(rows,cols,rs,e,[d4, d5, d6, d7])
-
 		lcd.clear()
-
-		lcd.message("Winstar OLED\nPi Powered",0,0,True)
+		lcd.message("Tagg's Brews\nWelcome",0,0,True)
 		time.sleep(3)
-
 		lcd.clear()
 
-		variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
-		variables = [ u'artist', u'title' ]
 
-		fp_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
-		fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
+		import graphics as g
+		import fonts
 
-		# artistw = gwidget(u'artist', variabledict)
-		# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
+		starttime = time.time()
+		elapsed = int(time.time()-starttime)
+		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-		artistw = display.gwidgetText("{0}",fp_HD44780, variabledict, [u'artist'], True)
-		titlew = display.gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
-		linew = display.gwidgetLine( (99,0) )
-		rectw = display.gwidgetRectangle( (99,15) )
-		progw = display.gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
+		db = {
+		 		'title':"15 glasses left (240 oz)",
+				'artist':"Rye IPA",
+				'album':'7.2 ABV',
+				'playlist_display':'01/10',
+				'elapsed_formatted':timepos,
+				'time_formatted':'12:34p',
+				'outside_temp_formatted':'72\xb0F',
+	#			'outside_temp_formatted':'72F',
+				'outside_conditions':'Windy',
+				'volume':88,
+				'system_temp_formatted':'98\xb0C',
+				'streaming':False,
+				'state':'play',
+				'random':False,
+				'single':False,
+				'repeat':False,
+				'system_tempc':81.0
+			}
 
-		artistcanvas = display.gwidgetCanvas( (artistw.width,14) )
-		titlecanvas = display.gwidgetCanvas( (artistw.width,8) )
 
-		artistcanvas = display.gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left',1,20,u'onloop',2,100)
-		titlecanvas = display.gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up',1,4,u'onloop',2,8)
+		dbp = {
+		 		'title':"15 glasses left (240 oz)",
+				'artist':"Rye IPA",
+				'album':'7.2 ABV',
+				'playlist_display':'01/10',
+				'elapsed_formatted':'1:32/4:03',
+				'time_formatted':'12:34p',
+				'outside_temp_formatted':'72\xb0F',
+	#			'outside_temp_formatted':'72F',
+				'outside_conditions':'Windy',
+				'volume':88,
+				'system_temp_formatted':'98\xb0C',
+				'streaming':False,
+				'state':'play',
+				'random':False,
+				'single':False,
+				'repeat':False,
+				'system_tempc':81.0
+			}
 
-		page = display.gwidgetCanvas( (100,32) )
-		page.add(artistcanvas, (0,0))
-		page.add(titlecanvas, (0,8), (100,8))
-		page.add(display.gwidgetText("Percent complete",fp_HD44780), (4,17))
-		page.add(linew, (0,16))
-		page.add(progw, (4,26))
+		dc = display_controller('../pages.py', db,dbp)
+		printsequences(dc.sequences)
 
-		end = time.time() + 20
-		flag = True
-		i = 0
-		variabledict['volume'] = i
-		while end > time.time():
-			i += 1
-			if i > 100:
-				i = 0
-			variabledict['volume'] = i
-			if end < time.time()+10 and flag:
-				variabledict['title'] = u"Purple Rain"
-				flag = False
-			if page.update():
-				frame = g.getframe( page.image, 0,0, page.width, page.height)
-				lcd.update(frame)
-				time.sleep(.03)
+		# titlew = dc.widgets['title']
 
-	#-------------
+		# formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'
 
-		variabledict['title'] = "When Dove's Cry"
-		progw = display.gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
-		page = display.gwidgetCanvas( (100,32) )
-		page.add( artistcanvas, (0,0) )
-		page.add( titlecanvas, (0,18) )
-		page.add( linew, (0,26) )
-		page.add( progw, (0,28) )
-		page = display.gwidgetPopup(page, 14)
+		fontpkg = dc.pages.FONTS['small']['fontpkg']
+		# fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
+		elapsedw = gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
+		artistw = gwidgetText("{0}", fontpkg, db, [u'album'], False )
+		playlist_displayw = gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
+		canvasw = gwidgetCanvas( (100,16) )
+		canvasw.add(artistw, (0,0) )
+		canvasw.add(playlist_displayw, (0,8))
+		canvasw.add(elapsedw, (40,8))
 
-		end = time.time() + 25
-		flag = True
-		i = 0
-		variabledict['volume'] = i
-		while end > time.time():
-			i += 1
-			if i > 100:
-				i = 0
-			variabledict['volume'] = i
-			if end < time.time()+15 and flag:
-				variabledict['title'] = u"Purple Rain"
-				flag = False
-			if page.update():
-				frame = g.getframe( page.image, 0,0, page.width, page.height)
-				lcd.update(frame)
-			time.sleep(.03)
+		frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
+		g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
+
+
+		starttime = time.time()
+		elapsed = int(time.time()-starttime)
+		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
+
+		import moment
+		time.sleep(2)
+
+		starttime=time.time()
+		while True:
+			elapsed = int(time.time()-starttime)
+			timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
+			current_time = moment.utcnow().timezone('US/Eastern').strftime(u"%H:%M:%S").strip().decode()
+			db['elapsed_formatted'] = timepos
+			db['time_formatted'] = current_time
+			img = dc.next()
+			print "img size = {0}".format(img.size)
+			img = img.crop( (0,0,100,16) )
+			frame = g.getframe( img, 0,0, 100,16 )
+			# g.show( frame, 100, int(math.ceil(16/8.0)))
+			lcd.update(frame)
+			if db['volume'] == 40:
+				dbp['volume']= 40
+			if db['state'] == 'stop':
+				dbp['state'] = 'stop'
+			time.sleep(.1)
+			if starttime + 60 < time.time():
+				db['state'] = 'stop'
+
+			if starttime + 10 < time.time():
+				db['volume'] = 40
+
+
+
+	#
+	# 	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
+	# 	variables = [ u'artist', u'title' ]
+	#
+	# 	fp_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
+	# 	fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
+	#
+	# 	# artistw = gwidget(u'artist', variabledict)
+	# 	# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
+	#
+	# 	artistw = display.gwidgetText("{0}",fp_HD44780, variabledict, [u'artist'], True)
+	# 	titlew = display.gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
+	# 	linew = display.gwidgetLine( (99,0) )
+	# 	rectw = display.gwidgetRectangle( (99,15) )
+	# 	progw = display.gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
+	#
+	# 	artistcanvas = display.gwidgetCanvas( (artistw.width,14) )
+	# 	titlecanvas = display.gwidgetCanvas( (artistw.width,8) )
+	#
+	# 	artistcanvas = display.gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left',1,20,u'onloop',2,100)
+	# 	titlecanvas = display.gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up',1,4,u'onloop',2,8)
+	#
+	# 	page = display.gwidgetCanvas( (100,32) )
+	# 	page.add(artistcanvas, (0,0))
+	# 	page.add(titlecanvas, (0,8), (100,8))
+	# 	page.add(display.gwidgetText("Percent complete",fp_HD44780), (4,17))
+	# 	page.add(linew, (0,16))
+	# 	page.add(progw, (4,26))
+	#
+	# 	end = time.time() + 20
+	# 	flag = True
+	# 	i = 0
+	# 	variabledict['volume'] = i
+	# 	while end > time.time():
+	# 		i += 1
+	# 		if i > 100:
+	# 			i = 0
+	# 		variabledict['volume'] = i
+	# 		if end < time.time()+10 and flag:
+	# 			variabledict['title'] = u"Purple Rain"
+	# 			flag = False
+	# 		if page.update():
+	# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
+	# 			lcd.update(frame)
+	# 			time.sleep(.03)
+	#
+	# #-------------
+	#
+	# 	variabledict['title'] = "When Dove's Cry"
+	# 	progw = display.gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
+	# 	page = display.gwidgetCanvas( (100,32) )
+	# 	page.add( artistcanvas, (0,0) )
+	# 	page.add( titlecanvas, (0,18) )
+	# 	page.add( linew, (0,26) )
+	# 	page.add( progw, (0,28) )
+	# 	page = display.gwidgetPopup(page, 14)
+	#
+	# 	end = time.time() + 25
+	# 	flag = True
+	# 	i = 0
+	# 	variabledict['volume'] = i
+	# 	while end > time.time():
+	# 		i += 1
+	# 		if i > 100:
+	# 			i = 0
+	# 		variabledict['volume'] = i
+	# 		if end < time.time()+15 and flag:
+	# 			variabledict['title'] = u"Purple Rain"
+	# 			flag = False
+	# 		if page.update():
+	# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
+	# 			lcd.update(frame)
+	# 		time.sleep(.03)
 
 	except KeyboardInterrupt:
 		pass
