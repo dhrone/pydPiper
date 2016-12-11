@@ -488,7 +488,7 @@ if __name__ == '__main__':
 			}
 
 		db = {
-		 		'remaining':"15 glasses left (240 oz)",
+		 		'remaining':"26 glasses left (423 oz)",
 				'name':"Rye IPA",
 				'abv':'7.2 ABV',
 				'weight': 423,
@@ -503,7 +503,7 @@ if __name__ == '__main__':
 			}
 
 		dbp = {
-		 		'remaining':"15 glasses left (240 oz)",
+		 		'remaining':"26 glasses left (423 oz)",
 				'name':"Rye IPA",
 				'abv':'7.2 ABV',
 				'weight': 423,
