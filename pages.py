@@ -55,7 +55,7 @@ WIDGETS_old = {
 # The only differences between placing a widget in CANVASES as opposed to WIDGETS is that the type is assumed to be 'type':'canvas'.
 CANVASES = {
 	'showname': { 'widgets': [ ('name',0,0), ('abv',60,0), ('description',0,8) ], 'size':(100,16) },
-	'showremaining': { 'widgets': [ ('remaining',0,0), ('abv',60,0), ('remainingbar',10,8) ], 'size':(100,16) },
+	'showremaining': { 'widgets': [ ('remaining',0,0), ('remainingbar',10,10) ], 'size':(100,16) },
 	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('temp',0,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
 }
 

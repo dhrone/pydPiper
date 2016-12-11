@@ -454,7 +454,7 @@ if __name__ == '__main__':
 
 		lcd = lcd_display_driver_winstar_ws0010_graphics_mode(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
-		lcd.message("    Tagg's\nHouse Brew",0,0,True)
+		lcd.message("   Tagg's\nHouse Brew",0,0,True)
 		time.sleep(3)
 		lcd.clear()
 
