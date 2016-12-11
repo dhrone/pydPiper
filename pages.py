@@ -25,7 +25,7 @@ WIDGETS = {
 	'name': { 'type':'text', 'format':'{0}', 'variables':['name'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,60) },
 	'description': { 'type':'text', 'format':'{0}', 'variables':['description'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100)},
 	'remaining': { 'type':'text', 'format':'{0}', 'variables':['remaining'], 'font':'small', 'varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100)},
-	'remainingbar': { 'type':'progressbar', , 'value':'weight', 'rangeval':(0,640), 'size':(80,6)},
+	'remainingbar': { 'type':'progressbar', 'value':'weight', 'rangeval':(0,640), 'size':(80,6)},
 	'abv': { 'type':'text', 'format':'{0}', 'variables':['abv'], 'font':'small', 'varwidth':True, 'just':'right', 'size':(40,8) },
 	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(100,16) }
