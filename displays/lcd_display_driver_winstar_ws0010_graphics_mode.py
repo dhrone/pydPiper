@@ -491,7 +491,7 @@ if __name__ == '__main__':
 		 		'remaining':"15 glasses left (240 oz)",
 				'name':"Rye IPA",
 				'abv':'7.2 ABV',
-				'description':'Malty and bitter with a IBU of 72',
+				'description':'Malty and bitter with an IBU of 72',
 				'time_formatted':'12:34p',
 				'outside_temp_formatted':'72 F',
 	#			'outside_temp_formatted':'72F',
@@ -505,7 +505,7 @@ if __name__ == '__main__':
 		 		'remaining':"15 glasses left (240 oz)",
 				'name':"Rye IPA",
 				'abv':'7.2 ABV',
-				'description':'Malty and bitter with a IBU of 72',
+				'description':'Malty and bitter with an IBU of 72',
 				'time_formatted':'12:34p',
 				'outside_temp_formatted':'72 F',
 	#			'outside_temp_formatted':'72F',
@@ -580,7 +580,6 @@ if __name__ == '__main__':
 #				dbp['volume']= 40
 #			if db['state'] == 'stop':
 #				dbp['state'] = 'stop'
-			time.sleep(.1)
 			if starttime + 60 < time.time():
 				db['state'] = 'stop'
 
