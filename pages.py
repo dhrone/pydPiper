@@ -25,6 +25,7 @@ WIDGETS = {
 	'name': { 'type':'text', 'format':'{0}', 'variables':['name'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,60) },
 	'description': { 'type':'text', 'format':'{0}', 'variables':['description'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100)},
 	'remaining': { 'type':'text', 'format':'{0}', 'variables':['remaining'], 'font':'small', 'varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100)},
+	'remainingbar': { 'type':'progressbar', , 'value':'weight', 'rangeval':(0,640), 'size':(80,6)},
 	'abv': { 'type':'text', 'format':'{0}', 'variables':['abv'], 'font':'small', 'varwidth':True, 'just':'right', 'size':(40,8) },
 	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(100,16) }
@@ -54,7 +55,7 @@ WIDGETS_old = {
 # The only differences between placing a widget in CANVASES as opposed to WIDGETS is that the type is assumed to be 'type':'canvas'.
 CANVASES = {
 	'showname': { 'widgets': [ ('name',0,0), ('abv',60,0), ('description',0,8) ], 'size':(100,16) },
-	'showremaining': { 'widgets': [ ('name',0,0), ('abv',60,0), ('remaining',0,8) ], 'size':(100,16) },
+	'showremaining': { 'widgets': [ ('remaining',0,0), ('abv',60,0), ('remainingbar',10,8) ], 'size':(100,16) },
 	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('temp',0,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
 }
 
