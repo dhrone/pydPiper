@@ -616,7 +616,6 @@ class gwidget(widget):
 			self.dheight = dheight
 			self.duration = duration
 			self.pduration = pduration
-			print "duration = {0} pduration {1}".format(self.duration, self.pduration)
 
 		# Update the widget if needed
 		self.widget.update()
@@ -849,7 +848,7 @@ class gwidgetScroll(gwidget):
 
 
 class sequence(object): # Holds a sequence of widgets to display on the screen in turn
-	def __init__(self, conditional, db, dbprevious, coolingperiod,minimum): # initialize class
+	def __init__(self, conditional, db, dbprevious, coolingperiod, minimum): # initialize class
 		# Input
 		#	conditional (unicode) -- a string containing an evaluable boolean logic statement which determines whether the sequence is active
 		#	db (dict) -- A dictionary that points to system variable db
@@ -874,6 +873,12 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		#	widget (widget) -- The widget to add to the display seqeunce
 		#	duration (float) -- How long in seconds to display this widget
 		#	conditional (unicode) -- A string containing an evaluable boolean logic statement which determines whether the widget should be included in the sequence
+
+		# If this is the first widget then set the duration it should be displayed
+		if len(self.widgets) == 0:
+			self.end = time.time() + duration
+
+		# Add widget to sequence
 		self.widgets.append( (widget, duration, conditional) )
 
 	def evalconditional(self, conditional): # Evaluate the conditional statement
@@ -896,8 +901,6 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		#	restart (bool) -- If True resets the sequence to the first widget on the list
 
 		# Evaluate sequence conditional and check for cooling period.
-		print "Evaluating {0} : {1}".format(self.conditional, self.evalconditional(self.conditional))
-		print "Cooling expired {0}".format(self.coolingexpires > time.time())
 		if self.expires < time.time() and (not self.evalconditional(self.conditional) or self.coolingexpires > time.time()):
 			return None
 
@@ -1086,7 +1089,6 @@ class display_controller(object):
 
 			# Add widget to widget list
 			self.widgets[k] = widget
-			print "Adding widget {0}".format(k)
 
 	def next(self): # Compute and return the next image to display
 		active = []
@@ -1114,7 +1116,6 @@ class display_controller(object):
 	def loadsequences(self, sequences):
 
 		for key,value in sorted(sequences.iteritems(), key=lambda (k,v): (v,k)):
-			print 'key {0}'.format(key)
 			conditional = value['conditional'] if 'conditional' in value else 'True'
 			coolingperiod = value['coolingperiod'] if 'coolingperiod' in value else 0
 			minimum = value['minimum'] if 'minimum' in value else 0
@@ -1157,12 +1158,13 @@ if __name__ == '__main__':
 	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
 	db = {
-	 		'remaining':"15 glasses left (240 oz)",
+	 		'remaining':"26 glasses left (423 oz)",
 			'name':"Rye IPA",
 			'abv':'7.2 ABV',
-			'description':'Malty and bitter with a IBU of 72',
+			'weight': 423,
+			'description':'Malty and bitter with an IBU of 72',
 			'time_formatted':'12:34p',
-			'outside_temp_formatted':'72 F',
+			'outside_temp_formatted':'46\xb0F',
 #			'outside_temp_formatted':'72F',
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
@@ -1171,18 +1173,20 @@ if __name__ == '__main__':
 		}
 
 	dbp = {
-	 		'remaining':"15 glasses left (240 oz)",
+	 		'remaining':"26 glasses left (423 oz)",
 			'name':"Rye IPA",
 			'abv':'7.2 ABV',
-			'description':'Malty and bitter with a IBU of 72',
+			'weight': 423,
+			'description':'Malty and bitter with an IBU of 72',
 			'time_formatted':'12:34p',
-			'outside_temp_formatted':'72 F',
+			'outside_temp_formatted':'46\xb0F',
 #			'outside_temp_formatted':'72F',
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
 			'state':'play',
 			'system_tempc':81.0
 		}
+
 
 
 	db_old = {
@@ -1262,17 +1266,16 @@ if __name__ == '__main__':
 		db['elapsed_formatted'] = timepos
 		db['time_formatted'] = current_time
 		img = dc.next()
-		print "img size = {0}".format(img.size)
 		img = img.crop( (0,0,100,16) )
 		frame = g.getframe( img, 0,0, 100,16 )
 		g.show( frame, 100, int(math.ceil(16/8.0)))
 		# if db['volume'] == 40:
 		# 	dbp['volume']= 40
-		# if db['state'] == 'stop':
-		# 	dbp['state'] = 'stop'
-		# time.sleep(.1)
-		# if starttime + 5 < time.time():
-		# 	db['state'] = 'stop'
+		if db['state'] == 'stop':
+			dbp['state'] = 'stop'
+		time.sleep(.1)
+		if starttime + 25 < time.time():
+			db['state'] = 'stop'
 		#
 		# if starttime + 10 < time.time():
 		# 	db['volume'] = 40

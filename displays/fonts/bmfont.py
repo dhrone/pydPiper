@@ -107,11 +107,12 @@ class bmfont:
 					y = int(d[u'y']) if u'y' in d else -1
 					w = int(d[u'width']) if u'width' in d else -1
 					h = int(d[u'height']) if u'height' in d else -1
-					if x < 0 or y < 0 or w < 0 or h < 0:
+					xadvance = int(d[u'xadvance']) if u'xadvance' in d else -1
+					if x < 0 or y < 0 or w < 0 or h < 0 or xadvance < 0:
 						logging.debug(u'Font file {0} is not readable. Char {1} missing value.'.format(fontfile,id))
 						raise SyntaxWarning(u'Font file is not readable')
 
-					self.chardata[id] = (x,y,w,h)
+					self.chardata[id] = (x,y,w,h,xadvance)
 					if maxw < w:
 						maxw = w
 				self.fontpkg['size'] = (maxw,self.lineHeight)
@@ -125,7 +126,10 @@ class bmfont:
 		with Image.open(f_path) as im:
 
 			for k,v in self.chardata.iteritems():
-				x,y,w,h = v
+				x,y,w,h,xadvance = v
+
+				# Adjust the width of the character based upon the xadvance field
+				w = w if w >= xadvance else xadvance
 				img = im.crop( (x,y,x+w,y+h) )
 				self.fontpkg[k] = img
 
