@@ -13,5 +13,5 @@ except ImportError:
 
 try:
 	import bmfont
-except bmfont:
+except ImportError:
 	pass
