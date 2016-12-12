@@ -573,7 +573,6 @@ if __name__ == '__main__':
 			db['elapsed_formatted'] = timepos
 			db['time_formatted'] = current_time
 			img = dc.next()
-			print "img size = {0}".format(img.size)
 			img = img.crop( (0,0,100,16) )
 			frame = g.getframe( img, 0,0, 100,16 )
 			# g.show( frame, 100, int(math.ceil(16/8.0)))
