@@ -526,7 +526,7 @@ if __name__ == u'__main__':
 	lcd.clear()
 	lcd.message(pydPiper_config.STARTUP_MSG)
 
-	mc = music_controller(dq, services_list, showupdates)
+	mc = music_controller(services_list, showupdates)
 	mc.start()
 	time.sleep(2)
 
