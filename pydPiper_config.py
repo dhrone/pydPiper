@@ -6,8 +6,9 @@ STARTUP_MSG = u"pydPiper\nStarting"
 STARTUP_LOGMSG = u"pydPiper Starting"
 
 # Display Parameters
-DISPLAY_WIDTH = 16 # the character width of the display
-DISPLAY_HEIGHT = 2 # the number of lines on the display
+DISPLAY_WIDTH = 100 # the  width of the display
+DISPLAY_HEIGHT = 16 # the height of the display
+DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
 #DISPLAY_WIDTH = 20 # the character width of the display
 #DISPLAY_HEIGHT = 4 # the number of lines on the display
 DISPLAY_PIN_RS = 7

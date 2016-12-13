@@ -6,7 +6,7 @@
 
 from __future__ import unicode_literals
 
-import math, abc, logging, time, imp
+import math, abc, logging, time, imp, sys
 from PIL import Image
 from PIL import ImageDraw
 import fonts
@@ -848,7 +848,7 @@ class gwidgetScroll(gwidget):
 
 
 class sequence(object): # Holds a sequence of widgets to display on the screen in turn
-	def __init__(self, conditional, db, dbprevious, coolingperiod, minimum): # initialize class
+	def __init__(self, conditional, db, dbprevious, coolingperiod, minimum, coordinates): # initialize class
 		# Input
 		#	conditional (unicode) -- a string containing an evaluable boolean logic statement which determines whether the sequence is active
 		#	db (dict) -- A dictionary that points to system variable db
@@ -857,6 +857,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 
 		self.widgets = []					# Array to hold widget list
 		self.conditional = conditional		# Sequence conditional.  Must be true for sequence to be displayed
+		self.coordinates = coordinates		# Offset from origin to place any canvas in this sequence
 		self.db = db						# System variable db
 		self.dbp = dbprevious				# System variable db for previous values (to allow system to detect changes)
 		self.coolingperiod = coolingperiod	# Wait for coolingperiod seconds before allowing this sequence to be displayed again
@@ -944,11 +945,12 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 			return widget
 
 class display_controller(object):
-	def __init__(self, file, db, dbp):
+	def __init__(self, file, db, dbp, size):
 		self.file = file
 		self.db = db
 		self.dbp = dbp
 		self.load(file)
+		self.size = size
 
 	def load(self, file): # Load config file and initialize sequences
 		# Input
@@ -967,6 +969,7 @@ class display_controller(object):
 		except:
 			logging.critical('Page file {0} was unable to be loaded'.format(file))
 			self.pages = None
+			raise
 
 		# Load fonts
 		for k,v in self.pages.FONTS.iteritems():
@@ -1111,16 +1114,25 @@ class display_controller(object):
 				if w > img.width or h > img.height:
 					img = img.crop((0,0,w,h))
 				img.paste(wid.image,(0,0))
+
+		# Limit returned image to the display controllers size
+		x,y = self.size
+		img = img.crop( (0,0,x+1, y+1))
+
+		# Return next valid image
 		return img
 
 	def loadsequences(self, sequences):
 
-		for key,value in sorted(sequences.iteritems(), key=lambda (k,v): (v,k)):
+#		for key,value in sorted(sequences.iteritems(), key=lambda (k,v): (v,k)):
+		for value in sequences:
 			conditional = value['conditional'] if 'conditional' in value else 'True'
 			coolingperiod = value['coolingperiod'] if 'coolingperiod' in value else 0
 			minimum = value['minimum'] if 'minimum' in value else 0
+			name = value['name'] if 'name' in value else 'name not provided'
+			coordinates = value['coordinates'] if 'coordinates' in value else (0,0)
 
-			newseq = sequence(conditional,self.db,self.dbp, coolingperiod, minimum)
+			newseq = sequence(conditional,self.db,self.dbp, coolingperiod, minimum, coordinates)
 			self.sequences.append(newseq)
 			canvases = value['canvases'] if 'canvases' in value else []
 			if canvases:
@@ -1140,6 +1152,81 @@ class display_controller(object):
 				logging.warning('Unable to create sequence {0}.  No widgets'.format(key))
 				del self.sequences[-1]
 
+def getframe(image,x,y,width,height):
+	# Returns an array of arrays
+	# [
+	#   [ ], # Array of bytes for line 0
+	#   [ ]  # Array of bytes for line 1
+	#				 ...
+	#   [ ]  # Array of bytes for line n
+	# ]
+
+	# Select portion of image to work with
+	img = image.copy()
+	img.crop( (x,y, width, height) )
+
+
+	width, height = img.size
+	bheight = int(math.ceil(height / 8.0))
+	imgdata = list(img.getdata())
+
+
+	retval = []	# The variable to hold the return value (an array of byte arrays)
+	retline = [0]*width # Line to hold the first byte of image data
+	bh = 0 # Used to determine when we've consumed a byte worth of the line
+
+	# Perform a horizontal iteration of the image data
+	for i in range(0,height):
+		for j in range(0,width):
+			# if the value is true then mask a bit into the byte within retline
+			if imgdata[(i*width)+j]:
+				try:
+					retline[j] |= 1<<bh
+				except IndexError as e:
+					# WTF
+					print "width = {0}".format(width)
+					raise e
+		# If we've written a full byte, start a new retline
+		bh += 1
+		if bh == 8: # We reached a byte boundary
+			bh = 0
+			retval.append(retline)
+			retline = [0]*width
+	if bh > 0:
+		retval.append(retline)
+
+	return retval
+
+def show(bytebuffer,width, height):
+
+	sys.stdout.write('|')
+	for j in range(0,width):
+		sys.stdout.write('-')
+	sys.stdout.write('|')
+	sys.stdout.flush()
+	print ''
+
+	for i in range(0,height):
+		for k in range(0,8):
+				sys.stdout.write('|')
+				for j in range(0,width):
+					mask = 1 << k
+					if bytebuffer[i][j]&mask:
+						sys.stdout.write('*')
+						sys.stdout.flush()
+					else:
+						sys.stdout.write(' ')
+						sys.stdout.flush()
+				sys.stdout.write('|')
+				sys.stdout.flush()
+				print ''
+	sys.stdout.write('|')
+	for j in range(0,width):
+		sys.stdout.write('-')
+	sys.stdout.write('|')
+	sys.stdout.flush()
+	print ''
+
 
 def printsequences(seq):
 	for s in seq:
@@ -1148,24 +1235,33 @@ def printsequences(seq):
 		print '  Conditional   : {0}'.format(s.conditional)
 		print '  Cooling Period: {0}'.format(s.coolingperiod)
 
+def processevent(events, starttime, prepost, db, dbp):
+	for evnt in events:
+		t,var,val = evnt
+
+		if time.time() - starttime >= t:
+			if prepost in ['pre']:
+				db[var] = val
+			elif prepost in ['post']:
+				dbp[var] = val
 
 if __name__ == '__main__':
 
 	import graphics as g
+	import moment
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)
 	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
 	db = {
-	 		'remaining':"26 glasses left (423 oz)",
+	 		'remaining':"423 oz remaining",
 			'name':"Rye IPA",
 			'abv':'7.2 ABV',
 			'weight': 423,
-			'description':'Malty and bitter with an IBU of 72',
+			'description':'Malty and bitter with an IBU of 68',
 			'time_formatted':'12:34p',
 			'outside_temp_formatted':'46\xb0F',
-#			'outside_temp_formatted':'72F',
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
 			'state':'play',
@@ -1173,90 +1269,36 @@ if __name__ == '__main__':
 		}
 
 	dbp = {
-	 		'remaining':"26 glasses left (423 oz)",
+	 		'remaining':"423 oz remaining",
 			'name':"Rye IPA",
 			'abv':'7.2 ABV',
 			'weight': 423,
-			'description':'Malty and bitter with an IBU of 72',
+			'description':'Malty and bitter with an IBU of 68',
 			'time_formatted':'12:34p',
 			'outside_temp_formatted':'46\xb0F',
-#			'outside_temp_formatted':'72F',
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
 			'state':'play',
 			'system_tempc':81.0
 		}
 
+	events = [
+		(10, 'name', 'Belgian Ale'),
+		(10, 'abv', '8.4 ABV'),
+		(10, 'description', 'A heavy belgian ale with lots of malt.  IBU 32'),
+		(15, 'remaining', '390 oz remaining'),
+		(15, 'weight', 390 ),
+		(30, 'weight', 50 ),
+		(30, 'remaining', '50 oz remaining'),
+		(60, 'state', 'stop'),
+		(70, 'state', 'play')
+	]
 
-
-	db_old = {
-	 		'title':"When dove's cry",
-			'artist':"Prince and the Revolutions",
-			'album':'Purple Rain',
-			'playlist_display':'01/10',
-			'elapsed_formatted':timepos,
-			'time_formatted':'12:34p',
-			'outside_temp_formatted':'72\xb0F',
-#			'outside_temp_formatted':'72F',
-			'outside_conditions':'Windy',
-			'volume':88,
-			'system_temp_formatted':'98\xb0C',
-			'streaming':False,
-			'state':'play',
-			'random':False,
-			'single':False,
-			'repeat':False,
-			'system_tempc':81.0
-		}
-
-
-	dbp_old = {
-	 		'title':"When dove's cry",
-			'artist':"Prince and the Revolutions",
-			'album':'Purple Rain',
-			'playlist_display':'01/10',
-			'elapsed_formatted':'1:32/4:03',
-			'time_formatted':'12:34p',
-			'outside_temp_formatted':'72\xb0F',
-#			'outside_temp_formatted':'72F',
-			'outside_conditions':'Windy',
-			'volume':88,
-			'system_temp_formatted':'98\xb0C',
-			'streaming':False,
-			'state':'play',
-			'random':False,
-			'single':False,
-			'repeat':False,
-			'system_tempc':81.0
-		}
-
-	dc = display_controller('../pages.py', db,dbp)
-	printsequences(dc.sequences)
-
-	# titlew = dc.widgets['title']
-
-	# formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'
-
-	# fontpkg = dc.pages.FONTS['small']['fontpkg']
-	# # fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
-	# elapsedw = gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
-	# artistw = gwidgetText("{0}", fontpkg, db, [u'album'], False )
-	# playlist_displayw = gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
-	# canvasw = gwidgetCanvas( (100,16) )
-	# canvasw.add(artistw, (0,0) )
-	# canvasw.add(playlist_displayw, (0,8))
-	# canvasw.add(elapsedw, (40,8))
-	#
-	# frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
-	# g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
-	#
+	dc = display_controller('../pages_beer.py', db,dbp, (100, 16))
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)
 	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
-
-	import moment
-	# time.sleep(2)
 
 	starttime=time.time()
 	while True:
@@ -1265,94 +1307,9 @@ if __name__ == '__main__':
 		current_time = moment.utcnow().timezone('US/Eastern').strftime(u"%H:%M:%S").strip().decode()
 		db['elapsed_formatted'] = timepos
 		db['time_formatted'] = current_time
+		processevent(events, starttime, 'pre', db, dbp)
 		img = dc.next()
-		img = img.crop( (0,0,100,16) )
-		frame = g.getframe( img, 0,0, 100,16 )
-		g.show( frame, 100, int(math.ceil(16/8.0)))
-		# if db['volume'] == 40:
-		# 	dbp['volume']= 40
-		if db['state'] == 'stop':
-			dbp['state'] = 'stop'
+		processevent(events, starttime, 'post', db, dbp)
+		frame = getframe( img, 0,0, 100,16 )
+		show( frame, 100, int(math.ceil(16/8.0)))
 		time.sleep(.1)
-		if starttime + 25 < time.time():
-			db['state'] = 'stop'
-		#
-		# if starttime + 10 < time.time():
-		# 	db['volume'] = 40
-
-
-# 	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
-# 	variables = [ u'artist', u'title' ]
-#
-# 	f_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt')
-# 	fp_HD44780 = f_HD44780.fontpkg
-#
-# 	fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
-#
-# 	# artistw = gwidget(u'artist', variabledict)
-# 	# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
-#
-# 	artistw = gwidgetText("{0}",fp_Vint10x16, variabledict, [u'artist'], True)
-# 	titlew = gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
-# 	linew = gwidgetLine( (99,0) )
-# 	rectw = gwidgetRectangle( (99,15) )
-# 	progw = gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
-#
-# 	artistcanvas = gwidgetCanvas( (artistw.width,14) )
-# 	titlecanvas = gwidgetCanvas( (artistw.width,8) )
-#
-# 	# artistcanvas = gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left')
-# 	# titlecanvas = gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up')
-# 	artistcanvas = gwidgetScroll(artistw,u'left',1,20,u'onloop',2,100)
-# 	titlecanvas = gwidgetScroll(titlew,u'left',1,4,u'onloop',2,100)
-#
-# 	page = gwidgetCanvas( (100,32) )
-# 	page.add(artistcanvas, (0,0))
-# 	page.add(titlecanvas, (0,14), (100,8))
-# 	page.add(linew, (0,22))
-# 	page.add(progw, (4,24))
-#
-# 	end = time.time() + 20
-# 	flag = True
-# 	i = 0
-# 	variabledict['volume'] = i
-# 	while end > time.time():
-# 		i += 1
-# 		if i > 100:
-# 			i = 0
-# 		variabledict['volume'] = i
-# 		if end < time.time()+10 and flag:
-# 			variabledict['title'] = u"Purple Rain"
-# 			flag = False
-# 		if page.update():
-# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
-# 			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
-# 			time.sleep(.03)
-#
-# #-------------
-#
-# 	variabledict['title'] = "When Dove's Cry"
-# 	progw = gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
-# 	page = gwidgetCanvas( (100,32) )
-# 	page.add( artistcanvas, (0,0) )
-# 	page.add( titlecanvas, (0,18) )
-# 	page.add( linew, (0,26) )
-# 	page.add( progw, (0,28) )
-# 	page = gwidgetPopup(page, 14)
-#
-# 	end = time.time() + 25
-# 	flag = True
-# 	i = 0
-# 	variabledict['volume'] = i
-# 	while end > time.time():
-# 		i += 1
-# 		if i > 100:
-# 			i = 0
-# 		variabledict['volume'] = i
-# 		if end < time.time()+15 and flag:
-# 			variabledict['title'] = u"Purple Rain"
-# 			flag = False
-# 		if page.update():
-# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
-# 			g.show( frame, page.width, int(math.ceil(page.height/8.0)))
-# 		time.sleep(.03)

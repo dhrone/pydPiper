@@ -494,7 +494,7 @@ if __name__ == '__main__':
 				'weight': 423,
 				'description':'Malty and bitter with an IBU of 72',
 				'time_formatted':'12:34p',
-				'outside_temp_formatted':'46 F',
+				'outside_temp_formatted':'46\xb0F',
 	#			'outside_temp_formatted':'72F',
 				'outside_conditions':'Windy',
 				'system_temp_formatted':'98\xb0C',
@@ -509,7 +509,7 @@ if __name__ == '__main__':
 				'weight': 423,
 				'description':'Malty and bitter with an IBU of 72',
 				'time_formatted':'12:34p',
-				'outside_temp_formatted':'46 F',
+				'outside_temp_formatted':'46\xb0F',
 	#			'outside_temp_formatted':'72F',
 				'outside_conditions':'Windy',
 				'system_temp_formatted':'98\xb0C',
@@ -538,7 +538,7 @@ if __name__ == '__main__':
 				'system_tempc':81.0
 			}
 
-		dc = display.display_controller('../pages.py', db,dbp)
+		dc = display.display_controller('../pages.py', db,dbp, (100,16))
 
 		# titlew = dc.widgets['title']
 
