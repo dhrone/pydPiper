@@ -136,15 +136,6 @@ class music_controller(threading.Thread):
 		sv_t.start()
 		timesongstarted = 0
 
-		self.current_page_number = -1
-		self.current_line_number = 0
-		self.current_pages = pages.PAGES_Stop
-		self.page_expires = 0
-		self.hesitation_expires = 0
-		self.curlines = []
-		self.hesitate_expires = []
-		self.alert_mode = False
-		self.alert_check = False
 
 		# Force the system to recognize the start state as a change
 		#####  Need to determine how to force a display update on start-up #####
@@ -235,17 +226,15 @@ class music_controller(threading.Thread):
 	def updatepages(self):
 
 		with self.musicdata_lock:
-			self.musicdata[u'time_formatted'] = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(strftime).strip().decode()
-			self.musicdata[u'time_big_1'] = bigclockoutput[0]
-			self.musicdata[u'time_big_2'] = bigclockoutput[1]
-			self.musicdata[u'time_ampm'] = current_time_ampm
+			self.musicdata[u'time_formatted'] = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime('%H:%M').strip().decode()
+#			self.musicdata[u'time_ampm'] = current_time_ampm
 
 			# To support previous key used for this purpose
 			self.musicdata[u'current_time_formatted'] = self.musicdata[u'time_formatted']
 
 			# Update display controller
 			# The primary call to this routine is in main but this call is needed to catch variable changes before musicdata_prev is updated.
-			self.image = self.dc.next()
+			#self.image = self.dc.next()
 
 
 
@@ -530,7 +519,7 @@ if __name__ == u'__main__':
 	mc.start()
 	time.sleep(2)
 
-	dc = display_controller(pagefile, dc.db,dc.dbp, pydPiper_config.DISPLAY_SIZE)
+	dc = displays.display.display_controller(pagefile, mc.musicdata,mc.musicdata_prev, pydPiper_config.DISPLAY_SIZE)
 
 	try:
 		while True:
@@ -539,7 +528,7 @@ if __name__ == u'__main__':
 				img = dc.next()
 			frame = displays.display.getframe(img, 0, 0, pydPiper_config.DISPLAY_WIDTH, pydPiper_config.DISPLAY_HEIGHT)
 			lcd.update(frame)
-			sleep(.1)
+			time.sleep(.1)
 
 
 	except KeyboardInterrupt:
@@ -556,6 +545,5 @@ if __name__ == u'__main__':
 			lcd.cleanup()
 		except:
 			pass
-		dc.join()
 		mc.join()
 		logging.info(u"Exiting...")

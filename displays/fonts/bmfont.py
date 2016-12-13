@@ -122,6 +122,7 @@ class bmfont:
 
 		# try:
 		# Load PNG file
+
 		f_path = os.path.join(os.path.dirname(__file__), self.file)
 		with Image.open(f_path) as im:
 

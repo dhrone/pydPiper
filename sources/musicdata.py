@@ -63,8 +63,6 @@ class musicdata:
 			u'state',
 			u'actPlayer',
 			u'musicdatasource',
-			'volume_bar_big',
-			'volume_bar_fancy',
 
 			# Track information
 			u'album',

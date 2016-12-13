@@ -373,8 +373,10 @@ class gwidget(widget):
 		cw = 0
 
 		msg = self.evaltext(formatstring, variables)
-
 		# initialize image
+
+		if msg == '':
+			msg = ' '
 
 		maxw, maxh = self.textsize(msg, fontpkg, varwidth)
 
