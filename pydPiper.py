@@ -10,6 +10,8 @@ import displays
 import sources
 import pydPiper_config
 
+from __future__ import unicode_literals
+
 try:
 	import pyowm
 except ImportError:
@@ -193,9 +195,14 @@ class music_controller(threading.Thread):
 
 			# If anything has changed, update pages
 			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
+
+				# Set lastupdate time to 1 second in the future
 				lastupdate = time.time()+1
+
+				######  May want to eliminate updatepages ######
 				self.updatepages()
 
+				# Print the current contents of musicdata if showupdates is True
 				if self.showupdates:
 					ctime = moment.utcnow().timezone(u"US/Eastern").strftime("%-I:%M:%S %p").strip()
 					print u"Status at time {0}".format(ctime)
@@ -211,6 +218,7 @@ class music_controller(threading.Thread):
 								print repr(value)
 						print u"\n"
 
+				# Update musicdta_prev
 				with self.musicdata_lock:
 					for item, value in self.musicdata.iteritems():
 						try:
@@ -234,7 +242,7 @@ class music_controller(threading.Thread):
 
 			# Update display controller
 			# The primary call to this routine is in main but this call is needed to catch variable changes before musicdata_prev is updated.
-			#self.image = self.dc.next()
+			self.dc.next()
 
 
 
@@ -434,6 +442,8 @@ if __name__ == u'__main__':
 	# Suppress MPD libraries INFO messages
 	loggingMPD = logging.getLogger(u"mpd")
 	loggingMPD.setLevel( logging.WARN )
+	loggingPIL = logging.getLogger(u'PIL')
+	loggingPIL.setLevel( logging.WARN )
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"showupdates"])
@@ -515,11 +525,12 @@ if __name__ == u'__main__':
 	lcd.clear()
 	lcd.message(pydPiper_config.STARTUP_MSG)
 
-	mc = music_controller(services_list, showupdates)
-	mc.start()
-	time.sleep(2)
 
-	dc = displays.display.display_controller(pagefile, mc.musicdata,mc.musicdata_prev, pydPiper_config.DISPLAY_SIZE)
+	dc = displays.display.display_controller()
+	mc = music_controller(services_list, showupdates, dc)
+	time.sleep(2)
+	mc.start()
+	dc.load(pagefile, mc.musicdata,mc.musicdata_prev, pydPiper_config.DISPLAY_SIZE)
 
 	try:
 		while True:

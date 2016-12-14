@@ -948,15 +948,16 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 
 class display_controller(object):
 	def __init__(self, file, db, dbp, size):
+		self.sequences = []
+
+	def load(self, file, db, dbp, size): # Load config file and initialize sequences
+		# Input
+		#	file (unicode) -- file that contains a valid display configuration
+
 		self.file = file
 		self.db = db
 		self.dbp = dbp
-		self.load(file)
 		self.size = size
-
-	def load(self, file): # Load config file and initialize sequences
-		# Input
-		#	file (unicode) -- file that contains a valid display configuration
 
 		self.pages = None
 		self.widgets = { }
@@ -993,8 +994,6 @@ class display_controller(object):
 		self.loadwidgets(self.pages.WIDGETS)
 		self.loadwidgets(self.pages.CANVASES)
 		self.loadsequences(self.pages.SEQUENCES)
-
-
 
 
 	def loadwidgets(self, pageWidgets): # Load widgets. Return any widgets that could not be loaded because a widget contained within it was not found
@@ -1097,6 +1096,7 @@ class display_controller(object):
 
 	def next(self): # Compute and return the next image to display
 		active = []
+		img = None
 
 		for s in self.sequences:
 			w = s.get()
@@ -1117,9 +1117,10 @@ class display_controller(object):
 					img = img.crop((0,0,w,h))
 				img.paste(wid.image,(0,0))
 
-		# Limit returned image to the display controllers size
-		x,y = self.size
-		img = img.crop( (0,0,x+1, y+1))
+		if img is not None:
+			# Limit returned image to the display controllers size
+			x,y = self.size
+			img = img.crop( (0,0,x+1, y+1))
 
 		# Return next valid image
 		return img

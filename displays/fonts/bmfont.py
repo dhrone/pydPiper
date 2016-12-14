@@ -2,7 +2,7 @@
 # coding: UTF-8
 
 # Font class that uses bmfont style font definitions
-# Warning:  Really on written to support fonts for an LCD/OLED displays
+# Warning:  Really only written to support fonts for an LCD/OLED displays
 #           Not tested beyond that use case
 # Written by: Ron Ritchey
 
