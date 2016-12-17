@@ -130,6 +130,12 @@ class widget:
 				else:
 					logging.debug(u"Request to perform boolean transform on {0} requires boolean input").format(name)
 					return val
+			elif transform_request in [u'int']:
+				try:
+					retval = int(val)
+				except:
+					# Value not convertible to int
+					retval = 0
 			elif transform_request in [u'upper',u'capitalize',u'title',u'lower']:
 				# These all require string input
 
@@ -531,13 +537,18 @@ class gwidget(widget):
 
 		if style == u'square':
 			draw = ImageDraw.Draw(self.image)
-			draw.line( (0,0,0,height-1),1)
-			for i in range (0,int((width-2)*percent)):
-				draw.line( (i+1,0,i+1,height-1),1)
-			for i in range (int((width-2)*percent), width-2):
-				self.image.putpixel((i+1,0), 1)
-				self.image.putpixel((i+1,height-1), 1)
-			draw.line( (width-1,0,width-1,height-1),1)
+			if height > 2:
+				draw.line( (0,0,0,height-1),1)
+				for i in range (0,int((width-2)*percent)):
+					draw.line( (i+1,0,i+1,height-1),1)
+				for i in range (int((width-2)*percent), width-2):
+					self.image.putpixel((i+1,0), 1)
+					self.image.putpixel((i+1,height-1), 1)
+				draw.line( (width-1,0,width-1,height-1),1)
+			else:
+				for i in range (0,int((width)*percent)):
+					draw.line( (i,0,i,height-1),1)
+
 
 		self.updatesize()
 

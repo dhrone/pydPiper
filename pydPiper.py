@@ -66,7 +66,12 @@ class music_controller(threading.Thread):
 		'current_time':u"",
 		'current_time_sec':u"",
 		'current_time_formatted':u"",
-		'current_ip':u""
+		'current_ip':u"",
+		'outside_conditions':'No Data',
+		'outside_temp_min':0,
+		'outside_temp_max':0,
+		'outside_temp_formatted':'',
+		'system_temp_formatted':''
 	}
 
 
@@ -540,7 +545,7 @@ if __name__ == u'__main__':
 				img = dc.next()
 			frame = displays.display.getframe(img, 0, 0, pydPiper_config.DISPLAY_WIDTH, pydPiper_config.DISPLAY_HEIGHT)
 			lcd.update(frame)
-			time.sleep(.1)
+			time.sleep(.02)
 
 
 	except KeyboardInterrupt:

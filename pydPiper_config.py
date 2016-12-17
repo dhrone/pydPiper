@@ -50,9 +50,13 @@ TEMPERATURE=u'fahrenheit'
 # WEATHER Parameters
 # You must get your own API key from http://openweathermap.org/appid
 OWM_API = u'52dfe63ba1fd89b1eda781a02d456842'
+# NOVA Metro area.  Replace with your location.
+OWM_LAT = 38.86
+OWM_LON = -77.34
+
 # NY Metro area.  Replace with your location.
-OWM_LAT = 40.72
-OWM_LON = -74.07
+#OWM_LAT = 40.72
+#OWM_LON = -74.07
 
 
 

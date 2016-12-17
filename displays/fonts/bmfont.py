@@ -130,8 +130,10 @@ class bmfont:
 				x,y,w,h,xadvance = v
 
 				# Adjust the width of the character based upon the xadvance field
-				w = w if w >= xadvance else xadvance
 				img = im.crop( (x,y,x+w,y+h) )
+
+				# Resize to xadvance width
+				img = img.crop( (0,0,xadvance,h) )
 				self.fontpkg[k] = img
 
 		# except IOError:
