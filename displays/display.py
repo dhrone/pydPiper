@@ -357,7 +357,12 @@ class gwidget(widget):
 		# Save variables used for this text widget
 		self.currentvardict = { }
 		for v in variables:
-			self.currentvardict[v] = self.variabledict[v]
+			try:
+				jv = v.split(u'|')[0]
+				self.currentvardict[jv] = self.variabledict[jv]
+			except KeyError:
+				logging.debug('Trying to save state of {0} but it was not found within database'.format(jv))
+				pass
 
 		# size parameters for future updates
 		self.type = u'text'
@@ -516,7 +521,8 @@ class gwidget(widget):
 			rvhigh = t
 
 		if v < rvlow or v > rvhigh:
-			raise ValueError
+			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
+			v = rvlow
 
 		percent = (v - rvlow) / float((rvhigh - rvlow))
 
@@ -947,7 +953,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 			return widget
 
 class display_controller(object):
-	def __init__(self, file, db, dbp, size):
+	def __init__(self):
 		self.sequences = []
 
 	def load(self, file, db, dbp, size): # Load config file and initialize sequences

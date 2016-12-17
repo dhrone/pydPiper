@@ -102,6 +102,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 		GPIO.setup(self.pin_e, GPIO.OUT, initial=GPIO.LOW)
 		GPIO.setup(self.pin_rs, GPIO.OUT, initial=GPIO.LOW)
+		GPIO.output(self.pin_e, False)
 
 		# initialization sequence taken from audiophonics.fr site
 		# there is a good writeup on the HD44780 at Wikipedia
@@ -204,6 +205,45 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 	def write4bits(self, bits, char_mode=False):
 
+		GPIO.output(self.pin_rs, char_mode)
+		if bits & 0x80:
+			GPIO.output(self.pins_db[::-1][0], True)
+		else:
+			GPIO.output(self.pins_db[::-1][0], False)
+		if bits & 0x40:
+			GPIO.output(self.pins_db[::-1][1], True)
+		else:
+			GPIO.output(self.pins_db[::-1][1], False)
+		if bits & 0x20:
+			GPIO.output(self.pins_db[::-1][2], True)
+		else:
+			GPIO.output(self.pins_db[::-1][2], False)
+		if bits & 0x10:
+			GPIO.output(self.pins_db[::-1][3], True)
+		else:
+			GPIO.output(self.pins_db[::-1][3], False)
+		self.pulseEnable()
+		if bits & 0x08:
+			GPIO.output(self.pins_db[::-1][0], True)
+		else:
+			GPIO.output(self.pins_db[::-1][0], False)
+		if bits & 0x04:
+			GPIO.output(self.pins_db[::-1][1], True)
+		else:
+			GPIO.output(self.pins_db[::-1][1], False)
+		if bits & 0x02:
+			GPIO.output(self.pins_db[::-1][2], True)
+		else:
+			GPIO.output(self.pins_db[::-1][2], False)
+		if bits & 0x01:
+			GPIO.output(self.pins_db[::-1][3], True)
+		else:
+			GPIO.output(self.pins_db[::-1][3], False)
+		self.pulseEnable()
+
+
+	def write4bits_old(self, bits, char_mode=False):
+
 		''' Send command to LCD '''
 		#self.delayMicroseconds(1000) # 1000 microsecond sleep
 
@@ -263,8 +303,8 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		# the pulse timing in the original version of this file is 10/10
 		# with a 100 post time for setting
 
-		GPIO.output(self.pin_e, False)
-		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
+#		GPIO.output(self.pin_e, False)
+#		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
 		GPIO.output(self.pin_e, True)
 		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
 		GPIO.output(self.pin_e, False)
@@ -454,8 +494,8 @@ if __name__ == '__main__':
 
 		lcd = lcd_display_driver_winstar_ws0010_graphics_mode(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
-		lcd.message("   Tagg's\nHouse Brew",0,0,True)
-		time.sleep(3)
+#		lcd.message("",0,0,True)
+#		time.sleep(5)
 		lcd.clear()
 
 
@@ -489,10 +529,10 @@ if __name__ == '__main__':
 
 		db = {
 		 		'remaining':"26 glasses left (423 oz)",
-				'name':"Rye IPA",
-				'abv':'7.2 ABV',
+				'name':"Bruce Springsteen",
+				'abv':'2:04/4:32',
 				'weight': 423,
-				'description':'Malty and bitter with an IBU of 72',
+				'description':'Born to Run',
 				'time_formatted':'12:34p',
 				'outside_temp_formatted':'46\xb0F',
 	#			'outside_temp_formatted':'72F',
@@ -504,7 +544,7 @@ if __name__ == '__main__':
 
 		dbp = {
 		 		'remaining':"26 glasses left (423 oz)",
-				'name':"Rye IPA",
+				'name':"Bruce Springsteen -- Born to Run",
 				'abv':'7.2 ABV',
 				'weight': 423,
 				'description':'Malty and bitter with an IBU of 72',

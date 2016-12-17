@@ -4,13 +4,13 @@
 # pydPiper service to display music data to LCD and OLED character displays
 # Written by: Ron Ritchey
 
+from __future__ import unicode_literals
 import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp
 import pages
 import displays
 import sources
 import pydPiper_config
 
-from __future__ import unicode_literals
 
 try:
 	import pyowm
@@ -70,13 +70,14 @@ class music_controller(threading.Thread):
 	}
 
 
-	def __init__(self, servicelist, showupdates=False):
+	def __init__(self, servicelist, display_controller, showupdates=False):
 		threading.Thread.__init__(self)
 
 		self.daemon = True
 		self.musicqueue = Queue.Queue()
 		self.image = None
 		self.showupdates = showupdates
+		self.display_controller = display_controller
 
 		self.musicdata = copy.deepcopy(self.musicdata_init)
 		self.musicdata_prev = copy.deepcopy(self.musicdata)
@@ -242,7 +243,7 @@ class music_controller(threading.Thread):
 
 			# Update display controller
 			# The primary call to this routine is in main but this call is needed to catch variable changes before musicdata_prev is updated.
-			self.dc.next()
+			self.display_controller.next()
 
 
 
@@ -269,10 +270,10 @@ class music_controller(threading.Thread):
 			outside_temp = 0.0
 			outside_temp_max = 0.0
 			outside_temp_min = 0.0
-			outside_conditions = u''
-			outside_temp_formatted = u''
-			outside_temp_max_formatted = u''
-			outside_temp_min_formatted = u''
+			outside_conditions = u'No data'
+			outside_temp_formatted = u'0'
+			outside_temp_max_formatted = u'0'
+			outside_temp_min_formatted = u'0'
 
 			try:
 				owm = pyowm.OWM(pydPiper_config.OWM_API)
@@ -293,15 +294,15 @@ class music_controller(threading.Thread):
 				# Localize temperature value
 				if pydPiper_config.TEMPERATURE.lower() == u'celsius':
 					outside_temp = outside_tempc
-					outside_temp_max = outside_temp_maxc
-					outside_temp_min = outside_temp_minc
+					outside_temp_max = int(outside_temp_maxc)
+					outside_temp_min = int(outside_temp_minc)
 					outside_temp_formatted = u"{0}°C".format(int(outside_temp))
 					outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
 					outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
 				else:
 					outside_temp = outside_tempf
-					outside_temp_max = outside_temp_maxf
-					outside_temp_min = outside_temp_minf
+					outside_temp_max = int(outside_temp_maxf)
+					outside_temp_min = int(outside_temp_minf)
 					outside_temp_formatted = u"{0}°F".format(int(outside_temp))
 					outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
 					outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
@@ -527,7 +528,7 @@ if __name__ == u'__main__':
 
 
 	dc = displays.display.display_controller()
-	mc = music_controller(services_list, showupdates, dc)
+	mc = music_controller(services_list, dc, showupdates)
 	time.sleep(2)
 	mc.start()
 	dc.load(pagefile, mc.musicdata,mc.musicdata_prev, pydPiper_config.DISPLAY_SIZE)
