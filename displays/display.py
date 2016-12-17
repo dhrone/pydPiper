@@ -249,6 +249,9 @@ class gwidget(widget):
 		elif self.type == 'progressbar':
 			self.progressbar(self.value, self.rangeval, self.size, self.style)
 			return True
+		elif self.type == 'progressimagebar':
+			self.progressimagebar(self.maskimage, self.value, self.rangeval, self.direction)
+			return True
 		elif self.type == 'canvas':
 			retval = True if reset else False
 			for e in self.widgets:
@@ -559,6 +562,105 @@ class gwidget(widget):
 		self.type = 'progressbar'
 
 		return self.image
+
+	# PROGRESSBAR widget function
+	def progressimagebar(self, maskimage, value, rangeval, direction='right'):
+		# Input
+		#	image (Image) -- The image to fill for the progress bar.  Must have a transparent region to fill!
+		#	value (numeric) -- Value of the variable showing progress.
+		#	rangeval (numeric tuple) -- Range of possible values.  Used to calculate percentage complete.
+		#	direction (unicode) -- The direction to fill towards.  Allowed values ['right', 'left', 'up', 'down']
+		#	style (unicode) -- Sets the style of the progress bar.  Allowed values [ 'rounded', 'square' ]
+
+		self.variables = []
+
+		# Convert variable to value if needed
+		if type(value) is unicode:
+			v = self.variabledict[value] if value in self.variabledict else 0
+			if value in self.variabledict:
+				self.variables.append(value)
+		elif type(value) is int or type(value) is float:
+			v = value
+		else:
+			v = 0
+
+		l,h = rangeval
+		# Convert range low to value if needed
+		if type(l) is unicode:
+			rvlow = self.variabledict[l] if l in self.variabledict else 0
+			if l in self.variabledict:
+				self.variables.append(l)
+		elif type(l) is int or type(l) is float:
+			rvlow = l
+		else:
+			rvlow = 0
+
+		# Convert range high to value if needed
+		if type(h) is unicode:
+			rvhigh = self.variabledict[h] if h in self.variabledict else 0
+			if h in self.variabledict:
+				self.variables.append(h)
+		elif type(h) is int or type(h) is float:
+			rvhigh = h
+		else:
+			rvhigh = 0
+
+		# Save variables used for this progressbar widget
+		self.currentvardict = { }
+		for sv in self.variables:
+			self.currentvardict[sv] = self.variabledict[sv]
+
+
+		# correct values if needed
+		if rvhigh < rvlow:
+			t = rvlow
+			rvlow = rvhigh
+			rvhigh = t
+
+		if v < rvlow or v > rvhigh:
+			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
+			v = rvlow
+
+		percent = (v - rvlow) / float((rvhigh - rvlow))
+
+		# make a copy of the image to make the progress bar
+		self.image = maskimage.copy()
+		width, height = self.image.size
+
+		if direction in ['left','right']:
+			bheight = self.image.height
+			bwidth = width*percent
+		elif direction in ['up','down']:
+			bheight = height*percent
+			bwidth = self.image.width
+		else:
+			logging.warning('Direction value invalid.  Defaulting to left')
+			bwidth = self.image.width*percent
+			bheight = self.image.height
+
+		background = Image("1", (width, height),0)
+
+		if direction in ['right']:
+			background.paste(Image.new("1", (bwidth, bheight), 1), (self.image.width-background.width,0))
+		elif direction in ['up']:
+			background.paste(Image.new("1", (bwidth, bheight), 1), (0,self.image.height-background.height))
+		else: # ['left', 'down'] or default if bad direction provided
+			background.paste(Image.new("1", (bwidth, bheight), 1), (0,0))
+
+		# Combine background with image
+		self.image.paste(background, (0,0))
+
+		self.updatesize()
+
+		# Save parameters for update
+		self.value = value
+		self.rangeval = rangeval
+		self.direction = direction
+		self.maskimage = maskimage
+		self.type = 'progressimagebar'
+
+		return self.image
+
 
 	# LINE widget function
 	def line(self, (x,y), color=1):
