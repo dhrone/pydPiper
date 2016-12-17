@@ -17,11 +17,16 @@ FONTS = {
 		'file':'Vintl01_10x16.fnt',
 		'size':(10,16)
 	}
+	'tiny': {
+		'file':'upperascii_3x5.fnt',
+		'size':(5,5)
+	}
 }
 
 # Load the Widgets that will be used to produce the display pages
 WIDGETS = {
-	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100) },
+	'nowplaying': { 'type':'text', 'format':'NOW PLAYING', 'variables':[], 'font':'tiny'},
+	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'large','effect':('scroll','left',1,20,'onloop',2,100) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','effect':('scroll','left',1,20,'onloop',2,100)},
 	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small', 'varwidth':True },
@@ -48,7 +53,7 @@ CANVASES = {
 	'playartist_radio': { 'widgets': [ ('artist',0,0),  ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'playalbum': { 'widgets': [ ('album',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'playalbum_radio': { 'widgets':  [ ('album',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
-	'playtitle': { 'widgets':  [ ('title',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
+	'playtitle': { 'widgets':  [ ('nowplaying',0,0), ('title',0,6) ], 'size':(100,16) },
 	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
 	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('tempsmall',55,0), ('weather',0,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
