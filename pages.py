@@ -16,7 +16,7 @@ FONTS = {
 	'large': {
 		'file':'Vintl01_10x16.fnt',
 		'size':(10,16)
-	}
+	},
 	'tiny': {
 		'file':'upperascii_3x5.fnt',
 		'size':(5,5)
@@ -53,7 +53,7 @@ CANVASES = {
 	'playartist_radio': { 'widgets': [ ('artist',0,0),  ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'playalbum': { 'widgets': [ ('album',0,0), ('playlist_display',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'playalbum_radio': { 'widgets':  [ ('album',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
-	'playtitle': { 'widgets':  [ ('nowplaying',0,0), ('title',0,6) ], 'size':(100,16) },
+	'playtitle': { 'widgets':  [ ('nowplaying',0,0), ('title',0,5) ], 'size':(100,16) },
 	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
 	'stoptimetemp_popup': { 'widgets': [ ('time',0,0), ('tempsmall',55,0), ('weather',0,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
@@ -78,7 +78,7 @@ SEQUENCES = [
 			{ 'name':'playalbum', 'duration':5, 'conditional':"not db['stream']=='webradio'" },
 			{ 'name':'playalbum_radio', 'duration':15, 'conditional':"db['stream']=='webradio' and db['album']" },
 			{ 'name':'blank', 'duration':0.5 },
-			{ 'name':'playtitle', 'duration':5, 'conditional':"not db['stream']=='webradio'" },
+			{ 'name':'playtitle', 'duration':20, 'conditional':"not db['stream']=='webradio'" },
 			{ 'name':'playtitle_radio', 'duration':15, 'conditional':"db['stream']=='webradio'" },
 			{ 'name':'blank', 'duration':0.5 }
 		],
