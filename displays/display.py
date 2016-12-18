@@ -1223,6 +1223,15 @@ class display_controller(object):
 						logging.warning('Attempted to add an unrecognized effect ({0}) to widget {1}.  Ignoring...'.format(etype,k))
 					else:
 						logging.warning('Attempted to an effect to widget {0} without specifying the details.  Ignoring...'.format(k))
+			else:
+				# if the actual size of the widget is greater than the requested size and no effect has been requested, resize the widget to fit
+				tw, th = size
+
+				# If size is (0,0) then there was no specified size and this step should be skipped
+				if not (tw == 0 and th == 0):
+					if widget.width > tw or widget.height > th:
+						widget.image = widget.image.crop( (0,0,tw,th) )
+						widget.updatesize()
 
 			# Add widget to widget list
 			self.widgets[k] = widget
