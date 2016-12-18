@@ -227,7 +227,7 @@ class widget:
 		# variables (unicode array) -- An array containing the names of the variables being used
 		# returns bool based upon whether any variables that have been used have changed since the last time a render was requested
 		for v in variables:
-			v = v.split(u'|')[0]			
+			v = v.split(u'|')[0]
 			try:
 				if self.variabledict[v] != self.currentvardict[v]:
 					return True
@@ -465,6 +465,13 @@ class gwidget(widget):
 		elif just == u'right':
 			ax = (maxw-cx)
 		self.image.paste(lineimage, (ax, cy))
+
+		# if a width or height was provided then crop back to that size
+		if width > 0 or height > 0:
+			self.image = self.image.crop( (0,0,width,height))
+
+		self.maxw = maxw
+		self.maxh = maxh
 
 		self.updatesize()
 
@@ -814,14 +821,22 @@ class gwidget(widget):
 			self.hesitatetime = hesitatetime
 			self.threshold = threshold
 
+			# If this is a text widget it will have a maxh and maxw.  Check to see if they exist.
+			try:
+				maxw = self.maxw
+				maxh = self.maxh
+			except:
+				maxw = 0
+				maxh = 0
+
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
-				if self.widget.width > self.threshold:
+				if self.widget.width > self.threshold or maxw > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
 			elif self.direction in ['up','down']:
-				if self.widget.height > self.threshold:
+				if self.widget.height > self.threshold or maxh > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
@@ -851,14 +866,22 @@ class gwidget(widget):
 			self.index = 0
 			self.updatesize()
 
+			# If this is a text widget it will have a maxh and maxw.  Check to see if they exist.
+			try:
+				maxw = self.maxw
+				maxh = self.maxh
+			except:
+				maxw = 0
+				maxh = 0
+
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
-				if self.widget.width > self.threshold:
+				if self.widget.width > self.threshold or maxw > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
 			elif self.direction in ['up','down']:
-				if self.widget.height > self.threshold:
+				if self.widget.height > self.threshold or maxh > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
