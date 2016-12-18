@@ -3,6 +3,7 @@
 
 # kegdata service to read about key status
 # Written by: Ron Ritchey
+from __future__ import unicode_literals
 
 import json, threading, logging, Queue, time, getopt, sys, logging
 
