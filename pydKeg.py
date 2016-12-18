@@ -73,7 +73,7 @@ class keg_controller(threading.Thread):
 	def initservices(self):
 
 		kegservice = None
-		kegservice = sources.kegdata(self.kegqueue )
+		kegservice = sources.kegdata.kegdata(self.kegqueue )
 
 	def run(self):
 
