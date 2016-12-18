@@ -35,7 +35,7 @@ WIDGETS = {
 	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(70,16), 'effect':('scroll','left',1,20,'onloop',3,70)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'small', 'varwidth':True },
 	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'tiny', 'varwidth':True, 'just':'left', 'size':(80,8)},
-	'volumebar': { 'type':'progressimagebar', 'maskimage':'progbar','value':'volume', 'rangeval':(0,100) },
+	'volumebar': { 'type':'progressimagebar', 'image':'progbar','value':'volume', 'rangeval':(0,100) },
 	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(100,1) },
 	'showplay': { 'type':'text', 'format':'\0xe000 PLAY', 'font':'large', 'varwidth':True },
 	'showstop': { 'type':'text', 'format':'\0xe010 STOP', 'font':'large', 'varwidth':True },
@@ -55,7 +55,7 @@ CANVASES = {
 	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
 	'stoptimetemp_popup': { 'widgets': [ ('time',6,1), ('tempsmall',70,0), ('weather',0,17), ('temphilow',70,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
-	'volume_changed': { 'widgets': [ ('volume',10,0), ('volumebar',10,9) ], 'size':(100,16) },
+	'volume_changed': { 'widgets': [ ('volume',3,0), ('volumebar',0,8) ], 'size':(100,16) },
 }
 
 # Place the canvases into sequences to display when their condition is met

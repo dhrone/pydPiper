@@ -6,7 +6,7 @@
 
 from __future__ import unicode_literals
 
-import math, abc, logging, time, imp, sys
+import math, abc, logging, time, imp, sys, os
 from PIL import Image
 from PIL import ImageDraw
 import fonts
@@ -630,16 +630,16 @@ class gwidget(widget):
 
 		if direction in ['left','right']:
 			bheight = self.image.height
-			bwidth = width*percent
+			bwidth = int(width*percent)
 		elif direction in ['up','down']:
-			bheight = height*percent
+			bheight = int(height*percent)
 			bwidth = self.image.width
 		else:
 			logging.warning('Direction value invalid.  Defaulting to left')
 			bwidth = self.image.width*percent
 			bheight = self.image.height
 
-		background = Image("1", (width, height),0)
+		background = Image.new("1", (width, height),0)
 
 		if direction in ['right']:
 			background.paste(Image.new("1", (bwidth, bheight), 1), (self.image.width-background.width,0))
@@ -649,7 +649,8 @@ class gwidget(widget):
 			background.paste(Image.new("1", (bwidth, bheight), 1), (0,0))
 
 		# Combine background with image
-		self.image.paste(background, (0,0))
+		background.paste(self.image, (0,0), self.image)
+		self.image = background
 
 		self.updatesize()
 
@@ -946,7 +947,7 @@ class gwidgetProgressBar(gwidget):
 class gwidgetProgressImageBar(gwidget):
 	def __init__(self, maskimage, value, rangeval, direction=u'left',variabledict={ }):
 		super(gwidgetProgressImageBar, self).__init__(variabledict)
-		self.progressbar(value, rangeval, size, style)
+		self.progressimagebar(maskimage, value, rangeval, direction)
 
 class gwidgetLine(gwidget):
 	def __init__(self, (x,y), color=1):
@@ -1121,9 +1122,10 @@ class display_controller(object):
 				imagefile = v['file'] if 'file' in v else ''
 				if imagefile:
 					try:
-						v['image'] = Image.open(imagefile)
-					except:
-						logging.critical('Failed to open file {0} for image {1}'.format(imagefile, k))
+						i_path = os.path.join(os.path.dirname(__file__), imagefile)
+						v['image'] = Image.open(i_path)
+					except IOError:
+						logging.critical('Failed to open file {0} for image {1}'.format(i_path, k))
 				else:
 					logging.critical('Expected that a filename for image {0} would be provided'.format(k))
 		except AttributeError:
@@ -1178,14 +1180,14 @@ class display_controller(object):
 			elif typeval == 'progressimagebar':
 				imagename = v['image'] if 'image' in v else ''
 				maskentry = self.pages.IMAGES[imagename] if imagename in self.pages.IMAGES else { }
-				maskimage = maskentry['image'] = 'image' in maskentry else None
+				maskimage = maskentry['image'] if 'image' in maskentry else None
 				value = v['value'] if 'value' in v else None
 				rangeval = v['rangeval'] if 'rangeval' in v else (0,100)
-				style = v['direction'] if 'direction' in v else 'left'
+				direction = v['direction'] if 'direction' in v else 'left'
 				if not value or not maskimage:
 					logging.warning('Attempted to add progressimagebar widget {0} without a value or maskimage.  Skipping...'.format(k))
 					continue
-				widget = gwidgetProgressImageBar(value, maskimage, value, rangeval, direction, self.db)
+				widget = gwidgetProgressImageBar(maskimage, value, rangeval, direction, self.db)
 			elif typeval == 'line':
 				point = v['point'] if 'point' in v else None
 				color = v['color'] if 'color' in v else 1
