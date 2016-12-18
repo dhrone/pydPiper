@@ -275,6 +275,24 @@ class gwidget(widget):
 		else:
 			return False
 
+	def getmax(self, widget):
+		retw = 0
+		reth = 0
+
+		if widget.type in ['text']:
+			retw = retw if retw > widget.maxw else widget.maxw
+			reth = reth if reth > widget.maxh else widget.maxh
+		elif widget.type in ['canvas']:
+			for e in self.widgets:
+				w,h = getmax(e)
+				retw = retw if retw > w else w
+				reth = reth if reth > h else h
+		else:
+			retw = retw if retw > widget.width else widget.width
+			reth = reth if reth > widget.height else widget.height
+
+		return (retw, reth)
+
 	# WIDGETS
 
 	# CANVAS widget functions
@@ -469,6 +487,10 @@ class gwidget(widget):
 		# if a width or height was provided then crop back to that size
 		if width > 0 or height > 0:
 			self.image = self.image.crop( (0,0,width,height))
+
+		# Make sure that maxh and maxw are at least as big as the image
+		maxw = maxw if maxw > self.image.width else self.image.width
+		maxh = maxh if maxh > self.image.height else self.image.height
 
 		self.maxw = maxw
 		self.maxh = maxh
@@ -821,13 +843,7 @@ class gwidget(widget):
 			self.hesitatetime = hesitatetime
 			self.threshold = threshold
 
-			# If this is a text widget it will have a maxh and maxw.  Check to see if they exist.
-			try:
-				maxw = self.maxw
-				maxh = self.maxh
-			except:
-				maxw = 0
-				maxh = 0
+			maxw, maxh = self.getmax(self.widget)
 
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
@@ -866,13 +882,7 @@ class gwidget(widget):
 			self.index = 0
 			self.updatesize()
 
-			# If this is a text widget it will have a maxh and maxw.  Check to see if they exist.
-			try:
-				maxw = self.maxw
-				maxh = self.maxh
-			except:
-				maxw = 0
-				maxh = 0
+			(maxw, maxh) = self.getmax(self.widget)
 
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
