@@ -38,10 +38,10 @@ WIDGETS = {
 	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small', 'varwidth':True },
 	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8), 'varwidth':True },
 	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'left', 'size':(55,16) },
-	'tempsmall': { 'type':'text', 'format':'Temp\n{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(45,16) },
-	'temphilow': { 'type':'text', 'format':'h {0}\nl {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(45,16) },
+	'tempsmall': { 'type':'text', 'format':'Temp\n{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(30,16) },
+	'temphilow': { 'type':'text', 'format':'h {0}\nl {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(30,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
-	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(55,16), 'effect':('scroll','left',1,20,'onloop',3,55)},
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(70,16), 'effect':('scroll','left',1,20,'onloop',3,70)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'small', 'varwidth':True },
 	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'tiny', 'varwidth':True, 'just':'left', 'size':(80,8)},
 	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':(0,100), 'size':(80,6) },
@@ -63,7 +63,7 @@ CANVASES = {
 	'playtitle': { 'widgets':  [ ('title',0,6), ('nowplaying',0,0), ('nowplayingdata',50,0), ('songprogress',0,15) ], 'size':(100,16) },
 	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
-	'stoptimetemp_popup': { 'widgets': [ ('time',6,1), ('tempsmall',55,0), ('weather',0,17), ('temphilow',55,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
+	'stoptimetemp_popup': { 'widgets': [ ('time',6,1), ('tempsmall',70,0), ('weather',0,17), ('temphilow',70,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
 	'volume_changed': { 'widgets': [ ('volume',10,0), ('volumebar',10,9) ], 'size':(100,16) },
 }
 
