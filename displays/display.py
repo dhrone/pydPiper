@@ -275,24 +275,6 @@ class gwidget(widget):
 		else:
 			return False
 
-	def getmax(self, widget):
-		retw = 0
-		reth = 0
-
-		if widget.type in ['text']:
-			retw = retw if retw > widget.maxw else widget.maxw
-			reth = reth if reth > widget.maxh else widget.maxh
-		elif widget.type in ['canvas']:
-			for e in self.widgets:
-				w,h = getmax(e)
-				retw = retw if retw > w else w
-				reth = reth if reth > h else h
-		else:
-			retw = retw if retw > widget.width else widget.width
-			reth = reth if reth > widget.height else widget.height
-
-		return (retw, reth)
-
 	# WIDGETS
 
 	# CANVAS widget functions
@@ -483,17 +465,6 @@ class gwidget(widget):
 		elif just == u'right':
 			ax = (maxw-cx)
 		self.image.paste(lineimage, (ax, cy))
-
-		# if a width or height was provided then crop back to that size
-		if width > 0 or height > 0:
-			self.image = self.image.crop( (0,0,width,height))
-
-		# Make sure that maxh and maxw are at least as big as the image
-		maxw = maxw if maxw > self.image.width else self.image.width
-		maxh = maxh if maxh > self.image.height else self.image.height
-
-		self.maxw = maxw
-		self.maxh = maxh
 
 		self.updatesize()
 
@@ -843,16 +814,14 @@ class gwidget(widget):
 			self.hesitatetime = hesitatetime
 			self.threshold = threshold
 
-			maxw, maxh = self.getmax(self.widget)
-
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
-				if self.widget.width > self.threshold or maxw > self.threshold:
+				if self.widget.width > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
 			elif self.direction in ['up','down']:
-				if self.widget.height > self.threshold or maxh > self.threshold:
+				if self.widget.height > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
@@ -882,16 +851,14 @@ class gwidget(widget):
 			self.index = 0
 			self.updatesize()
 
-			(maxw, maxh) = self.getmax(self.widget)
-
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
-				if self.widget.width > self.threshold or maxw > self.threshold:
+				if self.widget.width > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
 			elif self.direction in ['up','down']:
-				if self.widget.height > self.threshold or maxh > self.threshold:
+				if self.widget.height > self.threshold:
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
@@ -1192,6 +1159,7 @@ class display_controller(object):
 					logging.warning('Attempted to add line widget {0} without a point.  Skipping...'.format(k))
 					continue
 				widget = gwidgetLine(point, color)
+				size = widget.size
 			elif typeval == 'rectangle':
 				point = v['point'] if 'point' in v else None
 				fill = v['fill'] if 'fill' in v else 0
@@ -1200,6 +1168,7 @@ class display_controller(object):
 					logging.warning('Attempted to add rectangle widget {0} without a point.  Skipping...'.format(k))
 					continue
 				widget = gwidgetRectangle(point, fill, outline)
+				size = widget.size
 			elif typeval == 'canvas':
 				widgetentries = v['widgets'] if 'widgets' in v else []
 				size = v['size'] if 'size' in v else None
@@ -1236,6 +1205,17 @@ class display_controller(object):
 				if etype in ['scroll', 'popup']:
 					if etype == 'scroll':
 						widget = gwidgetScroll(widget, *effect[1:])
+
+						# if the actual size of the widget is greater than the requested size then place the scroll object in a canvas to limit its display size
+						tw, th = size
+
+						# If size is (0,0) then there was no specified size and this step should be skipped
+						if not (tw == 0 and th == 0):
+							if widget.width > tw or widget.height > th:
+								cwidget = gwidgetCanvas(size)
+								cwidget.add(widget, (0,0))
+								widget = cwidget
+
 					elif etype == 'popup':
 						widget = gwidgetPopup(widget, *effect[1:])
 				else:
