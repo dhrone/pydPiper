@@ -24,7 +24,7 @@ FONTS = {
 WIDGETS = {
 	'name': { 'type':'text', 'format':'{0}', 'variables':['name'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,60) },
 	'description': { 'type':'text', 'format':'{0}', 'variables':['description'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100)},
-	'remaining': { 'type':'text', 'format':'{0}', 'variables':['remaining'], 'font':'small', 'varwidth':True, 'size':(100,8), 'just':'center' },
+	'remaining': { 'type':'text', 'format':'{0} ozs remaining', 'variables':['weight'], 'font':'small', 'varwidth':True, 'size':(100,8), 'just':'center' },
 	'remainingbar': { 'type':'progressbar', 'value':'weight', 'rangeval':(0,640), 'size':(80,6)},
 	'abv': { 'type':'text', 'format':'{0}', 'variables':['abv'], 'font':'small', 'varwidth':True, 'just':'right', 'size':(40,8) },
 	'empty': { 'type':'text', 'format':'{0} Almost Empty!!!', 'variables':['name'], 'font':'large', 'varwidth':True, 'effect': ('scroll','left',1,20,'onloop',2,60) },
