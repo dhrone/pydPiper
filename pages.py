@@ -23,6 +23,11 @@ FONTS = {
 	}
 }
 
+IMAGES = {
+	'keg': 'keg.png',
+	'progbar': 'progressbar.png'
+}
+
 # Load the Widgets that will be used to produce the display pages
 WIDGETS = {
 	'nowplaying': { 'type':'text', 'format':'NOW PLAYING', 'variables':[], 'font':'tiny', 'varwidth':True},

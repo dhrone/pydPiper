@@ -227,6 +227,7 @@ class widget:
 		# variables (unicode array) -- An array containing the names of the variables being used
 		# returns bool based upon whether any variables that have been used have changed since the last time a render was requested
 		for v in variables:
+			v = v.split(u'|')[0]			
 			try:
 				if self.variabledict[v] != self.currentvardict[v]:
 					return True
