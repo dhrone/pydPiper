@@ -943,6 +943,11 @@ class gwidgetProgressBar(gwidget):
 		super(gwidgetProgressBar, self).__init__(variabledict)
 		self.progressbar(value, rangeval, size, style)
 
+class gwidgetProgressImageBar(gwidget):
+	def __init__(self, maskimage, value, rangeval, direction=u'left',variabledict={ }):
+		super(gwidgetProgressImageBar, self).__init__(variabledict)
+		self.progressbar(value, rangeval, size, style)
+
 class gwidgetLine(gwidget):
 	def __init__(self, (x,y), color=1):
 		super(gwidgetLine, self).__init__()
@@ -1095,17 +1100,35 @@ class display_controller(object):
 			raise
 
 		# Load fonts
-		for k,v in self.pages.FONTS.iteritems():
-			fontfile = v['file'] if 'file' in v else ''
-			if fontfile:
-#				try:
-				v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
-#				except:
-					# Font load failed
-#					logging.critical('Attempt to load font {0} failed'.format(fontfile))
-			else:
-				logging.critical('Expected a font file for {0} but none provided'.format(k))
+		try:
+			for k,v in self.pages.FONTS.iteritems():
+				fontfile = v['file'] if 'file' in v else ''
+				if fontfile:
+	#				try:
+					v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
+	#				except:
+						# Font load failed
+	#					logging.critical('Attempt to load font {0} failed'.format(fontfile))
+				else:
+					logging.critical('Expected a font file for {0} but none provided'.format(k))
+		except AttributeError:
+			# No fonts specified
+			pass
 
+		try:
+			# Load images
+			for k,v in self.pages.IMAGES.iteritems():
+				imagefile = v['file'] if 'file' in v else ''
+				if imagefile:
+					try:
+						v['image'] = Image.open(imagefile)
+					except:
+						logging.critical('Failed to open file {0} for image {1}'.format(imagefile, k))
+				else:
+					logging.critical('Expected that a filename for image {0} would be provided'.format(k))
+		except AttributeError:
+			# No Images specified
+			pass
 
 		# Add type field to CANVAS widgets
 		for k,v in self.pages.CANVASES.iteritems():
@@ -1122,7 +1145,7 @@ class display_controller(object):
 		for k,v in pageWidgets.iteritems():
 			typeval = v['type'].lower() if 'type' in v else ''
 
-			if typeval not in ['canvas', 'text', 'progressbar', 'line', 'rectangle' ]:
+			if typeval not in ['canvas', 'text', 'progressbar', 'progressimagebar', 'line', 'rectangle' ]:
 				if typeval:
 					logging.warning('Attempted to add widget {0} with an unsupported widget type {1}.  Skipping...'.format(k,typeval))
 				else:
@@ -1137,7 +1160,7 @@ class display_controller(object):
 				just = v['just'] if 'just' in v else 'left'
 				size = v['size'] if 'size' in v else (0,0)
 				varwidth = v['varwidth'] if 'varwidth' in v else False
-				fontentry = self.pages.FONTS[font] if font in self.pages.FONTS else None
+				fontentry = self.pages.FONTS[font] if font in self.pages.FONTS else { }
 				fontpkg = fontentry['fontpkg'] if 'fontpkg' in fontentry else None
 				if not format or not fontpkg:
 					logging.warning('Attempted to add text widget {0} without a format or font specified.  Skipping...'.format(k))
@@ -1152,6 +1175,17 @@ class display_controller(object):
 					logging.warning('Attempted to add progressbar widget {0} without a value or size.  Skipping...'.format(k))
 					continue
 				widget = gwidgetProgressBar(value, rangeval, size, style, self.db)
+			elif typeval == 'progressimagebar':
+				imagename = v['image'] if 'image' in v else ''
+				maskentry = self.pages.IMAGES[imagename] if imagename in self.pages.IMAGES else { }
+				maskimage = maskentry['image'] = 'image' in maskentry else None
+				value = v['value'] if 'value' in v else None
+				rangeval = v['rangeval'] if 'rangeval' in v else (0,100)
+				style = v['direction'] if 'direction' in v else 'left'
+				if not value or not maskimage:
+					logging.warning('Attempted to add progressimagebar widget {0} without a value or maskimage.  Skipping...'.format(k))
+					continue
+				widget = gwidgetProgressImageBar(value, maskimage, value, rangeval, direction, self.db)
 			elif typeval == 'line':
 				point = v['point'] if 'point' in v else None
 				color = v['color'] if 'color' in v else 1

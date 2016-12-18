@@ -9,23 +9,14 @@ from __future__ import unicode_literals
 
 # Load the fonts needed for this system
 FONTS = {
-	'small': {
-		'file':'latin1_5x8.fnt',
-		'size':(5,8)
-	},
-	'large': {
-		'file':'Vintl01_10x16.fnt',
-		'size':(10,16)
-	},
-	'tiny': {
-		'file':'upperascii_3x5.fnt',
-		'size':(5,5)
-	}
+	'small': { 'file':'latin1_5x8.fnt','size':(5,8) },
+	'large': { 'file':'Vintl01_10x16.fnt', 'size':(10,16) },
+	'tiny': { 'file':'upperascii_3x5.fnt', 'size':(5,5) }
 }
 
 IMAGES = {
-	'keg': 'keg.png',
-	'progbar': 'progressbar.png'
+	'keg': { 'file':'keg.png' },
+	'progbar': {'file':'progressbar_100x8.png' }
 }
 
 # Load the Widgets that will be used to produce the display pages
@@ -44,7 +35,7 @@ WIDGETS = {
 	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(70,16), 'effect':('scroll','left',1,20,'onloop',3,70)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'small', 'varwidth':True },
 	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'tiny', 'varwidth':True, 'just':'left', 'size':(80,8)},
-	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':(0,100), 'size':(80,6) },
+	'volumebar': { 'type':'progressimagebar', 'maskimage':'progbar','value':'volume', 'rangeval':(0,100) },
 	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(100,1) },
 	'showplay': { 'type':'text', 'format':'\0xe000 PLAY', 'font':'large', 'varwidth':True },
 	'showstop': { 'type':'text', 'format':'\0xe010 STOP', 'font':'large', 'varwidth':True },
