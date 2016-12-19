@@ -641,12 +641,13 @@ class gwidget(widget):
 
 		background = Image.new("1", (width, height),0)
 
-		if direction in ['right']:
-			background.paste(Image.new("1", (bwidth, bheight), 1), (self.image.width-background.width,0))
-		elif direction in ['up']:
-			background.paste(Image.new("1", (bwidth, bheight), 1), (0,self.image.height-background.height))
-		else: # ['left', 'down'] or default if bad direction provided
-			background.paste(Image.new("1", (bwidth, bheight), 1), (0,0))
+		if bwidth > 0 and bheight > 0:
+			if direction in ['right']:
+				background.paste(Image.new("1", (bwidth, bheight), 1), (self.image.width-bwidth,0))
+			elif direction in ['up']:
+				background.paste(Image.new("1", (bwidth, bheight), 1), (0,self.image.height-bheight))
+			else: # ['left', 'down'] or default if bad direction provided
+				background.paste(Image.new("1", (bwidth, bheight), 1), (0,0))
 
 		# Combine background with image
 		background.paste(self.image, (0,0), self.image)
