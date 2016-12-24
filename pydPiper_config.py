@@ -87,6 +87,7 @@ LMS_PASSWORD = u""
 #       To fix this, go to the SqueezeServer interface and change move the player to the
 #       correct server.
 #LMS_PLAYER = u"00:01:02:aa:bb:cc"
+LMS_PLAYER = u"b8:27:eb:a0:a4:01"
 
 
 # If you are using RuneAudio you can pull the information from the REDIS database that RuneAudio maintains

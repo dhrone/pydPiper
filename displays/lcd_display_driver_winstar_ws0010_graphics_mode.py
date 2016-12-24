@@ -26,7 +26,6 @@ import lcd_display_driver
 import fonts
 import graphics as g
 from PIL import Image
-import numpy as np
 
 
 class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_display_driver):

@@ -23,6 +23,7 @@ class musicdata:
 	musicdata_init = {
 		'state':u"stop",
 		'musicdatasource':u"",
+		'stream':u"",
 		'actPlayer':u"",
 		'artist':u"",
 		'title':u"",

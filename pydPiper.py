@@ -545,7 +545,7 @@ if __name__ == u'__main__':
 				img = dc.next()
 			frame = displays.display.getframe(img, 0, 0, pydPiper_config.DISPLAY_WIDTH, pydPiper_config.DISPLAY_HEIGHT)
 			lcd.update(frame)
-			time.sleep(.02)
+			time.sleep(.15)
 
 
 	except KeyboardInterrupt:

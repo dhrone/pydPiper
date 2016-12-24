@@ -230,21 +230,26 @@ class musicdata_lms(musicdata.musicdata):
 		# If the track count is greater than 1, we are playing from a playlist and can display track position and track count
 		if plc > 1:
 			playlist_display = u"{0}/{1}".format(plp, plc)
+			self.musicdata[u'stream'] = u'not webradio'
 		# if the track count is exactly 1, this is either a short playlist or it is streaming
 		elif plc == 1:
 			try:
 				# if streaming
 				if self.dataplayer.playlist_get_info()[0][u'duration'] == 0.0:
 					playlist_display = u"Radio"
+					self.musicdata[u'stream'] = u'webradio'
 				# it really is a short playlist
 				else:
 					playlist_display = u"{0}/{1}".format(plp, plc)
+					self.musicdata[u'stream'] = u'not webradio'
 			except KeyError:
 				logging.debug(u"In LMS couldn't get valid track information")
 				playlist_display = u""
+				self.musicdata[u'stream'] = u'not webradio' 
 		else:
 			logging.debug(u"In LMS track length is <= 0")
 			playlist_display = u""
+			self.musicdata[u'stream'] = u'' 
 
 		self.musicdata[u'playlist_display'] = playlist_display
 
