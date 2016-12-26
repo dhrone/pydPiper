@@ -89,7 +89,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		self.FONTS_SUPPORTED = True
 
 		# Initialize the default font
-		font = fonts.bmfont.bmfont('latin1_5x8.fnt')
+		font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
 		self.fp = font.fontpkg
 
 		# Set GPIO pins to handle communications to display
