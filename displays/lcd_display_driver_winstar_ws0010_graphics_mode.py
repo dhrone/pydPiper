@@ -336,15 +336,15 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		if row >= self.rows or col >= self.cols:
 			raise IndexError
 
-		width = g.msgwidth(text, self.fp, varwidth)
-		maxw = 0
-		for i in width:
-			if i > maxw:
-				maxw = i
-		height = len(width)*8
-
-		img = Image.new("1", (maxw, height), 0)
-		g.message(img,text,0,0, self.fp, varwidth)
+		# width = g.msgwidth(text, self.fp, varwidth)
+		# maxw = 0
+		# for i in width:
+		# 	if i > maxw:
+		# 		maxw = i
+		# height = len(width)*8
+		#
+		# img = Image.new("1", (maxw, height), 0)
+		img = g.message(text,0,0, self.fp, varwidth)
 		nf = g.getframe(img,0,0,self.cols,self.rows)
 		self.update(nf)
 

@@ -239,18 +239,24 @@ def line(image,x0, y0, x1, y1, color=1):
 	draw = ImageDraw.Draw(image)
 	draw.line((x0,y0,x1,y1),color)
 
-def message(image,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width=0):
+def textsize(msg, fontpkg, varwidth): # returns the size needed to contain provided message
+	# Input
+	#	msg (unicode): string that contains the message for the calculation
+	#	fontpkg (fontpkg): the font to use for the calculation
+	#	varwidth (bool): Should the font be fixed or variable width
 
+	maxw = 0
+	maxh = 0
+	cx = 0
 	(fx,fy) = fontpkg['size']
-	cx = x
-	cy = y
 
 	for c in msg:
 
-		# If newline, move y to next line (based upon font height) and return x to beginning of line
 		if c == u'\n':
-			cy = cy + fy
-			cx = x
+			maxh = maxh + fy
+			if cx > maxw:
+				maxw = cx
+			cx = 0
 			continue
 
 		try:
@@ -259,53 +265,99 @@ def message(image,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width
 			# Requested character does not exist in font.  Replace with '?'
 			charimg = fontpkg[ord('?')]
 
-		# if varwidth and ord(c) != 0x20: # if variable width requested and char is not a space
-		# 	try:
-		# 		# Trim left
-		# 		while bytearray[0] == 0:
-		# 			del bytearray[0]
-		# 		# Trim right
-		# 		for i in range(len(bytearray)-1,0,-1):
-		# 			if bytearray[i] == 0:
-		# 				del bytearray[i]
-		# 	except IndexError:
-		# 		# bytearray for this character was empty
-		# 		pass
+		if varwidth:
+			cx += charimg.size[0]
+		else:
+			cx += fx
 
-		# # Place character bitmap into frame buffer
-		# for val in bytearray:
-		# 	cy = y
-		# 	for i in range(0,fy):
-		# 		# Test bit
-		# 		tb = 1
-		# 		if val & (1<<i):
-		# 			tv = 1
-		# 		else:
-		# 			tv = 0
-		# 		image.putpixel((cx,cy),tv)
-		# 		cy += 1
-		# 	cx += 1
-		#
-		# # Add pixel wide gap between characters
-		# cy = y
-		# for i in range(0,fy):
-		# 	image.putpixel((cx,cy),0)
-		# 	cy += 1
-		# cx += 1
+	if cx > maxw:
+		maxw = cx
+	maxh = maxh + fy
+
+	return ((maxw, maxh))
+
+def message(msg, fontpkg,varwidth = False, just='left', size=(0,0)):
+	(fx,fy) = fontpkg['size']
+	cx = 0
+	cy = 0
+	cw = 0
+
+	# initialize image
+
+	if msg == '':
+		msg = ' '
+
+	maxw, maxh = textsize(msg, fontpkg, varwidth)
+
+	# msglines = msg.split('\n')
+	# maxw = 0
+	# for line in msglines:
+	# 	if maxw < len(line):
+	# 		maxw = len(line)
+	# maxw = maxw * fx
+	# maxh = len(msglines) * fy
+
+	# If a size was provided that is larger than what is required to display the text
+	# expand the image size as appropriate
+	width, height = size
+	maxw = maxw if maxw > width else width
+	maxh = maxh if maxh > height else height
+	image = Image.new("1", (maxw, maxh), 0)
+
+	lineimage = Image.new("1", (maxw, fy), 0)
+	for c in msg:
+
+		# If newline, move y to next line (based upon font height) and return x to beginning of line
+		if c == u'\n':
+			# Place line into image
+			if just == u'left':
+				ax = 0
+			elif just == u'center':
+				ax = (maxw-cx)/2
+			elif just == u'right':
+				ax = (maxw-cx)
+			self.image.paste(lineimage, (ax, cy))
+			lineimage = Image.new("1", (maxw, fy), 0)
+			cy = cy + fy
+			cx = 0
+			continue
+
+		try:
+			charimg = fontpkg[ord(c)]
+		except KeyError:
+			# Requested character does not exist in font.  Replace with '?'
+			charimg = fontpkg[ord('?')]
+
 
 		# Adjust charimg if varwidth is False
 		if not varwidth:
 			offset = (fx-charimg.size[0])/2
-			charimg = charimg.crop( (-offset,0,fx-offset,fy) ).load()
+			charimg = charimg.crop( (-offset,0,fx-offset,fy) )
+			charimg.load()
 
 		# Paste character into frame
-		image.paste(charimg, (cx,cy))
+		lineimage.paste(charimg, (cx,0))
 
 		# Erase space between characters
-		clear(image,cx+charimg.size[0],cy,1,fy)
+		draw = ImageDraw.Draw(lineimage)
+		draw.rectangle((cx+charimg.size[0],0, cx+charimg.size[0], fy-1),0)
 
 		# Move to next character position
 		if varwidth:
-			cx += charimg.size[0]+1
+			cx += charimg.size[0]
 		else:
-			cx += fx+1
+			cx += fx
+
+	# # resize to exact requirement of message
+	# self.image.crop((0,0,cx-1, cy+fy))
+
+	# Place last line into image
+	if just == u'left':
+		ax = 0
+	elif just == u'center':
+		ax = (maxw-cx)/2
+	elif just == u'right':
+		ax = (maxw-cx)
+	image.paste(lineimage, (ax, cy))
+
+	return image
