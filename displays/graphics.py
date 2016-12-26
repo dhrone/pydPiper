@@ -316,7 +316,7 @@ def message(msg, fontpkg,varwidth = False, just='left', size=(0,0)):
 				ax = (maxw-cx)/2
 			elif just == u'right':
 				ax = (maxw-cx)
-			self.image.paste(lineimage, (ax, cy))
+			image.paste(lineimage, (ax, cy))
 			lineimage = Image.new("1", (maxw, fy), 0)
 			cy = cy + fy
 			cx = 0
