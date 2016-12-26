@@ -493,8 +493,8 @@ if __name__ == '__main__':
 
 		lcd = lcd_display_driver_winstar_ws0010_graphics_mode(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
-#		lcd.message("",0,0,True)
-#		time.sleep(5)
+		lcd.message("pydPiper\nStarting",0,0,True)
+		time.sleep(10)
 		lcd.clear()
 
 
@@ -577,8 +577,8 @@ if __name__ == '__main__':
 				'system_tempc':81.0
 			}
 
-		dc = display.display_controller('../pages.py', db,dbp, (100,16))
-
+		dc = display.display_controller()
+		dc.load('../pages.py', dbp,dbp_old, (80,16))
 		# titlew = dc.widgets['title']
 
 		# formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'

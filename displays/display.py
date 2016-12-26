@@ -534,7 +534,10 @@ class gwidget(widget):
 			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
 			v = rvlow
 
-		percent = (v - rvlow) / float((rvhigh - rvlow))
+		try:
+			percent = (v - rvlow) / float((rvhigh - rvlow))
+		except ZeroDivisionError:
+			percent = 0
 
 		# make image to place progress bar
 		self.image = Image.new("1", size, 0)
