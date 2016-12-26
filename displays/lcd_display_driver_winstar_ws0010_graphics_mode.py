@@ -344,7 +344,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		# height = len(width)*8
 		#
 		# img = Image.new("1", (maxw, height), 0)
-		img = g.message(text,0,0, self.fp, varwidth)
+		img = g.message(text,self.fp, varwidth)
 		nf = g.getframe(img,0,0,self.cols,self.rows)
 		self.update(nf)
 
