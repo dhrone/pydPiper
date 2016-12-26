@@ -93,8 +93,8 @@ class widget:
 	# Utility functions
 	def updatesize(self):
 		if self.image != None:
-			self.width = self.image.width
-			self.height = self.image.height
+			self.width = self.size[0]
+			self.height = self.size[1]
 			self.size = self.image.size
 		else:
 			self.width = 0
@@ -298,7 +298,7 @@ class gwidget(widget):
 		if self.type != u'canvas':
 			logging.warning('Trying to clear a widget that is not a canvas')
 			return
-		self.image = Image.new("1", (self.image.width, self.image.height))
+		self.image = Image.new("1", (self.image.size[0], self.size[1]))
 
 	def place(self, widget, (x,y), size=(0,0)): # Place a widget's image on the canvas
 		# Input
@@ -345,7 +345,7 @@ class gwidget(widget):
 				charimg = fontpkg[ord('?')]
 
 			if varwidth:
-				cx += charimg.width
+				cx += charimg.size[0]
 			else:
 				cx += fx
 
@@ -437,7 +437,7 @@ class gwidget(widget):
 
 			# Adjust charimg if varwidth is False
 			if not varwidth:
-				offset = (fx-charimg.width)/2
+				offset = (fx-charimg.size[0])/2
 				charimg = charimg.crop( (-offset,0,fx-offset,fy) )
 				charimg.load()
 
@@ -446,11 +446,11 @@ class gwidget(widget):
 
 			# Erase space between characters
 			draw = ImageDraw.Draw(lineimage)
-			draw.rectangle((cx+charimg.width,0, cx+charimg.width, fy-1),0)
+			draw.rectangle((cx+charimg.size[0],0, cx+charimg.size[0], fy-1),0)
 
 			# Move to next character position
 			if varwidth:
-				cx += charimg.width
+				cx += charimg.size[0]
 			else:
 				cx += fx
 
@@ -629,23 +629,23 @@ class gwidget(widget):
 		width, height = self.image.size
 
 		if direction in ['left','right']:
-			bheight = self.image.height
+			bheight = self.image.size[1]
 			bwidth = int(width*percent)
 		elif direction in ['up','down']:
 			bheight = int(height*percent)
-			bwidth = self.image.width
+			bwidth = self.image.size[0]
 		else:
 			logging.warning('Direction value invalid.  Defaulting to left')
-			bwidth = self.image.width*percent
-			bheight = self.image.height
+			bwidth = self.image.size[0]*percent
+			bheight = self.image.size[1]
 
 		background = Image.new("1", (width, height),0)
 
 		if bwidth > 0 and bheight > 0:
 			if direction in ['right']:
-				background.paste(Image.new("1", (bwidth, bheight), 1), (self.image.width-bwidth,0))
+				background.paste(Image.new("1", (bwidth, bheight), 1), (self.image.size[0]-bwidth,0))
 			elif direction in ['up']:
-				background.paste(Image.new("1", (bwidth, bheight), 1), (0,self.image.height-bheight))
+				background.paste(Image.new("1", (bwidth, bheight), 1), (0,self.image.size[1]-bheight))
 			else: # ['left', 'down'] or default if bad direction provided
 				background.paste(Image.new("1", (bwidth, bheight), 1), (0,0))
 
@@ -676,7 +676,7 @@ class gwidget(widget):
 			self.image = Image.new("1", (x+1, y+1), 0)
 		else:
 			# Is image big enough?
-			if self.image.width < x or self.image.height < y:
+			if self.image.size[0] < x or self.image.size[1] < y:
 				self.image.crop(0,0,x,y)
 
 		draw = ImageDraw.Draw(self.image)
@@ -701,7 +701,7 @@ class gwidget(widget):
 			self.image = Image.new("1", (x+1, y+1), 0)
 		else:
 			# Is image big enough?
-			if self.image.width < x or self.image.height < y:
+			if self.image.size[0] < x or self.image.size[1] < y:
 				self.image.crop(0,0,x,y)
 
 		draw = ImageDraw.Draw(self.image)
@@ -1089,6 +1089,8 @@ class display_controller(object):
 		self.pages = None
 		self.widgets = { }
 		self.sequences = []
+		self.errwidgets = { }
+		self.defaultfontpkg = None
 
 		logging.debug("Loading {0} as page file".format(file))
 		# If page file provided, try to load provided file on top of default pages file
@@ -1116,6 +1118,8 @@ class display_controller(object):
 		except AttributeError:
 			# No fonts specified
 			pass
+
+
 
 		try:
 			# Load images
@@ -1290,9 +1294,9 @@ class display_controller(object):
 				img = wid.image
 			else:
 				# If more than one sequence is active, paste together.
-				w = wid.image.width if wid.image.width > img.width else img.width
-				h = wid.image.height if wid.image.height > img.height else img.height
-				if w > img.width or h > img.height:
+				w = wid.image.size[0] if wid.image.size[0] > img.size[0] else img.size[0]
+				h = wid.image.size[1] if wid.image.size[1] > img.size[1] else img.size[1]
+				if w > img.size[0] or h > img.size[1]:
 					img = img.crop((0,0,w,h))
 				img.paste(wid.image,(0,0))
 

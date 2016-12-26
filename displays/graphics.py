@@ -199,9 +199,9 @@ def msgwidth(msg, fontpkg, varwidth=False):
 
 		if varwidth:
 			try:
-				clp += fontpkg[ord(c)].width+1
+				clp += fontpkg[ord(c)].size[0]+1
 			except:
-				clp += fontpkg[ord('?')].width+1
+				clp += fontpkg[ord('?')].size[0]+1
 		else:
 			clp += fx+1
 	retval.append(clp-1)
@@ -295,17 +295,17 @@ def message(image,msg,x,y,fontpkg,varwidth = False, just='left', height=0, width
 
 		# Adjust charimg if varwidth is False
 		if not varwidth:
-			offset = (fx-charimg.width)/2
+			offset = (fx-charimg.size[0])/2
 			charimg = charimg.crop( (-offset,0,fx-offset,fy) ).load()
 
 		# Paste character into frame
 		image.paste(charimg, (cx,cy))
 
 		# Erase space between characters
-		clear(image,cx+charimg.width,cy,1,fy)
+		clear(image,cx+charimg.size[0],cy,1,fy)
 
 		# Move to next character position
 		if varwidth:
-			cx += charimg.width+1
+			cx += charimg.size[0]+1
 		else:
 			cx += fx+1
