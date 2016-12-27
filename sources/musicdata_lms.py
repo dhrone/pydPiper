@@ -235,7 +235,7 @@ class musicdata_lms(musicdata.musicdata):
 		elif plc == 1:
 			try:
 				# if streaming
-				if self.dataplayer.playlist_get_info()[0][u'duration'] == 0.0:
+				if self.musicdata['duration'] == 0.0:
 					playlist_display = u"Radio"
 					self.musicdata[u'stream'] = u'webradio'
 				# it really is a short playlist
