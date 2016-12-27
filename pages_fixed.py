@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 # Load the fonts needed for this system
 FONTS = {
 	'small': { 'file':'latin1_5x8_fixed.fnt','size':(5,8) },
+#	'large': { 'file':'BigFont_10x16_fixed.fnt', 'size':(10,16) },
 	'large': { 'file':'Vintl01_10x16_fixed.fnt', 'size':(10,16) },
 	'tiny': { 'file':'upperasciiwide_3x5_fixed.fnt', 'size':(5,5) }
 }
@@ -27,9 +28,9 @@ WIDGETS = {
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','varwidth':True,'effect':('scroll','left',5,20,'onloop',3,80)},
 	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small', 'varwidth':True },
 	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8), 'varwidth':True },
-	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'left', 'size':(60,16) },
+	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'varwidth':True, 'size':(60,16) },
 	'tempsmall': { 'type':'text', 'format':'Temp\n{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(20,16) },
-	'temphilow': { 'type':'text', 'format':'h {0}\nl {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
+	'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(80,16) },
 	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(55,16), 'effect':('scroll','left',5,20,'onloop',3,100)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'small', 'varwidth':True },
@@ -53,7 +54,9 @@ CANVASES = {
 	'playtitle': { 'widgets':  [ ('title',0,7), ('nowplaying',0,0), ('nowplayingdata',40,0), ('songprogress',0,15) ], 'size':(80,16) },
 	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(80,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
-	'stoptimetemp_popup': { 'widgets': [ ('time',0,2), ('tempsmall',60,0), ('weather',0,17), ('temphilow',55,16) ], 'size':(81,32), 'effect': ('popup',16,15,10 ) },
+	'stoptimetemp_popup': { 'widgets': [ ('time',0,2), ('tempsmall',60,0), ('weather',0,17), ('temphilow',55,16) ], 'size':(80,32), 'effect': ('popup',16,15,10 ) },
+#	'stoptimetemp_popup': { 'widgets': [ ('time',0,2), ('tempsmall',60,0), ('weather',0,17), ('temphilow',55,16) ], 'size':(80,32),  },
+#	'stoptimetemp_popup': { 'widgets': [ ('time',0,2), ('weather',0,17), ('temphilow',55,16) ], 'size':(80,32), },
 	'volume_changed': { 'widgets': [ ('volume',5,0), ('volumebar',0,8) ], 'size':(80,16) },
 }
 
