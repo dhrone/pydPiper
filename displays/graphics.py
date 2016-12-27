@@ -82,8 +82,8 @@ def getframe(image,x,y,width,height):
 	# ]
 
 	# Select portion of image to work with
-	img = image.copy()
-	img.crop( (x,y, width, height) )
+	img = image.convert("1")
+	#img.crop( (x,y, width, height) )
 
 
 	width, height = img.size

@@ -93,8 +93,8 @@ class widget:
 	# Utility functions
 	def updatesize(self):
 		if self.image != None:
-			self.width = self.image.size[0]
-			self.height = self.image.size[1]
+			self.width = self.size[0]
+			self.height = self.size[1]
 			self.size = self.image.size
 		else:
 			self.width = 0
@@ -749,7 +749,7 @@ class gwidget(widget):
 
 		# If we are waiting for a transition
 		if self.end > time.time():
-			self.image = self.widget.image.crop( (0, self.index, self.widget.width, self.index+self.dheight) )
+			self.image = self.widget.image.crop( (0, self.index, self.widget.width-1, self.index+self.dheight) )
 			self.updatesize()
 			return True
 
@@ -768,7 +768,7 @@ class gwidget(widget):
 				self.popped = True
 				self.end = time.time() + self.pduration
 
-		self.image = self.widget.image.crop( (0, self.index, self.widget.width, self.index+self.dheight) )
+		self.image = self.widget.image.crop( (0, self.index, self.widget.width-1, self.index+self.dheight) )
 		self.updatesize()
 
 		return True
@@ -834,7 +834,8 @@ class gwidget(widget):
 			# Expand canvas
 			if self.shouldscroll:
 				if direction in ['left','right']:
-					self.image = self.image.crop( (0,0,self.widget.width+gap, self.widget.height) )
+					self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
+					self.image.paste(self.widget.image, (0,0))
 					self.updatesize()
 				elif direction in ['up','down']:
 					self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
@@ -870,7 +871,8 @@ class gwidget(widget):
 			if self.shouldscroll:
 				# Expand canvas
 				if direction in ['left','right']:
-					self.image = self.image.crop( (0,0,self.widget.width+gap, self.widget.height) )
+					self.image = Image.new("1", (self.widget.width+gap, self.widget.height))
+					self.image.paste(self.widget.image, (0,0))
 					self.updatesize()
 				elif direction in ['up','down']:
 					self.image = Image.new("1", (self.widget.width, self.widget.height+gap))
@@ -890,11 +892,10 @@ class gwidget(widget):
 		height = self.height
 
 		if direction == u'left':
-			imgsave = image.copy()
-			region = imgsave.crop((0,0, distance, height))
-			body = imgsave.crop((distance,0, width, height))
-			image.paste(region, ((width-distance),0) )
+			region = image.crop((0,0, distance, height))
+			body = image.crop((distance,0, width, height))
 			image.paste(body, (0,0))
+			image.paste(region, ((width-distance),0) )
 			if hesitatetype == u'onloop':
 				self.index += distance
 				if self.index >= width:
@@ -902,11 +903,10 @@ class gwidget(widget):
 					self.start = time.time()
 					self.end = self.start + hesitatetime
 		elif direction == u'right':
-			imgsave = image.copy()
-			region = imgsave.crop((width-distance,0, width, height))
-			body = imgsave.crop((0,0, width-distance, height))
-			image.paste(region, (0,0) )
+			region = image.crop((width-distance,0, width, height))
+			body = image.crop((0,0, width-distance, height))
 			image.paste(body, (distance,0) )
+			image.paste(region, (0,0) )
 			if hesitatetype == u'onloop':
 				self.index += distance
 				if self.index >= width:
@@ -914,11 +914,10 @@ class gwidget(widget):
 					self.start = time.time()
 					self.end = self.start + hesitatetime
 		elif direction == u'up':
-			imgsave = image.copy()
-			region = imgsave.crop((0,0, width, distance))
-			body = imgsave.crop((0,distance, width, height))
-			image.paste(region, (0,height-distance) )
+			region = image.crop((0,0, width, distance))
+			body = image.crop((0,distance, width, height))
 			image.paste(body, (0,0) )
+			image.paste(region, (0,height-distance) )
 			if hesitatetype == u'onloop':
 				self.index += distance
 				if self.index >= height:
@@ -926,11 +925,10 @@ class gwidget(widget):
 					self.start = time.time()
 					self.end = self.start + hesitatetime
 		elif direction == u'down':
-			imgsave = image.copy()
-			region = imgsave.crop((0,height-distance, width, height))
-			body = imgsave.crop((0,0, width, height-distance))
-			image.paste(region, (0,0) )
+			region = image.crop((0,height-distance, width, height))
+			body = image.crop((0,0, width, height-distance))
 			image.paste(body, (0,distance) )
+			image.paste(region, (0,0) )
 			if hesitatetype == u'onloop':
 				self.index += distance
 				if self.index >= height:
@@ -1353,8 +1351,8 @@ def getframe(image,x,y,width,height):
 	# ]
 
 	# Select portion of image to work with
-	img = image.copy()
-	img.crop( (x,y, width, height) )
+	img = image.convert("1")
+	#img.crop( (x,y, width, height) )
 
 
 	width, height = img.size
