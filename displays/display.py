@@ -1076,17 +1076,17 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 			return widget
 
 class display_controller(object):
-	def __init__(self,db, dbp, size):
+	def __init__(self, size):
 		self.sequences = []
-		self.db = db
-		self.dbp = dbp
 		self.size = size
 
-	def load(self, file): # Load config file and initialize sequences
+	def load(self, file, db, dbp,): # Load config file and initialize sequences
 		# Input
 		#	file (unicode) -- file that contains a valid display configuration
 
 		self.file = file
+		self.db = db
+		self.dbp = dbp
 
 		self.pages = None
 		self.widgets = { }
@@ -1326,7 +1326,7 @@ class display_controller(object):
 				img = self.defaultwidget.image.copy()
 			except AttributeError:
 				# This should only happen if next is called before load
-				img = Image.new("1", )
+				img = Image.new("1", self.size)
 
 		if img is not None:
 			# Limit returned image to the display controllers size
@@ -1518,8 +1518,8 @@ if __name__ == '__main__':
 		(100, 'remaining', '420 oz remaining')
 	]
 
-	dc = display_controller(db,dbp, (100, 16))
-	dc.load('../pages_beer2.py')
+	dc = display_controller((100, 16))
+	dc.load('../pages_beer2.py', db,dbp )
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)

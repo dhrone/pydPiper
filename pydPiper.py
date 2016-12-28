@@ -532,11 +532,11 @@ if __name__ == u'__main__':
 	lcd.message(pydPiper_config.STARTUP_MSG)
 
 
-	dc = displays.display.display_controller(mc.musicdata,mc.musicdata_prev, pydPiper_config.DISPLAY_SIZE)
+	dc = displays.display.display_controller(pydPiper_config.DISPLAY_SIZE)
 	mc = music_controller(services_list, dc, showupdates)
 	time.sleep(2)
 	mc.start()
-	dc.load(pagefile)
+	dc.load(pagefile, mc.musicdata,mc.musicdata_prev )
 
 	try:
 		while True:
