@@ -1076,17 +1076,17 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 			return widget
 
 class display_controller(object):
-	def __init__(self):
+	def __init__(self,db, dbp, size):
 		self.sequences = []
+		self.db = db
+		self.dbp = dbp
+		self.size = size
 
-	def load(self, file, db, dbp, size): # Load config file and initialize sequences
+	def load(self, file): # Load config file and initialize sequences
 		# Input
 		#	file (unicode) -- file that contains a valid display configuration
 
 		self.file = file
-		self.db = db
-		self.dbp = dbp
-		self.size = size
 
 		self.pages = None
 		self.widgets = { }
@@ -1129,6 +1129,8 @@ class display_controller(object):
 			logging.critical('Must specify a default font.  Exiting...')
 			raise RuntimeError('Must specify a default font.  Exiting...')
 
+		self.defaultwidget = gwidgetText('No active widgets', self.defaultfontpkg, {},[], True)
+
 		try:
 			# Load images
 			for k,v in self.pages.IMAGES.iteritems():
@@ -1154,7 +1156,6 @@ class display_controller(object):
 		self.loadwidgets(self.pages.CANVASES)
 		self.loadsequences(self.pages.SEQUENCES)
 
-		self.defaultwidget = gwidgetText('No active widgets', self.defaultfontpkg, {},[], True)
 
 
 	def loadwidgets(self, pageWidgets): # Load widgets. Return any widgets that could not be loaded because a widget contained within it was not found
@@ -1321,7 +1322,11 @@ class display_controller(object):
 				img.paste(wid.image,(0,0))
 
 		if img is None:
-			img = self.defaultwidget.image.copy()
+			try:
+				img = self.defaultwidget.image.copy()
+			except AttributeError:
+				# This should only happen if next is called before load
+				img = Image.new("1", )
 
 		if img is not None:
 			# Limit returned image to the display controllers size
@@ -1513,8 +1518,8 @@ if __name__ == '__main__':
 		(100, 'remaining', '420 oz remaining')
 	]
 
-	dc = display_controller()
-	dc.load('../pages_beer2.py', db,dbp, (100, 16))
+	dc = display_controller(db,dbp, (100, 16))
+	dc.load('../pages_beer2.py')
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)
