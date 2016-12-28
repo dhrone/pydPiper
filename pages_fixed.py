@@ -9,19 +9,21 @@ from __future__ import unicode_literals
 
 # Load the fonts needed for this system
 FONTS = {
-	'small': { 'file':'latin1_5x8_fixed.fnt','size':(5,8) },
+	'small': { 'default':True, 'file':'latin1_5x8_fixed.fnt','size':(5,8) },
 #	'large': { 'file':'BigFont_10x16_fixed.fnt', 'size':(10,16) },
 	'large': { 'file':'Vintl01_10x16_fixed.fnt', 'size':(10,16) },
 	'tiny': { 'file':'upperasciiwide_3x5_fixed.fnt', 'size':(5,5) }
 }
 
 IMAGES = {
-	'progbar': {'file':'progressbar_80x8.png' }
+	'progbar': {'file':'progressbar_80x8.png' },
+	'splash': {'file':'pydPiper_fixed_splash.png' }
 }
 
 # Load the Widgets that will be used to produce the display pages
 WIDGETS = {
-	'nowplaying': { 'type':'text', 'format':'PLAYING', 'variables':[], 'font':'tiny', 'varwidth':True},
+	'splash': { 'type':'image', 'image':'splash' },
+	'nowplaying': { 'type':'text', 'format':'{0}', 'variables':['actPlayer|upper'], 'font':'tiny', 'varwidth':True},
 	'nowplayingdata': { 'type':'text', 'format':'{0} OF {1}', 'variables':['playlist_position', 'playlist_length'], 'font':'tiny', 'just':'right','size':(40,5),'varwidth':True},
 	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','varwidth':True,'effect':('scroll','left',5,20,'onloop',3,80) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','varwidth':True,'effect':('scroll','left',5,20,'onloop',3,80)},
@@ -33,7 +35,7 @@ WIDGETS = {
 	'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(80,16) },
 	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(55,16), 'effect':('scroll','left',5,20,'onloop',3,100)},
-	'radio': { 'type':'text', 'format':"RADIO", 'font':'small', 'varwidth':True },
+	'radio': { 'type':'text', 'format':"RADIO", 'font':'tiny', 'varwidth':True, 'size':(40,5), 'just':'right' },
 	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'tiny', 'varwidth':True, 'just':'left', 'size':(60,8)},
 	'volumebar': { 'type':'progressimagebar', 'image':'progbar','value':'volume', 'rangeval':(0,100) },
 	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(80,1) },
@@ -48,15 +50,13 @@ WIDGETS = {
 # Assemble the widgets into canvases.  Only needed if you need to combine multiple widgets together so you can produce effects on them as a group.
 CANVASES = {
 	'playartist': { 'widgets': [ ('artist',0,7), ('nowplaying',0,0), ('nowplayingdata',40,0), ('songprogress',0,15) ], 'size':(80,16) },
-	'playartist_radio': { 'widgets': [ ('artist',0,0),  ('radio',0,8), ('elapsed',50,8) ], 'size':(80,16) },
 	'playalbum': { 'widgets': [ ('album',0,7), ('nowplaying',0,0), ('nowplayingdata',40,0), ('songprogress',0,15) ], 'size':(80,16) },
-	'playalbum_radio': { 'widgets':  [ ('album',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(80,16) },
 	'playtitle': { 'widgets':  [ ('title',0,7), ('nowplaying',0,0), ('nowplayingdata',40,0), ('songprogress',0,15) ], 'size':(80,16) },
-	'playtitle_radio': { 'widgets':  [ ('title',0,0), ('radio',0,8), ('elapsed',50,8) ], 'size':(80,16) },
+	'playartist_radio': { 'widgets': [ ('artist',0,7), ('nowplaying',0,0), ('radio',40,0), ('songprogress', 0,15) ], 'size':(80,16) },
+	'playalbum_radio': { 'widgets':  [ ('album',0,7), ('nowplaying',0,0), ('radio',40,0), ('songprogress', 0,15) ], 'size':(80,16) },
+	'playtitle_radio': { 'widgets':  [ ('title',0,7), ('nowplaying',0,0), ('radio',40,0), ('songprogress',0,15) ], 'size':(80,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
 	'stoptimetemp_popup': { 'widgets': [ ('time',0,2), ('tempsmall',60,0), ('weather',0,17), ('temphilow',55,16) ], 'size':(80,32), 'effect': ('popup',16,15,10 ) },
-#	'stoptimetemp_popup': { 'widgets': [ ('time',0,2), ('tempsmall',60,0), ('weather',0,17), ('temphilow',55,16) ], 'size':(80,32),  },
-#	'stoptimetemp_popup': { 'widgets': [ ('time',0,2), ('weather',0,17), ('temphilow',55,16) ], 'size':(80,32), },
 	'volume_changed': { 'widgets': [ ('volume',5,0), ('volumebar',0,8) ], 'size':(80,16) },
 }
 
@@ -69,6 +69,7 @@ CANVASES = {
 # To access system variables, refer to them within the db dictionary (e.g. db['title'])
 # To access the most recent previous state of a variable, refer to them within the dbp dictionary (e.g. dbp['title'])
 SEQUENCES = [
+	{	'name': 'seqSplash', 'canvases': [ { 'name':'splash', 'duration':4 } ], 'conditional': "db['state']=='starting'" },
 	{
 		'name': 'seqPlay',
 		'canvases': [

@@ -1284,11 +1284,8 @@ class display_controller(object):
 						logging.warning('Canvas {0} attempted to add widget {1} but it was not found in the widget list'.format(k, wname))
 						continue
 
-					logging.debug("Adding widget '{0}' to canvas with size {1}".format(wname, widtoadd.size))
-
 					widget.add(widtoadd, (x,y))
 
-			logging.debug("Widget added with size {0}".format(widget.size))
 			# Add effect if requested
 			effect = v['effect'] if 'effect' in v else None
 			if effect != None:
