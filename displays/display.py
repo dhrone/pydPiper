@@ -975,7 +975,7 @@ class gwidgetProgressImageBar(gwidget):
 		self.progressimagebar(maskimage, value, rangeval, direction)
 
 class gwidgetImage(gwidget):
-	def __init__(self, image, size):
+	def __init__(self, image, size=(0,0)):
 		super(gwidgetImage, self).__init__()
 		self.imagewidget(image, size)
 
@@ -1006,7 +1006,7 @@ class gwidgetScroll(gwidget):
 
 
 class sequence(object): # Holds a sequence of widgets to display on the screen in turn
-	def __init__(self, conditional, db, dbprevious, coolingperiod, minimum, coordinates): # initialize class
+	def __init__(self, name, conditional, db, dbprevious, coolingperiod, minimum, coordinates): # initialize class
 		# Input
 		#	conditional (unicode) -- a string containing an evaluable boolean logic statement which determines whether the sequence is active
 		#	db (dict) -- A dictionary that points to system variable db
@@ -1014,6 +1014,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 		#	coolingperiod (float) -- Amount of time to wait before a sequence can be displayed again
 
 		self.widgets = []					# Array to hold widget list
+		self.name = name			# Name of sequence
 		self.conditional = conditional		# Sequence conditional.  Must be true for sequence to be displayed
 		self.coordinates = coordinates		# Offset from origin to place any canvas in this sequence
 		self.db = db						# System variable db
@@ -1373,7 +1374,6 @@ class display_controller(object):
 
 	def loadsequences(self, sequences):
 
-#		for key,value in sorted(sequences.iteritems(), key=lambda (k,v): (v,k)):
 		for value in sequences:
 
 			conditional = value['conditional'] if 'conditional' in value else 'True'
@@ -1384,7 +1384,7 @@ class display_controller(object):
 
 			logging.debug('Loading sequence {0}'.format(name))
 
-			newseq = sequence(conditional,self.db,self.dbp, coolingperiod, minimum, coordinates)
+			newseq = sequence(name,conditional,self.db,self.dbp, coolingperiod, minimum, coordinates)
 			self.sequences.append(newseq)
 			canvases = value['canvases'] if 'canvases' in value else []
 			if canvases:
@@ -1414,10 +1414,7 @@ def getframe(image,x,y,width,height):
 	# ]
 
 	# Select portion of image to work with
-	#img = image.convert("1")
-	img = image.copy()
-	img.crop( (x,y, width, height) )
-
+	img = image.convert("1")
 
 	width, height = img.size
 	bheight = int(math.ceil(height / 8.0))

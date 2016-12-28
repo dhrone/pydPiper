@@ -11,7 +11,6 @@ import displays
 import sources
 import pydPiper_config
 
-
 try:
 	import pyowm
 except ImportError:
@@ -148,7 +147,7 @@ class music_controller(threading.Thread):
 		# Inform the system that we are starting up
 		with self.musicdata_lock:
 			self.musicdata_prev[u'state'] = ''
-			self.musicdata[u'state'] = ''
+			self.musicdata[u'state'] = 'starting'
 		self.starttime = time.time()
 
 		lastupdate = 0 # Initialize variable to be used to force updates every second regardless of the receipt of a source update
@@ -158,9 +157,9 @@ class music_controller(threading.Thread):
 
 			# Check if we are starting up.  If yes, update pages to display any start message.
 			if self.starttime + pydPiper_config.STARTUP_MSG_DURATION > time.time():
-				with self.musicdata_lock:
-					self.display_controller.next()
 				time.sleep(pydPiper_config.STARTUP_MSG_DURATION)
+				with self.musicdata_lock:
+					self.musicdata['state'] = 'stop'
 				continue
 
 			# Attempt to get an update from the queue
@@ -528,7 +527,7 @@ if __name__ == u'__main__':
 		sys.exit()
 
 	lcd.clear()
-	lcd.message(pydPiper_config.STARTUP_MSG)
+#	lcd.message(pydPiper_config.STARTUP_MSG)
 
 
 	dc = displays.display.display_controller(pydPiper_config.DISPLAY_SIZE)
