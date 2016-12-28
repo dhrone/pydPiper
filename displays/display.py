@@ -830,7 +830,6 @@ class gwidget(widget):
 			self.eheight = self.widget.size[1] if self.direction in [u'left',u'right'] else self.widget.size[1]+gap
 			self.ewidth = self.widget.size[0]+gap if self.direction in [u'left',u'right'] else self.widget.size[0]
 
-			print "ewidth {0} eheight {1}".format(self.ewidth, self.eheight)
 			# Update image using current index values
 			self.expanded_image = self.widget.image.copy().crop( (0,0,self.ewidth,self.eheight) )
 			self.image = self.expanded_image.copy()
@@ -921,13 +920,10 @@ class gwidget(widget):
 		# Reset expanded_image
 		self.expanded_image = self.widget.image.copy().crop( (0,0,self.ewidth,self.eheight) )
 
-		print "Expanded_image size {0}".format(self.expanded_image.size)
-
 		# Update image using current index values
 		if direction in [u'left',u'right']:
 			hregion = self.expanded_image.crop( (0,0,self.hindex,self.eheight) )
 			hbody = self.expanded_image.crop( (self.hindex,0,self.ewidth,self.eheight) )
-			print "hregion size {0}, hbody size {1}".format(hregion.size, hbody.size)
 			self.image.paste( hbody, (0,0) )
 			self.image.paste( hregion, (self.ewidth - self.hindex, 0) )
 		elif direction in [u'up',u'down']:
@@ -937,7 +933,6 @@ class gwidget(widget):
 			self.image.paste( vregion, (0, self.eheight - self.vindex) )
 
 		if hesitatetype == u'onloop' and ( (self.hindex == 0 and self.direction in [u'left',u'right']) or (self.vindex == 0 and self.direction in [u'up',u'down'])):
-			print "Reseting timer with hindex {0}, vindex {1}".format(self.hindex, self.vindex)
 			self.start = time.time()
 			self.end = self.start + hesitatetime
 
@@ -1073,7 +1068,6 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 					if self.currentwidget >= len(self.widgets):
 						self.currentwidget = 0
 
-			print "Didn't find an active widget"
 			# If you go through the whole list without finding an active widget then return None
 			return None
 		else:
