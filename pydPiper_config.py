@@ -4,6 +4,7 @@ import logging
 # Messages
 STARTUP_MSG = u"pydPiper\nStarting"
 STARTUP_LOGMSG = u"pydPiper Starting"
+STARTUP_MSG_DURATION = 5
 
 # Display Parameters
 DISPLAY_DRIVER='lcd_display_driver_winstar_ws0010_graphics_mode'

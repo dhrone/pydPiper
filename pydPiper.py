@@ -145,14 +145,23 @@ class music_controller(threading.Thread):
 		timesongstarted = 0
 
 
-		# Force the system to recognize the start state as a change
-		#####  Need to determine how to force a display update on start-up #####
-		self.musicdata_prev[u'state'] = ""
+		# Inform the system that we are starting up
+		with self.musicdata_lock:
+			self.musicdata_prev[u'state'] = ''
+			self.musicdata[u'state'] = ''
+		self.starttime = time.time()
 
 		lastupdate = 0 # Initialize variable to be used to force updates every second regardless of the receipt of a source update
 		while not exitapp[0]:
 
 			updates = { }
+
+			# Check if we are starting up.  If yes, update pages to display any start message.
+			if self.starttime + pydPiper_config.STARTUP_MSG_DURATION > time.time():
+				with self.musicdata_lock:
+					self.display_controller.next()
+				time.sleep(pydPiper_config.STARTUP_MSG_DURATION)
+				continue
 
 			# Attempt to get an update from the queue
 			try:
@@ -205,8 +214,13 @@ class music_controller(threading.Thread):
 				# Set lastupdate time to 1 second in the future
 				lastupdate = time.time()+1
 
-				######  May want to eliminate updatepages ######
-				self.updatepages()
+				self.musicdata[u'time_formatted'] = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime('%H:%M').strip().decode()
+				# To support previous key used for this purpose
+				self.musicdata[u'current_time_formatted'] = self.musicdata[u'time_formatted']
+
+				# Update display controller
+				# The primary call to this routine is in main but this call is needed to catch variable changes before musicdata_prev is updated.
+				self.display_controller.next()
 
 				# Print the current contents of musicdata if showupdates is True
 				if self.showupdates:
@@ -235,21 +249,6 @@ class music_controller(threading.Thread):
 
 			# Update display data every 1/4 second
 			time.sleep(.25)
-
-
-	def updatepages(self):
-
-		with self.musicdata_lock:
-			self.musicdata[u'time_formatted'] = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime('%H:%M').strip().decode()
-#			self.musicdata[u'time_ampm'] = current_time_ampm
-
-			# To support previous key used for this purpose
-			self.musicdata[u'current_time_formatted'] = self.musicdata[u'time_formatted']
-
-			# Update display controller
-			# The primary call to this routine is in main but this call is needed to catch variable changes before musicdata_prev is updated.
-			self.display_controller.next()
-
 
 
 	def updatesystemvars(self):
