@@ -530,9 +530,12 @@ class gwidget(widget):
 			rvlow = rvhigh
 			rvhigh = t
 
-		if v < rvlow or v > rvhigh:
+		if v < rvlow :
 			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
 			v = rvlow
+		if v > rvhigh :
+			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
+			v = rvhigh
 
 		try:
 			percent = (v - rvlow) / float((rvhigh - rvlow))
@@ -802,8 +805,8 @@ class gwidget(widget):
 				self.end = 0
 			else:
 				self.end = self.start + hesitatetime
-			self.image = widget.image.copy()
-			self.index = 0
+			self.hindex = 0 # Horizontal index
+			self.vindex = 0 # Vertical index
 			self.updatesize()
 
 			self.shouldscroll = False
@@ -819,6 +822,20 @@ class gwidget(widget):
 			self.hesitatetime = hesitatetime
 			self.threshold = threshold
 
+			# Make sure direction is valid.  Set to 'left' if not.
+			if self.direction not in [u'left',u'right',u'up',u'down']:
+				self.direction = u'left'
+
+			# Set height and width for expanded image
+			self.eheight = self.widget.size[1] if self.direction in [u'left',u'right'] else self.widget.size[1]+gap
+			self.ewidth = self.widget.size[0]+gap if self.direction in [u'left',u'right'] else self.widget.size[0]
+
+			print "ewidth {0} eheight {1}".format(self.ewidth, self.eheight)
+			# Update image using current index values
+			self.expanded_image = self.widget.image.copy().crop( (0,0,self.ewidth,self.eheight) )
+			self.image = self.expanded_image.copy()
+			self.image.paste( self.widget.image, (0,0) )
+
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
 				if self.widget.size[0] > self.threshold:
@@ -830,17 +847,18 @@ class gwidget(widget):
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
+			return True
 
-			# Expand canvas
-			if self.shouldscroll:
-				if direction in ['left','right']:
-					self.image = Image.new("1", (self.widget.size[0]+gap, self.widget.size[1]))
-					self.image.paste(self.widget.image, (0,0))
-					self.updatesize()
-				elif direction in ['up','down']:
-					self.image = Image.new("1", (self.widget.size[0], self.widget.size[1]+gap))
-					self.image.paste(self.widget.image, (0,0))
-					self.updatesize()
+			# # Expand canvas
+			# if self.shouldscroll:
+			# 	if direction in ['left','right']:
+			# 		self.image = Image.new("1", (self.widget.size[0]+gap, self.widget.size[1]))
+			# 		self.image.paste(self.widget.image, (0,0))
+			# 		self.updatesize()
+			# 	elif direction in ['up','down']:
+			# 		self.image = Image.new("1", (self.widget.size[0], self.widget.size[1]+gap))
+			# 		self.image.paste(self.widget.image, (0,0))
+			# 		self.updatesize()
 
 
 		# If the widget has changed or a reset was commanded then reset the scroll to the starting position
@@ -853,8 +871,18 @@ class gwidget(widget):
 			else:
 				self.end = self.start + hesitatetime
 			self.image = self.widget.image.copy()
-			self.index = 0
+			self.hindex = 0
+			self.vindex = 0
 			self.updatesize()
+
+			# Set height and width for expanded image
+			self.eheight = self.widget.size[1] if self.direction in [u'left',u'right'] else self.widget.size[1]+gap
+			self.ewidth = self.widget.size[0]+gap if self.direction in [u'left',u'right'] else self.widget.size[0]
+
+			# Update image using current index values
+			self.expanded_image = self.widget.image.copy().crop( (0,0,self.ewidth,self.eheight) )
+			self.image = self.expanded_image.copy()
+			self.image.paste( self.widget.image, (0,0) )
 
 			# Check to see if scrolling is needed
 			if self.direction in ['left','right']:
@@ -867,74 +895,51 @@ class gwidget(widget):
 					self.shouldscroll = True
 				else:
 					self.shouldscroll = False
-
-			if self.shouldscroll:
-				# Expand canvas
-				if direction in ['left','right']:
-					self.image = Image.new("1", (self.widget.size[0]+gap, self.widget.size[1]))
-					self.image.paste(self.widget.image, (0,0))
-					self.updatesize()
-				elif direction in ['up','down']:
-					self.image = Image.new("1", (self.widget.size[0], self.widget.size[1]+gap))
-					self.image.paste(self.widget.image, (0,0))
-					self.updatesize()
+			return True
 
 		# If Hesitate is needed or scrolling is not needed, return
 		if self.end > time.time() or not self.shouldscroll:
 			return retval
 
-		# Save region to be overwritten
-		# Move body
-		# Restore region to cleared space
-
-		image = self.image
-		width = self.image.size[0]
-		height = self.size[1]
-
 		if direction == u'left':
-			region = image.copy().crop((0,0, distance, height))
-			body = image.copy().crop((distance,0, width, height))
-			image.paste(body, (0,0))
-			image.paste(region, ((width-distance),0) )
-			if hesitatetype == u'onloop':
-				self.index += distance
-				if self.index >= width:
-					self.index = 0
-					self.start = time.time()
-					self.end = self.start + hesitatetime
+			self.hindex += distance
+			if self.hindex >= self.ewidth:
+				self.hindex = 0
 		elif direction == u'right':
-			region = image.copy().crop((width-distance,0, width, height))
-			body = image.copy().crop((0,0, width-distance, height))
-			image.paste(body, (distance,0) )
-			image.paste(region, (0,0) )
-			if hesitatetype == u'onloop':
-				self.index += distance
-				if self.index >= width:
-					self.index = 0
-					self.start = time.time()
-					self.end = self.start + hesitatetime
+			self.hindex -= distance
+			if self.hindex < 0:
+				self.hindex = self.ewidth
 		elif direction == u'up':
-			region = image.copy().crop((0,0, width, distance))
-			body = image.copy().crop((0,distance, width, height))
-			image.paste(body, (0,0) )
-			image.paste(region, (0,height-distance) )
-			if hesitatetype == u'onloop':
-				self.index += distance
-				if self.index >= height:
-					self.index = 0
-					self.start = time.time()
-					self.end = self.start + hesitatetime
+			self.vindex += distance
+			if self.vindex >= self.eheight:
+				self.vindex = 0
 		elif direction == u'down':
-			region = image.copy().crop((0,height-distance, width, height))
-			body = image.copy().crop((0,0, width, height-distance))
-			image.paste(body, (0,distance) )
-			image.paste(region, (0,0) )
-			if hesitatetype == u'onloop':
-				self.index += distance
-				if self.index >= height:
-					self.index = 0
-					self.start = time.time()
-					self.end = self.start + hesitatetime
+			self.vindex -= distance
+			if self.vindex < 0:
+				self.vindex = self.eheight
+
+		# Reset expanded_image
+		self.expanded_image = self.widget.image.copy().crop( (0,0,self.ewidth,self.eheight) )
+
+		print "Expanded_image size {0}".format(self.expanded_image.size)
+
+		# Update image using current index values
+		if direction in [u'left',u'right']:
+			hregion = self.expanded_image.crop( (0,0,self.hindex,self.eheight) )
+			hbody = self.expanded_image.crop( (self.hindex,0,self.ewidth,self.eheight) )
+			print "hregion size {0}, hbody size {1}".format(hregion.size, hbody.size)
+			self.image.paste( hbody, (0,0) )
+			self.image.paste( hregion, (self.ewidth - self.hindex, 0) )
+		elif direction in [u'up',u'down']:
+			vregion = expanded_image.crop( (0,0,self.ewidth,self.vindex) )
+			vbody = expanded_image.crop( (0,self.vindex,self.ewidth,self.eheight) )
+			self.image.paste( vbody, (0,0) )
+			self.image.paste( vregion, (0, self.eheight - self.vindex) )
+
+		if hesitatetype == u'onloop' and ( (self.hindex == 0 and self.direction in [u'left',u'right']) or (self.vindex == 0 and self.direction in [u'up',u'down'])):
+			print "Reseting timer with hindex {0}, vindex {1}".format(self.hindex, self.vindex)
+			self.start = time.time()
+			self.end = self.start + hesitatetime
 
 		return True
 
@@ -1110,9 +1115,13 @@ class display_controller(object):
 		try:
 			for k,v in self.pages.FONTS.iteritems():
 				fontfile = v['file'] if 'file' in v else ''
+				isdefault = v['default'] if 'default' in v else False
 				if fontfile:
 	#				try:
+					logging.debug('Loading font {0}'.format(k))
 					v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
+					if isdefault:
+						self.defaultfontpkg = v['fontpkg']
 	#				except:
 						# Font load failed
 	#					logging.critical('Attempt to load font {0} failed'.format(fontfile))
@@ -1122,13 +1131,16 @@ class display_controller(object):
 			# No fonts specified
 			pass
 
-
+		if self.defaultfontpkg is None:
+			logging.critical('Must specify a default font.  Exiting...')
+			raise RuntimeError('Must specify a default font.  Exiting...')
 
 		try:
 			# Load images
 			for k,v in self.pages.IMAGES.iteritems():
 				imagefile = v['file'] if 'file' in v else ''
 				if imagefile:
+					logging.debug('Loading image {0}'.format(k))
 					try:
 						i_path = os.path.join(os.path.dirname(__file__), imagefile)
 						v['image'] = Image.open(i_path)
@@ -1148,12 +1160,16 @@ class display_controller(object):
 		self.loadwidgets(self.pages.CANVASES)
 		self.loadsequences(self.pages.SEQUENCES)
 
+		self.defaultwidget = gwidgetText('No active widgets', self.defaultfontpkg, {},[], True)
+
 
 	def loadwidgets(self, pageWidgets): # Load widgets. Return any widgets that could not be loaded because a widget contained within it was not found
 
 		# Load widgets
 		for k,v in pageWidgets.iteritems():
 			typeval = v['type'].lower() if 'type' in v else ''
+
+			logging.debug('Loading widget {0}'.format(k))
 
 			if typeval not in ['canvas', 'text', 'progressbar', 'progressimagebar', 'line', 'rectangle' ]:
 				if typeval:
@@ -1237,18 +1253,25 @@ class display_controller(object):
 						logging.warning('Canvas {0} attempted to add widget {1} but it was not found in the widget list'.format(k, wname))
 						continue
 
+					logging.debug("Adding widget '{0}' to canvas with size {1}".format(wname, widtoadd.size))
+
 					widget.add(widtoadd, (x,y))
 
+			logging.debug("Widget added with size {0}".format(widget.size))
 			# Add effect if requested
 			effect = v['effect'] if 'effect' in v else None
 			if effect != None:
+
 				try:
 					etype = effect[0]
+					logging.debug('Adding effect {0} to {1} which is currently size {2}'.format(etype,k,widget.size))
 				except IndexError:
+					logging.debug('Tried to add effect {0} but effect type not specified'.format(k))
 					etype = ''
 				if etype in ['scroll', 'popup']:
 					if etype == 'scroll':
 						widget = gwidgetScroll(widget, *effect[1:])
+						logging.debug("Scroll added with widget size {0}".format(widget.size))
 
 						# if the actual size of the widget is greater than the requested size then place the scroll object in a canvas to limit its display size
 						tw, th = size
@@ -1303,6 +1326,9 @@ class display_controller(object):
 					img = img.crop((0,0,w,h))
 				img.paste(wid.image,(0,0))
 
+		if img is None:
+			img = self.defaultwidget.image.copy()
+
 		if img is not None:
 			# Limit returned image to the display controllers size
 			x,y = self.size
@@ -1315,30 +1341,33 @@ class display_controller(object):
 
 #		for key,value in sorted(sequences.iteritems(), key=lambda (k,v): (v,k)):
 		for value in sequences:
+
 			conditional = value['conditional'] if 'conditional' in value else 'True'
 			coolingperiod = value['coolingperiod'] if 'coolingperiod' in value else 0
 			minimum = value['minimum'] if 'minimum' in value else 0
 			name = value['name'] if 'name' in value else 'name not provided'
 			coordinates = value['coordinates'] if 'coordinates' in value else (0,0)
 
+			logging.debug('Loading sequence {0}'.format(name))
+
 			newseq = sequence(conditional,self.db,self.dbp, coolingperiod, minimum, coordinates)
 			self.sequences.append(newseq)
 			canvases = value['canvases'] if 'canvases' in value else []
 			if canvases:
 				for c in canvases:
-					name = c['name'] if 'name' in c else ''
+					cname = c['name'] if 'name' in c else ''
 					duration = c['duration'] if 'duration' in c else 0
-					conditional = c['conditional'] if 'conditional' in c else 'True'
-					if name and duration and conditional:
-						widget = self.widgets[name] if name in self.widgets else None
+					cconditional = c['conditional'] if 'conditional' in c else 'True'
+					if cname and duration and cconditional:
+						widget = self.widgets[cname] if cname in self.widgets else None
 						if widget:
-							newseq.add(widget,duration, conditional)
+							newseq.add(widget,duration, cconditional)
 						else:
-							logging.warning('Trying to add widget {0} to sequence {1} but widget was not found'.format(name, key))
+							logging.warning('Trying to add widget {0} to sequence {1} but widget was not found'.format(cname, name))
 
 			# If no canvases were added to the sequence, remove it
 			if len(newseq.widgets) == 0:
-				logging.warning('Unable to create sequence {0}.  No widgets'.format(key))
+				logging.warning('Unable to create sequence {0}.  No widgets'.format(name))
 				del self.sequences[-1]
 
 def getframe(image,x,y,width,height):
@@ -1444,6 +1473,8 @@ if __name__ == '__main__':
 	elapsed = int(time.time()-starttime)
 	timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
+	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
+
 	db = {
 	 		'remaining':"423 oz remaining",
 			'name':"Rye IPA",
@@ -1481,10 +1512,15 @@ if __name__ == '__main__':
 		(30, 'weight', 50 ),
 		(30, 'remaining', '50 oz remaining'),
 		(60, 'state', 'stop'),
-		(70, 'state', 'play')
+		(70, 'state', 'play'),
+		(80, 'weight', 600 ),
+		(80, 'remaining', '600 oz remaining'),
+		(100, 'weight', 420 ),
+		(100, 'remaining', '420 oz remaining')
 	]
 
-	dc = display_controller('../pages_beer.py', db,dbp, (100, 16))
+	dc = display_controller()
+	dc.load('../pages_beer2.py', db,dbp, (100, 16))
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)

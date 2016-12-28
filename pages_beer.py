@@ -28,9 +28,9 @@ IMAGES = {
 
 WIDGETS = {
 	'name': { 'type':'text', 'format':'{0}', 'variables':['name'], 'font':'small','varwidth':True, 'effect':('scroll','left',1,20,'onloop',2,100) },
-	'description': { 'type':'text', 'format':'{0}', 'variables':['description'], 'font':'small','varwidth':True, 'size':(80,8), 'effect':('scroll','left',1,20,'onloop',2,80)},
+	'description': { 'type':'text', 'format':'{0}', 'variables':['description'], 'font':'small','varwidth':True, 'size':(80,8), 'effect':('scroll','left',5,20,'onloop',2,80)},
 	'remaining': { 'type':'text', 'format':'{0} ozs\nremaining', 'variables':['weight'], 'font':'small', 'varwidth':True, 'size':(80,16), 'just':'left' },
-	'remainingbar': { 'type':'progressimagebar', 'image':'keg', 'value':'weight', 'rangeval':(0,360), 'direction':'up' },
+	'remainingbar': { 'type':'progressimagebar', 'image':'keg', 'value':'weight', 'rangeval':(0,640), 'direction':'up' },
 	'abv': { 'type':'text', 'format':'{0}', 'variables':['ABV'], 'font':'small', 'varwidth':True, 'just':'right', 'size':(20,8) },
 	'empty': { 'type':'text', 'format':'{0} Almost Empty!!!', 'variables':['name'], 'font':'large', 'varwidth':True, 'effect': ('scroll','left',1,20,'onloop',2,60) },
 	'time': { 'type':'text', 'format':'{0}', 'variables':['time_formatted'], 'font':'large', 'just':'center', 'size':(100,16) },
@@ -58,8 +58,8 @@ SEQUENCES = [
 	{
 		'name':'seqBeer',
 		'canvases': [
-			{ 'name':'showname', 'duration':15, 'conditional':"True" },
-			{ 'name':'showremaining', 'duration':15, 'conditional':"True" }
+			{ 'name':'showname', 'duration':30, 'conditional':"True" },
+			{ 'name':'showremaining', 'duration':30, 'conditional':"True" }
 		],
 		'conditional': "True"
 	},
