@@ -93,8 +93,8 @@ class widget:
 	# Utility functions
 	def updatesize(self):
 		if self.image != None:
-			self.width = self.size[0]
-			self.height = self.size[1]
+			self.width = self.image.size[0]
+			self.height = self.image.size[1]
 			self.size = self.image.size
 		else:
 			self.width = 0
@@ -247,6 +247,9 @@ class gwidget(widget):
 		if self.type == 'text':
 			self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.size, self.just)
 			return True
+		elif self.type == 'image':
+			# Images are static so no need to refresh
+			return False
 		elif self.type == 'progressbar':
 			self.progressbar(self.value, self.rangeval, self.size, self.style)
 			return True
@@ -475,6 +478,31 @@ class gwidget(widget):
 	# 	#	file (unicode) -- filename of file to retrieve image from.  Must be located within the images directory.
 	# 	#	(h,w) (integer tuple) -- Bounds of the rectangle that image will be written into.  If set to 0, no restriction on size.
 	# 	return
+
+
+	# Image widget function
+	def image(self, image, size=(0,0)):
+		# Input
+		#	image (Image object)-- image to place within widget
+		#	size (integer tuple) -- size of widget.  If not provided then size will be the same as the provided image
+
+		self.image = image.copy()
+		self.type = 'image'
+
+		width, height = size
+
+		# If either dimension is empty, take the dimension from the actual image
+		if not width:
+			width = self.image.size[0]
+		if not height:
+			height = self.image.size[1]
+
+		# Resize image
+		self.image = self.image.crop( (0,0,width,height))
+
+		self.updatesize()
+
+		return self.image
 
 	# PROGRESSBAR widget function
 	def progressbar(self, value, rangeval, size, style=u'square'):
@@ -953,6 +981,11 @@ class gwidgetProgressImageBar(gwidget):
 		super(gwidgetProgressImageBar, self).__init__(variabledict)
 		self.progressimagebar(maskimage, value, rangeval, direction)
 
+class gwidgetImage(gwidget):
+	def __init__(self, image, size):
+		super(gwidgetImage, self).__init__()
+		self.image(image, size)
+
 class gwidgetLine(gwidget):
 	def __init__(self, (x,y), color=1):
 		super(gwidgetLine, self).__init__()
@@ -1207,6 +1240,13 @@ class display_controller(object):
 					logging.warning('Attempted to add progressimagebar widget {0} without a value or maskimage.  Skipping...'.format(k))
 					continue
 				widget = gwidgetProgressImageBar(maskimage, value, rangeval, direction, self.db)
+			elif typeval == 'image':
+				imagename = v['image'] if 'image' in v else ''
+				size = v['size'] if 'size' in v else None
+				if not imagename or not size:
+					logging.warning('Attempted to add image widget {0} without an image or size.  Skipping...'.format(k))
+					continue
+				widget = gwidgetImage(imagename, size)
 			elif typeval == 'line':
 				point = v['point'] if 'point' in v else None
 				color = v['color'] if 'color' in v else 1
@@ -1266,7 +1306,7 @@ class display_controller(object):
 				if etype in ['scroll', 'popup']:
 					if etype == 'scroll':
 						widget = gwidgetScroll(widget, *effect[1:])
-						logging.debug("Scroll added with widget size {0}".format(widget.size))
+						logging.debug("Scroll added with widget size {0}".format(widget.image.size))
 
 						# if the actual size of the widget is greater than the requested size then place the scroll object in a canvas to limit its display size
 						tw, th = size
