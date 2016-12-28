@@ -473,15 +473,8 @@ class gwidget(widget):
 
 		return self.image
 
-	# def image(self, file,(h,w)=(0,0)):
-	# 	# Input
-	# 	#	file (unicode) -- filename of file to retrieve image from.  Must be located within the images directory.
-	# 	#	(h,w) (integer tuple) -- Bounds of the rectangle that image will be written into.  If set to 0, no restriction on size.
-	# 	return
-
-
 	# Image widget function
-	def image(self, image, size=(0,0)):
+	def imagewidget(self, image, size=(0,0)):
 		# Input
 		#	image (Image object)-- image to place within widget
 		#	size (integer tuple) -- size of widget.  If not provided then size will be the same as the provided image
@@ -984,7 +977,7 @@ class gwidgetProgressImageBar(gwidget):
 class gwidgetImage(gwidget):
 	def __init__(self, image, size):
 		super(gwidgetImage, self).__init__()
-		self.image(image, size)
+		self.imagewidget(image, size)
 
 class gwidgetLine(gwidget):
 	def __init__(self, (x,y), color=1):
@@ -1199,7 +1192,7 @@ class display_controller(object):
 
 			logging.debug('Loading widget {0}'.format(k))
 
-			if typeval not in ['canvas', 'text', 'progressbar', 'progressimagebar', 'line', 'rectangle' ]:
+			if typeval not in ['canvas', 'text', 'progressbar', 'progressimagebar', 'line', 'rectangle', 'image' ]:
 				if typeval:
 					logging.warning('Attempted to add widget {0} with an unsupported widget type {1}.  Skipping...'.format(k,typeval))
 				else:
@@ -1242,11 +1235,13 @@ class display_controller(object):
 				widget = gwidgetProgressImageBar(maskimage, value, rangeval, direction, self.db)
 			elif typeval == 'image':
 				imagename = v['image'] if 'image' in v else ''
-				size = v['size'] if 'size' in v else None
-				if not imagename or not size:
-					logging.warning('Attempted to add image widget {0} without an image or size.  Skipping...'.format(k))
+				entry = self.pages.IMAGES[imagename] if imagename in self.pages.IMAGES else { }
+				image = entry['image'] if 'image' in entry else None
+				size = v['size'] if 'size' in v else (0,0)
+				if not image:
+					logging.warning('Attempted to add image widget {0} without an image.  Skipping...'.format(k))
 					continue
-				widget = gwidgetImage(imagename, size)
+				widget = gwidgetImage(image, size)
 			elif typeval == 'line':
 				point = v['point'] if 'point' in v else None
 				color = v['color'] if 'color' in v else 1
