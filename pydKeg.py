@@ -28,6 +28,7 @@ class keg_controller(threading.Thread):
 	# Includes all from kegdata class plus environmentals
 
 	kegdata_init = {
+		'state':u'play',
 		'name':u'',
 		'description':u'',
 		'ABV':0.0,
@@ -439,11 +440,11 @@ if __name__ == u'__main__':
 	lcd.message(pydKeg_config.STARTUP_MSG)
 
 
-	dc = displays.display.display_controller()
+	dc = displays.display.display_controller(pydKeg_config.DISPLAY_SIZE)
 	mc = keg_controller(services_list, dc, showupdates)
 	time.sleep(2)
 	mc.start()
-	dc.load(pagefile, mc.kegdata,mc.kegdata_prev, pydKeg_config.DISPLAY_SIZE)
+	dc.load(pagefile, mc.kegdata,mc.kegdata_prev)
 
 	try:
 		while True:

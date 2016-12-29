@@ -6,6 +6,20 @@
 from __future__ import unicode_literals
 
 import json, threading, logging, Queue, time, getopt, sys, logging
+import RPi.GPIO as GPIO
+from hx711 import HX711
+
+
+
+# HOW TO CALCULATE THE REFFERENCE UNIT
+# To set the reference unit to 1. Put 1kg on your sensor or anything you have and know exactly how much it weights.
+# In this case, 92 is 1 gram because, with 1 as a reference unit I got numbers near 0 without any weight
+# and I got numbers around 184000 when I added 2kg. So, according to the rule of thirds:
+# If 2000 grams is 184000 then 1000 grams is 184000 / 2000 = 92.
+#hx.set_reference_unit(1)
+#hx.set_reference_unit(92)
+#hx.set_reference_unit(10772)
+
 
 class kegdata():
 
@@ -40,6 +54,12 @@ class kegdata():
 		self.kegdata_prev = { }
 
 		print "Initializing keg data service"
+
+		self.hx = HX711(4,17)
+		self.hx.set_reading_format("LSB", "MSB")
+		self.hx.set_reference_unit(673)
+		self.hx.reset()
+		self.hx.tare()
 
 		# Now set up a thread to listen to the channel and update our data when
 		# the channel indicates a relevant key has changed
@@ -196,7 +216,7 @@ class kegdata():
 			# 	continue
 			self.status()
 			self.sendUpdate()
-			time.sleep(1)
+			time.sleep(5)
 
 
 	def status(self):
@@ -209,9 +229,14 @@ class kegdata():
 		self.kegdata[u'ABV'] = 7.5
 		self.kegdata[u'IBU'] = 23
 
-		if self.kegdata[u'weight'] == 0:
-			self.kegdata[u'weight'] = 5*64
-		self.kegdata[u'weight'] -= 1
+#		if self.kegdata[u'weight'] == 0:
+#			self.kegdata[u'weight'] = 5*64
+#		self.kegdata[u'weight'] -= 1
+
+        	self.kegdata[u'weight'] = int(self.hx.get_weight(10))
+		print "Weight is {0} in oz".format(self.kegdata[u'weight'])
+        	self.hx.power_down()
+        	self.hx.power_up()
 
 		self.validatekegvars(self.kegdata)
 
