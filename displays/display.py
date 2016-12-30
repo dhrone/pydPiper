@@ -7,6 +7,7 @@
 from __future__ import unicode_literals
 
 import math, abc, logging, time, imp, sys, os
+import moment
 from PIL import Image
 from PIL import ImageDraw
 import fonts
@@ -168,6 +169,7 @@ class widget:
 				# requires a moment object as input
 
 				tvalues = transforms[i].split('+')[1:]
+
 				if type(retval) is moment.core.Moment:
 
 					if len(tvalues) > 1:
@@ -197,18 +199,18 @@ class widget:
 					# Bad input provided
 					logging.debug(u'Expected a moment variable but received a {0}'.format(type(retval)))
 
-			elif transform_request in [ u'local' ]:
-				# requires a moment object as input
-
-				if type(retval) is moment.core.Moment:
-					try:
-						retval = retval.timezone(pydPiper_config.TIMEZONE)
-					except ValueError:
-						# Received bad timezone value
-						logging.debug("Cannot convert timezone.  Requested timezone ({0}) is not valid".format(pydPiper_config.TIMEZONE))
-				else:
-					# Bad input provided
-					logging.debug(u'Expected a moment variable but received a {0}'.format(type(retval)))
+#			elif transform_request in [ u'local' ]:
+#				# requires a moment object as input
+#
+#				if type(retval) is moment.core.Moment:
+#					try:
+#						retval = retval.timezone(pydPiper_config.TIMEZONE)
+#					except ValueError:
+#						# Received bad timezone value
+#						logging.debug("Cannot convert timezone.  Requested timezone ({0}) is not valid".format(pydPiper_config.TIMEZONE))
+#				else:
+#					# Bad input provided
+#					logging.debug(u'Expected a moment variable but received a {0}'.format(type(retval)))
 
 		return retval
 

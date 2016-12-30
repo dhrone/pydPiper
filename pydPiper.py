@@ -63,7 +63,7 @@ class music_controller(threading.Thread):
 		'disk_avail':0,
 		'disk_availp':0,
 		'current_time':u"",
-		'utc':None,
+		'utc':moment.utcnow(),
 		'current_time_sec':u"",
 		'current_time_formatted':u"",
 		'current_ip':u"",
