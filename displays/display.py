@@ -386,7 +386,7 @@ class gwidget(widget):
 		#	fontpkg (font object) -- The font that the message should be rendered in.
 		#	varwidth (bool) -- Whether the font should be shown monospaced or with variable pitch
 		#	size (integer tuple) -- Size of image if larger than text size
-		#	just (unicode) -- Determines how to justify the text horizontally.  Allowed values [ 'left','right','center' ]
+		#	just (unicode) -- Determines how to justify the text horizontally.  Allowed values [ 'left','right','center','centerchar' ]
 
 		# Save variables used for this text widget
 		self.currentvardict = { }
@@ -444,6 +444,15 @@ class gwidget(widget):
 					ax = 0
 				elif just == u'center':
 					ax = (maxw-cx)/2
+
+				# if this is a character mode display then we need to be careful not to split a character across the character boundary
+				elif just == u'centerchar':
+					# If the number of chars is even, then we should be ok
+					if cx % 2 == 0:
+						ax = (maxw-cx)/2
+					else:
+					# If it's odd though we'll get split so add another character worth of space to the calculation
+						ax = (maxw-cx-fx)/2
 				elif just == u'right':
 					ax = (maxw-cx)
 				self.image.paste(lineimage, (ax, cy))
@@ -486,6 +495,15 @@ class gwidget(widget):
 			ax = 0
 		elif just == u'center':
 			ax = (maxw-cx)/2
+
+		# if this is a character mode display then we need to be careful not to split a character across the character boundary
+		elif just == u'centerchar':
+			# If the number of chars is even, then we should be ok
+			if cx % 2 == 0:
+				ax = (maxw-cx)/2
+			else:
+			# If it's odd though we'll get split so add another character worth of space to the calculation
+				ax = (maxw-cx-fx)/2
 		elif just == u'right':
 			ax = (maxw-cx)
 		self.image.paste(lineimage, (ax, cy))
