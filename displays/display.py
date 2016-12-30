@@ -116,10 +116,10 @@ class widget:
 		retval = val
 		# Compute transforms
 		for i in range(1,len(transforms)):
-			transform_request = transforms[i].split(u'+')[0] # Pull request type away from variables
+			transform_request = transforms[i].split(u'+')[0].lower() # Pull request type away from variables
 			if transform_request in [u'onoff',u'truefalse',u'yesno']:
 				# Make sure input is a Boolean
-				if type(val) is bool:
+				if type(retval) is bool:
 
 					if transform_request == u'onoff':
 						retval = u'on' if val else u'off'
@@ -128,7 +128,7 @@ class widget:
 					elif transform_request == u'yesno':
 						retval = u'yes' if val else u'no'
 				else:
-					logging.debug(u"Request to perform boolean transform on {0} requires boolean input").format(name)
+					logging.debug(u"Request to perform boolean transform on {0} requires boolean input".format(name))
 					return val
 			elif transform_request in [u'int']:
 				try:
@@ -139,7 +139,7 @@ class widget:
 			elif transform_request in [u'upper',u'capitalize',u'title',u'lower']:
 				# These all require string input
 
-				if type(val) is str or type(val) is unicode:
+				if type(retval) is str or type(retval) is unicode:
 					if type(retval) is str:
 						retval = retval.decode()
 					if transform_request == u'upper':
@@ -151,7 +151,7 @@ class widget:
 					elif transform_request == u'lower':
 						retval = retval.lower()
 				else:
-					logging.debug(u"Request to perform transform on {0} requires string input").format(name)
+					logging.debug(u"Request to perform transform on {0} requires string input".format(name))
 					return val
 			elif transform_request in [ u'bigchars',u'bigplay' ]:
 				# requires a string input
