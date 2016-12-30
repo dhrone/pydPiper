@@ -229,14 +229,10 @@ class kegdata():
 		self.kegdata[u'ABV'] = 7.5
 		self.kegdata[u'IBU'] = 23
 
-#		if self.kegdata[u'weight'] == 0:
-#			self.kegdata[u'weight'] = 5*64
-#		self.kegdata[u'weight'] -= 1
-
-        	self.kegdata[u'weight'] = int(self.hx.get_weight(10))
+		self.kegdata[u'weight'] = int(self.hx.get_weight(10))
 		print "Weight is {0} in oz".format(self.kegdata[u'weight'])
-        	self.hx.power_down()
-        	self.hx.power_up()
+		self.hx.power_down()
+		self.hx.power_up()
 
 		self.validatekegvars(self.kegdata)
 

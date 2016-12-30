@@ -39,12 +39,12 @@ WIDGETS = {
 	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'tiny', 'varwidth':True, 'just':'left', 'size':(60,8)},
 	'volumebar': { 'type':'progressimagebar', 'image':'progbar','value':'volume', 'rangeval':(0,100) },
 	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(80,1) },
-	'showplay': { 'type':'text', 'format':'\0xe000 PLAY', 'font':'large', 'varwidth':True },
-	'showstop': { 'type':'text', 'format':'\0xe010 STOP', 'font':'large', 'varwidth':True },
-	'showrandom': { 'type':'text', 'format':'\0xe020 Random', 'font':'large', 'varwidth':True },
-	'showrepeatonce': { 'type':'text', 'format':'\0xe030 Repeat Once', 'font':'large', 'varwidth':True },
-	'showrepeatall': { 'type':'text', 'format':'\0xe040 Repeat All', 'font':'large', 'varwidth':True },
-	'temptoohigh': { 'type':'text', 'format':'\xe100 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'varwidth':True, 'effect':('scroll','left',1,20,'onstart',3,80) }
+	'showplay': { 'type':'text', 'format':'\0ue000 PLAY', 'font':'large', 'varwidth':True },
+	'showstop': { 'type':'text', 'format':'\0ue001 STOP', 'font':'large', 'varwidth':True },
+	'showrandom': { 'type':'text', 'format':'\0ue002 Random', 'font':'large', 'varwidth':True },
+	'showrepeatonce': { 'type':'text', 'format':'\0ue003 Repeat Once', 'font':'large', 'varwidth':True },
+	'showrepeatall': { 'type':'text', 'format':'\0ue004 Repeat All', 'font':'large', 'varwidth':True },
+	'temptoohigh': { 'type':'text', 'format':'\ue005 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'varwidth':True, 'effect':('scroll','left',1,20,'onstart',3,80) }
 }
 
 # Assemble the widgets into canvases.  Only needed if you need to combine multiple widgets together so you can produce effects on them as a group.

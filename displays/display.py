@@ -645,9 +645,12 @@ class gwidget(widget):
 			rvlow = rvhigh
 			rvhigh = t
 
-		if v < rvlow or v > rvhigh:
+		if v < rvlow :
 			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
 			v = rvlow
+		if v > rvhigh :
+			logging.debug("v out of range with value {0}.  Should have been between {1} and {2}".format(v,rvlow,rvhigh))
+			v = rvhigh
 
 		percent = (v - rvlow) / float((rvhigh - rvlow))
 

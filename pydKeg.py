@@ -134,7 +134,7 @@ class keg_controller(threading.Thread):
 								print repr(value)
 						print u"\n"
 
-				# Update kegdta_prev
+				# Update kegdata_prev
 				with self.kegdata_lock:
 					for item, value in self.kegdata.iteritems():
 						try:
