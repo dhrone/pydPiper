@@ -63,6 +63,7 @@ class music_controller(threading.Thread):
 		'disk_avail':0,
 		'disk_availp':0,
 		'current_time':u"",
+		'utc':None,
 		'current_time_sec':u"",
 		'current_time_formatted':u"",
 		'current_ip':u"",
@@ -253,6 +254,7 @@ class music_controller(threading.Thread):
 	def updatesystemvars(self):
 		while True:
 			try:
+				utc = moment.utcnow()
 				current_time_ampm = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%p").strip().decode()
 				if pydPiper_config.TIME24HOUR == True:
 					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M").strip().decode()
@@ -265,6 +267,7 @@ class music_controller(threading.Thread):
 				current_time = u"00:00"
 				current_time_sec = u"00:00:00"
 				current_time_ampm = u''
+				utc = None
 
 			current_ip = commands.getoutput(u"ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
@@ -385,6 +388,7 @@ class music_controller(threading.Thread):
 				self.musicdata[u'disk_used'] = used
 				self.musicdata[u'disk_usedp'] = usedp
 
+				self.musicdata[u'utc'] = utc
 				self.musicdata[u'time'] = current_time
 				self.musicdata[u'time_ampm'] = current_time_ampm
 				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed

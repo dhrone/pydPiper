@@ -131,15 +131,14 @@ FROM PYDPIPER CONTROLLER
 
 System Information
 ------------------
+utcnow (moment object)
+  Description - The current time in coordinated universal time
+	Values -- A moment object containing the current time
+
 time (unicode)
   Description - Simple formatted display of time (affected by TIMEZONE setting)
   Values - "3:22p", "23:59"
   Previously called - current_time
-
-time_formatted (unicode)
-  Description: Formatted version of time with the format being specified by a strftime key placed within the line that contains the time value
-  Values - (vary based upon strftime key) e.g. 'Oct 24 2016', 'Monday October 24', etc.
-  Previously called - current_time_formatted
 
 time_ampm (unicode)
   Description: displays 'AM' or 'PM' based upon the current system time_formatted
@@ -240,6 +239,13 @@ Input must be string
 |capitalize - converts first character of input to upper case
 |title - converts first character of every word to upper case
 |lower - converts input to lower case
+
+Time transforms
+--------------------------
+Input must be a moment object
+|timezone+tz - converts utc referenced moment object into an equivalant moment object in the timezone requested by the tz parameter
+|local - converts utc referenced moment object into an equivalant moment object in the local timezone (as specified in pydPiper_config.TIMEZONE variable)
+|strftime+s - converts moment object into string formated using the strftime format string provided in the s parameter
 
 Big Character transforms
 ------------------------

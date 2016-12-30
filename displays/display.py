@@ -101,6 +101,9 @@ class widget:
 			self.height = 0
 			self.size = (0,0)
 
+
+
+
 	def transformvariable(self, val, name):
 		# Implement transformation logic (e.g. |yesno, |onoff |upper |bigchars+0)
 		# Format of 'name' is the name of the transform preceded by a '|' and
@@ -153,43 +156,59 @@ class widget:
 				else:
 					logging.debug(u"Request to perform transform on {0} requires string input".format(name))
 					return val
-			elif transform_request in [ u'bigchars',u'bigplay' ]:
-				# requires a string input
-				# bigchars requires a variable to specify which line of the msg to return
 
+# Time transforms
+# --------------------------
+# Input must be a moment object
+# |timezone+tz - converts utc referenced moment object into an equivalant moment object in the timezone requested by the tz parameter
+# |local - converts utc referenced moment object into an equivalant moment object in the local timezone (as specified in pydPiper_config.TIMEZONE variable)
+# |strftime+s - converts moment object into string formated using the strftime format string provided in the s parameter
+
+			elif transform_request in [ u'timezone', u'strftime' ]:
+				# requires a moment object as input
 
 				tvalues = transforms[i].split('+')[1:]
+				if type(retval) is moment.core.Moment:
 
-				if len(tvalues) > 2:
-					# Safe to ignore but logging
-					logging.debug(u"Expected at most two but received {0} variables".format(len(values)))
+					if len(tvalues) > 1:
+						# Safe to ignore but logging
+						logging.debug(u"Expected one parameter but received {0}".format(len(values)))
 
-				if len(tvalues) == 0:
-					# Requires at least one variable to specify line so will return error in retval
-					logging.debug(u"Expected one but received no variables")
-					retval = u"Err"
+					if len(tvalues) == 0:
+						# Requires at least one variable to specify line so will return error in retval
+						logging.debug(u"Expected one parameter but received none")
+						retval = u"Err"
+					else:
+
+						if transform_request == u'timezone':
+							try:
+								retval = retval.timezone(tvalues[0])
+							except ValueError:
+								# Received bad timezone value
+								logging.debug("Cannot convert timezone.  Requested timezone ({0}) is not valid".format(tvalues[0]))
+
+						elif transform_request == u'strftime':
+							try:
+								retval = retval.strftime(tvalues[0])
+							except:
+								logging.debug(u"Cannot format moment.  Bad strftime value provided ({0})".format(tvalues[0]))
+								retval = u'Err'
 				else:
+					# Bad input provided
+					logging.debug(u'Expected a moment variable but received a {0}'.format(type(retval)))
 
-					if transform_request == u'bigchars':
-						try:
-							if len(tvalues) == 2: # Request to add spaces between characters
-								es = u"{0:<{1}}".format('',int(tvalues[1]))
-								val = es.join(val)
+			elif transform_request in [ u'local' ]:
+				# requires a moment object as input
 
-							retval = displays.fonts.size5x8.bigchars.generate(val)[int(tvalues[0])]
-						except (IndexError, ValueError):
-							logging.debug(u"Bad value or line provided for bigchar")
-							retval = u'Err'
-					elif transform_request == u'bigplay':
-						try:
-							if len(tvalues) == 2: # Request to add spaces between characters
-								es = u"{0:<{1}}".format('',int(tvalues[1]))
-								val = es.join(val)
-
-							retval = displays.fonts.size5x8.bigplay.generate(u'symbol')[int(tvalues[0])] + '  ' + displays.fonts.size5x8.bigplay.generate(u'page')[int(tvalues[0])]
-						except (IndexError, ValueError):
-							logging.debug(u"Bad value or line provided for bigplay")
-							retval = u'Err'
+				if type(retval) is moment.core.Moment:
+					try:
+						retval = retval.timezone(pydPiper_config.TIMEZONE)
+					except ValueError:
+						# Received bad timezone value
+						logging.debug("Cannot convert timezone.  Requested timezone ({0}) is not valid".format(pydPiper_config.TIMEZONE))
+				else:
+					# Bad input provided
+					logging.debug(u'Expected a moment variable but received a {0}'.format(type(retval)))
 
 		return retval
 
