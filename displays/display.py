@@ -266,7 +266,7 @@ class gwidget(widget):
 				return False
 
 		if self.type == 'text':
-			self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.size, self.just)
+			self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
 			return True
 		elif self.type == 'image':
 			# Images are static so no need to refresh
@@ -379,13 +379,13 @@ class gwidget(widget):
 
 		return ((maxw, maxh))
 
-	def text(self, formatstring, variables, fontpkg, varwidth = False, size=(0,0), just=u'left'):
+	def text(self, formatstring, variables, fontpkg, varwidth = False, specifiedsize=(0,0), just=u'left'):
 		# Input
 		# 	formatstring (unicode) -- format string
 		#	variables (unicode array) -- list of variables used to populate formatstring.  Variable values come from variabledict.
 		#	fontpkg (font object) -- The font that the message should be rendered in.
 		#	varwidth (bool) -- Whether the font should be shown monospaced or with variable pitch
-		#	size (integer tuple) -- Size of image if larger than text size
+		#	specifiedsize (integer tuple) -- Size to make image if larger than what is requird for the message size
 		#	just (unicode) -- Determines how to justify the text horizontally.  Allowed values [ 'left','right','center','centerchar' ]
 
 		# Save variables used for this text widget
@@ -398,13 +398,14 @@ class gwidget(widget):
 				logging.debug('Trying to save state of {0} but it was not found within database'.format(jv))
 				pass
 
-		# size parameters for future updates
+		# save parameters for future updates
 		self.type = u'text'
 		self.formatstring = formatstring
 		self.variables = variables
 		self.fontpkg = fontpkg
 		self.varwidth = varwidth
 		self.just = just
+		self.specifiedsize = specifiedsize
 
 		(fx,fy) = fontpkg['size']
 		cx = 0
@@ -429,7 +430,7 @@ class gwidget(widget):
 
 		# If a size was provided that is larger than what is required to display the text
 		# expand the image size as appropriate
-		width, height = size
+		width, height = specifiedsize
 		maxw = maxw if maxw > width else width
 		maxh = maxh if maxh > height else height
 		self.image = Image.new("1", (maxw, maxh), 0)
