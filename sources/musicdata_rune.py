@@ -164,18 +164,24 @@ class musicdata_rune(musicdata.musicdata):
 			self.musicdata[u'playlist_display'] = u"{0}/{1}".format(plp, plc)
 			self.musicdata[u'actPlayer'] = u"Spotify"
 			self.musicdata[u'tracktype'] = u"Spotify"
+			self.musicdata[u'stream'] = u'not webradio'
 
 		elif self.musicdata[u'actPlayer'] == u'MPD':
 			plp = self.musicdata[u'playlist_position'] = self.intn(status[u'song'])+1 if u'song' in status else 0
-			plc = self.musicdata[u'playlist_count'] = self.intn(status[u'playlistlength']) if u'playlistlength' in status else 0
+			plc = self.musicdata[u'playlist_length'] = self.intn(status[u'playlistlength']) if u'playlistlength' in status else 0
+
+			# For backwards compatibility
+			self.musicdata[u'playlist_count'] = self.musicdata[u'playlist_length']
 
 			self.musicdata[u'bitrate'] = u"{0} kbps".format(status[u'bitrate']) if u'bitrate' in status else u""
 
 			# if radioname is None then this is coming from a playlist (e.g. not streaming)
 			if status.get(u'radioname') == None:
 				self.musicdata[u'playlist_display'] = u"{0}/{1}".format(plp, plc)
+				self.musicdata[u'stream'] = u'not webradio'
 			else:
 				self.musicdata[u'playlist_display'] = u"Radio"
+				self.musicdata[u'stream'] = u'webradio'
 				# if artist is empty, place radioname in artist field
 				if self.musicdata[u'artist'] == u"" or self.musicdata[u'artist'] is None:
 					self.musicdata[u'artist'] = status[u'radioname'] if u'radioname' in status else u""
@@ -214,16 +220,20 @@ class musicdata_rune(musicdata.musicdata):
 		elif self.musicdata[u'actPlayer'] == u'Airplay':
 			self.musicdata[u'playlist_position'] = 1
 			self.musicdata[u'playlist_count'] = 1
+			self.musicdata[u'playlist_length'] = 1
 			self.musicdata[u'tracktype'] = u"Airplay"
 			self.musicdata[u'playlist_display'] = u"Aplay"
-
+			self.musicdata[u'stream'] = u'not webradio'
+		
 		else:
 			# Unexpected player type
 			logging.debug(u"Unexpected player type {0} discovered".format(actPlayer))
 			self.musicdata[u'playlist_position'] = 1
 			self.musicdata[u'playlist_count'] = 1
+			self.musicdata[u'playlist_length'] = 1
 			self.musicdata[u'tracktype'] = actPlayer
 			self.musicdata[u'playlist_display'] = u"Radio"
+			self.musicdata[u'stream'] = u'webradio'
 
 		# if duration is not available, then suppress its display
 		if int(self.musicdata[u'length']) > 0:
