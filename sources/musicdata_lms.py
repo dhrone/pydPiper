@@ -81,6 +81,7 @@ class musicdata_lms(musicdata.musicdata):
 		# Try up to 10 times to connect to LMS
 		self.connection_failed = 0
 		self.dataserver = None
+		self.dataplayer = None
 
 		logging.debug(u"Connecting to LMS service on {0}:{1}".format(self.server, self.port))
 
@@ -99,12 +100,12 @@ class musicdata_lms(musicdata.musicdata):
 						self.dataplayer = p
 						break
 				if self.dataplayer is None:
-					self.dataplayer = self.dataserver.get_players()[0]
+					if len(self.dataserver.get_players()) > 0:
+						self.dataplayer = self.dataserver.get_players()[0]
 					if self.dataplayer is None:
 						logging.critical(u"Could not find any LMS Players")
 						raise RuntimeError(u"Could not find any LMS Players")
 					self.player = str(self.dataplayer)
-
 				break
 			except (IOError, AttributeError, IndexError):
 				### Trying to debug services
@@ -235,7 +236,7 @@ class musicdata_lms(musicdata.musicdata):
 		elif plc == 1:
 			try:
 				# if streaming
-				if self.musicdata['duration'] == 0.0:
+				if self.musicdata['length'] == 0.0:
 					playlist_display = u"Radio"
 					self.musicdata[u'stream'] = u'webradio'
 				# it really is a short playlist
@@ -245,11 +246,11 @@ class musicdata_lms(musicdata.musicdata):
 			except KeyError:
 				logging.debug(u"In LMS couldn't get valid track information")
 				playlist_display = u""
-				self.musicdata[u'stream'] = u'not webradio' 
+				self.musicdata[u'stream'] = u'not webradio'
 		else:
 			logging.debug(u"In LMS track length is <= 0")
 			playlist_display = u""
-			self.musicdata[u'stream'] = u'' 
+			self.musicdata[u'stream'] = u''
 
 		self.musicdata[u'playlist_display'] = playlist_display
 
