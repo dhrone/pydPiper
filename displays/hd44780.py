@@ -68,22 +68,24 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 	LCD_5x8DOTS = 0x00
 
 	character_translation = [
-		  0,  1,  2,  3,  4,  5,  6,  7,  255, 165,  0,  0,  0,  0,  0,  0,	#0
-		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,	#16
+		  0,  1,  2,  3,  4,  5,  6,  7,255, -1, -1, -1, -1, -1, -1, -1,	#0
+		 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#16
 		 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,	#32
 		 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,	#48
 		 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,	#64
 		 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 97, 93, 94, 95,	#80
 		 96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,111,	#96
-		112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,  0,	#112
-		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,	#128
-		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,	#144
-		160,234,236,237, 32, 92,124, 32, 34, 32, 32,126, 32, 32, 32, 32,	#160
-		223, 32, 32, 32, 32,228, 32,176, 32, 32, 32,127, 32, 32, 32, 32,	#176
-		 65, 65, 65, 65, 65, 65, 32, 67, 69, 69, 69, 69, 73, 73, 73, 73,	#192
-		 32, 78, 79, 79, 79, 79, 79,235, 32, 85, 85, 85, 85, 89, 32,226,	#208
-		 97, 97, 97, 97,225, 97, 32, 99,101,101,101,101,105,105,105,105,	#224
-		111,238,111,111,111,111,239,253, 32,117,117,117,245,121, 32,121 ]	#240
+		112,113,114,115,116,117,118,119,120,121,122, -1,124,125,126,127,	#112
+		 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#128
+		 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#144
+
+
+		 32,234,236,237, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#160
+		223, -1, -1, -1, -1,228, -1,176, -1, -1, -1, -1, -1, -1, -1, -1,	#176
+		 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#192
+		 -1, 78, -1, -1, -1, -1, -1,235, -1, -1, -1, -1, -1, -1, -1,226,	#208
+		 -1, -1, -1, -1,225, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#224
+		 -1,238, -1, -1, -1, -1,239,253, -1, -1, -1, -1,245, -1, -1, -1 ]	#240
 
 
 
@@ -136,6 +138,35 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		# initialized as the parent class may attempt to load custom fonts
 		super(hd44780, self).__init__(rows,cols)
 
+	def createcustom(self, image):
+		# If there is space, create a custom character using the image provided
+		if self.currentcustom > 7:
+			return ord('?')
+
+		# Set pointer to position char in CGRAM
+		self.write4bits(self.LCD_SETCGRAMADDR+(self.currentcustom*8))
+
+		# Increment currentcustom to point to the next custom char position
+		self.currentcustom += 1
+
+		# The image should only be 5x8 but if larger, crop it
+		img = image.crop( (0,0,5,8) )
+
+		imgdata = list(img.convert("1").getdata())
+
+		# For each line of data from the image
+		for j in range(8):
+			line = 0
+			# Computer a five bit value
+			for i in range(5):
+				if imgdata[j*5+i]:
+					line |= 1<<i
+			# And then send it to the custom character memory region for the current customer character
+			self.write4bits(line, True)
+
+		# Return the custom character position.  We have to subtract one as we incremented it earlier in the function
+		return self.currentcustom - 1
+
 	def update(self, image):
 
 		# Make image the same size as the display
@@ -150,10 +181,16 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		# by comparing it against the font reverse lookup dictionary
 		# If you find a matching entry, output the cooresponding unicode value
 		# else output a '?' symbol
+		self.currentcustom = 0
 		for j in range(rows):
 			for i in range(cols):
 				imgdata = tuple(list(img.crop( (i*5, j*8, (i+1)*5, (j+1)*8) ).getdata()))
-				char = self.fp.imglookup[imgdata] if imgdata in self.imglookup else ord('?')
+				char = self.fp.imglookup[imgdata] if imgdata in self.gp.imglookup else self.createcustom(imgdata)
+
+				# Check to see if there is a character in the font table that matches.  If not, try to create a custom character for it.
+				char = self.character_translation[char] if self.character_translation[char] >= 0 else self.createcustom(imgdata)
+
+				# Write the resulting character value to the display
 				self.write4bits(self.character_translation[char], True)
 			self.write4bits(0xC0) # next line
 
@@ -323,36 +360,6 @@ if __name__ == '__main__':
 		time.sleep(4)
 
 		lcd.clear()
-
-
-
-		# Print large letters
-		for c in bigchars:
-			s = [ '', '' ]
-			for row in range(0,c['row']):
-				for col in range(0,c['col']):
-					s[row] += unichr(c['data'][row][col])
-			lcd.message(u"{0}  {1}\n{2}".format(s[0],c['char'],s[1]))
-			time.sleep(2)
-			lcd.clear()
-
-
-		# Print volume range
-		lcd.switchcustomchars(fonts.size5x8.volume.fontpkg)
-
-		for i in range (0,101,5):
-			volbar = volume_bar(i,
-				14,
-				fonts.size5x8.volume.e,
-				fonts.size5x8.volume.h,
-				fonts.size5x8.volume.f,
-				fonts.size5x8.volume.el,
-				fonts.size5x8.volume.er,
-				fonts.size5x8.volume.hr )
-			lcd.clear()
-			lcd.message("Volume {0}".format(i),0,0)
-			lcd.message("\x06 {0}".format(volbar),1,0)
-			time.sleep(.25)
 
 		time.sleep(2)
 
