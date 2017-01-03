@@ -237,9 +237,9 @@ class widget:
 		try:
 			segval = formatstring.format(*parms)
 		except:
-			logging.debug( u"Var Error Format {0}, Parms {1} Vars {2}".format(format, parms, vars) )
+			logging.debug( u"Var Error Format {0}, Parms {1} Vars {2}".format(formatstring, parms, variables) )
 			# Format doesn't match available variables
-			logging.debug(u"Var Error with parm type {0} and format type {1}".format(type(parms), type(format)))
+			logging.debug(u"Var Error with parm type {0} and format type {1}".format(type(parms), type(formatstring)))
 			segval = u"VarErr"
 
 		return segval

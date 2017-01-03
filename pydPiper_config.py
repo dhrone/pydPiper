@@ -1,6 +1,7 @@
 import logging
 
 # Messages
+STARTUP_LOGMSG = 'pydPiper starting'
 STARTUP_MSG_DURATION = 5  # Sets how long that system state 'starting' will be True
 
 # Display Parameters

@@ -20,12 +20,15 @@
 # Documenation for the similar Winstar WS0010 board currently available at
 # http://www.picaxe.com/docs/oled.pdf
 
+from __future__ import unicode_literals
+
 import time, math
 import RPi.GPIO as GPIO
 import lcd_display_driver
 import fonts
 import graphics as g
 from PIL import Image
+import logging
 
 
 class winstar_weg(lcd_display_driver.lcd_display_driver):
@@ -211,6 +214,7 @@ if __name__ == '__main__':
 	import graphics as g
 	import fonts
 	import display
+	import moment
 
 	def processevent(events, starttime, prepost, db, dbp):
 		for evnt in events:
@@ -222,6 +226,8 @@ if __name__ == '__main__':
 				elif prepost in ['post']:
 					dbp[var] = val
 
+
+	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', handlers=[logging.StreamHandler()], level=logging.DEBUG)
 
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
@@ -279,7 +285,7 @@ if __name__ == '__main__':
 			'outside_temp_min':48,
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
-			'state':'play',
+			'state':'stop',
 			'system_tempc':81.0
 		}
 
@@ -300,21 +306,22 @@ if __name__ == '__main__':
 			'outside_temp_min':48,
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
-			'state':'play',
+			'state':'stop',
 			'system_tempc':81.0
 		}
 
 	events = [
-		(10, 'title', 'Mixed Bizness'),
-		(20, 'volume', 80),
-		(30, 'title', 'I Never Loved a Man (The Way I Love You)'),
-		(30, 'artist', 'Aretha Franklin'),
-		(30, 'album', 'The Queen Of Soul'),
-		(60, 'state', 'stop'),
-		(80, 'state', 'play'),
-		(90, 'title', 'Do Right Woman, Do Right Man'),
-		(110, 'volume', 100),
-		(130, 'state', 'play' )
+		(15, 'state', 'play'),
+		(20, 'title', 'Mixed Bizness'),
+		(30, 'volume', 80),
+		(40, 'title', 'I Never Loved a Man (The Way I Love You)'),
+		(40, 'artist', 'Aretha Franklin'),
+		(40, 'album', 'The Queen Of Soul'),
+		(70, 'state', 'stop'),
+		(90, 'state', 'play'),
+		(100, 'title', 'Do Right Woman, Do Right Man'),
+		(120, 'volume', 100),
+		(140, 'state', 'play' )
 	]
 
 	try:
@@ -325,7 +332,7 @@ if __name__ == '__main__':
 		lcd = winstar_weg(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
 		lcd.message("pydPiper\nStarting",0,0,True)
-		time.sleep(10)
+		time.sleep(2)
 		lcd.clear()
 
 		starttime = time.time()
@@ -334,14 +341,7 @@ if __name__ == '__main__':
 
 		dc = display.display_controller((80,16))
 		f_path = os.path.join(os.path.dirname(__file__), 'pages_test.py')
-		dc.load(f_path, dbp,dbp_old )
-
-		starttime = time.time()
-		elapsed = int(time.time()-starttime)
-		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
-
-		import moment
-		# time.sleep(2)
+		dc.load(f_path, db,dbp )
 
 		starttime=time.time()
 		while True:
