@@ -207,52 +207,22 @@ class winstar_weg(lcd_display_driver.lcd_display_driver):
 		time.sleep(wait)
 
 if __name__ == '__main__':
-	def volume_bar(vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
-		# Algorithm for computing the volume lines
-		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
-		ppb = percentperblock = 100.0 / chars
+	import getopt,sys,os
+	import graphics as g
+	import fonts
+	import display
 
-		buffer = ''
-		i = 0
-		if vol_per <= (i+.25)*ppb:
-			buffer += chr(vle)
-		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-			buffer += chr(fh)
-		elif (i+.75)*ppb < vol_per:
-			buffer += chr(ff)
-		else:
-			# Shouldnt be here
-			logging.debug("Bad value in volume_bar")
-			buffer += 'Y'
+	def processevent(events, starttime, prepost, db, dbp):
+		for evnt in events:
+			t,var,val = evnt
 
-		for i in range(1, chars-1):
-			if vol_per <= (i+.25)*ppb:
-				buffer += chr(fe)
-			elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-				buffer += chr(fh)
-			elif (i+.75)*ppb < vol_per:
-				buffer += chr(ff)
-			else:
-				# Shouldnt be here
-				logging.debug("Bad value in volume_bar")
-				buffer += 'Y'
-
-		i = chars - 1
-		if vol_per <= (i+.25)*ppb:
-			buffer += chr(vre)
-		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-			buffer += chr(vrh)
-		elif (i+.75)*ppb < vol_per:
-			buffer += chr(ff)
-		else:
-			# Shouldnt be here
-			logging.debug("Bad value in volume_bar")
-			buffer += 'Y'
+			if time.time() - starttime >= t:
+				if prepost in ['pre']:
+					db[var] = val
+				elif prepost in ['post']:
+					dbp[var] = val
 
 
-		return buffer
-
-	import getopt,sys
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
 	except getopt.GetoptError:
@@ -262,7 +232,7 @@ if __name__ == '__main__':
 	# Set defaults
 	# These are for the wiring used by a Raspdac V3
 	rows = 16
-	cols = 100
+	cols = 80
 	rs = 7
 	e = 8
 	d4 = 25
@@ -291,12 +261,61 @@ if __name__ == '__main__':
 		elif opt in ("--d7"):
 			d7  = int(arg)
 
-#	import codecs
-#	if sys.stdout.encoding != 'UTF-8':
-#    		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
 
-	import display
+	db = {
+			'actPlayer':'mpd',
+			'playlist_position':1,
+			'playlist_length':5,
+	 		'title':"Nicotine & Gravy",
+			'artist':"Beck",
+			'album':'Midnight Vultures',
+			'elapsed':0,
+			'length':400,
+			'volume':50,
+			'stream':'Not webradio',
+			'utc': 	moment.utcnow(),
+			'outside_temp_formatted':'46\xb0F',
+			'outside_temp_max':72,
+			'outside_temp_min':48,
+			'outside_conditions':'Windy',
+			'system_temp_formatted':'98\xb0C',
+			'state':'play',
+			'system_tempc':81.0
+		}
 
+	dbp = {
+			'actPlayer':'mpd',
+			'playlist_position':1,
+			'playlist_length':5,
+	 		'title':"Nicotine & Gravy",
+			'artist':"Beck",
+			'album':'Midnight Vultures',
+			'elapsed':0,
+			'length':400,
+			'volume':50,
+			'stream':'Not webradio',
+			'utc': 	moment.utcnow(),
+			'outside_temp_formatted':'46\xb0F',
+			'outside_temp_max':72,
+			'outside_temp_min':48,
+			'outside_conditions':'Windy',
+			'system_temp_formatted':'98\xb0C',
+			'state':'play',
+			'system_tempc':81.0
+		}
+
+	events = [
+		(10, 'title', 'Mixed Bizness'),
+		(20, 'volume', 80),
+		(30, 'title', 'I Never Loved a Man (The Way I Love You)'),
+		(30, 'artist', 'Aretha Franklin'),
+		(30, 'album', 'The Queen Of Soul'),
+		(60, 'state', 'stop'),
+		(80, 'state', 'play'),
+		(90, 'title', 'Do Right Woman, Do Right Man'),
+		(110, 'volume', 100),
+		(130, 'state', 'play' )
+	]
 
 	try:
 		pins = [d4, d5, d6, d7]
@@ -309,88 +328,13 @@ if __name__ == '__main__':
 		time.sleep(10)
 		lcd.clear()
 
-
-		import graphics as g
-		import fonts
-		import display
-
 		starttime = time.time()
 		elapsed = int(time.time()-starttime)
 		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-		db_old = {
-		 		'title':"15 glasses left (240 oz)",
-				'artist':"Rye IPA",
-				'album':'7.2 ABV',
-				'playlist_display':'01/10',
-				'elapsed_formatted':timepos,
-				'time_formatted':'12:34p',
-				'outside_temp_formatted':'72\xb0F',
-	#			'outside_temp_formatted':'72F',
-				'outside_conditions':'Windy',
-				'volume':88,
-				'system_temp_formatted':'98\xb0C',
-				'streaming':False,
-				'state':'play',
-				'random':False,
-				'single':False,
-				'repeat':False,
-				'system_tempc':81.0
-			}
-
-		db = {
-		 		'remaining':"26 glasses left (423 oz)",
-				'name':"Bruce Springsteen",
-				'abv':'2:04/4:32',
-				'weight': 423,
-				'description':'Born to Run',
-				'time_formatted':'12:34p',
-				'outside_temp_formatted':'46\xb0F',
-	#			'outside_temp_formatted':'72F',
-				'outside_conditions':'Windy',
-				'system_temp_formatted':'98\xb0C',
-				'state':'play',
-				'system_tempc':81.0
-			}
-
-		dbp = {
-		 		'remaining':"26 glasses left (423 oz)",
-				'name':"Bruce Springsteen -- Born to Run",
-				'abv':'7.2 ABV',
-				'weight': 423,
-				'description':'Malty and bitter with an IBU of 72',
-				'time_formatted':'12:34p',
-				'outside_temp_formatted':'46\xb0F',
-	#			'outside_temp_formatted':'72F',
-				'outside_conditions':'Windy',
-				'system_temp_formatted':'98\xb0C',
-				'state':'play',
-				'system_tempc':81.0
-			}
-
-
-		dbp_old = {
-		 		'title':"15 glasses left (240 oz)",
-				'artist':"Rye IPA",
-				'album':'7.2 ABV',
-				'playlist_display':'01/10',
-				'elapsed_formatted':'1:32/4:03',
-				'time_formatted':'12:34p',
-				'outside_temp_formatted':'72\xb0F',
-	#			'outside_temp_formatted':'72F',
-				'outside_conditions':'Windy',
-				'volume':88,
-				'system_temp_formatted':'98\xb0C',
-				'streaming':False,
-				'state':'play',
-				'random':False,
-				'single':False,
-				'repeat':False,
-				'system_tempc':81.0
-			}
-
 		dc = display.display_controller((80,16))
-		dc.load('../pages.py', dbp,dbp_old )
+		f_path = os.path.join(os.path.dirname(__file__), 'pages_test.py')
+		dc.load(f_path, dbp,dbp_old )
 
 		starttime = time.time()
 		elapsed = int(time.time()-starttime)
@@ -402,14 +346,13 @@ if __name__ == '__main__':
 		starttime=time.time()
 		while True:
 			elapsed = int(time.time()-starttime)
-			timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
-			current_time = moment.utcnow().timezone('US/Eastern').strftime(u"%H:%M:%S").strip().decode()
-			db['elapsed_formatted'] = timepos
-			db['time_formatted'] = current_time
+			db['elapsed']=elapsed
+			db['utc'] = moment.utcnow()
+			processevent(events, starttime, 'pre', db, dbp)
 			img = dc.next()
+			processevent(events, starttime, 'post', db, dbp)
 			lcd.update(img)
-			if starttime + 60 < time.time():
-				db['state'] = 'stop'
+			time.sleep(.1)
 
 
 	except KeyboardInterrupt:
