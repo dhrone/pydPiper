@@ -7,12 +7,10 @@ A python program written for the Raspberry Pi that controls small LCD and OLED s
   * Supports multiple music distributions including Volumio (v1 and v2), RuneAudio, MoodeAudio, and Max2Play.
   * Screens are fully user definable
   * Supports a rich set of system and environmental variables including local weather
-  * Compatible with many OLED and LCD displays including
-    * HD44780 LCDs
-    * Winstar WEH character based displays
-    * Winstar WEG graphical displays
+  * Compatible with the Winstar WEH and WEG OLED displays
+    * Coming soon... HD44780 style LCD support
   * Fully graphics based in its backend allowing any arbritrary font, character set, or image to be displayed if the hardware supports it.
-  * For LCD character based displays leverages dynamically generated custom characters to support characters missing from the font table.  This feature can also be used to display some graphical content on character-based displays though this is limited by the small amount of memory available for customer characters on HD44780 based displays.
+    * Coming soon... For LCD character based displays will dynamically generated custom characters to support characters missing from the font table.  This feature can also be used to display some graphical content on character-based displays though this is limited by the small amount of memory available for customer characters on HD44780 based displays.
 
 ## Display configuration
 
@@ -49,11 +47,89 @@ This simple example will display the artist on the top line and the title on the
 
 ## Installation Instructions
 
-TBD
+These instructions provide a general description of what you need to do in order to get pydPiper up and running on your system.  Instructions specific to individual music distributions will eventually be provided in the docs directory.
 
+#### Step 1.  Download pydPiper to your system
+Log in to your system and issue the following commands to download the software and place it within the /usr/local/bin directory.  If you prefer to place it somewhere else, modify the location you untar it from accordingly.
+
+```
+sudo wgets https://github.com/dhrone/pydPiper/archive/v0.21-alpha.tar.gz
+sudo tar zxvf v0.21-alpha.tar.gz --directory /usr/local/bin
+cd /usr/local/bin/pydPiper-0.21-alpha
+```
+
+#### Step 2.  Install required python packages
+pydPiper relies upon several python packages that are not included with most of the music distributions.  These are...
+* moment -- Used to support the display of system time
+* python-mpd2 -- Used to support reading data from the MPD daemon (used by Volumio v1)
+* pyLMS -- Used to support pulling metadata from Logitecth Media Server (used by Max2Play)
+* redis -- Used to support pulling metadata from the redis in-memory database (used by RuneAudio)
+* pyOWM -- Used to retrieve weather data (optional)
+
+Most of these packages can be installed using pip (or pip2 on RuneAudio).  
+```
+sudo pip install moment
+sudo pip install python-mpd2
+sudo pip install pyLMS
+sudo pip install redis
+sudo pip install pyOWM
+```
+
+pydPiper also requires the Python Imaging Libary (PIL).  Your distribution may already have this installed.  If not, you will need to install python-imaging.
+```
+sudo apt-get install python-imaging
+```
+
+Note: It is ok to leave out packages not needed for your particular distribution.
+
+| Package     | Volumio v1 | Volumio v2 | RuneAudio | Max2Play | Moode    |
+|-------------|:----------:|:----------:|:---------:|:--------:|:--------:|
+| moment      | Yes        | Yes        | Yes       | Yes      | Yes      |
+| python-mpd2 | Yes        | No         | No        | No       | No       |
+| pyLMS       | No         | No         | No        | Yes      | No       |
+| redis       | No         | No         | Yes       | No       | No       |
+| pyOWM       | optional   | optional   | optional  | optional | optional |
+
+#### Step 3.  Modify pydPiper's configuration file to localize it to your installation
+You can use your preferred editor to edit pydPiper_config.py located in the root of the pydPiper installation.  For me this would be done using vi with the command.
+```
+sudo vi /usr/local/bin/pydPiper-0.21-alpha/pydPiper_config.py
+```
+The most important settings to adjust are the DISPLAY_PINS as your display will not operate correctly if any of them are incorrect.  If you are using an Audiophonics Raspdac V3, the provided values should be correct.  Otherwise you will need to set them up to match how you wired your display to your Raspberry Pi.
+
+You may also want to adjust ANIMATION_SMOOTHING if the display is scrolling too slow or too fast for your taste.  I found 0.15 to be a good value but some users have reported a preference for longer values.
+
+#### Step 4.  Run pydPiper
+Start pydPiper by running 'python pydPiper.py' followed by the music service you are using. As example...
+```
+sudo python pydPiper.py --rune
+```
+Will start pydPiper for the RuneAudio distribution.  Possible values are...
+
+| flag      | music source           |
+| --------- | :-------------------:  |
+| --rune    | RuneAudio              |
+| --lms     | Logitech Media Server  |
+| --volumio | Volumio V2             |
+| --mpd     | Music Player Daemon *  |
+| --spop    | Spotify Music Daemon * |
+* Used by Volumio and Moode only.  For those two systems you will want to specify both --mpd and --spop on the command line.
+
+You will also want to specify a pages file to load.  This is done using the --pages.  Example...
+```
+sudo python pydPiper.py --rune --pages 'pages_fixed.py'
+```
+If you do not specify a pages file, pydPiper will attempt to load 'pages.py' which is the default.
+
+At this point pydPiper should be up and running.  You can exit from the running program using Ctrl-C.
+
+If you want the pydPiper to start when the Raspberry Pi is booted you can add it to the start-up routine for your specific distribution.  Specific instructions for each distribution will eventually be provided in the docs folder.
+ 
 ## History
 
+Version 0.21 (Alpha). Minor bug fixes.
 Version 0.2 (Alpha).  Initial testing release.
+
 
 ## Credits
 
