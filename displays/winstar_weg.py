@@ -175,7 +175,7 @@ class winstar_weg(lcd_display_driver.lcd_display_driver):
 			raise IndexError
 
 		textwidget = display.gwidgetText(text, self.fp, {}, [], varwidth )
-		self.updateframe(nf.textwidget.image)
+		self.update(textwidget.image)
 
 	def update(self, image):
 
@@ -389,8 +389,8 @@ if __name__ == '__main__':
 				'system_tempc':81.0
 			}
 
-		dc = display.display_controller()
-		dc.load('../pages.py', dbp,dbp_old, (80,16))
+		dc = display.display_controller((80,16))
+		dc.load('../pages.py', dbp,dbp_old )
 
 		starttime = time.time()
 		elapsed = int(time.time()-starttime)

@@ -1,8 +1,15 @@
 # lcd_display_driver - base class for lcd or oled 16x2 or 20x4 displays
 
-import abc, fonts
+import abc, fonts, time
 import math
 from PIL import Image
+
+try:
+	import RPi.GPIO as GPIO
+	GPIO_INSTALLED=True
+except:
+	print "GPIO not installed"
+	GPIO_INSTALLED=False
 
 class lcd_display_driver:
 	__metaclass__ = abc.ABCMeta
@@ -26,18 +33,19 @@ class lcd_display_driver:
 
 	def write4bits(self, bits, char_mode=False):
 
-		GPIO.output(self.pin_rs, char_mode)
-		GPIO.output(self.pins_db[::-1][0], bits & 0x80)
-		GPIO.output(self.pins_db[::-1][1], bits & 0x40)
-		GPIO.output(self.pins_db[::-1][2], bits & 0x20)
-		GPIO.output(self.pins_db[::-1][3], bits & 0x10)
-		self.pulseEnable()
+		if GPIO_INSTALLED:
+			GPIO.output(self.pin_rs, char_mode)
+			GPIO.output(self.pins_db[::-1][0], bits & 0x80)
+			GPIO.output(self.pins_db[::-1][1], bits & 0x40)
+			GPIO.output(self.pins_db[::-1][2], bits & 0x20)
+			GPIO.output(self.pins_db[::-1][3], bits & 0x10)
+			self.pulseEnable()
 
-		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
-		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
-		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
-		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
-		self.pulseEnable()
+			GPIO.output(self.pins_db[::-1][0], bits & 0x08)
+			GPIO.output(self.pins_db[::-1][1], bits & 0x04)
+			GPIO.output(self.pins_db[::-1][2], bits & 0x02)
+			GPIO.output(self.pins_db[::-1][3], bits & 0x01)
+			self.pulseEnable()
 
 
 	def writeonly4bits(self, bits, char_mode=False):
@@ -45,12 +53,13 @@ class lcd_display_driver:
 		# Version of write that only sends a 4 bit value
 		if bits > 15: return
 
-		GPIO.output(self.pin_rs, char_mode)
-		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
-		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
-		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
-		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
-		self.pulseEnable()
+		if GPIO_INSTALLED:
+			GPIO.output(self.pin_rs, char_mode)
+			GPIO.output(self.pins_db[::-1][0], bits & 0x08)
+			GPIO.output(self.pins_db[::-1][1], bits & 0x04)
+			GPIO.output(self.pins_db[::-1][2], bits & 0x02)
+			GPIO.output(self.pins_db[::-1][3], bits & 0x01)
+			self.pulseEnable()
 
 
 	def delayMicroseconds(self, microseconds):
