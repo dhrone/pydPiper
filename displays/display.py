@@ -1208,7 +1208,7 @@ class display_controller(object):
 				if imagefile:
 					logging.debug('Loading image {0}'.format(k))
 					try:
-						i_path = os.path.join(os.path.dirname(__file__), imagefile)
+						i_path = os.path.join(os.path.dirname(__file__), 'images', imagefile)
 						v['image'] = Image.open(i_path)
 					except IOError:
 						logging.critical('Failed to open file {0} for image {1}'.format(i_path, k))
@@ -1474,11 +1474,20 @@ if __name__ == '__main__':
 	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
 
 	db = {
-	 		'title':"",
-			'artist':"Rye IPA",
-			'album':'7.2 ABV',
-			'utc': 	utc = moment.utcnow(),
+			'actPlayer':'mpd',
+			'playlist_position':1,
+			'playlist_length':5,
+	 		'title':"Nicotine & Gravy",
+			'artist':"Beck",
+			'album':'Midnight Vultures',
+			'elapsed':0,
+			'length':400,
+			'volume':50,
+			'stream':'Not webradio',
+			'utc': 	moment.utcnow(),
 			'outside_temp_formatted':'46\xb0F',
+			'outside_temp_max':72,
+			'outside_temp_min':48,
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
 			'state':'play',
@@ -1486,11 +1495,20 @@ if __name__ == '__main__':
 		}
 
 	dbp = {
-	 		'title':"423 oz remaining",
-			'artist':"Rye IPA",
-			'album':'7.2 ABV',
-			'utc': 	utc = moment.utcnow(),
+			'actPlayer':'mpd',
+			'playlist_position':1,
+			'playlist_length':5,
+	 		'title':"Nicotine & Gravy",
+			'artist':"Beck",
+			'album':'Midnight Vultures',
+			'elapsed':0,
+			'length':400,
+			'volume':50,
+			'stream':'Not webradio',
+			'utc': 	moment.utcnow(),
 			'outside_temp_formatted':'46\xb0F',
+			'outside_temp_max':72,
+			'outside_temp_min':48,
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
 			'state':'play',
@@ -1498,23 +1516,21 @@ if __name__ == '__main__':
 		}
 
 	events = [
-		(10, 'title', 'Belgian Ale'),
-		(10, 'abv', '8.4 ABV'),
-		(10, 'description', 'A heavy belgian ale with lots of malt.  IBU 32'),
-		(15, 'remaining', '390 oz remaining'),
-		(15, 'weight', 390 ),
-		(30, 'weight', 50 ),
-		(30, 'remaining', '50 oz remaining'),
+		(10, 'title', 'Mixed Bizness'),
+		(20, 'volume', 80),
+		(30, 'title', 'I Never Loved a Man (The Way I Love You)'),
+		(30, 'artist', 'Aretha Franklin'),
+		(30, 'album', 'The Queen Of Soul'),
 		(60, 'state', 'stop'),
-		(70, 'state', 'play'),
-		(80, 'weight', 600 ),
-		(80, 'remaining', '600 oz remaining'),
-		(100, 'weight', 420 ),
-		(100, 'remaining', '420 oz remaining')
+		(80, 'state', 'play'),
+		(90, 'title', 'Do Right Woman, Do Right Man'),
+		(110, 'volume', 100),
+		(130, 'state', 'play' )
 	]
 
-	dc = display_controller((100, 16))
-	dc.load('../pages_test.py', db,dbp )
+	f_path = os.path.join(os.path.dirname(__file__), 'pages_test.py')
+	dc = display_controller((80, 16))
+	dc.load(f_path, db,dbp )
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)
@@ -1522,14 +1538,15 @@ if __name__ == '__main__':
 
 	starttime=time.time()
 	while True:
-		elapsed = int(time.time()-starttime)
-		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
-		current_time = moment.utcnow().timezone('US/Eastern').strftime(u"%H:%M:%S").strip().decode()
-		db['elapsed_formatted'] = timepos
-		db['time_formatted'] = current_time
+		db['elapsed'] = int(time.time()-starttime)
+		# timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
+		# current_time = moment.utcnow().timezone('US/Eastern').strftime(u"%H:%M:%S").strip().decode()
+		# db['elapsed_formatted'] = timepos
+		# db['time_formatted'] = current_time
+
 		processevent(events, starttime, 'pre', db, dbp)
 		img = dc.next()
 		processevent(events, starttime, 'post', db, dbp)
-		frame = g.getframe( img, 0,0, 100,16 )
-		g.show( frame, 100, int(math.ceil(16/8.0)))
+		frame = g.getframe( img, 0,0, 80,16 )
+		g.show( frame, 80, int(math.ceil(16/8.0)))
 		time.sleep(.1)

@@ -4,7 +4,7 @@ import logging
 STARTUP_MSG_DURATION = 5  # Sets how long that system state 'starting' will be True
 
 # Display Parameters
-DISPLAY_DRIVER='lcd_display_driver_winstar_ws0010_graphics_mode'
+DISPLAY_DRIVER='winstar_weg'
 DISPLAY_WIDTH = 80 # the  width of the display
 DISPLAY_HEIGHT = 16 # the height of the display
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)

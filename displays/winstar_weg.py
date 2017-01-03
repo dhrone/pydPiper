@@ -28,7 +28,7 @@ import graphics as g
 from PIL import Image
 
 
-class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_display_driver):
+class winstar_weg(lcd_display_driver.lcd_display_driver):
 
 	# commands
 	LCD_CLEARDISPLAY = 0x01
@@ -137,7 +137,7 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 		# Set up parent class.  Note.  This must occur after display has been
 		# initialized as the parent class may attempt to load custom fonts
-		super(lcd_display_driver_winstar_ws0010_graphics_mode, self).__init__(rows,cols)
+		super(winstar_weg, self).__init__(rows,cols)
 
 
 	def clear(self):
@@ -161,50 +161,6 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		self.write4bits(self.LCD_SETCGRAMADDR | row)
 
 
-	def write4bits(self, bits, char_mode=False):
-
-		GPIO.output(self.pin_rs, char_mode)
-		GPIO.output(self.pins_db[::-1][0], bits & 0x80)
-		GPIO.output(self.pins_db[::-1][1], bits & 0x40)
-		GPIO.output(self.pins_db[::-1][2], bits & 0x20)
-		GPIO.output(self.pins_db[::-1][3], bits & 0x10)
-		self.pulseEnable()
-
-		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
-		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
-		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
-		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
-		self.pulseEnable()
-
-
-	def writeonly4bits(self, bits, char_mode=False):
-
-		# Version of write that only sends a 4 bit value
-		if bits > 15: return
-
-		GPIO.output(self.pin_rs, char_mode)
-		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
-		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
-		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
-		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
-		self.pulseEnable()
-
-
-	def delayMicroseconds(self, microseconds):
-		seconds = microseconds / 1000000.0 # divide microseconds by 1 million for seconds
-		time.sleep(seconds)
-
-
-	def pulseEnable(self):
-		# the pulse timing in the 16x2_oled_volumio 2.py file is 1000/500
-		# the pulse timing in the original version of this file is 10/10
-		# with a 100 post time for setting
-
-#		GPIO.output(self.pin_e, False)
-#		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
-		GPIO.output(self.pin_e, True)
-		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
-		GPIO.output(self.pin_e, False)
 
 
 	def loadcustomchars(self, char, fontdata):
@@ -300,7 +256,7 @@ if __name__ == '__main__':
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
 	except getopt.GetoptError:
-		print 'lcd_display_driver_winstar_weh001602a.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+		print 'winstar_weg.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
 		sys.exit(2)
 
 	# Set defaults
@@ -316,7 +272,7 @@ if __name__ == '__main__':
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'lcd_display_driver_winstar_weh001602a.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+			print 'winstar_weg.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
 			sys.exit()
 		elif opt in ("-r", "--rows"):
 			rows = int(arg)
@@ -347,7 +303,7 @@ if __name__ == '__main__':
 		print "Winstar OLED Display Test"
 		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins)
 
-		lcd = lcd_display_driver_winstar_ws0010_graphics_mode(rows,cols,rs,e,[d4, d5, d6, d7])
+		lcd = winstar_weg(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
 		lcd.message("pydPiper\nStarting",0,0,True)
 		time.sleep(10)

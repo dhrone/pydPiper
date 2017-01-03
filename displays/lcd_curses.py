@@ -9,7 +9,7 @@ import time, curses
 import lcd_display_driver
 
 
-class lcd_display_driver_curses(lcd_display_driver.lcd_display_driver):
+class lcd_curses(lcd_display_driver.lcd_display_driver):
 
 
 	def __init__(self, rows=2, cols=16 ):
@@ -25,7 +25,7 @@ class lcd_display_driver_curses(lcd_display_driver.lcd_display_driver):
 
 		# Set up parent class.  Note.  This must occur after display has been
 		# initialized as the parent class may attempt to load custom fonts
-		super(lcd_display_driver_curses, self).__init__(rows,cols)
+		super(lcd_curses, self).__init__(rows,cols)
 
 
 	def clear(self):
@@ -38,32 +38,6 @@ class lcd_display_driver_curses(lcd_display_driver.lcd_display_driver):
 	def setCursor(self, row, col):
 		self.curx = col
 		self.cury = row
-
-
-
-	def displayoff(self):
-		''' Turn the display off (quickly) '''
-		return
-
-	def displayon(self):
-		''' Turn the display on (quickly) '''
-		return
-
-	def cursoroff(self):
-		''' Turns the underline cursor on/off '''
-		return
-
-	def cursoron(self):
-		''' Cursor On '''
-		return
-
-	def blinkoff(self):
-		''' Turn off the blinking cursor '''
-		return
-
-	def blinkon(self):
-		''' Turn on the blinking cursor '''
-		return
 
 
 	def loadcustomchars(self, char, fontdata):
@@ -91,7 +65,7 @@ if __name__ == '__main__':
 
 	print "Curses Display Test"
 
-	lcd = lcd_display_driver_curses(2,16)
+	lcd = lcd_curses(2,16)
 	lcd.msgtest("Curses\nPi Powered",2)
 	lcd.msgtest("This is a driver\nused for testing",2)
 

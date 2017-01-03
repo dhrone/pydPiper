@@ -23,7 +23,7 @@ import fonts
 from PIL import Image
 
 
-class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
+class hd44780(lcd_display_driver.lcd_display_driver):
 
 	# commands
 	LCD_CLEARDISPLAY = 0x01
@@ -134,7 +134,7 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 
 		# Set up parent class.  Note.  This must occur after display has been
 		# initialized as the parent class may attempt to load custom fonts
-		super(lcd_display_driver_hd44780, self).__init__(rows,cols)
+		super(hd44780, self).__init__(rows,cols)
 
 	def update(self, image):
 
@@ -274,7 +274,7 @@ if __name__ == '__main__':
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
 	except getopt.GetoptError:
-		print 'lcd_display_driver_hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+		print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
 		sys.exit(2)
 
 	# Set defaults
@@ -290,7 +290,7 @@ if __name__ == '__main__':
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'lcd_display_driver_hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+			print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
 			sys.exit()
 		elif opt in ("-r", "--rows"):
 			rows = int(arg)
@@ -309,17 +309,13 @@ if __name__ == '__main__':
 		elif opt in ("--d7"):
 			d7  = int(arg)
 
-	#import codecs
-	#if sys.stdout.encoding != 'UTF-8':
-    #		sys.stdout = codecs.getwriter('utf-8')(sys.stdout, 'strict')
-
 	try:
 
 		pins = [d4, d5, d6, d7]
 		print "HD44780 LCD Display Test"
 		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins)
 
-		lcd = lcd_display_driver_hd44780(rows,cols,rs,e,[d4, d5, d6, d7])
+		lcd = hd44780(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
 		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 
@@ -328,54 +324,7 @@ if __name__ == '__main__':
 
 		lcd.clear()
 
-#		lcd.msgtest("72.3\xb0f or 32.1\xb0c", 4)
 
-#		accent_min = u"àáâãäçèéëêìíî \nïòóôöøùúûüþÿ"
-#		#for char in accent_min: print char, ord(char)
-#		lcd.message(accent_min)
-#		time.sleep(2)
-
-#		lcd.clear()
-
-#		accent_maj = u"ÀÁÂÆÇÈÉÊËÌÍÎÐ \nÑÒÓÔÕÙÚÛÜÝÞß"
-#		lcd.message(accent_maj)
-
-#		time.sleep(2)
-#		lcd.clear()
-
-#		lcd.msgtest("\x00 Stop")
-#		lcd.msgtest("\x01 Play")
-#		lcd.msgtest("\x02 Pause")
-#		lcd.msgtest("\x03 Ethernet")
-#		lcd.msgtest("\x04 Wireless")
-#		lcd.msgtest("\x05 Music")
-#		lcd.msgtest("\x06 Power")
-#		lcd.clear()
-
-#		lcd.switchcustomchars(fonts.size5x8.speaker.fontpkg)
-#		lcd.msgtest("\x00\x01 SPEAKER\n\x02\x03")
-#		lcd.switchcustomchars(fonts.size5x8.shuffle.fontpkg)
-#		lcd.msgtest("\x00\x01 SHUFFLE\n\x02\x03")
-#		lcd.switchcustomchars(fonts.size5x8.repeat_all.fontpkg)
-#		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 ALL")
-#		lcd.switchcustomchars(fonts.size5x8.repeat_once.fontpkg)
-#		lcd.msgtest("\x00\x01 REPEAT\n\x02\x03 SINGLE")
-
-
-		# Print large numbers
-#		lcd.clear()
-		lcd.switchcustomchars(fonts.size5x8.bigchars.fontpkg)
-		numbers = fonts.size5x8.bigclock.numbers
-		bigchars = fonts.size5x8.bigchars.bigchars
-#
-#		for n in range (0,10):
-#			s = [ '', '' ]
-#			for l in range (0,2):
-#				for p in range (0,3):
-#					s[l] += unichr(numbers[n][l][p])
-#			lcd.message(u"{0}\n{1}".format(s[0],s[1]))
-#			time.sleep(2)
-#
 
 		# Print large letters
 		for c in bigchars:
