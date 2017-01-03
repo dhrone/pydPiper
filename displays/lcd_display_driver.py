@@ -1,6 +1,8 @@
 # lcd_display_driver - base class for lcd or oled 16x2 or 20x4 displays
 
 import abc, fonts
+import math
+from PIL import Image
 
 class lcd_display_driver:
 	__metaclass__ = abc.ABCMeta
@@ -22,8 +24,95 @@ class lcd_display_driver:
 #			self.FONTS_SUPPORTED = False
 #			pass
 
+	def write4bits(self, bits, char_mode=False):
+
+		GPIO.output(self.pin_rs, char_mode)
+		GPIO.output(self.pins_db[::-1][0], bits & 0x80)
+		GPIO.output(self.pins_db[::-1][1], bits & 0x40)
+		GPIO.output(self.pins_db[::-1][2], bits & 0x20)
+		GPIO.output(self.pins_db[::-1][3], bits & 0x10)
+		self.pulseEnable()
+
+		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
+		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
+		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
+		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
+		self.pulseEnable()
 
 
+	def writeonly4bits(self, bits, char_mode=False):
+
+		# Version of write that only sends a 4 bit value
+		if bits > 15: return
+
+		GPIO.output(self.pin_rs, char_mode)
+		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
+		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
+		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
+		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
+		self.pulseEnable()
+
+
+	def delayMicroseconds(self, microseconds):
+		seconds = microseconds / 1000000.0 # divide microseconds by 1 million for seconds
+		time.sleep(seconds)
+
+
+	def pulseEnable(self):
+		# the pulse timing in the 16x2_oled_volumio 2.py file is 1000/500
+		# the pulse timing in the original version of this file is 10/10
+		# with a 100 post time for setting
+
+#		GPIO.output(self.pin_e, False)
+#		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
+		GPIO.output(self.pin_e, True)
+		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
+		GPIO.output(self.pin_e, False)
+
+
+	def getframe(self,image,x,y,width,height):
+		# Returns an array of arrays
+		# [
+		#   [ ], # Array of bytes for line 0
+		#   [ ]  # Array of bytes for line 1
+		#				 ...
+		#   [ ]  # Array of bytes for line n
+		# ]
+
+		# Select portion of image to work with
+		img = image.convert("1")
+
+		width, height = img.size
+		bheight = int(math.ceil(height / 8.0))
+		imgdata = list(img.getdata())
+
+
+		retval = []	# The variable to hold the return value (an array of byte arrays)
+		retline = [0]*width # Line to hold the first byte of image data
+		bh = 0 # Used to determine when we've consumed a byte worth of the line
+
+		# Perform a horizontal iteration of the image data
+		for i in range(0,height):
+			for j in range(0,width):
+				# if the value is true then mask a bit into the byte within retline
+				if imgdata[(i*width)+j]:
+					try:
+						retline[j] |= 1<<bh
+					except IndexError as e:
+						# WTF
+						print "width = {0}".format(width)
+						raise e
+			# If we've written a full byte, start a new retline
+			bh += 1
+			if bh == 8: # We reached a byte boundary
+				bh = 0
+				retval.append(retline)
+				retline = [0]*width
+		if bh > 0:
+			retval.append(retline)
+
+		return retval
+		
 	def switchcustomchars(self, fontpkg):
 		if self.FONTS_SUPPORTED:
 			try:
@@ -44,35 +133,6 @@ class lcd_display_driver:
 		# clears the display
 		return
 
-	@abc.abstractmethod
-	def displayon(self):
-		# turns the display on
-		return
-
-	@abc.abstractmethod
-	def displayoff(self):
-		# turns the display off
-		return
-
-	@abc.abstractmethod
-	def cursoron(self):
-		# turns the cursor on
-		return
-
-	@abc.abstractmethod
-	def cursoroff(self):
-		# turns the cursor off
-		return
-
-	@abc.abstractmethod
-	def blinkon(self):
-		# turns blnking on
-		return
-
-	@abc.abstractmethod
-	def blinkoff(self):
-		# turns blinking off
-		return
 
 	def command(self, cmd):
 		# Sends a command to the display

@@ -16,10 +16,11 @@
 # http://web.alfredstate.edu/weimandn/lcd/lcd_initialization/lcd_initialization_index.html
 #
 
-import time
+import time, math
 import RPi.GPIO as GPIO
 import lcd_display_driver
 import fonts
+from PIL import Image
 
 
 class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
@@ -98,6 +99,9 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 
 		self.FONTS_SUPPORTED = True
 
+		# Initialize the default font
+		font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
+		self.fp = font.fontpkg
 
 		# Sets the values to offset into DDRAM for different display lines
 		self.row_offsets = [ 0x00, 0x40, 0x14, 0x54 ]
@@ -132,6 +136,26 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 		# initialized as the parent class may attempt to load custom fonts
 		super(lcd_display_driver_hd44780, self).__init__(rows,cols)
 
+	def update(self, image):
+
+		# Make image the same size as the display
+		img = image.crop( (0,0,self.cols*5, self.rows*8))
+
+		# Make image black and white
+		img = img.convert("1")
+
+		self.clear()
+
+		# For each character sized cell from image, try to determine what character it is
+		# by comparing it against the font reverse lookup dictionary
+		# If you find a matching entry, output the cooresponding unicode value
+		# else output a '?' symbol
+		for j in range(rows):
+			for i in range(cols):
+				imgdata = tuple(list(img.crop( (i*5, j*8, (i+1)*5, (j+1)*8) ).getdata()))
+				char = self.fp.imglookup[imgdata] if imgdata in self.imglookup else ord('?')
+				self.write4bits(self.character_translation[char], True)
+			self.write4bits(0xC0) # next line
 
 	def clear(self):
 		# Set cursor back to 0,0
@@ -150,115 +174,6 @@ class lcd_display_driver_hd44780(lcd_display_driver.lcd_display_driver):
 			row = self.rows - 1 # we count rows starting w/0
 
 		self.write4bits(self.LCD_SETDDRAMADDR | (col + self.row_offsets[row]))
-
-
-	def displayoff(self):
-		''' Turn the display off (quickly) '''
-
-		self.displaycontrol &= ~self.LCD_DISPLAYON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def displayon(self):
-		''' Turn the display on (quickly) '''
-
-		if not self.simulate:
-			self.displaycontrol |= self.LCD_DISPLAYON
-			self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def cursoroff(self):
-		''' Turns the underline cursor on/off '''
-
-		self.displaycontrol &= ~self.LCD_CURSORON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def cursoron(self):
-		''' Cursor On '''
-
-		self.displaycontrol |= self.LCD_CURSORON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def blinkoff(self):
-		''' Turn off the blinking cursor '''
-
-		self.displaycontrol &= ~self.LCD_BLINKON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-	def blinkon(self):
-		''' Turn on the blinking cursor '''
-
-		self.displaycontrol |= self.LCD_BLINKON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-	def write4bits(self, bits, char_mode=False):
-
-		''' Send command to LCD '''
-		#self.delayMicroseconds(1000) # 1000 microsecond sleep
-
-		# take the value, convert to a binary string and then zero fill
-		# Note that the beginning of a bits return is 0b so [2:] used to strip that out
-		bits = bin(bits)[2:].zfill(8)
-
-		# Set as appropriate for character vs command mode
-		GPIO.output(self.pin_rs, char_mode)
-
-		# Zero the data pins
-		for pin in self.pins_db:
-			GPIO.output(pin, False)
-
-		# From left to right, if the bit value is 1, set the corresponding GPIO pin
-		for i in range(4):
-			if bits[i] == "1":
-				GPIO.output(self.pins_db[::-1][i], True)
-
-		self.pulseEnable()
-
-		for pin in self.pins_db:
-			GPIO.output(pin, False)
-
-		# Now set the low order bits
-		for i in range(4, 8):
-			if bits[i] == "1":
-				GPIO.output(self.pins_db[::-1][i - 4], True)
-
-		self.pulseEnable()
-
-	def writeonly4bits(self, bits, char_mode=False):
-
-			# Version of write that only sends a 4 bit value
-			if bits > 15: return
-
-			bits = bin(bits)[2:].zfill(4)
-
-			GPIO.output(self.pin_rs, char_mode)
-
-			for pin in self.pins_db:
-				GPIO.output(pin, False)
-
-			for i in range(4):
-				if bits[i] == "1":
-					GPIO.output(self.pins_db[::-1][i], True)
-			self.pulseEnable()
-
-
-	def delayMicroseconds(self, microseconds):
-		seconds = microseconds / 1000000.0 # divide microseconds by 1 million for seconds
-		time.sleep(seconds)
-
-
-	def pulseEnable(self):
-		# the pulse timing in the 16x2_oled_volumio 2.py file is 1000/500
-		# the pulse timing in the original version of this file is 10/10
-		# with a 100 post time for setting
-
-		GPIO.output(self.pin_e, False)
-		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
-		GPIO.output(self.pin_e, True)
-		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
-		GPIO.output(self.pin_e, False)
 
 
 	def loadcustomchars(self, char, fontdata):

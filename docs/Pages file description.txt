@@ -1,0 +1,108 @@
+The configuration of the display uses a display-list style metaphor (https://en.wikipedia.org/wiki/Display_list). The core elements of the design are widgets, canvases, and sequences.
+
+A widget is a foundational element that describes a type of content to be displayed
+A canvas contains a set of widgets that have been drawn into it
+A sequence contains a set of canvases (or widgets) to display under certain circumstances
+
+Widgets
+An element to place on a canvas.
+	name -- Name of the widget.  Used to refer to the widget when including it in a canvas
+	type -- type of display object to render
+		Choice from...
+
+		text
+			formatstring -- format string to structure text content
+			variables -- array of variable names to combine with format string
+			font -- the name of font to use for rendering the widget.  Must be loaded in the FONTS section.
+			specifiedsize -- Sets the minimum size of the widget.
+			just -- Sets the horizontal justification of the widget.  Accepted values are ('left', 'right', 'center')
+		image
+			image -- name of the image to display.  Must be loaded in the IMAGES section
+			size (x,y)-- if provided, crops the image
+		progressbar
+			value -- The value used to compute how complete the progressbar is.  Can be a variable or a static number.
+			rangeval (x,y) -- The beginning and end of the range of values possible for the progressbar.  Either number can be static or a variable value.
+			size (w,h) -- how tall and wide the bar should be in pixels
+		progressimagebar
+			image -- The image template to use for the progressbar.  Must be loaded in the Image section.  The image must have a transparent region to fill.
+			value -- The value used to compute how complete the progressbar is.  Can be a variable or a static number.
+			rangeval (x,y) -- The beginning and end of the range of values possible for the progressbar.  Either number can be static or a variable value.
+			size - (w,h) how tall and wide the bar should be in pixels
+		line
+			point (x,y) -- Draw line from origin (0,0) to point
+			color -- Color to draw line.  Accepted values are (0-black, 1-white).
+		rectangle
+			point (x,y) -- Draw rectangle from origin (0,0) to point.
+			fill -- Color of the interior of the rectangle. Accepted values are (0-black, 1-white).
+			outline -- Color of the line used to draw the border of the rectangle. Accepted values are (0-black, 1-white).
+
+Canvases
+A type of widget used to contain other widgets.  Allows composite displays to be built.
+
+	name -- Name of the canvas.  Used to refer to the canvas when placing it within a sequence.
+	size (x,y) -- Size of the canvas.
+	widgets -- List of widgets to be placed onto the canvas.  List is composed of a set of 3-tuples (name,x,y)
+		name -- Name of the widget to add to the canvas
+		x -- x coordinate to place widget
+		y -- y coordinate to place widget
+
+Effects
+Effects can be added to any widget or canvas and transform the widget according to the type of effect requested.  To add an effect to a widget or canvas, add a new key called 'effect' to the widget with a tuple containing that effects parameters as it's value.
+
+	scroll
+		direction -- Direction to scroll the widget.  Accepted values are ('left', 'right', 'up', 'down')
+		distance -- The number of pixels to scroll during each update.
+		gap -- The number of pixels to add between the end and the beginning of the widget.
+		hesitatetype -- Determines when the scroll effect should be paused.  Accepted values are ('none', 'onloop', 'onstart')
+			none -- Do not hesistate
+			onloop -- Hesistate everytime a complete loop is acheived
+			onstart -- Hesitate when the widget is initially displayed
+		hesitatetime -- How long to hesitate in seconds
+		threshold -- Only scroll if widget is larger than threshold.  Applies to horizontal size if 'left' or 'right' or vertical size if 'up' or 'down'
+
+		IMPORTANT: when scrolling horizontally character displays should be scrolled with a distance divisible by 5 to avoid having content split between character cells.  They should also have a gap that is divisible by 5.
+
+	popup.  Creates an effect where the widget is scrolled from it's top to its bottom and back periodically.
+		dheight -- The height in pixels of the widget to 'pop'
+		duration -- How long to stay focused at the top of the widget
+		pduration -- How long to stay focused on the bottom of the widget
+
+		IMPORTANT: If you are using a character display you should stick to dheights that are divisible by 8
+
+
+Sequence
+Determine the order to display a set of pages
+
+name -- Name of sequence
+conditional -- When should this sequence be active
+coolingperiod -- Length of time this sequence should be inactive after being active
+minimum -- The minimum time this sequence should be active once activated.  Prevents an alert style message from being overridden.
+canvases -- An ordered list of canvases to display when the sequence is activated.  Each is specified in a tuple containing...
+	name -- The name of the canvas (or widget) to include in the sequence
+	duration -- How long should this canvas be displayed when it is it's turn
+	conditional -- Determines whether the canvas should be displayed when it's turn occurs.  Defaults to True if not provided.
+
+	Conditionals express a boolean that is used to make display decisions. Each conditional is a string that contains the boolean expression to evaluate.  Variable names can be included using the db and dbp dictionaries.  To reference a variable from the current system state us db (e.g. db['state']).  To reference a variable from the state just prior to current state use dbp (e.g. dbp['state']).  dbp is used to allow conditionals which detect changes to system state.  Example...
+	  db['state'] != dbp['state'] and db['state']=='play'
+	would be true if the state has changed and the system is now in 'play' state.
+
+
+FONTS
+Specifies the set of fonts that will be used to render text within a text widget.
+
+name -- Name to use for the font
+default - Is this the default font for this system.  Acceptable values are (True or False).  One font MUST be selected as default.
+file -- Filename for the font.  Currently support fonts are...
+	latin1_5x8 -- A 5 pixel by 8 pixel font which includes a complete latin-1 character set
+	latin1_5x8_fixed -- A version of latin1_5x8 suitable for character based displays
+	Vintl01_10x16 -- A 10 pixel by 16 pixel font derived from http://dwarffortresswiki.org/index.php/Tileset_repository.  Includes the complete latin-1 character set.
+	Vintl01_10x16_fixed -- A version of Vintl01_10x16 suitable for character based displays
+	upperascii_3x5 -- A 3 pixel by 5 pixel font.  Uppercase characters only!
+	upperasciiwide_3x5 -- A 5x5 version of upperascii suitable for character based displays.
+size (x,y)-- The normal size in pixels of the selected font.  This will likely be deprecated in the future.
+
+IMAGES
+Specifies images to load.  Used in progressimagebar and image widgets.
+
+name -- Name to use for the image
+file -- The filename of the image.  Should be place within the displays directory.

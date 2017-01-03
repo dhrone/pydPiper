@@ -379,7 +379,7 @@ class gwidget(widget):
 
 		return ((maxw, maxh))
 
-	def text(self, formatstring, variables, fontpkg, varwidth = False, specifiedsize=(0,0), just=u'left'):
+	def text(self, formatstring, variables, fontpkg, varwidth = True, specifiedsize=(0,0), just=u'left'):
 		# Input
 		# 	formatstring (unicode) -- format string
 		#	variables (unicode array) -- list of variables used to populate formatstring.  Variable values come from variabledict.
@@ -1003,7 +1003,7 @@ class gwidget(widget):
 		return True
 
 class gwidgetText(gwidget):
-	def __init__(self, formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'):
+	def __init__(self, formatstring, fontpkg, variabledict={ }, variables =[], varwidth = True, size=(0,0), just=u'left'):
 		super(gwidgetText, self).__init__(variabledict)
 		self.text(formatstring, variables, fontpkg, varwidth, size, just)
 
@@ -1250,7 +1250,7 @@ class display_controller(object):
 				font = v['font'] if 'font' in v else ''
 				just = v['just'] if 'just' in v else 'left'
 				size = v['size'] if 'size' in v else (0,0)
-				varwidth = v['varwidth'] if 'varwidth' in v else False
+				varwidth = v['varwidth'] if 'varwidth' in v else True
 				fontentry = self.pages.FONTS[font] if font in self.pages.FONTS else { }
 				fontpkg = fontentry['fontpkg'] if 'fontpkg' in fontentry else None
 				if not format or not fontpkg:
@@ -1444,79 +1444,6 @@ class display_controller(object):
 				logging.warning('Unable to create sequence {0}.  No widgets'.format(name))
 				del self.sequences[-1]
 
-def getframe(image,x,y,width,height):
-	# Returns an array of arrays
-	# [
-	#   [ ], # Array of bytes for line 0
-	#   [ ]  # Array of bytes for line 1
-	#				 ...
-	#   [ ]  # Array of bytes for line n
-	# ]
-
-	# Select portion of image to work with
-	img = image.convert("1")
-
-	width, height = img.size
-	bheight = int(math.ceil(height / 8.0))
-	imgdata = list(img.getdata())
-
-
-	retval = []	# The variable to hold the return value (an array of byte arrays)
-	retline = [0]*width # Line to hold the first byte of image data
-	bh = 0 # Used to determine when we've consumed a byte worth of the line
-
-	# Perform a horizontal iteration of the image data
-	for i in range(0,height):
-		for j in range(0,width):
-			# if the value is true then mask a bit into the byte within retline
-			if imgdata[(i*width)+j]:
-				try:
-					retline[j] |= 1<<bh
-				except IndexError as e:
-					# WTF
-					print "width = {0}".format(width)
-					raise e
-		# If we've written a full byte, start a new retline
-		bh += 1
-		if bh == 8: # We reached a byte boundary
-			bh = 0
-			retval.append(retline)
-			retline = [0]*width
-	if bh > 0:
-		retval.append(retline)
-
-	return retval
-
-def show(bytebuffer,width, height):
-
-	sys.stdout.write('|')
-	for j in range(0,width):
-		sys.stdout.write('-')
-	sys.stdout.write('|')
-	sys.stdout.flush()
-	print ''
-
-	for i in range(0,height):
-		for k in range(0,8):
-				sys.stdout.write('|')
-				for j in range(0,width):
-					mask = 1 << k
-					if bytebuffer[i][j]&mask:
-						sys.stdout.write('*')
-						sys.stdout.flush()
-					else:
-						sys.stdout.write(' ')
-						sys.stdout.flush()
-				sys.stdout.write('|')
-				sys.stdout.flush()
-				print ''
-	sys.stdout.write('|')
-	for j in range(0,width):
-		sys.stdout.write('-')
-	sys.stdout.write('|')
-	sys.stdout.flush()
-	print ''
-
 
 def printsequences(seq):
 	for s in seq:
@@ -1547,12 +1474,10 @@ if __name__ == '__main__':
 	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG)
 
 	db = {
-	 		'remaining':"423 oz remaining",
-			'name':"Rye IPA",
-			'abv':'7.2 ABV',
-			'weight': 423,
-			'description':'Malty and bitter with an IBU of 68',
-			'time_formatted':'12:34p',
+	 		'title':"",
+			'artist':"Rye IPA",
+			'album':'7.2 ABV',
+			'utc': 	utc = moment.utcnow(),
 			'outside_temp_formatted':'46\xb0F',
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
@@ -1561,12 +1486,10 @@ if __name__ == '__main__':
 		}
 
 	dbp = {
-	 		'remaining':"423 oz remaining",
-			'name':"Rye IPA",
-			'abv':'7.2 ABV',
-			'weight': 423,
-			'description':'Malty and bitter with an IBU of 68',
-			'time_formatted':'12:34p',
+	 		'title':"423 oz remaining",
+			'artist':"Rye IPA",
+			'album':'7.2 ABV',
+			'utc': 	utc = moment.utcnow(),
 			'outside_temp_formatted':'46\xb0F',
 			'outside_conditions':'Windy',
 			'system_temp_formatted':'98\xb0C',
@@ -1575,7 +1498,7 @@ if __name__ == '__main__':
 		}
 
 	events = [
-		(10, 'name', 'Belgian Ale'),
+		(10, 'title', 'Belgian Ale'),
 		(10, 'abv', '8.4 ABV'),
 		(10, 'description', 'A heavy belgian ale with lots of malt.  IBU 32'),
 		(15, 'remaining', '390 oz remaining'),
@@ -1591,7 +1514,7 @@ if __name__ == '__main__':
 	]
 
 	dc = display_controller((100, 16))
-	dc.load('../pages_beer2.py', db,dbp )
+	dc.load('../pages_test.py', db,dbp )
 
 	starttime = time.time()
 	elapsed = int(time.time()-starttime)
@@ -1607,6 +1530,6 @@ if __name__ == '__main__':
 		processevent(events, starttime, 'pre', db, dbp)
 		img = dc.next()
 		processevent(events, starttime, 'post', db, dbp)
-		frame = getframe( img, 0,0, 100,16 )
-		show( frame, 100, int(math.ceil(16/8.0)))
+		frame = g.getframe( img, 0,0, 100,16 )
+		g.show( frame, 100, int(math.ceil(16/8.0)))
 		time.sleep(.1)

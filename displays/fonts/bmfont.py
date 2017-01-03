@@ -14,6 +14,7 @@ class bmfont:
 
 	def __init__(self,fontfile):
 		self.fontpkg = { } # Holds an image of each font character
+		self.imglookup = { } # Holds image key to perform a reverse lookup of an image back to the character it represents
 		self.chardata = { } # Holds position and size data for each character on sprite sheet
 
 		# Read file
@@ -135,6 +136,9 @@ class bmfont:
 				# Resize to xadvance width
 				img = img.crop( (0,0,xadvance,h) )
 				self.fontpkg[k] = img
+				data = tuple(list(img.convert("1").getdata()))
+				self.imglookup[data] = k
+
 
 		# except IOError:
 		# 	print u'Sprite file {0} was not found.'.format(self.file)
@@ -157,22 +161,3 @@ class bmfont:
 			v = v.strip()
 			d[k] = v
 		return d
-
-
-	def get(self,char):
-		# Return an image of the character
-		return 0
-
-
-	def getcustom(self,char):
-		# Return a byte array appropriate for an LCD custom character
-		# This is a array of bits for each row within the character
-		# E.g.  0b00000  A 5x8 Capital A
-		#       0b00100
-		#       0b01010
-		#       0b01010
-		#       0b01110
-		#       0b01010
-		#       0b01010
-		#       0b01010
-		return 0

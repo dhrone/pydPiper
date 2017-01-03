@@ -161,135 +161,33 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		self.write4bits(self.LCD_SETCGRAMADDR | row)
 
 
-	def displayoff(self):
-		''' Turn the display off (quickly) '''
-
-		self.displaycontrol &= ~self.LCD_DISPLAYON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def displayon(self):
-		''' Turn the display on (quickly) '''
-
-		if not self.simulate:
-			self.displaycontrol |= self.LCD_DISPLAYON
-			self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def cursoroff(self):
-		''' Turns the underline cursor on/off '''
-
-		self.displaycontrol &= ~self.LCD_CURSORON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def cursoron(self):
-		''' Cursor On '''
-
-		self.displaycontrol |= self.LCD_CURSORON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-
-	def blinkoff(self):
-		''' Turn off the blinking cursor '''
-
-		self.displaycontrol &= ~self.LCD_BLINKON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
-	def blinkon(self):
-		''' Turn on the blinking cursor '''
-
-		self.displaycontrol |= self.LCD_BLINKON
-		self.write4bits(self.LCD_DISPLAYCONTROL | self.displaycontrol)
-
 	def write4bits(self, bits, char_mode=False):
 
 		GPIO.output(self.pin_rs, char_mode)
-		if bits & 0x80:
-			GPIO.output(self.pins_db[::-1][0], True)
-		else:
-			GPIO.output(self.pins_db[::-1][0], False)
-		if bits & 0x40:
-			GPIO.output(self.pins_db[::-1][1], True)
-		else:
-			GPIO.output(self.pins_db[::-1][1], False)
-		if bits & 0x20:
-			GPIO.output(self.pins_db[::-1][2], True)
-		else:
-			GPIO.output(self.pins_db[::-1][2], False)
-		if bits & 0x10:
-			GPIO.output(self.pins_db[::-1][3], True)
-		else:
-			GPIO.output(self.pins_db[::-1][3], False)
-		self.pulseEnable()
-		if bits & 0x08:
-			GPIO.output(self.pins_db[::-1][0], True)
-		else:
-			GPIO.output(self.pins_db[::-1][0], False)
-		if bits & 0x04:
-			GPIO.output(self.pins_db[::-1][1], True)
-		else:
-			GPIO.output(self.pins_db[::-1][1], False)
-		if bits & 0x02:
-			GPIO.output(self.pins_db[::-1][2], True)
-		else:
-			GPIO.output(self.pins_db[::-1][2], False)
-		if bits & 0x01:
-			GPIO.output(self.pins_db[::-1][3], True)
-		else:
-			GPIO.output(self.pins_db[::-1][3], False)
+		GPIO.output(self.pins_db[::-1][0], bits & 0x80)
+		GPIO.output(self.pins_db[::-1][1], bits & 0x40)
+		GPIO.output(self.pins_db[::-1][2], bits & 0x20)
+		GPIO.output(self.pins_db[::-1][3], bits & 0x10)
 		self.pulseEnable()
 
-
-	def write4bits_old(self, bits, char_mode=False):
-
-		''' Send command to LCD '''
-		#self.delayMicroseconds(1000) # 1000 microsecond sleep
-
-		# take the value, convert to a binary string and then zero fill
-		# Note that the beginning of a bits return is 0b so [2:] used to strip that out
-		bits = bin(bits)[2:].zfill(8)
-
-		# Set as appropriate for character vs command mode
-		GPIO.output(self.pin_rs, char_mode)
-
-		# Zero the data pins
-		for pin in self.pins_db:
-			GPIO.output(pin, False)
-
-		# From left to right, if the bit value is 1, set the corresponding GPIO pin
-		for i in range(4):
-			if bits[i] == "1":
-				GPIO.output(self.pins_db[::-1][i], True)
-
+		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
+		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
+		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
+		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
 		self.pulseEnable()
 
-		for pin in self.pins_db:
-			GPIO.output(pin, False)
-
-		# Now set the low order bits
-		for i in range(4, 8):
-			if bits[i] == "1":
-				GPIO.output(self.pins_db[::-1][i - 4], True)
-
-		self.pulseEnable()
 
 	def writeonly4bits(self, bits, char_mode=False):
 
-			# Version of write that only sends a 4 bit value
-			if bits > 15: return
+		# Version of write that only sends a 4 bit value
+		if bits > 15: return
 
-			bits = bin(bits)[2:].zfill(4)
-
-			GPIO.output(self.pin_rs, char_mode)
-
-			for pin in self.pins_db:
-				GPIO.output(pin, False)
-
-			for i in range(4):
-				if bits[i] == "1":
-					GPIO.output(self.pins_db[::-1][i], True)
-			self.pulseEnable()
+		GPIO.output(self.pin_rs, char_mode)
+		GPIO.output(self.pins_db[::-1][0], bits & 0x08)
+		GPIO.output(self.pins_db[::-1][1], bits & 0x04)
+		GPIO.output(self.pins_db[::-1][2], bits & 0x02)
+		GPIO.output(self.pins_db[::-1][3], bits & 0x01)
+		self.pulseEnable()
 
 
 	def delayMicroseconds(self, microseconds):
@@ -310,25 +208,9 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 
 
 	def loadcustomchars(self, char, fontdata):
-		# Load custom characters
+		# Custom characters are unnecessary on a graphical display
+		return
 
-		# Verify that there is room in the display
-		# Only 8 special characters allowed with the Winstar
-
-		if len(fontdata) + char > 8:
-			logging.debug(u"Can not load fontset at position {0}.  Not enough room left".format(char))
-			raise IndexError
-
-		# Set pointer to position char in CGRAM
-		self.write4bits(self.LCD_SETCGRAMADDR+(char*8))
-
-		# Need a short sleep for display to stablize
-		time.sleep(.01)
-
-		# For each font in fontdata
-		for font in fontdata:
-			for byte in font:
-				self.write4bits(byte, True)
 
 	def message(self, text, row=0, col=0, varwidth=True):
 		''' Send string to LCD. Newline wraps to second line'''
@@ -336,45 +218,19 @@ class lcd_display_driver_winstar_ws0010_graphics_mode(lcd_display_driver.lcd_dis
 		if row >= self.rows or col >= self.cols:
 			raise IndexError
 
-		# width = g.msgwidth(text, self.fp, varwidth)
-		# maxw = 0
-		# for i in width:
-		# 	if i > maxw:
-		# 		maxw = i
-		# height = len(width)*8
-		#
-		# img = Image.new("1", (maxw, height), 0)
-		img = g.message(text,self.fp, varwidth)
-		nf = g.getframe(img,0,0,self.cols,self.rows)
-		self.update(nf)
+		textwidget = display.gwidgetText(text, self.fp, {}, [], varwidth )
+		self.updateframe(nf.textwidget.image)
 
-# 		self.setCursor(row, col)
-# 		crow = row
-#
-# 		for char in text:
-# 			if char == '\n':
-# #				self.write4bits(0xC0) # next line
-# 				crow += 8
-# 				if crow >= self.rows:
-# 					raise IndexError
-# 				self.setCursor(crow,0)
-#
-# 			else:
-# 				# Translate incoming character into correct value for European charset
-# 				# and then send it to display.  Use space if character is out of range.
-# 				c = ord(char)
-# 				try:
-# 					cdata = fonts.size5x8.latin1.fontpkg[c]
-#
-# 					for byte in cdata:
-# 						self.write4bits(byte, True)
-# 					self.write4bits(0x00, True)
-# 				except KeyError:
-# 					print "Cannot find {0} in font table".format(format(c,"02x"))
-# 					# Char not found
-# 					pass
+	def update(self, image):
 
-	def update(self, newbuf):
+		# Make image the same size as the display
+		img = image.crop( (0,0,self.cols, self.rows))
+
+		# Compute frame from image
+		frame = self.getframe( img, 0,0, self.cols,self.rows )
+		self.updateframe(frame)
+
+	def updateframe(self, newbuf):
 
 		rows = int(math.ceil(self.rows/8.0))
 		for j in range(0, rows):
@@ -579,23 +435,6 @@ if __name__ == '__main__':
 
 		dc = display.display_controller()
 		dc.load('../pages.py', dbp,dbp_old, (80,16))
-		# titlew = dc.widgets['title']
-
-		# formatstring, fontpkg, variabledict={ }, variables =[], varwidth = False, size=(0,0), just=u'left'
-
-		# fontpkg = dc.pages.FONTS['small']['fontpkg']
-		# # fontpkg = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
-		# elapsedw = display.gwidgetText("{0}", fontpkg, db, [u'elapsed_formatted'], False, (60,8), 'right')
-		# artistw = display.gwidgetText("{0}", fontpkg, db, [u'album'], False )
-		# playlist_displayw = display.gwidgetText("{0}", fontpkg, db, [u'playlist_display'], False )
-		# canvasw = display.gwidgetCanvas( (100,16) )
-		# canvasw.add(artistw, (0,0) )
-		# canvasw.add(playlist_displayw, (0,8))
-		# canvasw.add(elapsedw, (40,8))
-		#
-		# frame = g.getframe( canvasw.image, 0,0,canvasw.image.width,canvasw.image.height)
-		# # g.show( frame, canvasw.image.width, int(math.ceil(canvasw.image.height/8.0)) )
-		#
 
 		starttime = time.time()
 		elapsed = int(time.time()-starttime)
@@ -612,95 +451,10 @@ if __name__ == '__main__':
 			db['elapsed_formatted'] = timepos
 			db['time_formatted'] = current_time
 			img = dc.next()
-			img = img.crop( (0,0,100,16) )
-			frame = g.getframe( img, 0,0, 100,16 )
-			# g.show( frame, 100, int(math.ceil(16/8.0)))
-			lcd.update(frame)
-#			if db['volume'] == 40:
-#				dbp['volume']= 40
-#			if db['state'] == 'stop':
-#				dbp['state'] = 'stop'
+			lcd.update(img)
 			if starttime + 60 < time.time():
 				db['state'] = 'stop'
 
-#			if starttime + 10 < time.time():
-#				db['volume'] = 40
-
-
-
-	#
-	# 	variabledict = { u'artist':u'Prince and the Revolutions', u'title':u'Million Dollar Club', u'volume':50 }
-	# 	variables = [ u'artist', u'title' ]
-	#
-	# 	fp_HD44780 = fonts.bmfont.bmfont(u'latin1_5x8.fnt').fontpkg
-	# 	fp_Vint10x16 = fonts.bmfont.bmfont(u'Vintl01_10x16.fnt').fontpkg
-	#
-	# 	# artistw = gwidget(u'artist', variabledict)
-	# 	# artistw.text(u"{0}",[u'artist'], fp_Vint10x16, True, (0,0), 'left')
-	#
-	# 	artistw = display.gwidgetText("{0}",fp_HD44780, variabledict, [u'artist'], True)
-	# 	titlew = display.gwidgetText("{0}", fp_HD44780, variabledict, [u'title'], True)
-	# 	linew = display.gwidgetLine( (99,0) )
-	# 	rectw = display.gwidgetRectangle( (99,15) )
-	# 	progw = display.gwidgetProgressBar(u'volume', (0,100), (80,6), u'square', variabledict)
-	#
-	# 	artistcanvas = display.gwidgetCanvas( (artistw.width,14) )
-	# 	titlecanvas = display.gwidgetCanvas( (artistw.width,8) )
-	#
-	# 	artistcanvas = display.gwidgetScroll(artistcanvas.add( artistw, (0,0) ),u'left',1,20,u'onloop',2,100)
-	# 	titlecanvas = display.gwidgetScroll(titlecanvas.add( titlew, (0,0) ),u'up',1,4,u'onloop',2,8)
-	#
-	# 	page = display.gwidgetCanvas( (100,32) )
-	# 	page.add(artistcanvas, (0,0))
-	# 	page.add(titlecanvas, (0,8), (100,8))
-	# 	page.add(display.gwidgetText("Percent complete",fp_HD44780), (4,17))
-	# 	page.add(linew, (0,16))
-	# 	page.add(progw, (4,26))
-	#
-	# 	end = time.time() + 20
-	# 	flag = True
-	# 	i = 0
-	# 	variabledict['volume'] = i
-	# 	while end > time.time():
-	# 		i += 1
-	# 		if i > 100:
-	# 			i = 0
-	# 		variabledict['volume'] = i
-	# 		if end < time.time()+10 and flag:
-	# 			variabledict['title'] = u"Purple Rain"
-	# 			flag = False
-	# 		if page.update():
-	# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
-	# 			lcd.update(frame)
-	# 			time.sleep(.03)
-	#
-	# #-------------
-	#
-	# 	variabledict['title'] = "When Dove's Cry"
-	# 	progw = display.gwidgetProgressBar(u'volume', (0,100), (80,4), u'square', variabledict)
-	# 	page = display.gwidgetCanvas( (100,32) )
-	# 	page.add( artistcanvas, (0,0) )
-	# 	page.add( titlecanvas, (0,18) )
-	# 	page.add( linew, (0,26) )
-	# 	page.add( progw, (0,28) )
-	# 	page = display.gwidgetPopup(page, 14)
-	#
-	# 	end = time.time() + 25
-	# 	flag = True
-	# 	i = 0
-	# 	variabledict['volume'] = i
-	# 	while end > time.time():
-	# 		i += 1
-	# 		if i > 100:
-	# 			i = 0
-	# 		variabledict['volume'] = i
-	# 		if end < time.time()+15 and flag:
-	# 			variabledict['title'] = u"Purple Rain"
-	# 			flag = False
-	# 		if page.update():
-	# 			frame = g.getframe( page.image, 0,0, page.width, page.height)
-	# 			lcd.update(frame)
-	# 		time.sleep(.03)
 
 	except KeyboardInterrupt:
 		pass
