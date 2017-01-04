@@ -3,6 +3,7 @@
 
 # musicdata service to read from MPD
 # Written by: Ron Ritchey
+from __future__ import unicode_literals
 
 import json, mpd, threading, logging, Queue, time, sys, getopt
 import musicdata

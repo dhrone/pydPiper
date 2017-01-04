@@ -3,6 +3,7 @@
 
 # musicdata service to read from SPOP
 # Written by: Ron Ritchey
+from __future__ import unicode_literals
 
 import threading, logging, Queue, time, sys, telnetlib, json, getopt
 import musicdata

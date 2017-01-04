@@ -194,7 +194,7 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 	def compare(self, image, position):
 		imgdata = tuple(list(image.getdata()))
-		disdata = tuple(list(self.curimage.crop((position[0], position[1], position[0]+5, position[1]+8))))
+		disdata = tuple(list(self.curimage.crop((position[0], position[1], position[0]+5, position[1]+8)).getdata()))
 		if imgdata == disdata:
 			return True
 		return False
@@ -207,7 +207,6 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		# Make image black and white
 		img = img.convert("1")
 
-		self.clear()
 
 		# For each character sized cell from image, try to determine what character it is
 		# by comparing it against the font reverse lookup dictionary
@@ -220,8 +219,8 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 				# Check to see if the img is the same as was previously updated
 				# If it is, skip to the next character
-				if self.compare(imgtest, (i*5, j*5)):
-					continue
+#				if self.compare(imgtest, (i*5, j*5)):
+#					continue
 				imgdata = tuple(list(imgtest.getdata()))
 				char = self.font.imglookup[imgdata] if imgdata in self.font.imglookup else self.createcustom(imgtest)
 				#print "Using char {0}".format(char)
@@ -239,12 +238,17 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.curimage.paste(image.crop((0,0,self.cols,self.rows)),(0,0))
 		self.setCursor(0,0)
 
+		displaycontrol = self.LCD_DISPLAYON | self.LCD_CURSOROFF | self.LCD_BLINKOFF
+		self.write4bits(self.LCD_DISPLAYCONTROL | displaycontrol, False)
+
 
 	def clear(self):
 
 		# Set cursor back to 0,0
 		self.setCursor(0,0)
 		self.curposition = (0,0)
+
+		self.curimage = Image.new("1",(self.cols,self.rows))
 
 		# And then clear the screen
 		self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display

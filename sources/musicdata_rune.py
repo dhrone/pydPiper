@@ -3,6 +3,7 @@
 
 # musicdata service to read from RuneAudio
 # Written by: Ron Ritchey
+from __future__ import unicode_literals
 
 import json, redis, threading, logging, Queue, time, getopt, sys, logging
 import musicdata

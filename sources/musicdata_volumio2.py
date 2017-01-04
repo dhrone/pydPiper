@@ -3,6 +3,7 @@
 
 # musicdata service to read from Volumio V2
 # Written by: Ron Ritchey
+from __future__ import unicode_literals
 
 import json, threading, logging, Queue, time, sys
 import musicdata

@@ -1,4 +1,5 @@
 # meta - base class for collecting meta data from music sources
+from __future__ import unicode_literals
 
 import abc,logging,urllib2,contextlib
 
@@ -176,36 +177,41 @@ class musicdata:
 		retval = u''
 		with contextlib.closing(urllib2.urlopen(url)) as page:
 			cnt = 20
-			for line in page:
-				cnt -= 1
-				if line.startswith(u'#EXTINF:'):
-					try:
-						retval = line.split(u'#EXTINF:')[1].split(',')[1].split(')')[1].strip()
-					except IndexError:
+			try:
+				for line in page:
+					line = line.decode('utf-8')
+					cnt -= 1
+					if line.startswith(u'#EXTINF:'):
 						try:
-							retval = line.split(u'#EXTINF:')[1].split(',')[0].split(')')[1].strip()
+							retval = line.split(u'#EXTINF:')[1].split(',')[1].split(')')[1].strip()
 						except IndexError:
-							retval = u''
-					if retval != u'':
-						if retval is unicode:
-							logging.debug(u"Found {0}".format(retval))
-							return retval
-						else:
 							try:
+								retval = line.split(u'#EXTINF:')[1].split(',')[0].split(')')[1].strip()
+							except IndexError:
+								retval = u''
+						if retval != u'':
+							if retval is unicode:
 								logging.debug(u"Found {0}".format(retval))
-								return retval.decode()
-							except:
-								logging.debug(u"Not sure what I found {0}".format(retval))
-								return u''
-				elif line.startswith(u'Title1='):
-					try:
-						retval = line.split(u'Title1=')[1].split(':')[1:2][0]
-					except:
-						retval = line.split(u'Title1=')[0]
-					retval = retval.split(u'(')[0].strip()
-					return retval.decode()
+								return retval
+							else:
+								try:
+									logging.debug(u"Found {0}".format(retval))
+									return retval.decode()
+								except:
+									logging.debug(u"Not sure what I found {0}".format(retval))
+									return u''
+					elif line.startswith(u'Title1='):
+						try:
+							retval = line.split(u'Title1=')[1].split(':')[1:2][0]
+						except:
+							retval = line.split(u'Title1=')[0]
+						retval = retval.split(u'(')[0].strip()
+						return retval.decode()
 
-				if cnt == 0: break
+					if cnt == 0: break
+			except:
+				# Likely got junk data.  Skip
+				pass
 			logging.debug(u"Didn't find an appropriate header at {0}".format(url))
 
 

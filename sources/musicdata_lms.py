@@ -3,6 +3,7 @@
 
 # musicdata service to read from LMS
 # Written by: Ron Ritchey
+from __future__ import unicode_literals
 
 import json, threading, logging, Queue, time, sys, urllib, pylms, getopt, telnetlib, urlparse
 from pylms import server

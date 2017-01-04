@@ -541,8 +541,7 @@ if __name__ == u'__main__':
 			# Get next image and send it to the display every .1 seconds
 			with mc.musicdata_lock:
 				img = dc.next()
-			frame = displays.graphics.getframe(img, 0,0,img.size[0],img.size[1])
-			displays.graphics.show(frame,img.size[0],int(math.ceil(img.size[1] / 8.0)))
+#			displays.graphics.update(img)
 			lcd.update(img)
 			time.sleep(pydPiper_config.ANIMATION_SMOOTHING)
 
