@@ -417,6 +417,7 @@ def sigterm_handler(_signo, _stack_frame):
         sys.exit(0)
 
 if __name__ == u'__main__':
+	import math
 	signal.signal(signal.SIGTERM, sigterm_handler)
 
 	# Changing the system encoding should no longer be needed
@@ -540,6 +541,8 @@ if __name__ == u'__main__':
 			# Get next image and send it to the display every .1 seconds
 			with mc.musicdata_lock:
 				img = dc.next()
+			frame = displays.graphics.getframe(img, 0,0,img.size[0],img.size[1])
+			displays.graphics.show(frame,img.size[0],int(math.ceil(img.size[1] / 8.0)))
 			lcd.update(img)
 			time.sleep(pydPiper_config.ANIMATION_SMOOTHING)
 
@@ -553,7 +556,7 @@ if __name__ == u'__main__':
 		try:
 			lcd.clear()
 			lcd.message(u"Exiting...")
-			time.sleep(1)
+			time.sleep(3)
 			lcd.clear()
 			lcd.cleanup()
 		except:

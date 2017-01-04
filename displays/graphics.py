@@ -150,7 +150,17 @@ def scrollbuffer(image, direction=u'left', distance=1):
 
 def show(bytebuffer,width, height):
 
+	sys.stdout.write('  |')
+	i = 0
+	for j in range(0,width):
+		sys.stdout.write('{0}'.format(i))
+		i += 1
+		if i == 10:
+			i = 0
 	sys.stdout.write('|')
+	sys.stdout.flush()
+	print ''
+	sys.stdout.write('  |')
 	for j in range(0,width):
 		sys.stdout.write('-')
 	sys.stdout.write('|')
@@ -159,7 +169,7 @@ def show(bytebuffer,width, height):
 
 	for i in range(0,height):
 		for k in range(0,8):
-				sys.stdout.write('|')
+				sys.stdout.write('{:2d}|'.format(i*8+k))
 				for j in range(0,width):
 					mask = 1 << k
 					if bytebuffer[i][j]&mask:
@@ -171,7 +181,7 @@ def show(bytebuffer,width, height):
 				sys.stdout.write('|')
 				sys.stdout.flush()
 				print ''
-	sys.stdout.write('|')
+	sys.stdout.write('  |')
 	for j in range(0,width):
 		sys.stdout.write('-')
 	sys.stdout.write('|')

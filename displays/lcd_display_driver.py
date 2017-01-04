@@ -34,6 +34,7 @@ class lcd_display_driver:
 	def write4bits(self, bits, char_mode=False):
 
 		if GPIO_INSTALLED:
+			self.delayMicroseconds(1000)
 			GPIO.output(self.pin_rs, char_mode)
 			GPIO.output(self.pins_db[::-1][0], bits & 0x80)
 			GPIO.output(self.pins_db[::-1][1], bits & 0x40)
@@ -72,8 +73,8 @@ class lcd_display_driver:
 		# the pulse timing in the original version of this file is 10/10
 		# with a 100 post time for setting
 
-#		GPIO.output(self.pin_e, False)
-#		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
+		GPIO.output(self.pin_e, False)
+		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
 		GPIO.output(self.pin_e, True)
 		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
 		GPIO.output(self.pin_e, False)

@@ -22,6 +22,8 @@ import lcd_display_driver
 import fonts
 from PIL import Image
 
+import graphics
+
 
 class hd44780(lcd_display_driver.lcd_display_driver):
 
@@ -89,7 +91,7 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 
 
-	def __init__(self, rows=2, cols=16, rs=7, e=8, datalines=[25, 24, 23, 27]):
+	def __init__(self, rows=16, cols=80, rs=7, e=8, datalines=[25, 24, 23, 27]):
 		# Default arguments are appropriate for Raspdac V3 only!!!
 
 		self.pins_db = datalines
@@ -98,12 +100,14 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 		self.rows = rows
 		self.cols = cols
+		self.rows_char = rows/8
+		self.cols_char = cols/5
 
 		self.FONTS_SUPPORTED = True
 
 		# Initialize the default font
-		font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
-		self.fp = font.fontpkg
+		self.font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
+		self.fp = self.font.fontpkg
 
 		# Sets the values to offset into DDRAM for different display lines
 		self.row_offsets = [ 0x00, 0x40, 0x14, 0x54 ]
@@ -121,24 +125,38 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		# there is a good writeup on the HD44780 at Wikipedia
 		# https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller
 
-		# Now place in 8 bit mode so that we start from a known state
-		self.write4bits(0x33, False)
+
+		self.write4bits(0x33,False)
+		self.write4bits(0x32,False)
+		# Initialize display control, function, and mode registers.
+		displaycontrol = self.LCD_DISPLAYON | self.LCD_CURSOROFF | self.LCD_BLINKOFF
+		displayfunction = self.LCD_4BITMODE | self.LCD_1LINE | self.LCD_2LINE | self.LCD_5x8DOTS
+		displaymode = self.LCD_ENTRYLEFT | self.LCD_ENTRYSHIFTDECREMENT
+		# Write registers.
+		self.write4bits(self.LCD_DISPLAYCONTROL | displaycontrol, False)
 		self.delayMicroseconds(1000)
+		self.write4bits(self.LCD_FUNCTIONSET | displayfunction, False)
+		self.write4bits(self.LCD_ENTRYMODESET | displaymode, False)  # set the entry mode
+		self.clear()
 
-		# Now place in 4 bit mode
-		self.write4bits(0x32, False)
-		self.delayMicroseconds(1000)
-
-		self.write4bits(0x06, False) # Entry Mode set to increment and no shift
-		self.write4bits(0x0c, False) # Turn on display
-		self.write4bits(0x28, False) # Function set for 4 bits, 2 lines, 5x8 font
-		self.write4bits(0x01, False) # Clear display and reset cursor
-
-		# Set up parent class.  Note.  This must occur after display has been
-		# initialized as the parent class may attempt to load custom fonts
+		# Set up parent class.  
 		super(hd44780, self).__init__(rows,cols)
 
 	def createcustom(self, image):
+
+		if self.currentcustom == 0:
+			# initialize custom font memory
+			self.customfontlookup = {}
+
+		# The image should only be 5x8 but if larger, crop it
+		img = image.crop( (0,0,5,8) )
+
+		imgdata = list(img.convert("1").getdata())
+
+		# Check to see if a custom character has already been created for this image
+		if tuple(imgdata) in self.customfontlookup:
+			return self.customfontlookup[tuple(imgdata)]		
+		
 		# If there is space, create a custom character using the image provided
 		if self.currentcustom > 7:
 			return ord('?')
@@ -149,10 +167,6 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		# Increment currentcustom to point to the next custom char position
 		self.currentcustom += 1
 
-		# The image should only be 5x8 but if larger, crop it
-		img = image.crop( (0,0,5,8) )
-
-		imgdata = list(img.convert("1").getdata())
 
 		# For each line of data from the image
 		for j in range(8):
@@ -160,9 +174,12 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 			# Computer a five bit value
 			for i in range(5):
 				if imgdata[j*5+i]:
-					line |= 1<<i
+					line |= 1<<4-i
 			# And then send it to the custom character memory region for the current customer character
 			self.write4bits(line, True)
+
+		# Save custom character in lookup table
+		self.customfontlookup[tuple(imgdata)] = self.currentcustom - 1 
 
 		# Return the custom character position.  We have to subtract one as we incremented it earlier in the function
 		return self.currentcustom - 1
@@ -170,7 +187,7 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 	def update(self, image):
 
 		# Make image the same size as the display
-		img = image.crop( (0,0,self.cols*5, self.rows*8))
+		img = image.crop( (0,0,self.cols, self.rows))
 
 		# Make image black and white
 		img = img.convert("1")
@@ -182,16 +199,21 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		# If you find a matching entry, output the cooresponding unicode value
 		# else output a '?' symbol
 		self.currentcustom = 0
-		for j in range(rows):
-			for i in range(cols):
-				imgdata = tuple(list(img.crop( (i*5, j*8, (i+1)*5, (j+1)*8) ).getdata()))
-				char = self.fp.imglookup[imgdata] if imgdata in self.gp.imglookup else self.createcustom(imgdata)
+		for j in range(self.rows_char):
+			for i in range(self.cols_char):
+				imgtest = img.crop( (i*5, j*8, (i+1)*5, (j+1)*8) )
+				imgdata = tuple(list(imgtest.getdata()))
+				char = self.font.imglookup[imgdata] if imgdata in self.font.imglookup else self.createcustom(imgtest)
+				#print "Using char {0}".format(char)
+				#frame = graphics.getframe(imgtest,0,0,5,8)
+				#graphics.show(frame,5,1)
 
 				# Check to see if there is a character in the font table that matches.  If not, try to create a custom character for it.
-				char = self.character_translation[char] if self.character_translation[char] >= 0 else self.createcustom(imgdata)
+				char = self.character_translation[char] if self.character_translation[char] >= 0 else self.createcustom(imgtest)
 
 				# Write the resulting character value to the display
-				self.write4bits(self.character_translation[char], True)
+				self.setCursor(i,j)
+				self.write4bits(char, True)
 			self.write4bits(0xC0) # next line
 
 	def clear(self):
@@ -202,15 +224,15 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display
 		self.delayMicroseconds(2000) # 2000 microsecond sleep, clearing the display takes a long time
 
-	def setCursor(self, row, col):
+	def setCursor(self, col_char, row_char):
 
-		if row > self.rows or col > self.cols:
+		if row_char > self.rows_char or col_char > self.cols_char:
 			raise IndexError
 
-		if (row > self.rows):
-			row = self.rows - 1 # we count rows starting w/0
+		if (row_char > self.rows_char):
+			row = self.rows_char - 1 # we count rows starting w/0
 
-		self.write4bits(self.LCD_SETDDRAMADDR | (col + self.row_offsets[row]))
+		self.write4bits(self.LCD_SETDDRAMADDR | (col_char + self.row_offsets[row_char]))
 
 
 	def loadcustomchars(self, char, fontdata):
@@ -234,13 +256,14 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 			for byte in font:
 				self.write4bits(byte, True)
 
-	def message(self, text, row=0, col=0):
+	def message(self, text, row_char=0, col_char=0):
 		''' Send string to LCD. Newline wraps to second line'''
 
-		if row > self.rows or col > self.cols:
+		if row_char > self.rows_char or col_char > self.cols_char:
 			raise IndexError
 
-		self.setCursor(row, col)
+		self.setCursor(col_char, row_char)
+
 
 		for char in text:
 			if char == '\n':
@@ -251,7 +274,9 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 				# and then send it to display.  Use space if character is out of range.
 				c = ord(char)
 				if c > 255: c = 32
-				self.write4bits(self.character_translation[c], True)
+				ct = self.character_translation[c]
+				if ct > 0:
+					self.write4bits(self.character_translation[c], True)
 
 	def cleanup(self):
 		GPIO.cleanup()
@@ -262,50 +287,6 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		time.sleep(wait)
 
 if __name__ == '__main__':
-	def volume_bar(vol_per, chars, fe='_', fh='/', ff='*', vle='_', vre='_', vrh='/'):
-		# Algorithm for computing the volume lines
-		# inputs (vol_per, characters, fontempyt, fonthalf, fontfull, fontleftempty, fontrightempty, fontrighthalf)
-		ppb = percentperblock = 100.0 / chars
-
-		buffer = ''
-		i = 0
-		if vol_per <= (i+.25)*ppb:
-			buffer += chr(vle)
-		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-			buffer += chr(fh)
-		elif (i+.75)*ppb < vol_per:
-			buffer += chr(ff)
-		else:
-			# Shouldnt be here
-			logging.debug("Bad value in volume_bar")
-			buffer += 'Y'
-
-		for i in range(1, chars-1):
-			if vol_per <= (i+.25)*ppb:
-				buffer += chr(fe)
-			elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-				buffer += chr(fh)
-			elif (i+.75)*ppb < vol_per:
-				buffer += chr(ff)
-			else:
-				# Shouldnt be here
-				logging.debug("Bad value in volume_bar")
-				buffer += 'Y'
-
-		i = chars - 1
-		if vol_per <= (i+.25)*ppb:
-			buffer += chr(vre)
-		elif (i+.25)*ppb < vol_per and vol_per <= (i+.75)*ppb:
-			buffer += chr(vrh)
-		elif (i+.75)*ppb < vol_per:
-			buffer += chr(ff)
-		else:
-			# Shouldnt be here
-			logging.debug("Bad value in volume_bar")
-			buffer += 'Y'
-
-
-		return buffer
 
 	import getopt,sys
 	try:
@@ -316,8 +297,8 @@ if __name__ == '__main__':
 
 	# Set defaults
 	# These are for the wiring used by a Raspdac V3
-	rows = 2
-	cols = 16
+	rows = 16
+	cols = 80
 	rs = 7
 	e = 8
 	d4 = 25
@@ -354,7 +335,6 @@ if __name__ == '__main__':
 
 		lcd = hd44780(rows,cols,rs,e,[d4, d5, d6, d7])
 		lcd.clear()
-		lcd.switchcustomchars(fonts.size5x8.player.fontpkg)
 
 		lcd.message("HD44780 LCD\nPi Powered")
 		time.sleep(4)
@@ -368,10 +348,13 @@ if __name__ == '__main__':
 		pass
 
 	finally:
-		lcd.clear()
-		lcd.message("Goodbye!")
-		time.sleep(2)
-		lcd.clear()
+		try:
+			lcd.clear()
+			lcd.message("Goodbye!")
+			time.sleep(2)
+			lcd.clear()
+		except:
+			pass
 		time.sleep(.5)
 		GPIO.cleanup()
 		print u"LCD Display Test Complete"

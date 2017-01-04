@@ -1,7 +1,7 @@
 info face="BigFont" size=5 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0
 common lineHeight=16 base=8 scaleW=325 scaleH=86 pages=1 packed=0
 page id=0 file="BigFont_10x16.png"
-chars count=65
+chars count=71
 char id=32 x=0 y=0 width=5 height=16 xoffset=0 yoffset=0 xadvance=5 page=0 chnl=0
 char id=33 x=10 y=0 width=5 height=16 xoffset=0 yoffset=0 xadvance=5 page=0 chnl=0
 char id=34 x=20 y=0 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
