@@ -22,14 +22,17 @@
 
 from __future__ import unicode_literals
 
-import time, math
-import RPi.GPIO as GPIO
+import time, math,logging
 import lcd_display_driver
 import fonts
 import graphics as g
 from PIL import Image
 import logging
 
+try:
+	import RPi.GPIO as GPIO
+except:
+	logging.debug("RPi.GPIO not installed")
 
 class winstar_weg(lcd_display_driver.lcd_display_driver):
 

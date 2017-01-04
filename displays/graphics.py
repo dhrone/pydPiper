@@ -153,6 +153,20 @@ def show(bytebuffer,width, height):
 	sys.stdout.write('  |')
 	i = 0
 	for j in range(0,width):
+		if j%5 == 0:
+			sys.stdout.write('{0}'.format(j/5))
+		else:
+			if j/5 < 10:
+				sys.stdout.write(' '.format(i))
+		i += 1
+		if i == 10:
+			i = 0
+	sys.stdout.write('|')
+	sys.stdout.flush()
+	print ''
+	sys.stdout.write('  |')
+	i = 0
+	for j in range(0,width):
 		sys.stdout.write('{0}'.format(i))
 		i += 1
 		if i == 10:
@@ -188,6 +202,9 @@ def show(bytebuffer,width, height):
 	sys.stdout.flush()
 	print ''
 
+def update(image):
+	frame = getframe(image,0,0,image.size[0], image.size[1])
+	show(frame,image.size[0], int(math.ceil(image.size[1] / 8.0)))
 
 def clear(image,x,y,width,height):
 	draw = ImageDraw.Draw(image)

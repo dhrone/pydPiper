@@ -16,13 +16,16 @@
 # http://web.alfredstate.edu/weimandn/lcd/lcd_initialization/lcd_initialization_index.html
 #
 
-import time, math
-import RPi.GPIO as GPIO
+import time, math,logging
 import lcd_display_driver
 import fonts
 from PIL import Image
 
 import graphics
+try:
+	import RPi.GPIO as GPIO
+except:
+	logging.debug("RPi.GPIO not installed")
 
 
 class hd44780(lcd_display_driver.lcd_display_driver):
@@ -102,6 +105,7 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.cols = cols
 		self.rows_char = rows/8
 		self.cols_char = cols/5
+		self.curposition = (0,0)
 
 		self.FONTS_SUPPORTED = True
 
@@ -133,13 +137,14 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		displayfunction = self.LCD_4BITMODE | self.LCD_1LINE | self.LCD_2LINE | self.LCD_5x8DOTS
 		displaymode = self.LCD_ENTRYLEFT | self.LCD_ENTRYSHIFTDECREMENT
 		# Write registers.
-		self.write4bits(self.LCD_DISPLAYCONTROL | displaycontrol, False)
 		self.delayMicroseconds(1000)
+		self.write4bits(self.LCD_DISPLAYCONTROL | displaycontrol, False)
+		self.delayMicroseconds(2000)
 		self.write4bits(self.LCD_FUNCTIONSET | displayfunction, False)
 		self.write4bits(self.LCD_ENTRYMODESET | displaymode, False)  # set the entry mode
 		self.clear()
 
-		# Set up parent class.  
+		# Set up parent class.
 		super(hd44780, self).__init__(rows,cols)
 
 	def createcustom(self, image):
@@ -155,8 +160,8 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 		# Check to see if a custom character has already been created for this image
 		if tuple(imgdata) in self.customfontlookup:
-			return self.customfontlookup[tuple(imgdata)]		
-		
+			return self.customfontlookup[tuple(imgdata)]
+
 		# If there is space, create a custom character using the image provided
 		if self.currentcustom > 7:
 			return ord('?')
@@ -179,7 +184,7 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 			self.write4bits(line, True)
 
 		# Save custom character in lookup table
-		self.customfontlookup[tuple(imgdata)] = self.currentcustom - 1 
+		self.customfontlookup[tuple(imgdata)] = self.currentcustom - 1
 
 		# Return the custom character position.  We have to subtract one as we incremented it earlier in the function
 		return self.currentcustom - 1
@@ -214,11 +219,14 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 				# Write the resulting character value to the display
 				self.setCursor(i,j)
 				self.write4bits(char, True)
-			self.write4bits(0xC0) # next line
+		self.setCursor(0,0)
+
 
 	def clear(self):
+
 		# Set cursor back to 0,0
 		self.setCursor(0,0)
+		self.curposition = (0,0)
 
 		# And then clear the screen
 		self.write4bits(self.LCD_CLEARDISPLAY) # command to clear display
@@ -233,6 +241,8 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 			row = self.rows_char - 1 # we count rows starting w/0
 
 		self.write4bits(self.LCD_SETDDRAMADDR | (col_char + self.row_offsets[row_char]))
+
+		self.curposition = (col_char, row_char)
 
 
 	def loadcustomchars(self, char, fontdata):
@@ -264,11 +274,10 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 		self.setCursor(col_char, row_char)
 
-
 		for char in text:
 			if char == '\n':
-				self.write4bits(0xC0) # next line
-
+				row = self.curposition[1]+1 if row < self.rows_char else self.curposition[1]
+				self.setCursor(0, row)
 			else:
 				# Translate incoming character into correct value for European charset
 				# and then send it to display.  Use space if character is out of range.
