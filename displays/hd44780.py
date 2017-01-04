@@ -107,6 +107,9 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.cols_char = cols/5
 		self.curposition = (0,0)
 
+		# image buffer to hold current display contents.  Used to prevent unnecessary refreshes
+		self.curimage = Image.new("1", (self.cols, self.rows))
+
 		self.FONTS_SUPPORTED = True
 
 		# Initialize the default font
@@ -189,6 +192,13 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		# Return the custom character position.  We have to subtract one as we incremented it earlier in the function
 		return self.currentcustom - 1
 
+	def compare(self, image, position):
+		imgdata = tuple(list(image.getdata()))
+		disdata = tuple(list(self.curimage.crop((position[0], position[1], position[0]+5, position[1]+8))))
+		if imgdata == disdata:
+			return True
+		return False
+
 	def update(self, image):
 
 		# Make image the same size as the display
@@ -207,6 +217,11 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		for j in range(self.rows_char):
 			for i in range(self.cols_char):
 				imgtest = img.crop( (i*5, j*8, (i+1)*5, (j+1)*8) )
+
+				# Check to see if the img is the same as was previously updated
+				# If it is, skip to the next character
+				if self.compare(imgtest, (i*5, j*5)):
+					continue
 				imgdata = tuple(list(imgtest.getdata()))
 				char = self.font.imglookup[imgdata] if imgdata in self.font.imglookup else self.createcustom(imgtest)
 				#print "Using char {0}".format(char)
@@ -219,6 +234,9 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 				# Write the resulting character value to the display
 				self.setCursor(i,j)
 				self.write4bits(char, True)
+
+		# Save the current image to curimage
+		self.curimage.paste(image.crop((0,0,self.cols,self.rows)),(0,0))
 		self.setCursor(0,0)
 
 
