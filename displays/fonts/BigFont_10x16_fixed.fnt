@@ -67,3 +67,9 @@ char id=93 x=275 y=60 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 
 char id=94 x=290 y=60 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
 char id=95 x=305 y=60 width=15 height=16 xoffset=0 yoffset=0 xadvance=15 page=0 chnl=0
 char id=176 x=0 y=80 width=5 height=16 xoffset=0 yoffset=0 xadvance=5 page=0 chnl=0
+char id=57344 x=10 y=80 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
+char id=57345 x=20 y=80 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
+char id=57346 x=35 y=80 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
+char id=57347 x=45 y=80 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
+char id=57348 x=55 y=80 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
+char id=57349 x=65 y=80 width=10 height=16 xoffset=0 yoffset=0 xadvance=10 page=0 chnl=0
