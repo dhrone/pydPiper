@@ -68,7 +68,7 @@ class musicdata_lms(musicdata.musicdata):
 				self.rawserver = telnetlib.Telnet(self.server, self.port)
 
 				# Subscribe to notification events that should wake up the system to collect data
-				self.rawserver.write("subscribe pause,play,mixer,playlist\n")
+				self.rawserver.write("subscribe pause,play,mixer,playlist\n".encode('ascii'))
 				break
 			except IOError:
 				self.rawserver = None
