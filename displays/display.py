@@ -199,6 +199,21 @@ class widget:
 					# Bad input provided
 					logging.debug(u'Expected a moment variable but received a {0}'.format(type(retval)))
 
+			elif transform_request in [ u'select' ]:
+				# select replaces the variable with string based upon a matching pattern.
+				# <variable>|select+matchstring+replacestring+matchstring+replacestring+...
+
+				tvalues = transforms[i].split('+')[1:]
+				if len(tvalues)%2 != 0 or len(tvalues)==0:
+					# Must have pairs of input (match+replace)
+					retval = u'Err'
+				else:
+					for i in range(0,len(tvalues),2):
+						if retval == tvalues[i]:
+							retval = tvalues[i+1]
+							break
+					retval = u' '
+
 #			elif transform_request in [ u'local' ]:
 #				# requires a moment object as input
 #
