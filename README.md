@@ -1,6 +1,6 @@
 # pydPiper ![splash](displays/images/pydPiper_splash.png)
 A python program written for the Raspberry Pi that controls small LCD and OLED screens for music distributions like Volumio, RuneAudio, and Max2Play.
-  
+
 ![Playing Example](displays/images/example_playing_album.png)![Time Temp Example](displays/images/example_time.png)
 
 ## Features
@@ -8,13 +8,13 @@ A python program written for the Raspberry Pi that controls small LCD and OLED s
   * Screens are fully user definable
   * Supports a rich set of system and environmental variables including local weather
   * Compatible with the Winstar WEH and WEG OLED displays
-    * Coming soon... HD44780 style LCD support
+  * Compatible with HD44780 style LCD displays
   * Fully graphics based in its backend allowing any arbritrary font, character set, or image to be displayed if the hardware supports it.
-    * Coming soon... For LCD character based displays will dynamically generated custom characters to support characters missing from the font table.  This feature can also be used to display some graphical content on character-based displays though this is limited by the small amount of memory available for customer characters on HD44780 based displays.
+	* For LCD character based displays will dynamically generated custom characters to support characters missing from the font table.  This feature can also be used to display some graphical content on character-based displays though this is limited by the small amount of memory available for customer characters on HD44780 based displays.
 
 ## Display configuration
 
-pydPiper displays are configured based upon three key concepts.  The first concept is widget.  Widgets are used to draw a particular type of content on onto the screen.  There are widgets for displaying text, drawing lines and rectangles, displaying images, or showing a progress bar.  The next concept is canvas.  Canvases are collections of widgets where each widget is placed at a particular place within the canvas.  You will typically create a set of canvases that are the same size as your display with each canvas dedicated to a particular display purpose (e.g. show artist, display time).  The last concept is sequences.  A sequence is an ordered list of canvases that are displayed in turn when the sequence is activated.  There should be a sequence for each mode that the music player uses (e.g. play, stop).  Sequences are controlled through conditional expressions which are boolean logic statements.  If the statement evaluates to True, the sequence is activated.  If it is false, the sequence remains dormant.  In addition, each canvas within a sequence can also have a conditional statement to control whether the canvas gets displayed when its turn within the sequence occurs.  Here is a short example.
+pydPiper displays are configured based upon three key concepts.  The first concept is the widget.  Widgets are used to draw a particular type of content on onto the screen.  There are widgets for displaying text, drawing lines and rectangles, displaying images, or showing a progress bar.  The next concept is the  canvas.  Canvases are collections of widgets where each widget is placed at a particular place within the canvas.  You will typically create a set of canvases that are the same size as your display with each canvas dedicated to a particular display purpose (e.g. show artist, display time).  The last concept is sequences.  A sequence is an ordered list of canvases that are displayed in turn when the sequence is activated.  There should be a sequence for each mode that the music player uses (e.g. play, stop).  Sequences are controlled through conditional expressions which are boolean logic statements.  If the statement evaluates to True, the sequence is activated.  If it is false, the sequence remains dormant.  In addition, each canvas within a sequence can also have a conditional statement to control whether the canvas gets displayed when its turn within the sequence occurs.  Here is a short example.
 
 FONTS = {
 	'normal': { 'default':True, 'file':'latin1_5x8_fixed.fnt','size':(5,8) },
@@ -25,7 +25,7 @@ WIDGETS = {
 	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'normal' },
   'time': { 'type':'text', 'format:Time\n{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'just':'center', 'size':(80,16) }
  }
- 
+
 CANVASES = {
 	'playingsong': { 'widgets': [ ('artist',0,0), ('title',0,8) ], 'size':(80,16) },
 }
@@ -43,7 +43,13 @@ SEQUENCES = [
   }
 ]
 
-This simple example will display the artist on the top line and the title on the bottom line of the display if the system is playing a song.  If the player is stopped, it will display the current time centered on the display.  Full documentation for configurating the display will be found in docs/display.md once I've written it.  In the mean time, to get you started there are two example configurations provided.  Use pages_fixed.py for LCD and Winstar WEH OLEDs or pages_g.py for Winstar WEG displays.
+This simple example will display the artist on the top line and the title on the bottom line of the display if the system is playing a song.  If the player is stopped, it will display the current time centered on the display.  Full documentation for configuring the display will be found in docs/display.md once I've written it.  In the mean time, to get you started there are a few example configurations provided.  
+| page file         | Appropriate for       |
+| ----------------- | --------------------- |
+| pages_fixed.py    | Winstar WEH displays  |
+| pages_g.py        | Winstar WEG displays  |
+| pages_lcd.py      | HD44780 16x2 displays |
+| pages_lcd_20x4.py | HD44780 20x4 displays |
 
 ## Installation Instructions
 
@@ -53,9 +59,9 @@ These instructions provide a general description of what you need to do in order
 Log in to your system and issue the following commands to download the software and place it within the /usr/local/bin directory.  If you prefer to place it somewhere else, modify the location you untar it from accordingly.
 
 ```
-sudo wgets https://github.com/dhrone/pydPiper/archive/v0.21-alpha.tar.gz
-sudo tar zxvf v0.21-alpha.tar.gz --directory /usr/local/bin
-cd /usr/local/bin/pydPiper-0.21-alpha
+sudo wgets https://github.com/dhrone/pydPiper/archive/v0.25-alpha.tar.gz
+sudo tar zxvf v0.25-alpha.tar.gz --directory /usr/local/bin
+cd /usr/local/bin/pydPiper-0.25-alpha
 ```
 
 #### Step 2.  Install required python packages
@@ -93,9 +99,11 @@ Note: It is ok to leave out packages not needed for your particular distribution
 #### Step 3.  Modify pydPiper's configuration file to localize it to your installation
 You can use your preferred editor to edit pydPiper_config.py located in the root of the pydPiper installation.  For me this would be done using vi with the command.
 ```
-sudo vi /usr/local/bin/pydPiper-0.21-alpha/pydPiper_config.py
+sudo vi /usr/local/bin/pydPiper-0.25-alpha/pydPiper_config.py
 ```
-The most important settings to adjust are the DISPLAY_PINS as your display will not operate correctly if any of them are incorrect.  If you are using an Audiophonics Raspdac V3, the provided values should be correct.  Otherwise you will need to set them up to match how you wired your display to your Raspberry Pi.
+The most important settings to adjust are the DISPLAY_DRIVER and DISPLAY_PINS as your display will not operate correctly if any of them are incorrect.  If you are using an Audiophonics Raspdac V3, the provided values should be correct.  Otherwise you will need to set them up to match how you wired your display to your Raspberry Pi.  
+
+Note: The winstar_weg driver is used for both the Winstar WEG and Winstar WEH displays.  Even thought the WEH displays are character style, they support graphics mode which allow for more flexibility when designing your screen canvases.
 
 You may also want to adjust ANIMATION_SMOOTHING if the display is scrolling too slow or too fast for your taste.  I found 0.15 to be a good value but some users have reported a preference for longer values.
 
@@ -124,18 +132,20 @@ If you do not specify a pages file, pydPiper will attempt to load 'pages.py' whi
 At this point pydPiper should be up and running.  You can exit from the running program using Ctrl-C.
 
 If you want the pydPiper to start when the Raspberry Pi is booted you can add it to the start-up routine for your specific distribution.  Specific instructions for each distribution will eventually be provided in the docs folder.
- 
+
 ## History
 
+Version 0.25 (Alpha). Added support for HD44780 style LCD displays.
 Version 0.21 (Alpha). Minor bug fixes.
 Version 0.2 (Alpha).  Initial testing release.
 
 
 ## Credits
 
-The basis for most of this code comes from Lardconcepts (https://gist.github.com/lardconcepts/4947360)
+This software was inspired by the work I had previously done on Raspdac-Display.  The basis for most of that code came from Lardconcepts (https://gist.github.com/lardconcepts/4947360).
 A great overview of LCD/OLED logic is available on Wikipedia (https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller).  While that document is focused on the popular HD44870 LCDs, most of what is describe there applies to the Winstar OLED.  There are important differences though.  The OLED appears to be much more sensitive to timing issues and requires a different command sequence to reset it back to a known good state upon a warmstart.
 Understanding the initialization behavior of the Winstar in 4 bit mode was greatly assisted by PicAxe who currently have a PDF posted which detailed a method to resync with the display.  This is described on the last page of  http://www.picaxe.com/docs/oled.pdf.
+Creating a font system to work on a small pixel display was a challenge.  The file format of my fonts was derived from BMFONT by Angelcode (www.angelcode.com).  Finding good examples of low bitcount fonts was hard.  A site dedicated to supporting the Dwarf Fortress game  (dwarffortresswiki.org/index.php/Main_Page) was invaluable.  It contains many user contributed sprite tables include many different fonts.  The characters for BigFont_10x16 though came from WoodUino (http://woodsgood.ca/projects/2015/02/17/big-font-lcd-characters/).  This is a very clever font that allows a complete 96 character font to be created that is 16 pixels high while using just the 8 custom characters available on an HD44780 display.  
 
 ## License
 
