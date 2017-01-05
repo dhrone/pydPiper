@@ -212,7 +212,8 @@ class widget:
 						if retval == tvalues[i]:
 							retval = tvalues[i+1]
 							break
-					retval = u' '
+					else:
+						retval = u' '
 
 #			elif transform_request in [ u'local' ]:
 #				# requires a moment object as input

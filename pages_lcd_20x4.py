@@ -15,7 +15,7 @@ FONTS = {
 }
 
 IMAGES = {
-	'progbar': {'file':'progressbar_80x8.png' },
+	'progbar': {'file':'progressbar_100x8.png' },
 }
 
 # Load the Widgets that will be used to produce the display pages
@@ -26,17 +26,19 @@ WIDGETS = {
 	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','varwidth':True,'effect':('scroll','left',5,20,'onloop',3,65) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','varwidth':True,'effect':('scroll','left',5,20,'onloop',3,65)},
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','varwidth':True,'effect':('scroll','left',5,20,'onloop',3,65)},
-	'time': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'large', 'just':'right', 'varwidth':True, 'size':(70,16) },
+	'time': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'large', 'just':'right', 'varwidth':True, 'size':(80,16) },
 	'ampm': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%p'], 'font':'small', 'varwidth':True },
 	'temp': { 'type':'text', 'format':'Outside {0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'left', 'size':(55,8) },
 	'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
 	'conditions': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'small','varwidth':True, 'size':(55,16), 'effect':('scroll','left',5,20,'onloop',3,55)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'small', 'varwidth':True, 'size':(40,8), 'just':'right' },
-	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'small', 'varwidth':True, 'just':'left', 'size':(60,8)},
-	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(15,8) },
+	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'small', 'varwidth':True, 'just':'left', 'size':(95,8)},
 	'volumebar': { 'type':'progressimagebar', 'image':'progbar','value':'volume', 'rangeval':(0,100) },
-	'showplay': { 'type':'text', 'format':'\ue000 PLAY', 'font':'large', 'varwidth':True, 'just':'left', 'size':(80,16) },
-	'showstop': { 'type':'text', 'format':'\ue001 STOP', 'font':'large', 'varwidth':True, 'just':'left', 'size':(80,16) },
+	'songprogresstext': { 'type':'text', 'format':'SONG', 'font':'small' },
+	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(40,8) },
+	'trkprogresstext': { 'type':'text', 'format':'TRK', 'font':'small' },
+	'trkprogress': { 'type':'progressbar', 'value':'playlist_position', 'rangeval':(1,'playlist_length'), 'size':(25,8) },
+	'playstopsymbol': { 'type':'text', 'format':'{0}', 'variables':['state|select+play+\ue000+stop+\ue001'], 'font':'small', 'just':'left'  },
 	'randomsymbol': { 'type':'text', 'format':'\ue002 ', 'font':'large', 'varwidth':True, 'size':(10,16) },
 	'random': { 'type':'text', 'format':'Random\n{0}', 'variables':['random|onoff|Capitalize'], 'font':'small', 'varwidth':True, 'size':(65,16) },
 	'repeatoncesymbol': { 'type':'text', 'format':'\ue003 ', 'font':'large', 'varwidth':True, 'size':(10,16) },
@@ -48,19 +50,19 @@ WIDGETS = {
 
 # Assemble the widgets into canvases.  Only needed if you need to combine multiple widgets together so you can produce effects on them as a group.
 CANVASES = {
-	'playartist': { 'widgets': [ ('artist',0,8), ('nowplaying',0,0), ('nowplayingdata',40,0), ('songprogress',65,8) ], 'size':(80,16) },
-	'playalbum': { 'widgets': [ ('album',0,8), ('nowplaying',0,0), ('nowplayingdata',40,0), ('songprogress',65,8) ], 'size':(80,16) },
-	'playtitle': { 'widgets':  [ ('title',0,8), ('nowplaying',0,0), ('nowplayingdata',40,0), ('songprogress',65,8) ], 'size':(80,16) },
-	'playartist_radio': { 'widgets': [ ('artist',0,8), ('nowplaying',0,0), ('radio',40,0), ('songprogress',65,8) ], 'size':(80,16) },
-	'playalbum_radio': { 'widgets':  [ ('album',0,8), ('nowplaying',0,0), ('radio',40,0), ('songprogress',65,8) ], 'size':(80,16) },
-	'playtitle_radio': { 'widgets':  [ ('title',0,8), ('nowplaying',0,0), ('radio',40,0), ('songprogress',65,8) ], 'size':(80,16) },
+	'playartist': { 'widgets': [ ('artist',0,8), ('nowplaying',0,0), ('nowplayingdata',60,0), ('playstopsymbol', 50,16), ('songprogresstext',0,24), ('songprogress',20,24), ('trkprogresstext',60,24), ('trkprogress',75,24) ], 'size':(100,32) },
+	'playalbum': { 'widgets': [ ('album',0,8), ('nowplaying',0,0), ('nowplayingdata',60,0), ('playstopsymbol', 50,16), ('songprogresstext',0,24), ('songprogress',20,24), ('trkprogresstext',60,24), ('trkprogress',75,24) ], 'size':(100,32) },
+	'playtitle': { 'widgets':  [ ('title',0,8), ('nowplaying',0,0), ('nowplayingdata',60,0), ('playstopsymbol', 50,16), ('songprogresstext',0,24), ('songprogress',20,24), ('trkprogresstext',60,24), ('trkprogress',75,24) ], 'size':(100,32) },
+	'playartist_radio': { 'widgets': [ ('artist',0,8), ('nowplaying',0,0), ('radio',60,0), ('playstopsymbol', 50,16), ('songprogresstext',0,24), ('songprogress',20,24), ('trkprogresstext',60,24), ('trkprogress',75,24) ], 'size':(100,32) },
+	'playalbum_radio': { 'widgets':  [ ('album',0,8), ('nowplaying',0,0), ('radio',60,0), ('playstopsymbol', 50,16), ('songprogresstext',0,24), ('songprogress',20,24), ('trkprogresstext',60,24), ('trkprogress',75,24) ], 'size':(100,32) },
+	'playtitle_radio': { 'widgets':  [ ('title',0,8), ('nowplaying',0,0), ('radio',60,0), ('playstopsymbol', 50,16), ('songprogresstext',0,24), ('songprogress',20,24), ('trkprogresstext',60,24), ('trkprogress',75,24) ], 'size':(100,32) },
 	'showrandom': { 'widgets': [ ('randomsymbol',0,0), ('random', 15,0) ], 'size':(80,16) },
-	'showrepeatonce': { 'widgets': [ ('repeatoncesymbol',0,0), ('repeatonce', 15,0) ], 'size':(80,16) },
-	'showrepeatall': { 'widgets': [ ('repeatallsymbol',0,0), ('repeatall', 15,0) ], 'size':(80,16) },
+	'showrepeatonce': { 'widgets': [ ('repeatoncesymbol',0,0), ('repeatonce', 15,0) ], 'size':(100,16) },
+	'showrepeatall': { 'widgets': [ ('repeatallsymbol',0,0), ('repeatall', 15,0) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(80,16) },
-	'stoptime': { 'widgets': [ ('time',0,0), ('ampm',70,0) ], 'size':(80,16) },
-	'weather': { 'widgets': [ ('temp',0,0), ('conditions',0,8), ('temphilow', 55,0) ], 'size':(80,16) },
-	'volume_changed': { 'widgets': [ ('volume',5,0), ('volumebar',0,8) ], 'size':(80,16) },
+	'stoptime': { 'widgets': [ ('time',0,0), ('ampm',80,0) ], 'size':(100,16) },
+	'weather': { 'widgets': [ ('temp',0,0), ('conditions',0,8), ('temphilow', 55,0) ], 'size':(100,16) },
+	'volume_changed': { 'widgets': [ ('volume',5,0), ('volumebar',0,8) ], 'size':(100,16) },
 }
 
 # Place the canvases into sequences to display when their condition is met
@@ -95,21 +97,9 @@ SEQUENCES = [
 	},
 	{
 		'name':'seqVolume',
-		'coordinates':(10,0),
+		'coordinates':(0,16),
 		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
 		'conditional': "db['volume'] != dbp['volume']",
-		'minimum':2,
-	},
-	{
-		'name': 'seqAnnouncePlay',
-		'canvases': [ { 'name':'showplay', 'duration':2 } ],
-		'conditional': "db['state'] != dbp['state'] and db['state']=='play'",
-		'minimum':2,
-	},
-	{
-		'name': 'seqAnnounceStop',
-		'canvases': [ { 'name':'showstop', 'duration':2 } ],
-		'conditional': "db['state'] != dbp['state'] and db['state']=='stop'",
 		'minimum':2,
 	},
 	{
