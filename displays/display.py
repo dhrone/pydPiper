@@ -1397,21 +1397,22 @@ class display_controller(object):
 		for s in self.sequences:
 			w = s.get()
 			if w != None:
-				active.append(w)
+				active.append((w,s.coordinates))
 				# If sequence does not have an active coolingperiod timer set then set one
 				if s.coolingexpires < time.time():
 					s.coolingexpires = s.coolingperiod + time.time()
 		img = None
 		for wid in active:
 			if not img:
-				img = wid.image.copy()
-			else:
-				# If more than one sequence is active, paste together.
-				w = wid.image.size[0]+s.coordinates[0] if wid.image.size[0]+s.coordinates[0] > img.size[0] else img.size[0]
-				h = wid.image.size[1]+s.coordinates[1] if wid.image.size[1]+s.coordinates[1] > img.size[1] else img.size[1]
-				if w > img.size[0] or h > img.size[1]:
-					img = img.crop((0,0,w,h))
-				img.paste(wid.image,s.coordinates)
+				img = Image.new("1", self.size)
+
+			# If more than one sequence is active, paste together.
+			w = wid[0].image.size[0]+wid[1][0] if wid[0].image.size[0]+wid[1][0] > img.size[0] else img.size[0]
+			h = wid[0].image.size[1]+wid[1][1] if wid[0].image.size[1]+wid[1][1] > img.size[1] else img.size[1]
+			if w > img.size[0] or h > img.size[1]:
+				img = img.crop((0,0,w,h))
+
+			img.paste(wid[0].image,wid[1])
 
 		if img is None:
 			try:
