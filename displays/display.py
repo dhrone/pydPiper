@@ -1407,11 +1407,11 @@ class display_controller(object):
 				img = wid.image.copy()
 			else:
 				# If more than one sequence is active, paste together.
-				w = wid.image.size[0] if wid.image.size[0] > img.size[0] else img.size[0]
-				h = wid.image.size[1] if wid.image.size[1] > img.size[1] else img.size[1]
+				w = wid.image.size[0]+s.coordinates[0] if wid.image.size[0]+s.coordinates[0] > img.size[0] else img.size[0]
+				h = wid.image.size[1]+s.coordinates[1] if wid.image.size[1]+s.coordinates[1] > img.size[1] else img.size[1]
 				if w > img.size[0] or h > img.size[1]:
 					img = img.crop((0,0,w,h))
-				img.paste(wid.image,(0,0))
+				img.paste(wid.image,s.coordinates)
 
 		if img is None:
 			try:
