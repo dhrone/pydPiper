@@ -1,7 +1,7 @@
-# pydPiper ![splash](displays/pydPiper_splash.png)
+# pydPiper ![splash](displays/images/pydPiper_splash.png)
 A python program written for the Raspberry Pi that controls small LCD and OLED screens for music distributions like Volumio, RuneAudio, and Max2Play.
   
-![Playing Example](displays/example_playing_album.png)![Time Temp Example](displays/example_time.png)
+![Playing Example](displays/images/example_playing_album.png)![Time Temp Example](displays/images/example_time.png)
 
 ## Features
   * Supports multiple music distributions including Volumio (v1 and v2), RuneAudio, MoodeAudio, and Max2Play.
