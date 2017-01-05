@@ -49,7 +49,7 @@ char id=75 x=220 y=40 width=15 height=16 xoffset=0 yoffset=0 xadvance=15 page=0 
 char id=76 x=240 y=40 width=15 height=16 xoffset=0 yoffset=0 xadvance=15 page=0 chnl=0
 char id=77 x=260 y=40 width=20 height=16 xoffset=0 yoffset=0 xadvance=20 page=0 chnl=0
 char id=78 x=285 y=40 width=20 height=16 xoffset=0 yoffset=0 xadvance=20 page=0 chnl=0
-char id=79 x=310 y=40 width=20 height=16 xoffset=0 yoffset=0 xadvance=20 page=0 chnl=0
+char id=79 x=310 y=40 width=15 height=16 xoffset=0 yoffset=0 xadvance=15 page=0 chnl=0
 char id=80 x=0 y=60 width=15 height=16 xoffset=0 yoffset=0 xadvance=15 page=0 chnl=0
 char id=81 x=20 y=60 width=20 height=16 xoffset=0 yoffset=0 xadvance=20 page=0 chnl=0
 char id=82 x=45 y=60 width=15 height=16 xoffset=0 yoffset=0 xadvance=15 page=0 chnl=0

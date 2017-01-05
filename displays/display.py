@@ -1108,7 +1108,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 			return None
 
 		# If the condition is true and the sequence has already passed it's minimum time reset the timer
-		if self.expires < time.time():
+		if self.expires < time.time() and self.minimum > 0:
 			self.expires = time.time() + self.minimum
 
 		widget, duration, conditional = self.widgets[self.currentwidget]
@@ -1388,7 +1388,7 @@ class display_controller(object):
 		img = None
 		for wid in active:
 			if not img:
-				img = wid.image
+				img = wid.image.copy()
 			else:
 				# If more than one sequence is active, paste together.
 				w = wid.image.size[0] if wid.image.size[0] > img.size[0] else img.size[0]
@@ -1407,7 +1407,7 @@ class display_controller(object):
 		if img is not None:
 			# Limit returned image to the display controllers size
 			x,y = self.size
-			img = img.crop( (0,0,x+1, y+1))
+			img = img.crop( (0,0,x,y))
 
 		# Return next valid image
 		return img

@@ -228,6 +228,7 @@ class musicdata:
 		if len(md) > 0:
 			# elapsed is special as it needs to be sent to guarantee that the timer gets updated correctly.  Even if it hasn't changed, send it anyway
 			md[u'elapsed'] = self.musicdata[u'elapsed']
+			md[u'state'] = self.musicdata[u'state']
 			self.dataqueue.put(md)
 
 			# Update musicdata_prev

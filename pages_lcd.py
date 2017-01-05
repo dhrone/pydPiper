@@ -74,16 +74,16 @@ CANVASES = {
 # To access system variables, refer to them within the db dictionary (e.g. db['title'])
 # To access the most recent previous state of a variable, refer to them within the dbp dictionary (e.g. dbp['title'])
 SEQUENCES = [
-	{	'name': 'seqSplash', 'canvases': [ { 'name':'splash', 'duration':5, 'conditional':"db['state']=='starting'" } ] },
+	{	'name': 'seqSplash', 'canvases': [ { 'name':'splash', 'duration':4 } ], 'conditional':"db['state']=='starting'"   },
 	{
 		'name': 'seqPlay',
 		'canvases': [
-			{ 'name':'playartist', 'duration':15, 'conditional':"not db['stream']=='webradio'" },
-			{ 'name':'playartist_radio', 'duration':15, 'conditional':"db['stream']=='webradio'" },
-			{ 'name':'playalbum', 'duration':30, 'conditional':"not db['stream']=='webradio'" },
-			{ 'name':'playalbum_radio', 'duration':15, 'conditional':"db['stream']=='webradio' and db['album']" },
-			{ 'name':'playtitle', 'duration':30, 'conditional':"not db['stream']=='webradio'" },
-			{ 'name':'playtitle_radio', 'duration':15, 'conditional':"db['stream']=='webradio'" },
+			{ 'name':'playartist', 'duration':8, 'conditional':"not db['stream']=='webradio'" },
+			{ 'name':'playalbum', 'duration':8, 'conditional':"not db['stream']=='webradio'" },
+			{ 'name':'playtitle', 'duration':8, 'conditional':"not db['stream']=='webradio'" },
+			{ 'name':'playartist_radio', 'duration':8, 'conditional':"db['stream']=='webradio'" },
+			{ 'name':'playalbum_radio', 'duration':8, 'conditional':"db['stream']=='webradio' and db['album']" },
+			{ 'name':'playtitle_radio', 'duration':8, 'conditional':"db['stream']=='webradio'" },
 		],
 		'conditional': "db['state']=='play'"
 	},
