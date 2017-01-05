@@ -59,9 +59,9 @@ These instructions provide a general description of what you need to do in order
 Log in to your system and issue the following commands to download the software and place it within the /usr/local/bin directory.  If you prefer to place it somewhere else, modify the location you untar it from accordingly.
 
 ```
-sudo wgets https://github.com/dhrone/pydPiper/archive/v0.25-alpha.tar.gz
-sudo tar zxvf v0.25-alpha.tar.gz --directory /usr/local/bin
-cd /usr/local/bin/pydPiper-0.25-alpha
+sudo wgets https://github.com/dhrone/pydPiper/archive/v0.251-alpha.tar.gz
+sudo tar zxvf v0.251-alpha.tar.gz --directory /usr/local/bin
+cd /usr/local/bin/pydPiper-0.251-alpha
 ```
 
 #### Step 2.  Install required python packages
@@ -99,7 +99,7 @@ Note: It is ok to leave out packages not needed for your particular distribution
 #### Step 3.  Modify pydPiper's configuration file to localize it to your installation
 You can use your preferred editor to edit pydPiper_config.py located in the root of the pydPiper installation.  For me this would be done using vi with the command.
 ```
-sudo vi /usr/local/bin/pydPiper-0.25-alpha/pydPiper_config.py
+sudo vi /usr/local/bin/pydPiper-0.251-alpha/pydPiper_config.py
 ```
 The most important settings to adjust are the DISPLAY_DRIVER and DISPLAY_PINS as your display will not operate correctly if any of them are incorrect.  If you are using an Audiophonics Raspdac V3, the provided values should be correct.  Otherwise you will need to set them up to match how you wired your display to your Raspberry Pi.  
 
@@ -135,6 +135,7 @@ If you want the pydPiper to start when the Raspberry Pi is booted you can add it
 
 ## History
 
+Version 0.251 (Alpha). Fixed Unicode bug in LMS driver.
 Version 0.25 (Alpha). Added support for HD44780 style LCD displays.
 Version 0.21 (Alpha). Minor bug fixes.
 Version 0.2 (Alpha).  Initial testing release.
@@ -145,7 +146,7 @@ Version 0.2 (Alpha).  Initial testing release.
 This software was inspired by the work I had previously done on Raspdac-Display.  The basis for most of that code came from Lardconcepts (https://gist.github.com/lardconcepts/4947360).
 A great overview of LCD/OLED logic is available on Wikipedia (https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller).  While that document is focused on the popular HD44870 LCDs, most of what is describe there applies to the Winstar OLED.  There are important differences though.  The OLED appears to be much more sensitive to timing issues and requires a different command sequence to reset it back to a known good state upon a warmstart.
 Understanding the initialization behavior of the Winstar in 4 bit mode was greatly assisted by PicAxe who currently have a PDF posted which detailed a method to resync with the display.  This is described on the last page of  http://www.picaxe.com/docs/oled.pdf.
-Creating a font system to work on a small pixel display was a challenge.  The file format of my fonts was derived from BMFONT by Angelcode (www.angelcode.com).  Finding good examples of low bitcount fonts was hard.  A site dedicated to supporting the Dwarf Fortress game  (dwarffortresswiki.org/index.php/Main_Page) was invaluable.  It contains many user contributed sprite tables include many different fonts.  The characters for BigFont_10x16 though came from WoodUino (http://woodsgood.ca/projects/2015/02/17/big-font-lcd-characters/).  This is a very clever font that allows a complete 96 character font to be created that is 16 pixels high while using just the 8 custom characters available on an HD44780 display.  
+Creating a font system to work on a small pixel display was a challenge.  The file format of my fonts was derived from BMFONT by Angelcode (http://www.angelcode.com).  Finding good examples of low bitcount fonts was hard.  A site dedicated to supporting the Dwarf Fortress game  (http://dwarffortresswiki.org/index.php/Main_Page) was invaluable.  It contains many user contributed sprite tables include many different fonts.  The characters for BigFont_10x16 though came from WoodUino (http://woodsgood.ca/projects/2015/02/17/big-font-lcd-characters/).  This is a very clever font that allows a complete 96 character font to be created that is 16 pixels high while using just the 8 custom characters available on an HD44780 display.  A few symbols (repeat, repeat once, random) where inspired by the LCD program of Randy Cupic (https://github.com/RandyCupic/RuneAudioLCD).
 
 ## License
 
