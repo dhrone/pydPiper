@@ -43,7 +43,8 @@ SEQUENCES = [
   }
 ]
 
-This simple example will display the artist on the top line and the title on the bottom line of the display if the system is playing a song.  If the player is stopped, it will display the current time centered on the display.  Full documentation for configuring the display will be found in docs/display.md once I've written it.  In the mean time, to get you started there are a few example configurations provided.  
+This simple example will display the artist on the top line and the title on the bottom line of the display if the system is playing a song.  If the player is stopped, it will display the current time centered on the display.  Full documentation for configuring the display will be found in docs/display.md once I've written it.  In the mean time, to get you started there are a few example configurations provided.
+
 | page file         | Appropriate for       |
 | ----------------- | --------------------- |
 | pages_fixed.py    | Winstar WEH displays  |
