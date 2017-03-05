@@ -5,7 +5,7 @@
 # Written by: Ron Ritchey
 
 from __future__ import unicode_literals
-import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp
+import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp, urllib2
 import pages
 import displays
 import sources
@@ -281,42 +281,90 @@ class music_controller(threading.Thread):
 			outside_temp_max_formatted = u'0'
 			outside_temp_min_formatted = u'0'
 
+#
+
+		try:
+
 			try:
-				owm = pyowm.OWM(pydPiper_config.OWM_API)
-				obs = owm.weather_at_coords(pydPiper_config.OWM_LAT, pydPiper_config.OWM_LON)
-				fc = owm.daily_forecast_at_coords(pydPiper_config.OWM_LAT, pydPiper_config.OWM_LON)
-				f = fc.get_forecast()
-				dailyfc = f.get_weathers()
-				wea = obs.get_weather()
+				wq = 'http://api.wunderground.com/api/' + pydPiper_config.WUNDER_API + '/geolookup/conditions/forecast/q/' + pydPiper_config.WUNDER_LOCATION + '.json'
+				response = urllib2.urlopen(wq)
+				json_result = response.read()
+			except HTTPError as e:
+				logging.warning('The Weather Underground server couldn\'t fulfill the request and responded with error code {0}'.format(e.code))
+			except URLError as e:
+				logging.warning('Could not reach the Weather Underground server.  Reason provided was {0}'.format(e.reason))
+			except AttributeError:
+				logging.warning('Weather Underground API key or location are missing from configuration file')
+			else:
 
-				outside_tempf = wea.get_temperature(u'fahrenheit')[u'temp']
-				outside_temp_maxf = dailyfc[0].get_temperature(u'fahrenheit')[u'max']
-				outside_temp_minf = dailyfc[0].get_temperature(u'fahrenheit')[u'min']
+				try:
+					parsed_json = json.loads(json_result)
 
-				outside_tempc = wea.get_temperature(u'celsius')[u'temp']
-				outside_temp_maxc = dailyfc[0].get_temperature(u'celsius')[u'max']
-				outside_temp_minc = dailyfc[0].get_temperature(u'celsius')[u'min']
+					location = parsed_json['location']['city']
+					outside_tempf = parsed_json['current_observation']['temp_f']
+					outside_tempc = parsed_json['current_observation']['temp_c']
+					outside_temp_maxf = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['high']['fahrenheit'])
+					outside_temp_maxc = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['high']['celsius'])
+					outside_temp_minf = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['low']['fahrenheit'])
+					outside_temp_minc = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['low']['celsius'])
+					outside_conditions = parsed_json['current_observation']['weather']
 
-				# Localize temperature value
-				if pydPiper_config.TEMPERATURE.lower() == u'celsius':
-					outside_temp = outside_tempc
-					outside_temp_max = int(outside_temp_maxc)
-					outside_temp_min = int(outside_temp_minc)
-					outside_temp_formatted = u"{0}°C".format(int(outside_temp))
-					outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
-					outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
-				else:
-					outside_temp = outside_tempf
-					outside_temp_max = int(outside_temp_maxf)
-					outside_temp_min = int(outside_temp_minf)
-					outside_temp_formatted = u"{0}°F".format(int(outside_temp))
-					outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
-					outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
+					if pydPiper_config.TEMPERATURE.lower() == u'celsius':
+						outside_temp = outside_tempc
+						outside_temp_max = int(outside_temp_maxc)
+						outside_temp_min = int(outside_temp_minc)
+						outside_temp_formatted = u"{0}°C".format(int(outside_temp))
+						outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
+						outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
+					else:
+						outside_temp = outside_tempf
+						outside_temp_max = int(outside_temp_maxf)
+						outside_temp_min = int(outside_temp_minf)
+						outside_temp_formatted = u"{0}°F".format(int(outside_temp))
+						outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
+						outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
 
-				outside_conditions = wea.get_detailed_status()
-			except:
-				logging.debug(u"Failed to get weather data.  Check OWM_API key.")
-				pass
+				except ValueError:
+					logging.warning('Failed to decode result from Weather Underground Query.  Query string was {0}.  Response was {1}'.format(wq,json_result))
+
+
+
+			# try:
+				# owm = pyowm.OWM(pydPiper_config.OWM_API)
+				# obs = owm.weather_at_coords(pydPiper_config.OWM_LAT, pydPiper_config.OWM_LON)
+				# fc = owm.daily_forecast_at_coords(pydPiper_config.OWM_LAT, pydPiper_config.OWM_LON)
+				# f = fc.get_forecast()
+				# dailyfc = f.get_weathers()
+				# wea = obs.get_weather()
+				#
+				# outside_tempf = wea.get_temperature(u'fahrenheit')[u'temp']
+				# outside_temp_maxf = dailyfc[0].get_temperature(u'fahrenheit')[u'max']
+				# outside_temp_minf = dailyfc[0].get_temperature(u'fahrenheit')[u'min']
+				#
+				# outside_tempc = wea.get_temperature(u'celsius')[u'temp']
+				# outside_temp_maxc = dailyfc[0].get_temperature(u'celsius')[u'max']
+				# outside_temp_minc = dailyfc[0].get_temperature(u'celsius')[u'min']
+				#
+				# # Localize temperature value
+				# if pydPiper_config.TEMPERATURE.lower() == u'celsius':
+				# 	outside_temp = outside_tempc
+				# 	outside_temp_max = int(outside_temp_maxc)
+				# 	outside_temp_min = int(outside_temp_minc)
+				# 	outside_temp_formatted = u"{0}°C".format(int(outside_temp))
+				# 	outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
+				# 	outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
+				# else:
+				# 	outside_temp = outside_tempf
+				# 	outside_temp_max = int(outside_temp_maxf)
+				# 	outside_temp_min = int(outside_temp_minf)
+				# 	outside_temp_formatted = u"{0}°F".format(int(outside_temp))
+				# 	outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
+				# 	outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
+				#
+				# outside_conditions = wea.get_detailed_status()
+			# except:
+			# 	logging.debug(u"Failed to get weather data.  Check OWM_API key.")
+			# 	pass
 
 
 			try:

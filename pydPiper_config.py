@@ -55,6 +55,10 @@ OWM_API = u''
 OWM_LAT = 48.865
 OWM_LON = 2.352
 
+WUNDER_API = ''
+WUNDER_LOCATION = '20121'
+
+
 # Music Source Parameters
 
 # Used by Volumio V1 and Moode
