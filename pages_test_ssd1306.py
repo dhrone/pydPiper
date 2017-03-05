@@ -15,6 +15,10 @@ FONTS = {
 	'tiny': { 'file':'upperasciiwide_3x5_fixed.fnt', 'size':(5,5) },
 }
 
+TRUETYPE_FONTS = {
+	'DejaVuSans14': { 'file':'DejaVuSans.ttf', 'size':14 }
+}
+
 IMAGES = {
 	'progbar': {'file':'progressbar_80x8.png' },
 	'splash': {'file':'pydPiper_fixed_splash.png' }
@@ -25,7 +29,7 @@ WIDGETS = {
 	'xofy': { 'type':'text', 'format':'{0}/{1}', 'variables':['playlist_position', 'playlist_length'], 'font':'small', 'size':(58,16), 'varwidth':True },
 	'volume': { 'type':'text', 'format':'Volume: {0}', 'variables':['volume'], 'font':'small', 'just':'right', 'size':(60,16), 'varwidth':True },
 	'volumelarge': { 'type':'text', 'format':'Volume: {0}', 'variables':['volume'], 'font':'large', 'just':'left', 'varwidth':True },
-        'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':(0,100), 'size':(115,8) },
+	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':(0,100), 'size':(115,8) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'large','varwidth':True,'effect':('scroll','left',1,20,'onloop',3,125)},
 	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','varwidth':True,'effect':('scroll','left',1,20,'onloop',3,125)},
 	'samplerate': { 'type':'text', 'format':'{0}', 'variables':['samplerate'], 'font':'small', 'just':'center','varwidth':True},
@@ -33,19 +37,20 @@ WIDGETS = {
 	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed|strftime+%-M:%S'], 'font':'small','size':(30,8), 'varwidth':True},
 	'length': { 'type':'text', 'format':'{0}', 'variables':['length|strftime+%-M:%S'], 'font':'small','size':(30,8),'just':'right','varwidth':True},
 	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(62,8) },
-        'time': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'large', 'just':'right', 'varwidth':True, 'size':(45,16) },
-        'ampm': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%p'], 'font':'tiny', 'varwidth':True },
-        'tempsmall': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(24,16) },
-        'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
-        'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(80,16) },
-        'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'effect':('scroll','left',1,20,'onloop',3,100)}
+	'time': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'large', 'just':'right', 'varwidth':True, 'size':(45,16) },
+	'ttime': { 'type':'ttext', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'DejaVuSans14', 'just':'right', 'varwidth':True },
+	'ampm': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%p'], 'font':'tiny', 'varwidth':True },
+	'tempsmall': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(24,16) },
+	'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
+	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(80,16) },
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'effect':('scroll','left',1,20,'onloop',3,100)}
 }
 
 # Assemble the widgets into canvases.  Only needed if you need to combine multiple widgets together so you can produce effects on them as a group.
 CANVASES = {
 	'playing': { 'widgets': [ ('xofy',3,0), ('volume',68,0), ('artist',3,10), ('title',3,26), ('bitdepth',22,45), ('samplerate',78,45), ('elapsed',3,56), ('length',98,56), ('songprogress',33,56) ], 'size':(128,64) },
-        'stoptime': { 'widgets': [ ('time',10,2), ('ampm',60,2) ], 'size':(128,64) },
-        'stoptimetemp_popup': { 'widgets': [ ('time',3,2), ('ampm',53,2), ('tempsmall',100,0), ('weather',8,47), ('temphilow',100,48) ], 'size':(128,64) },
+	'stoptime': { 'widgets': [ ('ttime',10,2) ], 'size':(128,64) },
+	'stoptimetemp_popup': { 'widgets': [ ('ttime',3,2), ('tempsmall',100,0), ('weather',8,47), ('temphilow',100,48) ], 'size':(128,64) },
 	'volume_changed': { 'widgets': [ ('volumelarge',8,0), ('volumebar',8,18) ], 'size':(128,64) }
 }
 

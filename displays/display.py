@@ -10,6 +10,8 @@ import math, abc, logging, time, imp, sys, os
 import moment
 from PIL import Image
 from PIL import ImageDraw
+from PIL import ImageFont
+
 import fonts
 
 class widget:
@@ -286,6 +288,9 @@ class gwidget(widget):
 		if self.type == 'text':
 			self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
 			return True
+		if self.type == 'ttext':
+			self.ttext(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
+			return True
 		elif self.type == 'image':
 			# Images are static so no need to refresh
 			return False
@@ -530,6 +535,88 @@ class gwidget(widget):
 		self.updatesize()
 
 		return self.image
+
+	def ttext(self, formatstring, variables, fontpkg, varwidth = True, specifiedsize=8, just=u'left'):
+		# Input
+		# 	formatstring (unicode) -- format string
+		#	variables (unicode array) -- list of variables used to populate formatstring.  Variable values come from variabledict.
+		#	fontpkg (font object) -- The font that the message should be rendered in.
+		#	varwidth (bool) -- Whether the font should be shown monospaced or with variable pitch
+		#	specifiedsize (integer tuple) -- Size to make image if larger than what is requird for the message size
+		#	just (unicode) -- Determines how to justify the text horizontally.  Allowed values [ 'left','right','center','centerchar' ]
+
+		# Save variables used for this text widget
+		self.currentvardict = { }
+		for v in variables:
+			try:
+				jv = v.split(u'|')[0]
+				self.currentvardict[jv] = self.variabledict[jv]
+			except KeyError:
+				logging.debug('Trying to save state of {0} but it was not found within database'.format(jv))
+				pass
+
+		# save parameters for future updates
+		self.type = u'text'
+		self.formatstring = formatstring
+		self.variables = variables
+		self.fontpkg = fontpkg
+		self.varwidth = varwidth
+		self.just = just
+		self.specifiedsize = specifiedsize
+
+		msg = self.evaltext(formatstring, variables)
+		# initialize image
+
+		if msg == '':
+			msg = ' '
+
+		maxw, maxh = self.fontpkg.getsize(msg)
+		cx = maxw
+		textimage = Image.new("1", (maxw, maxh), 0)
+
+		# msglines = msg.split('\n')
+		# maxw = 0
+		# for line in msglines:
+		# 	if maxw < len(line):
+		# 		maxw = len(line)
+		# maxw = maxw * fx
+		# maxh = len(msglines) * fy
+
+		# If a size was provided that is larger than what is required to display the text
+		# expand the image size as appropriate
+		width, height = specifiedsize
+		maxw = maxw if maxw > width else width
+		maxh = maxh if maxh > height else height
+		self.image = Image.new("1", (maxw, maxh), 0)
+
+		draw = ImageDraw.Draw(self.textimage)
+		draw.text( (0,0), msg, font=self.fontpkg, fill='white')
+		del draw
+		# # resize to exact requirement of message
+		# self.image.crop((0,0,cx-1, cy+fy))
+
+		# Place last line into image
+		if just == u'left':
+			ax = 0
+		elif just == u'center':
+			ax = (maxw-cx)/2
+
+		# if this is a character mode display then we need to be careful not to split a character across the character boundary
+		elif just == u'centerchar':
+			# If the number of chars is even, then we should be ok
+			if cx % 2 == 0:
+				ax = (maxw-cx)/2
+			else:
+			# If it's odd though we'll get split so add another character worth of space to the calculation
+				ax = (maxw-cx-fx)/2
+		elif just == u'right':
+			ax = (maxw-cx)
+		self.image.paste(textimage, (ax, 0))
+
+		self.updatesize()
+
+		return self.image
+
 
 	# Image widget function
 	def imagewidget(self, image, size=(0,0)):
@@ -1025,6 +1112,11 @@ class gwidgetText(gwidget):
 		super(gwidgetText, self).__init__(variabledict)
 		self.text(formatstring, variables, fontpkg, varwidth, size, just)
 
+class gwidgetTText(gwidget):
+	def __init__(self, formatstring, fontpkg, variabledict={ }, variables =[], varwidth = True, size=8, just=u'left'):
+		super(gwidgetText, self).__init__(variabledict)
+		self.ttext(formatstring, variables, fontpkg, varwidth, size, just)
+
 class gwidgetProgressBar(gwidget):
 	def __init__(self, value, rangeval, size, style=u'square',variabledict={ }):
 		super(gwidgetProgressBar, self).__init__(variabledict)
@@ -1213,6 +1305,21 @@ class display_controller(object):
 			# No fonts specified
 			pass
 
+		# Load truetype fonts
+		try:
+			for k,v in self.pages.TRUETYPE_FONTS.iteritems():
+				fontfile = v['file'] if 'file' in v else ''
+				fontsize = v['size'] if 'size' in v else 8
+				if fontfile:
+					logging.debug('Loading font {0}'.format(k))
+					v['fontpkg'] = ImageFont.truetype(font=fontfile, size=fontsize).fontpkg
+				else:
+					logging.critical('Expected a font file for {0} but none provided'.format(k))
+		except AttributeError:
+			# No fonts specified
+			pass
+
+
 		if self.defaultfontpkg is None:
 			logging.critical('Must specify a default font.  Exiting...')
 			raise RuntimeError('Must specify a default font.  Exiting...')
@@ -1275,6 +1382,18 @@ class display_controller(object):
 					logging.warning('Attempted to add text widget {0} without a format or font specified.  Skipping...'.format(k))
 					continue
 				widget = gwidgetText(format, fontpkg, self.db, variables, varwidth, size, just)
+			elif typeval == 'ttext':
+				format = v['format'] if 'format' in v else ''
+				variables = v['variables'] if 'variables' in v else []
+				font = v['font'] if 'font' in v else ''
+				just = v['just'] if 'just' in v else 'left'
+				size = v['size'] if 'size' in v else (0,0)
+				varwidth = v['varwidth'] if 'varwidth' in v else True
+				fontpkg = self.pages.TRUETYPE_FONTS[font] if font in self.pages.TRUETYPE_FONTS else { }
+				if not format or not fontpkg:
+					logging.warning('Attempted to add text widget {0} without a format or font specified.  Skipping...'.format(k))
+					continue
+				widget = gwidgetTText(format, fontpkg, self.db, variables, varwidth, size, just)
 			elif typeval == 'progressbar':
 				value = v['value'] if 'value' in v else None
 				rangeval = v['rangeval'] if 'rangeval' in v else (0,100)
