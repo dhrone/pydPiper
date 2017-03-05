@@ -281,7 +281,7 @@ class gwidget(widget):
 
 	def update(self, reset=False):
 
-		if self.type in ['text', 'progressbar']:
+		if self.type in ['text', 'ttest', 'progressbar']:
 			if not self.changed(self.variables):
 				return False
 
@@ -556,7 +556,7 @@ class gwidget(widget):
 				pass
 
 		# save parameters for future updates
-		self.type = u'text'
+		self.type = u'ttext'
 		self.formatstring = formatstring
 		self.variables = variables
 		self.fontpkg = fontpkg
@@ -589,7 +589,7 @@ class gwidget(widget):
 		maxh = maxh if maxh > height else height
 		self.image = Image.new("1", (maxw, maxh), 0)
 
-		draw = ImageDraw.Draw(self.textimage)
+		draw = ImageDraw.Draw(textimage)
 		draw.text( (0,0), msg, font=self.fontpkg, fill='white')
 		del draw
 		# # resize to exact requirement of message
@@ -1114,7 +1114,7 @@ class gwidgetText(gwidget):
 
 class gwidgetTText(gwidget):
 	def __init__(self, formatstring, fontpkg, variabledict={ }, variables =[], varwidth = True, size=8, just=u'left'):
-		super(gwidgetText, self).__init__(variabledict)
+		super(gwidgetTText, self).__init__(variabledict)
 		self.ttext(formatstring, variables, fontpkg, varwidth, size, just)
 
 class gwidgetProgressBar(gwidget):
@@ -1312,7 +1312,7 @@ class display_controller(object):
 				fontsize = v['size'] if 'size' in v else 8
 				if fontfile:
 					logging.debug('Loading font {0}'.format(k))
-					v['fontpkg'] = ImageFont.truetype(font=fontfile, size=fontsize).fontpkg
+					v['fontpkg'] = ImageFont.truetype(font=fontfile, size=fontsize)
 				else:
 					logging.critical('Expected a font file for {0} but none provided'.format(k))
 		except AttributeError:
@@ -1361,7 +1361,7 @@ class display_controller(object):
 
 			logging.debug('Loading widget {0}'.format(k))
 
-			if typeval not in ['canvas', 'text', 'progressbar', 'progressimagebar', 'line', 'rectangle', 'image' ]:
+			if typeval not in ['canvas', 'text', 'ttext', 'progressbar', 'progressimagebar', 'line', 'rectangle', 'image' ]:
 				if typeval:
 					logging.warning('Attempted to add widget {0} with an unsupported widget type {1}.  Skipping...'.format(k,typeval))
 				else:
@@ -1389,7 +1389,8 @@ class display_controller(object):
 				just = v['just'] if 'just' in v else 'left'
 				size = v['size'] if 'size' in v else (0,0)
 				varwidth = v['varwidth'] if 'varwidth' in v else True
-				fontpkg = self.pages.TRUETYPE_FONTS[font] if font in self.pages.TRUETYPE_FONTS else { }
+				fontentry = self.pages.TRUETYPE_FONTS[font] if font in self.pages.TRUETYPE_FONTS else { }
+				fontpkg = fontentry['fontpkg'] if 'fontpkg' in fontentry else None
 				if not format or not fontpkg:
 					logging.warning('Attempted to add text widget {0} without a format or font specified.  Skipping...'.format(k))
 					continue
