@@ -289,13 +289,6 @@ class music_controller(threading.Thread):
 					wq = 'http://api.wunderground.com/api/' + pydPiper_config.WUNDER_API + '/geolookup/conditions/forecast/q/' + pydPiper_config.WUNDER_LOCATION + '.json'
 					response = urllib2.urlopen(wq)
 					json_result = response.read()
-				except HTTPError as e:
-					logging.warning('The Weather Underground server couldn\'t fulfill the request and responded with error code {0}'.format(e.code))
-				except URLError as e:
-					logging.warning('Could not reach the Weather Underground server.  Reason provided was {0}'.format(e.reason))
-				except AttributeError:
-					logging.warning('Weather Underground API key or location are missing from configuration file')
-				else:
 
 					try:
 						parsed_json = json.loads(json_result)
@@ -326,6 +319,14 @@ class music_controller(threading.Thread):
 
 					except ValueError:
 						logging.warning('Failed to decode result from Weather Underground Query.  Query string was {0}.  Response was {1}'.format(wq,json_result))
+
+				except HTTPError as e:
+					logging.warning('The Weather Underground server couldn\'t fulfill the request and responded with error code {0}'.format(e.code))
+				except URLError as e:
+					logging.warning('Could not reach the Weather Underground server.  Reason provided was {0}'.format(e.reason))
+				except AttributeError:
+					logging.warning('Weather Underground API key or location are missing from configuration file')
+
 
 
 
