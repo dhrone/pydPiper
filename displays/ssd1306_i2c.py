@@ -29,7 +29,7 @@ except:
 
 class ssd1306_i2c():
 
-	def __init__(self, rows=64, cols=128, i2c_port=1, i2c_address=0x3d):
+	def __init__(self, rows=64, cols=128, i2c_address=0x3d, i2c_port=1):
 
 		self.i2c_address = i2c_address
 		self.i2c_port = i2c_port
@@ -43,7 +43,7 @@ class ssd1306_i2c():
 		font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
 		self.fp = font.fontpkg
 
-		serial = i2c(i2c_port, i2c_address)
+		serial = i2c(port=i2c_port, address=i2c_address)
 		self.device = ssd1306(serial)
 
 
@@ -66,7 +66,7 @@ class ssd1306_i2c():
 		img = image.crop( (0,0,self.cols, self.rows))
 
 		# send to display
-		self.display(img)
+		self.device.display(img)
 
 	def msgtest(self, text, wait=1.5):
 		self.clear()
@@ -125,6 +125,9 @@ if __name__ == '__main__':
 	 		'title':"Nicotine & Gravy",
 			'artist':"Beck",
 			'album':'Midnight Vultures',
+			'tracktype':'MP3 Stereo 24 bit 44.1 Khz',
+			'bitdepth':'16 bits',
+			'samplerate':'44.1 kHz',
 			'elapsed':0,
 			'length':400,
 			'volume':50,
@@ -146,6 +149,9 @@ if __name__ == '__main__':
 	 		'title':"Nicotine & Gravy",
 			'artist':"Beck",
 			'album':'Midnight Vultures',
+			'tracktype':'MP3 Stereo 24 bit 44.1 Khz',
+			'bitdepth':'16 bits',
+			'samplerate':'44.1 kHz',
 			'elapsed':0,
 			'length':400,
 			'volume':50,
@@ -188,8 +194,8 @@ if __name__ == '__main__':
 		elapsed = int(time.time()-starttime)
 		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-		dc = display.display_controller((80,16))
-		f_path = os.path.join(os.path.dirname(__file__), 'pages_test.py')
+		dc = display.display_controller((cols,rows))
+		f_path = os.path.join(os.path.dirname(__file__), 'pages_test_ssd1306.py')
 		dc.load(f_path, db,dbp )
 
 		starttime=time.time()
@@ -201,7 +207,7 @@ if __name__ == '__main__':
 			img = dc.next()
 			processevent(events, starttime, 'post', db, dbp)
 			lcd.update(img)
-			time.sleep(.1)
+			time.sleep(.001)
 
 
 	except KeyboardInterrupt:

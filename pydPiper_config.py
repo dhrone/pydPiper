@@ -5,19 +5,22 @@ STARTUP_LOGMSG = 'pydPiper starting'
 STARTUP_MSG_DURATION = 5  # Sets how long that system state 'starting' will be True
 
 # Display Parameters
-DISPLAY_DRIVER='winstar_weg'
+DISPLAY_DRIVER='ssd1306_i2c'
+#DISPLAY_DRIVER='winstar_weg'
 #DISPLAY_DRIVER='hd44780'
 
-DISPLAY_WIDTH = 100 # the  width of the display in pixels
-DISPLAY_HEIGHT = 16 # the height of the display in pixels
+DISPLAY_WIDTH = 128 # the  width of the display in pixels
+DISPLAY_HEIGHT = 64 # the height of the display in pixels
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
 DISPLAY_PIN_RS = 7
 DISPLAY_PIN_E =  8
 DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
 #DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
+DISPLAY_I2C_ADDRESS = 0x3d
+DISPLAY_I2C_PORT = 1
 
 # Page Parameters
-ANIMATION_SMOOTHING = .15 # Amount of time in seconds to wait before repainting display
+ANIMATION_SMOOTHING = .015 # Amount of time in seconds to wait before repainting display
 
 # System Parameters
 # This is where the log file will be written

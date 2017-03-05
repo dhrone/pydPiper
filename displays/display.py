@@ -195,6 +195,8 @@ class widget:
 							except:
 								logging.debug(u"Cannot format moment.  Bad strftime value provided ({0})".format(tvalues[0]))
 								retval = u'Err'
+				elif transform_request in [u'strftime'] and type(retval) is int:
+					retval = time.strftime(tvalues[0], time.gmtime(int(retval)))
 				else:
 					# Bad input provided
 					logging.debug(u'Expected a moment variable but received a {0}'.format(type(retval)))
