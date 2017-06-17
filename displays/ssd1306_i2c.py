@@ -61,12 +61,19 @@ class ssd1306_i2c():
 		self.update(textwidget.image)
 
 	def update(self, image):
+		retry = 5
 
 		# Make image the same size as the display
 		img = image.crop( (0,0,self.cols, self.rows))
 
-		# send to display
-		self.device.display(img)
+		while retry:
+			# send to display
+			try:
+				self.device.display(img)
+				break
+			except IOError:
+				retry -= 1
+
 
 	def msgtest(self, text, wait=1.5):
 		self.clear()

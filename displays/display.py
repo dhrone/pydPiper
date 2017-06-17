@@ -1312,7 +1312,10 @@ class display_controller(object):
 				fontsize = v['size'] if 'size' in v else 8
 				if fontfile:
 					logging.debug('Loading font {0}'.format(k))
-					v['fontpkg'] = ImageFont.truetype(font=fontfile, size=fontsize)
+					try:
+						v['fontpkg'] = ImageFont.truetype(font=fontfile, size=fontsize)
+					except IOError:
+						logging.critical('Font {0} not found'.format(fontfile))
 				else:
 					logging.critical('Expected a font file for {0} but none provided'.format(k))
 		except AttributeError:
