@@ -1,0 +1,7 @@
+moment
+python-mpd2
+pyLMS
+redis
+pyOWM
+luma.oled
+socketIO-client
