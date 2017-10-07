@@ -5,12 +5,12 @@ STARTUP_LOGMSG = 'pydPiper starting'
 STARTUP_MSG_DURATION = 5  # Sets how long that system state 'starting' will be True
 
 # Display Parameters
-DISPLAY_DRIVER='ssd1306_i2c'
-#DISPLAY_DRIVER='winstar_weg'
+#DISPLAY_DRIVER='ssd1306_i2c'
+DISPLAY_DRIVER='winstar_weg'
 #DISPLAY_DRIVER='hd44780'
 
-DISPLAY_WIDTH = 128 # the  width of the display in pixels
-DISPLAY_HEIGHT = 64 # the height of the display in pixels
+DISPLAY_WIDTH = 100 # the  width of the display in pixels
+DISPLAY_HEIGHT = 16 # the height of the display in pixels
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
 DISPLAY_PIN_RS = 7
 DISPLAY_PIN_E =  8
@@ -55,8 +55,8 @@ OWM_API = u''
 OWM_LAT = 48.865
 OWM_LON = 2.352
 
-WUNDER_API = ''
-WUNDER_LOCATION = '20121'
+WUNDER_API = '27b75bd1e4def144'
+WUNDER_LOCATION = '07302'
 
 
 # Music Source Parameters

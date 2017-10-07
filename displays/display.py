@@ -83,7 +83,7 @@ class widget:
 		return
 
 	@abc.abstractmethod
-	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0,reset=False):
+	def scroll(self, widget, direction=u'left', distance=1, speed=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0,reset=False):
 		# Input
 		#	widget (widget) -- Widget to scroll
 		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
@@ -316,7 +316,7 @@ class gwidget(widget):
 					self.place(widget, (x,y), (w,h))
 			return retval
 		elif self.type == u'scroll':
-			return self.scroll(self.widget, self.direction, self.distance, self.gap, self.hesitatetype, self.hesitatetime,self.threshold, reset)
+			return self.scroll(self.widget, self.direction, self.distance, self.speed, self.gap, self.hesitatetype, self.hesitatetime,self.threshold, reset)
 		elif self.type == u'popup':
 			return self.popup(self.widget, self.dheight, self.duration, self.pduration)
 		else:
@@ -946,7 +946,7 @@ class gwidget(widget):
 		return True
 
 	# SCROLL widget function
-	def scroll(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0, reset=False): # Set up for scrolling
+	def scroll(self, widget, direction=u'left', distance=1, speed=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0, reset=False): # Set up for scrolling
 		# Input
 		#	widget (widget) -- Widget to scroll
 		#	direction (unicode) -- What direction to scroll ['left', 'right','up','down']
@@ -985,6 +985,8 @@ class gwidget(widget):
 			direction = direction.lower()
 			self.direction = direction
 			self.distance = distance
+			self.speed = speed # Used to slow scroll.  Speed is an integer that tells how many calls to scroll before an update is made
+			self.speedcount = speed
 			self.gap = gap
 			hesitatetype = hesitatetype.lower()
 			self.hesitatetype = hesitatetype
@@ -1043,6 +1045,9 @@ class gwidget(widget):
 			self.vindex = 0
 			self.updatesize()
 
+			# Reset speed count
+			self.speedcount = self.speed
+
 			# Set height and width for expanded image
 			self.eheight = self.widget.size[1] if self.direction in [u'left',u'right'] else self.widget.size[1]+gap
 			self.ewidth = self.widget.size[0]+gap if self.direction in [u'left',u'right'] else self.widget.size[0]
@@ -1065,8 +1070,15 @@ class gwidget(widget):
 					self.shouldscroll = False
 			return True
 
+		# Decrement the speed counter and test to see if this update should be skipped
+		self.speedcount -= 1
+		speeddelay = True
+		if not self.speedcount:
+			speeddelay = False
+			self.speedcount = self.speed
+
 		# If Hesitate is needed or scrolling is not needed, return
-		if self.end > time.time() or not self.shouldscroll:
+		if self.end > time.time() or not self.shouldscroll or speeddelay:
 			return retval
 
 		if direction == u'left':
@@ -1153,9 +1165,9 @@ class gwidgetPopup(gwidget):
 		self.popup(widget, dheight, duration, pduration)
 
 class gwidgetScroll(gwidget):
-	def __init__(self, widget, direction=u'left', distance=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0, reset=False):
+	def __init__(self, widget, direction=u'left', distance=1, speed=1, gap=20, hesitatetype=u'onloop', hesitatetime=2, threshold=0, reset=False):
 		super(gwidgetScroll, self).__init__()
-		self.scroll(widget, direction, distance, gap, hesitatetype, hesitatetime,threshold,reset)
+		self.scroll(widget, direction, distance, speed, gap, hesitatetype, hesitatetime,threshold,reset)
 
 
 class sequence(object): # Holds a sequence of widgets to display on the screen in turn

@@ -322,7 +322,7 @@ class music_controller(threading.Thread):
 				logging.warning('The Weather Underground server couldn\'t fulfill the request and responded with error code {0}'.format(e.code))
 			except urllib2.URLError as e:
 				logging.warning('Could not reach the Weather Underground server.  Reason provided was {0}'.format(e.reason))
-			except AttributeError:
+			except (AttributeError, KeyError):
 				logging.warning('Weather Underground API key or location are missing from configuration file')
 
 
@@ -403,13 +403,13 @@ class music_controller(threading.Thread):
 					line = "{0} {1}".format(va[3], va[4])
 				else:
 					# assume running on Raspberry linux
-					with os.popen(u"df --output='avail','pcent','used' /") as p:
+					with os.popen(u"df -B 1 /") as p:
 						line = p.readline()
 						line = p.readline().strip()
 
 				va = line.split()
-				avail = int(va[0])
-				usedp = int(va[1][:-1]) # Remove trailing % and convert to int
+				avail = int(va[3])
+				usedp = int(va[4][:-1]) # Remove trailing % and convert to int
 				used = int(va[2])
 				availp = 100-usedp
 
