@@ -1,4 +1,3 @@
-git clone https://github.com/dhrone/pydPiper
 curl -sSL https://get.docker.com | sh
 sudo systemctl enable docker
 sudo systemctl start docker
