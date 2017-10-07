@@ -9,7 +9,7 @@ STARTUP_MSG_DURATION = 5  # Sets how long that system state 'starting' will be T
 DISPLAY_DRIVER='winstar_weg'
 #DISPLAY_DRIVER='hd44780'
 
-DISPLAY_WIDTH = 100 # the  width of the display in pixels
+DISPLAY_WIDTH = 80 # the  width of the display in pixels
 DISPLAY_HEIGHT = 16 # the height of the display in pixels
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
 DISPLAY_PIN_RS = 7

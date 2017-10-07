@@ -1,0 +1,12 @@
+[Unit]
+Description=pydPiper container
+Requires=docker.service
+After=volumio.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker run --network=host --privileged dhrone/pydpiper:raspdacv3 python /app/pydPiper.py --volumio
+ExecStop=/usr/bin/docker stop -t 2 dhrone/pydpiper:raspdacv3
+
+[Install]
+WantedBy=multi-user.target

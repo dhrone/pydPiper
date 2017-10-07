@@ -100,7 +100,7 @@ SEQUENCES = [
 	},
 	{
 		'name':'seqVolume',
-		'coordinates':(10,0),
+		'coordinates':(0,0),
 		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
 		'conditional': "db['volume'] != dbp['volume']",
 		'minimum':2,
