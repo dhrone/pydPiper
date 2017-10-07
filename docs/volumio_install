@@ -1,0 +1,21 @@
+Quick installation instructions
+
+WARNING:  These instructions are only for the Raspdac V3 running Volumio 2.  If you are using a Raspdac V2 or any other combination of RPi, OLED, LCD, or distribution it will not work.  Also, it is largely untested.  YMMV.
+
+Install the latest version of Volumio 2 (currently 2.282) onto your SD card
+
+Before removing SD card from your computer, place file named 'ssh' in /boot.  This file does not need to contain any content.  It just needs to exist in order to enable the SSH daemon when Volumio gets booted.
+
+Place the SD card into your RPi and boot
+
+Log in to the RPi using SSH
+ssh volumio@volumio.local (the default password is volumio)
+
+Issue the following commands to install pydPiper
+git clone https://github.com/dhrone/pydPiper
+pydPiper/volumio_install.sh
+(enter the root password)
+
+A lengthy install process will now run...
+
+When the install script stops executing in about 20 seconds pydPiper should start working.
