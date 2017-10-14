@@ -11,7 +11,6 @@ from __future__ import unicode_literals
 FONTS = {
 	'small': { 'default':True, 'file':'latin1_5x8_fixed.fnt','size':(5,8) },
 #	'large': { 'file':'BigFont_10x16_fixed.fnt', 'size':(10,16) },
-	'large': { 'file':'Vintl01_10x16_fixed.fnt', 'size':(10,16) },
 	'tiny': { 'file':'upperasciiwide_3x5_fixed.fnt', 'size':(5,5) },
 }
 
@@ -27,20 +26,20 @@ WIDGETS = {
 	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','varwidth':True,'effect':('scroll','left',5,1,20,'onloop',3,80) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'small','varwidth':True,'effect':('scroll','left',5,1,20,'onloop',3,80)},
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','varwidth':True,'effect':('scroll','left',5,1,20,'onloop',3,80)},
-	'time': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'large', 'just':'right', 'varwidth':True, 'size':(50,16) },
+	'time': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'small', 'just':'right', 'varwidth':True, 'size':(50,16) },
 	'ampm': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%p'], 'font':'tiny', 'varwidth':True },
 	'tempsmall': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(20,8) },
 	'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
-	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(80,16) },
-	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(55,16), 'effect':('scroll','left',5,1,20,'onloop',3,80)},
+	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'center', 'size':(80,16) },
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'small','varwidth':True, 'size':(55,16), 'effect':('scroll','left',5,1,20,'onloop',3,80)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'tiny', 'varwidth':True, 'size':(40,5), 'just':'right' },
 	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'tiny', 'varwidth':True, 'just':'left', 'size':(60,8)},
 	'volumebar': { 'type':'progressimagebar', 'image':'progbar','value':'volume', 'rangeval':(0,100) },
 	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(80,1) },
-	'showplay': { 'type':'text', 'format':'\ue000 PLAY', 'font':'large', 'varwidth':True, 'just':'center', 'size':(80,16) },
-	'showstop': { 'type':'text', 'format':'\ue001 STOP', 'font':'large', 'varwidth':True, 'just':'center', 'size':(80,16) },
-	'randomsymbol': { 'type':'text', 'format':'\ue002 ', 'font':'large', 'varwidth':True, 'size':(10,16) },
-	'temptoohigh': { 'type':'text', 'format':'\ue005 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'varwidth':True, 'effect':('scroll','left',5,1,20,'onstart',3,80) }
+	'showplay': { 'type':'text', 'format':'\ue000 PLAY', 'font':'small', 'varwidth':True, 'just':'center', 'size':(80,16) },
+	'showstop': { 'type':'text', 'format':'\ue001 STOP', 'font':'small', 'varwidth':True, 'just':'center', 'size':(80,16) },
+	'randomsymbol': { 'type':'text', 'format':'\ue002 ', 'font':'small', 'varwidth':True, 'size':(10,16) },
+	'temptoohigh': { 'type':'text', 'format':'\ue005 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'small', 'varwidth':True, 'effect':('scroll','left',5,1,20,'onstart',3,80) }
 }
 
 # Assemble the widgets into canvases.  Only needed if you need to combine multiple widgets together so you can produce effects on them as a group.
