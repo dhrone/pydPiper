@@ -368,11 +368,11 @@ if __name__ == '__main__':
 			'volume':50,
 			'stream':'Not webradio',
 			'utc': 	moment.utcnow(),
-			'outside_temp_formatted':'46\xb0F',
+			'outside_temp_formatted':u'46\xb0F',
 			'outside_temp_max':72,
 			'outside_temp_min':48,
 			'outside_conditions':'Windy',
-			'system_temp_formatted':'98\xb0C',
+			'system_temp_formatted':u'98\xb0C',
 			'state':'stop',
 			'system_tempc':81.0
 		}
@@ -389,11 +389,11 @@ if __name__ == '__main__':
 			'volume':50,
 			'stream':'Not webradio',
 			'utc': 	moment.utcnow(),
-			'outside_temp_formatted':'46\xb0F',
+			'outside_temp_formatted':u'46\xb0F',
 			'outside_temp_max':72,
 			'outside_temp_min':48,
 			'outside_conditions':'Windy',
-			'system_temp_formatted':'98\xb0C',
+			'system_temp_formatted':u'98\xb0C',
 			'state':'stop',
 			'system_tempc':81.0
 		}
@@ -405,11 +405,11 @@ if __name__ == '__main__':
 		(40, 'title', 'I Never Loved a Man (The Way I Love You)'),
 		(40, 'artist', 'Aretha Franklin'),
 		(40, 'album', 'The Queen Of Soul'),
-		(40, 'playlist_position':2),
+		(40, 'playlist_position', 2),
 		(70, 'state', 'stop'),
 		(90, 'state', 'play'),
 		(100, 'title', 'Do Right Woman, Do Right Man'),
-		(100, 'playlist_position':3),
+		(100, 'playlist_position', 3),
 		(120, 'volume', 100),
 		(140, 'state', 'play' )
 	]

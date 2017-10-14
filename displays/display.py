@@ -249,6 +249,7 @@ class widget:
 				parms.append(val)
 		except KeyError:
 			logging.debug( u"Variable not found in evaltext.  Values requested are {0}".format(variables) )
+			print u"Variable not found in evaltext.  Values requested are {0}".format(variables)
 			# Format doesn't match available variables
 			segval = u"VarErr"
 			return segval
@@ -258,6 +259,7 @@ class widget:
 			segval = formatstring.format(*parms)
 		except:
 			logging.debug( u"Var Error Format {0}, Parms {1} Vars {2}".format(formatstring, parms, variables) )
+			print u"Var Error Format {0}, Parms {1} Vars {2}".format(formatstring, parms, variables) 
 			# Format doesn't match available variables
 			logging.debug(u"Var Error with parm type {0} and format type {1}".format(type(parms), type(formatstring)))
 			segval = u"VarErr"
