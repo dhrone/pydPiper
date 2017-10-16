@@ -572,6 +572,8 @@ if __name__ == u'__main__':
 		lcd = displays.winstar_weg.winstar_weg(rows, cols, pin_rs, pin_e, pins_data)
 	elif driver == u"hd44780":
 		lcd = displays.hd44780.hd44780(rows, cols, pin_rs, pin_e, pins_data)
+	elif driver == u"hd44780_i2c":
+		lcd = displays.hd44780_i2c.hd44780_i2c(rows, cols, i2c_address, i2c_port)
 	elif driver == u"ssd1306_i2c":
 		lcd = displays.ssd1306_i2c.ssd1306_i2c(rows, cols, i2c_address, i2c_port)
 	elif driver == u"curses":
