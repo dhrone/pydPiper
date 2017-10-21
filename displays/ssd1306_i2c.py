@@ -202,7 +202,7 @@ if __name__ == '__main__':
 		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
 		dc = display.display_controller((cols,rows))
-		f_path = os.path.join(os.path.dirname(__file__), '../pages_test_ssd1306.py')
+		f_path = os.path.join(os.path.dirname(__file__), '../pages_ssd1306.py')
 		dc.load(f_path, db,dbp )
 
 		starttime=time.time()
