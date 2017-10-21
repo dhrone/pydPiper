@@ -66,7 +66,7 @@ These instructions provide a general description of what you need to do in order
 Log in to your system and issue the following commands to download the software and place it within your home directory.  If you prefer to place it somewhere else, modify the location you untar it from accordingly.
 
 ```
-sudo wgets https://github.com/dhrone/pydPiper/archive/v0.3-alpha.tar.gz
+sudo wget https://github.com/dhrone/pydPiper/archive/v0.3-alpha.tar.gz
 sudo tar zxvf v0.3-alpha.tar.gz
 cd pydPiper-0.3-alpha
 ```
