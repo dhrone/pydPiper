@@ -8,7 +8,7 @@ Restart=always
 
 # Generic command to start pydPiper
 #
-#ExecStart=/usr/bin/docker run --network=host --privileged dhrone/pydpiper:raspdacv3 python /app/pydPiper.py --<musicdistro> --driver <driver> --width <width> --height <height> --i2caddress <i2caddress> --i2cport <i2cport> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --timezone <timezone> --temperature <temperature> --lmsplayer <lmsplayer> --pages <pagefile>
+#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw dhrone/pydpiper:latest python /app/pydPiper.py --<musicdistro> --driver <driver> --width <width> --height <height> --i2caddress <i2caddress> --i2cport <i2cport> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --timezone <timezone> --temperature <temperature> --lmsplayer <lmsplayer> --pages <pagefile>
 #
 # Definitions for command line Parameters
 #
@@ -45,16 +45,16 @@ Restart=always
 
 # EXAMPLES
 # RaspdacV3 without weather
-#ExecStart=/usr/bin/docker run --network=host --privileged dhrone/pydpiper:raspdacv3 python /app/pydPiper.py --volumio --driver winstar_weg --width 80 --height 16 --rs 7 --e 8 --d4 25 --d5 24 --d6 23 --d7 27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_weh_80x16.py
+#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw  dhrone/pydpiper:latest python /app/pydPiper.py --volumio --driver winstar_weg --width 80 --height 16 --rs 7 --e 8 --d4 25 --d5 24 --d6 23 --d7 27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_weh_80x16.py
 
 # RaspdacV3 with weather
-#ExecStart=/usr/bin/docker run --network=host --privileged dhrone/pydpiper:raspdacv3 python /app/pydPiper.py --volumio --driver winstar_weg --width 80 --height 16 --rs 7 --e 8 --d4 25 --d5 24 --d6 23 --d7 27 --timezone 'US/Eastern' --temperature fahrenheit --wapi <Add Weather Underground API key here> --wlocale <Add location (e.g. 20001, 'CA/San_Francisco', 'France/Paris', '37.77,-122.39')> --pages pages_weh_80x16.py
+#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw  dhrone/pydpiper:latest python /app/pydPiper.py --volumio --driver winstar_weg --width 80 --height 16 --rs 7 --e 8 --d4 25 --d5 24 --d6 23 --d7 27 --timezone 'US/Eastern' --temperature fahrenheit --wapi <Add Weather Underground API key here> --wlocale <Add location (e.g. 20001, 'CA/San_Francisco', 'France/Paris', '37.77,-122.39')> --pages pages_weh_80x16.py
 
 # HD44780 LCD 20x4 display with I2C interface on address 0x27
-#ExecStart=/usr/bin/docker run --network=host --privileged dhrone/pydpiper:raspdacv3 python /app/pydPiper.py --volumio --driver hd44780_i2c  --width 100 --height 32 --i2caddress 0x27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_lcd_20x4.py
+#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw  dhrone/pydpiper:latest python /app/pydPiper.py --volumio --driver hd44780_i2c  --width 100 --height 32 --i2caddress 0x27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_lcd_20x4.py
 
 # HD44780 LCD 16x2 display with I2C interface on address 0x27
-#ExecStart=/usr/bin/docker run --network=host --privileged dhrone/pydpiper:raspdacv3 python /app/pydPiper.py --volumio --driver hd44780_i2c  --width 80 --height 16 --i2caddress 0x27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_lcd_16x2.py
+#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw  dhrone/pydpiper:latest python /app/pydPiper.py --volumio --driver hd44780_i2c  --width 80 --height 16 --i2caddress 0x27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_lcd_16x2.py
 
 # HD44780 LCD 20x4 display with parallel interface using the following pin assignments
 # Enable - pin 8
@@ -63,9 +63,9 @@ Restart=always
 # D5     - pin 24
 # D6     - pin 23
 # D7     - pin 27
-#ExecStart=/usr/bin/docker run --network=host --privileged dhrone/pydpiper:raspdacv3 python /app/pydPiper.py --volumio --driver hd44780 --width 100 --height 32 --rs 7 --e 8 --d4 25 --d5 24 --d6 23 --d7 27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_lcd_20x4.py
+#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw  dhrone/pydpiper:latest python /app/pydPiper.py --volumio --driver hd44780 --width 100 --height 32 --rs 7 --e 8 --d4 25 --d5 24 --d6 23 --d7 27 --timezone 'US/Eastern' --temperature fahrenheit --pages pages_lcd_20x4.py
 
-ExecStop=/usr/bin/docker stop -t 2 dhrone/pydpiper:raspdacv3
+ExecStop=/usr/bin/docker stop -t 2 dhrone/pydpiper:latest
 
 [Install]
 WantedBy=multi-user.target
