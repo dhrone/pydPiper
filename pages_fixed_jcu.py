@@ -37,7 +37,7 @@ WIDGETS = {
 	'tempsmall': { 'type':'text', 'format':'\n{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(20,16) },
 	'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(80,16) },
-	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(55,16), 'effect':('scroll','left',5,20,'onloop',3,80)},
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'size':(55,16), 'effect':('scroll','left',5,1,20,'onloop',3,80)},
 	'radio': { 'type':'text', 'format':"RADIO", 'font':'tiny', 'varwidth':True, 'size':(40,5), 'just':'right' },
 	'ready': { 'type':'text', 'format':"Ready\n{0}", 'variables':['utc|timezone+Europe/Paris|strftime+%H:%M'], 'font':'small', 'varwidth':True, 'size':(80,5), 'just':'centerchar' },
 	'volume': { 'type':'text', 'format':'VOLUME ({0})', 'variables':['volume'], 'font':'tiny', 'varwidth':True, 'just':'left', 'size':(60,8)},
@@ -51,7 +51,7 @@ WIDGETS = {
 	'repeatonce': { 'type':'text', 'format':'Repeat Once\n{0}', 'variables':['single|onoff|Capitalize'], 'font':'small', 'varwidth':True, 'just':'centerchar', 'size':(65,16) },
 	'repeatallsymbol': { 'type':'text', 'format':'\ue004 ', 'font':'large', 'varwidth':True, 'size':(10,16) },
 	'repeatall': { 'type':'text', 'format':'Repeat All\n{0}', 'variables':['repeat|onoff|Capitalize'], 'font':'small', 'varwidth':True, 'size':(65,16) },
-	'temptoohigh': { 'type':'text', 'format':'\ue005 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'varwidth':True, 'effect':('scroll','left',1,20,'onstart',3,80) },
+	'temptoohigh': { 'type':'text', 'format':'\ue005 Warning System Too Hot ({0})', 'variables':['system_temp_formatted'], 'font':'large', 'varwidth':True, 'effect':('scroll','left',1,1,20,'onstart',3,80) },
 	'systemvars': { 'type':'text', 'format':'{0}c  Disk {1}%\n{2}', 'variables':['current_tempc', 'disk_availp','utc|timezone+Europe/Paris|strftime+%H:%M'], 'font':'small', 'varwidth':True, 'just':'centerchar', 'effect':('scroll','left',1,20,'onstart',3,80), 'size':(80,16) },
 	'ip': { 'type':'text', 'format':'{0}\n{1}', 'variables':['ip','utc|timezone+Europe/Paris|strftime+%H:%M'], 'font':'small', 'just':'centerchar', 'varwidth':True, 'size':(80,16) }
 }

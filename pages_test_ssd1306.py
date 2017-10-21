@@ -30,8 +30,8 @@ WIDGETS = {
 	'volume': { 'type':'text', 'format':'Volume: {0}', 'variables':['volume'], 'font':'small', 'just':'right', 'size':(60,16), 'varwidth':True },
 	'volumelarge': { 'type':'text', 'format':'Volume: {0}', 'variables':['volume'], 'font':'large', 'just':'left', 'varwidth':True },
 	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':(0,100), 'size':(115,8) },
-	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'large','varwidth':True,'effect':('scroll','left',1,20,'onloop',3,125)},
-	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','varwidth':True,'effect':('scroll','left',1,20,'onloop',3,125)},
+	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'large','varwidth':True,'effect':('scroll','left',1,1,20,'onloop',3,125)},
+	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','varwidth':True,'effect':('scroll','left',1,1,20,'onloop',3,125)},
 	'samplerate': { 'type':'text', 'format':'{0}', 'variables':['samplerate'], 'font':'small', 'just':'center','varwidth':True},
 	'bitdepth': { 'type':'text', 'format':'{0}', 'variables':['bitdepth'], 'font':'small', 'just':'center','varwidth':True},
 	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed|strftime+%-M:%S'], 'font':'small','size':(30,8), 'varwidth':True},
@@ -43,7 +43,7 @@ WIDGETS = {
 	'tempsmall': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(24,16) },
 	'temphilow': { 'type':'text', 'format':'H {0}\nL {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(25,16) },
 	'temp': { 'type':'text', 'format':'{0}', 'variables':['outside_temp_formatted'], 'font':'large', 'just':'center', 'size':(80,16) },
-	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'effect':('scroll','left',1,20,'onloop',3,100)}
+	'weather': { 'type':'text', 'format':'{0}', 'variables':['outside_conditions|capitalize'], 'font':'large','varwidth':True, 'effect':('scroll','left',1,1,20,'onloop',3,100)}
 }
 
 # Assemble the widgets into canvases.  Only needed if you need to combine multiple widgets together so you can produce effects on them as a group.

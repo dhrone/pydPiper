@@ -44,8 +44,10 @@ TEMPERATURE=u'fahrenheit'
 #TEMPERATURE=u'celsius'
 
 # WEATHER Parameters
+
+# Deprecated the use of OWM.  Found it to be unreliable.
 # You must get your own API key from http://openweathermap.org/appid
-OWM_API = u''
+#OWM_API = u''
 # NOVA Metro area.  Replace with your location.
 #OWM_LAT = 38.86
 #OWM_LON = -77.34
@@ -53,9 +55,10 @@ OWM_API = u''
 #OWM_LAT = 40.72
 #OWM_LON = -74.07
 # Paris Metro area.  Replace with your location.
-OWM_LAT = 48.865
-OWM_LON = 2.352
+#OWM_LAT = 48.865
+#OWM_LON = 2.352
 
+# New weather source is Weather Underground
 WUNDER_API = ''
 WUNDER_LOCATION = '07302'
 

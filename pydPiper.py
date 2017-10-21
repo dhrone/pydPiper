@@ -11,10 +11,10 @@ import displays
 import sources
 import pydPiper_config
 
-try:
-	import pyowm
-except ImportError:
-	pass
+#try:
+#	import pyowm
+#except ImportError:
+#	pass
 
 
 exitapp = [ False ]
@@ -64,6 +64,7 @@ class music_controller(threading.Thread):
 		'disk_availp':0,
 		'current_time':u"",
 		'utc':moment.utcnow(),
+		'localtime':moment.utcnow().timezone(pydPiper_config.TIMEZONE),
 		'current_time_sec':u"",
 		'current_time_formatted':u"",
 		'current_ip':u"",
@@ -255,6 +256,7 @@ class music_controller(threading.Thread):
 		while True:
 			try:
 				utc = moment.utcnow()
+				localtime = moment.utcnow().timezone(pydPiper_config.TIMEZONE)
 				current_time_ampm = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%p").strip().decode()
 				if pydPiper_config.TIME24HOUR == True:
 					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M").strip().decode()
@@ -268,6 +270,7 @@ class music_controller(threading.Thread):
 				current_time_sec = u"00:00:00"
 				current_time_ampm = u''
 				utc = None
+				localtime = None
 
 			current_ip = commands.getoutput(u"ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
@@ -436,6 +439,7 @@ class music_controller(threading.Thread):
 				self.musicdata[u'disk_usedp'] = usedp
 
 				self.musicdata[u'utc'] = utc
+				self.musicdata[u'localtime'] = localtime
 				self.musicdata[u'time'] = current_time
 				self.musicdata[u'time_ampm'] = current_time_ampm
 				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed
@@ -502,9 +506,9 @@ if __name__ == u'__main__':
 	loggingPIL.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"showupdates"])
+		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=",u"width=",u"height=","rs=","e=","d4=","d5=","d6=","d7=","i2caddress=","i2cport=", u"wapi=", u"wlocale=", u"timezone=", u"temperature=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"lmsplayer=", u"showupdates"])
 	except getopt.GetoptError:
-		print u'pydPiper.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
+		print u'pydPiper.py -d <driver> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
 		sys.exit(2)
 
 	services_list = [ ]
@@ -512,18 +516,56 @@ if __name__ == u'__main__':
 	showupdates = False
 	pagefile = 'pages.py'
 
+	pin_rs = pydPiper_config.DISPLAY_PIN_RS
+	pin_e = pydPiper_config.DISPLAY_PIN_E
+	[pin_d4, pin_d5, pin_d6, pin_d7] = pydPiper_config.DISPLAY_PINS_DATA
+	rows = pydPiper_config.DISPLAY_HEIGHT
+	cols = pydPiper_config.DISPLAY_WIDTH
+	i2c_address = pydPiper_config.DISPLAY_I2C_ADDRESS
+	i2c_port = pydPiper_config.DISPLAY_I2C_PORT
+
 	for opt, arg in opts:
 		if opt == u'-h':
-			print u'pydPiper.py -d <driver> --mpd --spop --lms --rune --volumio --pages --showupdates'
+			print u'pydPiper.py -d <driver> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
 			sys.exit()
 		elif opt in (u"-d", u"--driver"):
 			driver = arg
+		elif opt in ("--rs"):
+			pin_rs  = int(arg)
+		elif opt in ("--e"):
+			pin_e  = int(arg)
+		elif opt in ("--d4"):
+			pin_d4  = int(arg)
+		elif opt in ("--d5"):
+			pin_d5  = int(arg)
+		elif opt in ("--d6"):
+			pin_d6  = int(arg)
+		elif opt in ("--d7"):
+			pin_d7  = int(arg)
+		elif opt in ("--i2caddress"):
+			i2c_address = int(arg,0)
+		elif opt in ("--i2cport"):
+			i2c_port = int(arg,0)
+		elif opt in ("--width"):
+			cols = int(arg,0)
+		elif opt in ("--height"):
+			rows = int(arg,0)
+		elif opt in (u"--wapi"):
+			pydPiper_config.WUNDER_API = arg
+		elif opt in (u"--wlocale"):
+			pydPiper_config.WUNDER_LOCATION = arg
+		elif opt in (u"--timezone"):
+			pydPiper_config.TIMEZONE = arg
+		elif opt in (u"--temperature"):
+			pydPiper_config.TEMPERATURE = arg
 		elif opt in (u"--mpd"):
 			services_list.append(u'mpd')
 		elif opt in (u"--spop"):
 			services_list.append(u'spop')
 		elif opt in (u"--lms"):
 			services_list.append(u'lms')
+		elif opt in (u"--lmsplayer"):
+			pydPiper_config.LMS_PLAYER = arg
 		elif opt in (u"--rune"):
 			services_list.append(u'rune')
 		elif opt in (u"--volumio"):
@@ -546,6 +588,8 @@ if __name__ == u'__main__':
 			showupdates = True
 
 
+	pins_data = [pin_d4, pin_d5, pin_d6, pin_d7]
+
 	if len(services_list) == 0:
 		logging.critical(u"Must have at least one music service to monitor")
 		sys.exit()
@@ -554,13 +598,7 @@ if __name__ == u'__main__':
 
 	dq = Queue.Queue()
 
-	pin_rs = pydPiper_config.DISPLAY_PIN_RS
-	pin_e = pydPiper_config.DISPLAY_PIN_E
-	pins_data = pydPiper_config.DISPLAY_PINS_DATA
-	rows = pydPiper_config.DISPLAY_HEIGHT
-	cols = pydPiper_config.DISPLAY_WIDTH
-	i2c_address = pydPiper_config.DISPLAY_I2C_ADDRESS
-	i2c_port = pydPiper_config.DISPLAY_I2C_PORT
+
 
 	# Choose display
 
