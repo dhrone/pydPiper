@@ -78,6 +78,7 @@ IMPORTANT:  There must be one and only one ExecStart enabled within the file.
 
 The general format for the ExecStart lines is as follows:
 
+'''
 #ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw dhrone/pydpiper:latest python /app/pydPiper.py --<musicdistro> --driver <driver> --width <width> --height <height> --i2caddress <i2caddress> --i2cport <i2cport> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --timezone <timezone> --temperature <temperature> --lmsplayer <lmsplayer> --pages <pagefile>
 #
 # Definitions for command line Parameters
@@ -112,6 +113,7 @@ The general format for the ExecStart lines is as follows:
 #   Winstar WEG style OLEDS (100x16 pixel dimensions) -- pages_weg_100x16.py
 #   SSD1306 style OLEDs (128x64 pixel dimensions) -- pages_ssd1306.py
 # <pagefile> -- The name of the pages file to use for your display
+'''
 
 Once you have finished editing the file, save it and exit.
 
