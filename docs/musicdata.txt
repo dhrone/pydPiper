@@ -135,6 +135,10 @@ utc (moment object)
   Description - The current time in coordinated universal time
 	Values -- A moment object containing the current time
 
+localtime (moment object)
+	  Description - The current time in local timezone (affected by TIMEZONE setting)
+		Values -- A moment object containing the current time
+
 time (unicode)
   Description - Simple formatted display of time (affected by TIMEZONE setting)
   Values - "3:22p", "23:59"

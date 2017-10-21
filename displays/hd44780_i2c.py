@@ -77,8 +77,8 @@ class hd44780_i2c():
 	ENABLE = 0b00000100 # Enable bit
 
 	# Timing constants
-	E_PULSE = 0.0005
-	E_DELAY = 0.0005
+	E_PULSE = 0.000001
+	E_DELAY = 0.000001
 
 	character_translation = [
 		  0,  1,  2,  3,  4,  5,  6,  7,255, -1, -1, -1, -1, -1, -1, -1,	#0

@@ -116,10 +116,13 @@ class musicdata_volumio2(musicdata.musicdata):
 			# String values
 			self.musicdata[u'album'] = status[u'album'] if u'album' in status else u""
 
-			# stream is a binary within Volumio2 and I've treated it as a string in other music sources.
-			# thus the reason for this ugly hack
-			streamflag = status[u'stream'] if u'stream' in status else False
-			self.musicdata[u'stream'] = u'webradio' if streamflag else u'not webradio'
+			# stream is a binary within Volumio2 when playing from a webradio source.
+			# Otherwise it is the name of the source.  Weird.
+			streamval = status[u'stream'] if u'stream' in status else False
+			if isinstance(streamval, bool):
+				self.musicdata[u'stream'] = u'webradio' if streamval else u'not webradio'
+			else:
+				self.musicdata[u'stream'] = streamval
 
 			self.musicdata[u'artist'] = status[u'artist'] if u'artist' in status else u""
 			self.musicdata[u'title'] = status[u'title'] if u'title' in status else u""

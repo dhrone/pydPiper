@@ -587,6 +587,7 @@ if __name__ == u'__main__':
 		elif opt in (u"--showupdates"):
 			showupdates = True
 
+	pydPiper_config.DISPLAY_SIZE = (cols, rows)
 
 	pins_data = [pin_d4, pin_d5, pin_d6, pin_d7]
 

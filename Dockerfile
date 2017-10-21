@@ -5,6 +5,7 @@ ADD . /app
 RUN apt-get update && apt-get install -y \
   python-dev \
   python-pip \
+	python-smbus \
   libfreetype6-dev \
   libjpeg-dev \
   build-essential \
