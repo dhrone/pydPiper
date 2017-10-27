@@ -52,6 +52,7 @@ Effects can be added to any widget or canvas and transform the widget according 
 	scroll
 		direction -- Direction to scroll the widget.  Accepted values are ('left', 'right', 'up', 'down')
 		distance -- The number of pixels to scroll during each update.
+		speed -- How often to execute the scroll.  1 scrolls every update (fastest).  2 scrolls every other update, etc.
 		gap -- The number of pixels to add between the end and the beginning of the widget.
 		hesitatetype -- Determines when the scroll effect should be paused.  Accepted values are ('none', 'onloop', 'onstart')
 			none -- Do not hesistate
