@@ -171,6 +171,24 @@ class music_controller(threading.Thread):
 			except Queue.Empty:
 				pass
 
+			# Get current time
+			try:
+				utc = moment.utcnow()
+				localtime = moment.utcnow().timezone(pydPiper_config.TIMEZONE)
+				current_time_ampm = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%p").strip().decode()
+				if pydPiper_config.TIME24HOUR == True:
+					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M").strip().decode()
+					current_time_sec = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M:%S").strip().decode()
+				else:
+					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%-I:%M %p").strip().decode()
+					current_time_sec = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%-I:%M:%S %p").strip().decode()
+			except ValueError:
+				# Don't know why but on exit, the moment code is occasionally throwing a ValueError
+				current_time = u"00:00"
+				current_time_sec = u"00:00:00"
+				current_time_ampm = u''
+				utc = None
+				localtime = None
 
 			with self.musicdata_lock:
 				# Update musicdata based upon received message
@@ -208,8 +226,19 @@ class music_controller(threading.Thread):
 				self.musicdata[u'single_onoff'] = u"On" if self.musicdata[u'single'] else u"Off"
 				self.musicdata[u'repeat_onoff'] = u"On" if self.musicdata[u'repeat'] else u"Off"
 
+				# update time variables
+				self.musicdata[u'utc'] = utc
+				self.musicdata[u'localtime'] = localtime
+				self.musicdata[u'time'] = current_time
+				self.musicdata[u'time_ampm'] = current_time_ampm
+				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed
 
-			# If anything has changed, update pages
+				# For backwards compatibility
+				self.musicdata[u'current_time'] = current_time
+				self.musicdata[u'current_time_sec'] = current_time
+
+
+			# If anything has changed, update pages ### probably unnecessary to check this now that time is being updated in this section
 			if self.musicdata != self.musicdata_prev or lastupdate < time.time():
 
 				# Set lastupdate time to 1 second in the future
@@ -225,21 +254,37 @@ class music_controller(threading.Thread):
 
 				# Print the current contents of musicdata if showupdates is True
 				if self.showupdates:
-					ctime = moment.utcnow().timezone(u"US/Eastern").strftime("%-I:%M:%S %p").strip()
-					print u"Status at time {0}".format(ctime)
 
-					with self.musicdata_lock:
-						for item,value in self.musicdata.iteritems():
-							try:
-								print u"    [{0}]={1} {2}".format(item,repr(value), type(value))
-							except:
-								print u"err"
-								print u"[{0}] =".format(item)
-								print type(value)
-								print repr(value)
-						print u"\n"
+					# Check to see if a variable has changed (except time variables)
+					shouldshowupdate = False
+					for item, value in self.musicdata.iteritems():
+						try:
+							if item in ['utc', 'localtime', 'time', 'time_ampm', 'current_time', 'current_time_sec']:
+								continue
+							if self.musicdata_prev[item] != value:
+								shouldshowupdate = True
+								break
+						except KeyError:
+							shouldshowupdate = True
+							break
+							
 
-				# Update musicdta_prev
+					if shouldshowupdate:
+						ctime = localtime.strftime("%-I:%M:%S %p").strip()
+						print u"Status at time {0}".format(ctime)
+
+						with self.musicdata_lock:
+							for item,value in self.musicdata.iteritems():
+								try:
+									print u"    [{0}]={1} {2}".format(item,repr(value), type(value))
+								except:
+									print u"err"
+									print u"[{0}] =".format(item)
+									print type(value)
+									print repr(value)
+							print u"\n"
+
+				# Update musicdata_prev
 				with self.musicdata_lock:
 					for item, value in self.musicdata.iteritems():
 						try:
@@ -254,23 +299,6 @@ class music_controller(threading.Thread):
 
 	def updatesystemvars(self):
 		while True:
-			try:
-				utc = moment.utcnow()
-				localtime = moment.utcnow().timezone(pydPiper_config.TIMEZONE)
-				current_time_ampm = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%p").strip().decode()
-				if pydPiper_config.TIME24HOUR == True:
-					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M").strip().decode()
-					current_time_sec = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%H:%M:%S").strip().decode()
-				else:
-					current_time = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%-I:%M %p").strip().decode()
-					current_time_sec = moment.utcnow().timezone(pydPiper_config.TIMEZONE).strftime(u"%-I:%M:%S %p").strip().decode()
-			except ValueError:
-				# Don't know why but on exit, the moment code is occasionally throwing a ValueError
-				current_time = u"00:00"
-				current_time_sec = u"00:00:00"
-				current_time_ampm = u''
-				utc = None
-				localtime = None
 
 			current_ip = commands.getoutput(u"ip -4 route get 1 | head -1 | cut -d' ' -f8 | tr -d '\n'").strip()
 
@@ -438,15 +466,6 @@ class music_controller(threading.Thread):
 				self.musicdata[u'disk_used'] = used
 				self.musicdata[u'disk_usedp'] = usedp
 
-				self.musicdata[u'utc'] = utc
-				self.musicdata[u'localtime'] = localtime
-				self.musicdata[u'time'] = current_time
-				self.musicdata[u'time_ampm'] = current_time_ampm
-				# note: 'time_formatted' is computed during page processing as it needs the value of the strftime key contained on the line being displayed
-
-				# For backwards compatibility
-				self.musicdata[u'current_time'] = current_time
-				self.musicdata[u'current_time_sec'] = current_time
 
 				self.musicdata[u'ip'] = current_ip.decode()
 
