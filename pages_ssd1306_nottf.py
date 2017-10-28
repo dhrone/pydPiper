@@ -72,7 +72,7 @@ SEQUENCES = [
                         { 'name':'stoptimetemp_popup', 'duration':9999, 'conditional':"not db['outside_conditions']=='No data'" },
                         { 'name':'stoptime', 'duration':9999, 'conditional':"db['outside_conditions']=='No data'" }
                 ],
-                'conditional': "db['state']=='stop'"
+                'conditional': "db['state']=='stop' or db['state']=='pause'"
         },
 	{
 		'name':'seqVolume',

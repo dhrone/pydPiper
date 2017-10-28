@@ -91,7 +91,7 @@ SEQUENCES = [
 			{ 'name':'stoptime', 'duration':15 },
 			{ 'name':'weather', 'duration':10, 'conditional':"not db['outside_conditions']=='No data'" }
 		],
-		'conditional': "db['state']=='stop'"
+		'conditional': "db['state']=='stop' or db['state']=='pause'"
 	},
 	{
 		'name':'seqVolume',

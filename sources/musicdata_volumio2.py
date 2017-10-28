@@ -100,12 +100,13 @@ class musicdata_volumio2(musicdata.musicdata):
 		status = args[0]
 
 		with self.musicdata_lock:
-			state = status.get(u'status')
-			if state != u"play":
-				self.musicdata[u'state'] = u"stop"
+			state = status.get(u'status').lower()
+			if state in [u'stop',u'pause',u'play']:
+				self.musicdata[u'state'] = state
 			else:
-				self.musicdata[u'state'] = u"play"
-
+				self.musicdata[u'state'] = u'stop'
+				
+			if state == u'play':
 				# Determine if the player is changing to playing.
 				if self.musicdata_prev[u'state'] != u"play":
 					# Request an update of the queue data
