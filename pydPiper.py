@@ -532,6 +532,7 @@ if __name__ == u'__main__':
 
 	services_list = [ ]
 	driver = ''
+	devicetype = ''
 	showupdates = False
 	pagefile = 'pages.py'
 
