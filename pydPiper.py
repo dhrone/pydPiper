@@ -267,7 +267,7 @@ class music_controller(threading.Thread):
 						except KeyError:
 							shouldshowupdate = True
 							break
-							
+
 
 					if shouldshowupdate:
 						ctime = localtime.strftime("%-I:%M:%S %p").strip()
@@ -525,9 +525,9 @@ if __name__ == u'__main__':
 	loggingPIL.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=",u"width=",u"height=","rs=","e=","d4=","d5=","d6=","d7=","i2caddress=","i2cport=", u"wapi=", u"wlocale=", u"timezone=", u"temperature=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"lmsplayer=", u"showupdates"])
+		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=",u"devicetype=",u"width=",u"height=","rs=","e=","d4=","d5=","d6=","d7=","i2caddress=","i2cport=" ,u"wapi=", u"wlocale=", u"timezone=", u"temperature=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"lmsplayer=", u"showupdates"])
 	except getopt.GetoptError:
-		print u'pydPiper.py -d <driver> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
+		print u'pydPiper.py -d <driver> --devicetype <devicetype (for LUMA devices)> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
 		sys.exit(2)
 
 	services_list = [ ]
@@ -545,10 +545,12 @@ if __name__ == u'__main__':
 
 	for opt, arg in opts:
 		if opt == u'-h':
-			print u'pydPiper.py -d <driver> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
+			print u'pydPiper.py -d <driver> --devicetype <devicetype e.g. ssd1306, sh1106> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
 			sys.exit()
 		elif opt in (u"-d", u"--driver"):
 			driver = arg
+		elif opt in (u"--devicetype"):
+			devicetype = arg
 		elif opt in ("--rs"):
 			pin_rs  = int(arg)
 		elif opt in ("--e"):
@@ -623,7 +625,16 @@ if __name__ == u'__main__':
 	# Choose display
 
 	if not driver:
-		driver = pydPiper_config.DISPLAY_DRIVER
+		try:
+			driver = pydPiper_config.DISPLAY_DRIVER
+		except:
+			drvier = u''
+
+	if not devicetype:
+		try:
+			devicetype = pydPiper_config.DISPLAY_DEVICETYPE
+		except:
+			devicetype = u''
 
 
 	if driver == u"winstar_weg":
@@ -634,6 +645,8 @@ if __name__ == u'__main__':
 		lcd = displays.hd44780_i2c.hd44780_i2c(rows, cols, i2c_address, i2c_port)
 	elif driver == u"ssd1306_i2c":
 		lcd = displays.ssd1306_i2c.ssd1306_i2c(rows, cols, i2c_address, i2c_port)
+	elif driver == u"luma_i2c":
+		lcd = displays.luma_i2c.luma_i2c(rows, cols, i2c_address, i2c_port, devicetype)
 	elif driver == u"curses":
 		lcd = displays.curses.curses(rows, cols)
 	else:
