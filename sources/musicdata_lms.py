@@ -194,7 +194,10 @@ class musicdata_lms(musicdata.musicdata):
 		self.musicdata[u'volume'] = self.dataplayer.get_volume()
 
 		self.musicdata[u'elapsed'] = int(self.dataplayer.get_time_elapsed())
-		self.musicdata[u'length'] = int(self.dataplayer.get_track_duration())
+		try:
+			self.musicdata[u'length'] = int(self.dataplayer.get_track_duration())
+		except:
+			self.musicdata[u'length'] = 0
 
 		# For backwards compatibility
 		self.musicdata[u'current'] = self.musicdata[u'elapsed']
