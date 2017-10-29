@@ -8,7 +8,7 @@ Restart=always
 
 # Generic command to start pydPiper
 #
-#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw dhrone/pydpiper:latest python /app/pydPiper.py --<musicdistro> --driver <driver> --width <width> --height <height> --i2caddress <i2caddress> --i2cport <i2cport> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --timezone <timezone> --temperature <temperature> --lmsplayer <lmsplayer> --pages <pagefile>
+#ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py --<musicdistro> --driver <driver> --width <width> --height <height> --i2caddress <i2caddress> --i2cport <i2cport> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --timezone <timezone> --temperature <temperature> --lmsplayer <lmsplayer> --pages <pagefile>
 #
 # Definitions for command line Parameters
 #
