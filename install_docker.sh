@@ -1,4 +1,4 @@
-sudo apt-get install -y --force-yes docker-ce=17.10.0-ce-0raspbian
+sudo apt-get update && apt-get install -y --force-yes docker-ce=17.10.0-ce-0raspbian
 sudo usermod -aG docker volumio
 sudo systemctl enable docker
 sudo systemctl start docker
