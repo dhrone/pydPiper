@@ -37,10 +37,12 @@ class music_controller(threading.Thread):
 		'current':-1,
 		'elapsed':-1,
 		'remaining':u"",
+		'total_time':u"",
 		'duration':-1,
 		'length':-1,
 		'position':u"",
 		'elapsed_formatted':u"",
+		'elapsed_simple':u"",
 		'volume':-1,
 		'repeat': 0,
 		'single': 0,
@@ -210,16 +212,19 @@ class music_controller(threading.Thread):
 
 				# If the value of current has changed then update the other related timing variables
 				if self.musicdata[u'elapsed'] != self.musicdata_prev[u'elapsed']:
-					if self.musicdata[u'length'] > 0:
-						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata[u'length']))
-						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'length'] - self.musicdata[u'elapsed'] ) )
+					timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'elapsed']))
+					if self.musicdata[u'length'] > 0:						
+						timepos_advanced = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'elapsed'])) + "/" + time.strftime("%-M:%S", time.gmtime(self.musicdata[u'length']))
+						remaining = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'length'] - self.musicdata[u'elapsed']))
+						total_time = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'length']))
 
-					else:
-						timepos = time.strftime("%-M:%S", time.gmtime(self.musicdata[u'elapsed']))
+					else:						
 						remaining = timepos
 
 					self.musicdata[u'remaining'] = remaining.decode()
-					self.musicdata[u'elapsed_formatted'] = self.musicdata[u'position'] = timepos.decode()
+					self.musicdata[u'elapsed_formatted'] = timepos_advanced.decode()
+					self.musicdata[u'elapsed_simple'] = self.musicdata[u'position'] = timepos.decode()
+					self.musicdata[u'total_time'] = total_time.decode()
 
 				# Update onoff variables (random, single, repeat)
 				self.musicdata[u'random_onoff'] = u"On" if self.musicdata[u'random'] else u"Off"
@@ -525,9 +530,9 @@ if __name__ == u'__main__':
 	loggingPIL.setLevel( logging.WARN )
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=",u"devicetype=",u"width=",u"height=","rs=","e=","d4=","d5=","d6=","d7=","i2caddress=","i2cport=" ,u"wapi=", u"wlocale=", u"timezone=", u"temperature=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"lmsplayer=", u"showupdates"])
+		opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=",u"devicetype=",u"width=",u"height=","rs=","e=","d4=","d5=","d6=","d7=","i2caddress=","i2cport=" ,u"wapi=", u"wlocale=", u"timezone=", u"time24hour", u"temperature=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"lmsplayer=", u"showupdates"])
 	except getopt.GetoptError:
-		print u'pydPiper.py -d <driver> --devicetype <devicetype (for LUMA devices)> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
+		print u'pydPiper.py -d <driver> --devicetype <devicetype (for LUMA devices)> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --time24hour --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
 		sys.exit(2)
 
 	services_list = [ ]
@@ -546,7 +551,7 @@ if __name__ == u'__main__':
 
 	for opt, arg in opts:
 		if opt == u'-h':
-			print u'pydPiper.py -d <driver> --devicetype <devicetype e.g. ssd1306, sh1106> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
+			print u'pydPiper.py -d <driver> --devicetype <devicetype e.g. ssd1306, sh1106> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --time24hour --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
 			sys.exit()
 		elif opt in (u"-d", u"--driver"):
 			driver = arg
@@ -578,6 +583,8 @@ if __name__ == u'__main__':
 			pydPiper_config.WUNDER_LOCATION = arg
 		elif opt in (u"--timezone"):
 			pydPiper_config.TIMEZONE = arg
+		elif opt in (u"--time24hour"):
+			pydPiper_config.TIME24HOUR = True
 		elif opt in (u"--temperature"):
 			pydPiper_config.TEMPERATURE = arg
 		elif opt in (u"--mpd"):
