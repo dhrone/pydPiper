@@ -298,8 +298,8 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 		for char in text:
 			if char == '\n':
-				row = self.curposition[1]+1 if row < self.rows_char else self.curposition[1]
-				self.setCursor(0, row)
+				row_char = self.curposition[1]+1 if row_char < self.rows_char else self.curposition[1]
+				self.setCursor(0, row_char)
 			else:
 				# Translate incoming character into correct value for European charset
 				# and then send it to display.  Use space if character is out of range.
