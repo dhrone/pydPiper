@@ -79,23 +79,23 @@ IMPORTANT:  There must be one and only one ExecStart enabled within the file.
 The general format for the ExecStart lines is as follows:
 
 
-ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw dhrone/pydpiper:latest python /app/pydPiper.py --<musicdistro> --driver <driver> --width <width> --height <height> --i2caddress <i2caddress> --i2cport <i2cport> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --timezone <timezone> --temperature <temperature> --lmsplayer <lmsplayer> --pages <pagefile>
+`ExecStart=/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw dhrone/pydpiper:latest python /app/pydPiper.py --<musicdistro> --driver <driver> --width <width> --height <height> --i2caddress <i2caddress> --i2cport <i2cport> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --timezone <timezone> --temperature <temperature> --lmsplayer <lmsplayer> --pages <pagefile>`
 
 Definitions for command line Parameters
 
-<driver> -- Driver for your display.  Possible values are 'winstar_weg', 'hd44780', 'hd44780_i2c', 'ssd1306_i2c'
+`<driver>` -- Driver for your display.  Possible values are 'winstar_weg', 'hd44780', 'hd44780_i2c', 'ssd1306_i2c'
 
-<musicdistro> -- Sets the type of music player pydPiper is installed on.  Possible values are 'volumio', 'rune', 'lms'
+`<musicdistro>` -- Sets the type of music player pydPiper is installed on.  Possible values are 'volumio', 'rune', 'lms'
 
-<width> -- width of your display in pixels.  If you are using a character display, each column is 5 pixels wide
-<height> -- height of your display in pixels.  If you are using a character display, each line is 8 pixels high
+`<width>` -- width of your display in pixels.  If you are using a character display, each column is 5 pixels wide
+`<height>` -- height of your display in pixels.  If you are using a character display, each line is 8 pixels high
 
 For I2C displays
-<i2caddress> -- The I2C address your display is installed on.  Normally 0x27.
-<i2cport> -- The I2C port your display is attached to.  Normally 1.
+`<i2caddress>` -- The I2C address your display is installed on.  Normally 0x27.
+`<i2cport>` -- The I2C port your display is attached to.  Normally 1.
 
 For parallel interface displays
-<e>, <rs>, <d4>, <d5>, <d6>, <d7> -- The GPIO pins your display is connected to
+`<e>, <rs>, <d4>, <d5>, <d6>, <d7>` -- The GPIO pins your display is connected to
 
 timezone -- Sets what timezone is local for this system (e.g. 'US/Eastern', 'France/Paris')
 temperature -- Sets whether to use fahrenheit or celcius
