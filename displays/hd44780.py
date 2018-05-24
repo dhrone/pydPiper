@@ -317,6 +317,17 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		lcd.message(text)
 		time.sleep(wait)
 
+	def pulseEnable(self):
+		# the pulse timing in the 16x2_oled_volumio 2.py file is 1000/500
+		# the pulse timing in the original version of this file is 10/10
+		# with a 100 post time for setting
+
+#		GPIO.output(self.pin_e, False)
+#		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
+		GPIO.output(self.pin_e, True)
+		self.delayMicroseconds(1) # 1 microsecond pause - enable pulse must be > 450ns
+		GPIO.output(self.pin_e, False)
+
 if __name__ == '__main__':
 
 	import getopt,sys
