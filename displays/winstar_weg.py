@@ -272,7 +272,7 @@ if __name__ == '__main__':
 			d6  = int(arg)
 		elif opt in ("--d7"):
 			d7  = int(arg)
-		elif opt in ("--enable")
+		elif opt in ("--enable"):
 			enable = int(arg)
 
 	db = {

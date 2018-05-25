@@ -441,7 +441,7 @@ if __name__ == '__main__':
 			i2c_addr  = int(arg)
 		elif opt in ("--bus"):
 			i2c_bus  = int(arg)
-		elif opt in ("--enable")
+		elif opt in ("--enable"):
 			enable = int(arg)
 
 	try:

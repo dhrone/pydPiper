@@ -573,7 +573,7 @@ if __name__ == u'__main__':
 			cols = int(arg,0)
 		elif opt in ("--height"):
 			rows = int(arg,0)
-		elif opt in ("--enable")
+		elif opt in ("--enable"):
 			enable = int(arg)
 		elif opt in (u"--wapi"):
 			pydPiper_config.WUNDER_API = arg

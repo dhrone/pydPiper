@@ -7,6 +7,7 @@ else:
     import configparser
     config = configparser.RawConfigParser()
 
+config.read('pydPiper.cfg')
 
 def safeget(config, section, option):
     return config.has_option(section, option) and config.get(section, option) or None

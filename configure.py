@@ -341,7 +341,7 @@ if __name__ == u'__main__':
         process_section(section,config)
 
     print ('\nUPDATING pydPiper.CFG')
-    with open('pydpiper.cfg', 'w') as fp:
+    with open('pydPiper.cfg', 'w') as fp:
         config.write(fp)
 
     print ('Creating pydPiper.service file\n')
@@ -356,7 +356,7 @@ if __name__ == u'__main__':
 
     if config.get('SOURCE', 'source_type') == 'volumio':
         serviceconfig.set('Unit', 'After', 'volumio.service')
-        serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker --network=host --privileged -v /var/log:/var/log:rw -v /home/volumio/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
+        serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/volumio/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
 
     with open('pydpiper.service', 'w') as fp:
         serviceconfig.write(fp)
