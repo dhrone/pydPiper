@@ -350,12 +350,12 @@ class music_controller(threading.Thread):
 					except ValueError:
 						logging.warning('Failed to decode result from Weather Underground Query.  Query string was {0}.  Response was {1}'.format(wq,json_result))
 
-			except urllib2.HTTPError as e:
-				logging.warning('The Weather Underground server couldn\'t fulfill the request and responded with error code {0}'.format(e.code))
-			except urllib2.URLError as e:
-				logging.warning('Could not reach the Weather Underground server.  Reason provided was {0}'.format(e.reason))
-			except (AttributeError, KeyError):
-				logging.warning('Weather Underground API key or location are missing from configuration file')
+				except urllib2.HTTPError as e:
+					logging.warning('The Weather Underground server couldn\'t fulfill the request and responded with error code {0}'.format(e.code))
+				except urllib2.URLError as e:
+					logging.warning('Could not reach the Weather Underground server.  Reason provided was {0}'.format(e.reason))
+				except (AttributeError, KeyError):
+					logging.warning('Weather Underground API key or location are missing from configuration file')
 
 
 
