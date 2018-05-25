@@ -1,101 +1,84 @@
 import logging
+import sys
+if sys.version_info[0] < 3:
+    import ConfigParser
+    config = ConfigParser.RawConfigParser()
+else:
+    import configparser
+    config = configparser.RawConfigParser()
+
+
+def safeget(config, section, option):
+    return config.has_option(section, option) and config.get(section, option) or None
 
 # Start-up mode
-STARTUP_MSG_DURATION = 5  # Sets how long that system state 'starting' will be True
+STARTUP_MSG_DURATION = float(safeget(config,'STARTUP', 'startup_msg_duration'))
 
 # Display Parameters
-#DISPLAY_DRIVER='ssd1306_i2c'
-DISPLAY_DRIVER='winstar_weg'
-#DISPLAY_DRIVER='hd44780'
-#DISPLAY_DRIVER='luma'
-#DISPLAY_DEVICETYPE = 'ssd1306'
-
-DISPLAY_WIDTH = 80 # the  width of the display in pixels
-DISPLAY_HEIGHT = 16 # the height of the display in pixels
+DISPLAY_DRIVER= safeget(config,'DISPLAY', 'display_driver')
+DISPLAY_WIDTH = int(safeget(config,'DISPLAY', 'display_width')) # the  width of the display in pixels
+DISPLAY_HEIGHT = int(safeget(config,'DISPLAY', 'display_height')) # the height of the display in pixels
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
-DISPLAY_PIN_RS = 7
-DISPLAY_PIN_E =  8
-DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
-#DISPLAY_PINS_DATA = [ 25, 24, 23, 15 ] # Raspdac V2
-#DISPLAY_I2C_ADDRESS = 0x3d
-DISPLAY_I2C_ADDRESS = 0x27
-DISPLAY_I2C_PORT = 1
-DISPLAY_ENABLE_DURATION = 1 # in microseconds.  Decrease to increase performance.  Increase to improve display stability
+DISPLAY_PIN_RS = int(safeget(config,'DISPLAY', 'display_pin_rs'))
+DISPLAY_PIN_E = int(safeget(config,'DISPLAY', 'display_pin_e'))
+DISPLAY_PIN_D4 = int(safeget(config,'DISPLAY', 'display_pin_d4'))
+DISPLAY_PIN_D5 = int(safeget(config,'DISPLAY', 'display_pin_d5'))
+DISPLAY_PIN_D6 = int(safeget(config,'DISPLAY', 'display_pin_d6'))
+DISPLAY_PIN_D7 = int(safeget(config,'DISPLAY', 'display_pin_d7'))
+DISPLAY_PINS_DATA = [ DISPLAY_PIN_D4, DISPLAY_PIN_D5, DISPLAY_PIN_D6, DISPLAY_PIN_D7 ]
+i2c_address = safeget(config,'DISPLAY', 'display_i2c_address')
+DISPLAY_I2C_ADDRESS = int(i2c_address) if 'x' not in i2c_address else int(i2c_address,16)
+DISPLAY_I2C_PORT = int(safeget(config,'DISPLAY', 'display_i2c_port'))
+DISPLAY_ENABLE_DURATION = float(safeget(config,'DISPLAY', 'display_enable_duration')) # in microseconds.  Decrease to increase performance.  Increase to improve display stability
 
 # Page Parameters
-ANIMATION_SMOOTHING = .015 # Amount of time in seconds to wait before repainting display
+PAGEFILE = safeget(config, 'DISPLAY', 'pagefile')
+ANIMATION_SMOOTHING = float(safeget(config,'DISPLAY', 'animation_smoothing')) # Amount of time in seconds to wait before repainting display
 
 # System Parameters
 # This is where the log file will be written
-LOGFILE=u'/var/log/pydPiper.log'
-#LOGFILE=u'./log/pydPiper.log'
+LOGFILE=safeget(config,'SYSTEM','logfile')
 
 # Logging level
-#LOGLEVEL=logging.DEBUG
-LOGLEVEL=logging.INFO
-#LOGLEVEL=logging.WARNING
-#LOGLEVEL=logging.CRITICAL
+LOGLEVEL={'debug': logging.DEBUG, 'info': logging.INFO, 'warning': logging.WARNING, 'critical': logging.CRITICAL }.get(safeget(config,'SYSTEM', 'loglevel'))
 
 # Localization Parameters
 # Adjust this setting to localize the time display to your region
-TIMEZONE=u"US/Eastern"
-TIME24HOUR=False
-#TIMEZONE=u"Europe/Paris"
+TIMEZONE=getsafe(config,'SYSTEM', 'timezone')
+TIME24HOUR=bool(getsafe(config, 'SYSTEM', 'time24hour'))
+
 # Adjust this setting to localize temperature displays
-TEMPERATURE=u'fahrenheit'
-#TEMPERATURE=u'celsius'
-
-# WEATHER Parameters
-
-# Deprecated the use of OWM.  Found it to be unreliable.
-# You must get your own API key from http://openweathermap.org/appid
-#OWM_API = u''
-# NOVA Metro area.  Replace with your location.
-#OWM_LAT = 38.86
-#OWM_LON = -77.34
-# NY Metro area.  Replace with your location.
-#OWM_LAT = 40.72
-#OWM_LON = -74.07
-# Paris Metro area.  Replace with your location.
-#OWM_LAT = 48.865
-#OWM_LON = 2.352
+TEMPERATURE=safeget(config,'SYSTEM', 'temperature')
 
 # New weather source is Weather Underground
-WUNDER_API = ''
-WUNDER_LOCATION = '07302'
+WUNDER_API = safeget(config,'SYSTEM', 'wunder_api')
+WUNDER_LOCATION = safeget(config,'SYSTEM', 'wunder_location')
 
 
 # Music Source Parameters
 
 # Used by Volumio V1 and Moode
-MPD_SERVER = u"localhost"
-MPD_PORT = 6600
-MPD_PASSWORD = ''
+MPD_SERVER = safeget(config, 'SOURCE', 'mpd_server')
+MPD_PORT = safeget(config, 'SOURCE', 'mpd_port')
+MPD_PASSWORD = safeget(config, 'SOURCE', 'mpd_password')
 
 # Used by Volumio v1 and Moode
-SPOP_SERVER = u"localhost"
-SPOP_PORT = 6602
-SPOP_PASSWORD = ''
+SPOP_SERVER = safeget(config, 'SOURCE', 'spop_server')
+SPOP_PORT = safeget(config, 'SOURCE', 'spop_port')
+SPOP_PASSWORD = safeget(config, 'SOURCE', 'spop_password')
 
 # Used by Volumio v2
-VOLUMIO_SERVER = u'localhost'
-VOLUMIO_PORT = 3000
+VOLUMIO_SERVER = safeget(config, 'SOURCE', 'volumio_server')
+VOLUMIO_PORT = safeget(config, 'SOURCE', 'volumio_port')
 
 # Used by RuneAudio
-RUNE_SERVER = u"localhost"
-RUNE_PORT = 6379
-RUNE_PASSWORD = u""
+RUNE_SERVER = safeget(config, 'SOURCE', 'rune_server')
+RUNE_PORT = safeget(config, 'SOURCE', 'rune_port')
+RUNE_PASSWORD = safeget(config, 'SOURCE', 'rune_password')
 
 # Used by Max2Play and piCorePlayer
-LMS_SERVER = u"localhost"
-LMS_PORT = 9090
-LMS_USER = u""
-LMS_PASSWORD = u""
-
-# Set this to MAC address of the Player you want to monitor.
-# THis should be the MAC of the RaspDac system if using Max2Play with SqueezePlayer
-# Note: if you have another Logitech Media Server running in your network, it is entirely
-#       possible that your player has decided to join it, instead of the LMS on Max2Play
-#       To fix this, go to the SqueezeServer interface and change move the player to the
-#       correct server.
-LMS_PLAYER = u"00:01:02:aa:bb:cc"
+LMS_SERVER = safeget(config, 'SOURCE', 'lms_server')
+LMS_PORT = safeget(config, 'SOURCE', 'lms_port')
+LMS_USER = safeget(config, 'SOURCE', 'lms_user')
+LMS_PASSWORD = safeget(config, 'SOURCE', 'lms_password')
+LMS_PLAYER = safeget(config, 'SOURCE', 'lms_player')
