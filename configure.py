@@ -48,11 +48,6 @@ if __name__ == u'__main__':
                                 { 'prompt': 'I2C Port?', 'variable': 'DISPLAY_I2C_PORT', 'default': '1', 'help': 'What I2C bus is the display connected to' },
                                 { 'prompt': 'I2C Address?', 'variable': 'DISPLAY_I2C_ADDRESS', 'default': '0x3d', 'help': 'What is the display\'s I2C address' }
                             ],
-                        '^hd44780$|^hd44780_i2c$':
-                            [
-                                { 'prompt': 'Width of display (in characters)?', 'variable': 'DISPLAY_WIDTH', 'default': '16', 'help': 'How many characters can be displayed on a single line' },
-                                { 'prompt': 'Height of display (in lines)?', 'variable': 'DISPLAY_HEIGHT', 'default': '2', 'help': 'How many lines can fit on the display' }
-                            ],
                         '^luma_i2c$':
                             [
                                 { 'prompt': 'Width of display (in pixels)?', 'variable': 'DISPLAY_WIDTH', 'default': '128', 'help': 'What is the horizontal resolution of the display in pixels' },
@@ -70,6 +65,8 @@ if __name__ == u'__main__':
                                 },                            ],
                         '^hd44780$|^hd44780_i2c$':
                             [
+                                { 'prompt': 'Width of display (in characters)?', 'variable': 'DISPLAY_WIDTH', 'default': '16', 'help': 'How many characters can be displayed on a single line' },
+                                { 'prompt': 'Height of display (in lines)?', 'variable': 'DISPLAY_HEIGHT', 'default': '2', 'help': 'How many lines can fit on the display' },
                                 {
                                     'prompt': 'Enable pulse duration (in microseconds)?',
                                     'variable': 'DISPLAY_ENABLE_DURATION',
@@ -340,11 +337,11 @@ if __name__ == u'__main__':
     for section in CONFIG:
         process_section(section,config)
 
-    print ('\nUPDATING pydPiper.CFG')
+    print ('\nUPDATING pydPiper.cfg')
     with open('pydPiper.cfg', 'w') as fp:
         config.write(fp)
 
-    print ('Creating pydPiper.service file\n')
+    print ('Creating pydpiper.service file\n')
     serviceconfig.add_section('Unit')
     serviceconfig.add_section('Service')
     serviceconfig.add_section('Install')
