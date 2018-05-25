@@ -1,7 +1,6 @@
 import logging
 
-# Messages
-STARTUP_LOGMSG = 'pydPiper starting'
+# Start-up mode
 STARTUP_MSG_DURATION = 5  # Sets how long that system state 'starting' will be True
 
 # Display Parameters
@@ -21,6 +20,7 @@ DISPLAY_PINS_DATA = [ 25, 24, 23, 27 ] # Raspdac V3
 #DISPLAY_I2C_ADDRESS = 0x3d
 DISPLAY_I2C_ADDRESS = 0x27
 DISPLAY_I2C_PORT = 1
+DISPLAY_ENABLE_DURATION = 1 # in microseconds.  Decrease to increase performance.  Increase to improve display stability
 
 # Page Parameters
 ANIMATION_SMOOTHING = .015 # Amount of time in seconds to wait before repainting display

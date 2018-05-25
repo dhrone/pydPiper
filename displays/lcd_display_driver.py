@@ -19,9 +19,10 @@ class lcd_display_driver:
 
 	FONTS_SUPPORTED = True
 
-	def __init__(self, rows, columns):
+	def __init__(self, rows, columns, enable_duration):
 		self.rows = rows
 		self.columns = columns
+		self.enable_duration = enable_duration
 		# Write custom fonts if the display supports them
 		# Fonts are currenty 5x8
 #		try:
@@ -76,7 +77,7 @@ class lcd_display_driver:
 #		GPIO.output(self.pin_e, False)
 #		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
 		GPIO.output(self.pin_e, True)
-		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
+		self.delayMicroseconds(self.enable_duration) # 1 microsecond pause - enable pulse must be > 450ns
 		GPIO.output(self.pin_e, False)
 
 
@@ -122,7 +123,7 @@ class lcd_display_driver:
 			retval.append(retline)
 
 		return retval
-		
+
 	def switchcustomchars(self, fontpkg):
 		if self.FONTS_SUPPORTED:
 			try:

@@ -25,7 +25,7 @@ class lcd_curses(lcd_display_driver.lcd_display_driver):
 
 		# Set up parent class.  Note.  This must occur after display has been
 		# initialized as the parent class may attempt to load custom fonts
-		super(lcd_curses, self).__init__(rows,cols)
+		super(lcd_curses, self).__init__(rows,cols,1)
 
 
 	def clear(self):

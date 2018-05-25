@@ -543,10 +543,11 @@ if __name__ == u'__main__':
 	cols = pydPiper_config.DISPLAY_WIDTH
 	i2c_address = pydPiper_config.DISPLAY_I2C_ADDRESS
 	i2c_port = pydPiper_config.DISPLAY_I2C_PORT
+	enable = pydPiper_config.DISPLAY_ENABLE_DURATION
 
 	for opt, arg in opts:
 		if opt == u'-h':
-			print u'pydPiper.py -d <driver> --devicetype <devicetype e.g. ssd1306, sh1106> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
+			print u'pydPiper.py -d <driver> --devicetype <devicetype e.g. ssd1306, sh1106> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --enable <enable duration> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
 			sys.exit()
 		elif opt in (u"-d", u"--driver"):
 			driver = arg
@@ -572,6 +573,8 @@ if __name__ == u'__main__':
 			cols = int(arg,0)
 		elif opt in ("--height"):
 			rows = int(arg,0)
+		elif opt in ("--enable")
+			enable = int(arg)
 		elif opt in (u"--wapi"):
 			pydPiper_config.WUNDER_API = arg
 		elif opt in (u"--wlocale"):
@@ -617,7 +620,7 @@ if __name__ == u'__main__':
 		logging.critical(u"Must have at least one music service to monitor")
 		sys.exit()
 
-	logging.info(pydPiper_config.STARTUP_LOGMSG)
+	logging.info(u'pydPiper starting')
 
 	dq = Queue.Queue()
 
@@ -639,11 +642,11 @@ if __name__ == u'__main__':
 
 
 	if driver == u"winstar_weg":
-		lcd = displays.winstar_weg.winstar_weg(rows, cols, pin_rs, pin_e, pins_data)
+		lcd = displays.winstar_weg.winstar_weg(rows, cols, pin_rs, pin_e, pins_data, enable)
 	elif driver == u"hd44780":
-		lcd = displays.hd44780.hd44780(rows, cols, pin_rs, pin_e, pins_data)
+		lcd = displays.hd44780.hd44780(rows, cols, pin_rs, pin_e, pins_data, enable)
 	elif driver == u"hd44780_i2c":
-		lcd = displays.hd44780_i2c.hd44780_i2c(rows, cols, i2c_address, i2c_port)
+		lcd = displays.hd44780_i2c.hd44780_i2c(rows, cols, i2c_address, i2c_port, enable)
 	elif driver == u"ssd1306_i2c":
 		lcd = displays.ssd1306_i2c.ssd1306_i2c(rows, cols, i2c_address, i2c_port)
 	elif driver == u"luma_i2c":

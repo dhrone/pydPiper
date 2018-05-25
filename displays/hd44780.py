@@ -94,7 +94,7 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 
 
-	def __init__(self, rows=16, cols=80, rs=7, e=8, datalines=[25, 24, 23, 27]):
+	def __init__(self, rows=16, cols=80, rs=7, e=8, datalines=[25, 24, 23, 27], enable_duration=1):
 		# Default arguments are appropriate for Raspdac V3 only!!!
 
 		self.pins_db = datalines
@@ -106,6 +106,8 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.rows_char = rows/8
 		self.cols_char = cols/5
 		self.curposition = (0,0)
+
+		self.enable_duration = enable_duration
 
 		# image buffer to hold current display contents.  Used to prevent unnecessary refreshes
 		self.curimage = Image.new("1", (self.cols, self.rows))
@@ -148,7 +150,7 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.clear()
 
 		# Set up parent class.
-		super(hd44780, self).__init__(rows,cols)
+		super(hd44780, self).__init__(rows,cols, self.enable_duration)
 
 	def createcustom(self, image):
 
@@ -334,7 +336,7 @@ if __name__ == '__main__':
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
 	except getopt.GetoptError:
-		print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+		print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
 		sys.exit(2)
 
 	# Set defaults
@@ -347,10 +349,11 @@ if __name__ == '__main__':
 	d5 = 24
 	d6 = 23
 	d7 = 27
+	enable = 1
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7>'
+			print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
 			sys.exit()
 		elif opt in ("-r", "--rows"):
 			rows = int(arg)
@@ -368,14 +371,16 @@ if __name__ == '__main__':
 			d6  = int(arg)
 		elif opt in ("--d7"):
 			d7  = int(arg)
+		elif opt in ("--enable")
+			enable = int(arg)
 
 	try:
 
 		pins = [d4, d5, d6, d7]
 		print "HD44780 LCD Display Test"
-		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins)
+		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}, enable duration={5}".format(rows,cols,rs,e,pins,enable)
 
-		lcd = hd44780(rows,cols,rs,e,[d4, d5, d6, d7])
+		lcd = hd44780(rows,cols,rs,e,[d4, d5, d6, d7],enable)
 		lcd.clear()
 
 		lcd.message("HD44780 LCD\nPi Powered")
