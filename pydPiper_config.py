@@ -9,32 +9,32 @@ else:
 
 config.read('pydPiper.cfg')
 
-def safeget(config, section, option):
-    return config.has_option(section, option) and config.get(section, option) or None
+def safeget(config, section, option, default=None):
+    return config.has_option(section, option) and config.get(section, option) or default
 
 # Start-up mode
-STARTUP_MSG_DURATION = float(safeget(config,'STARTUP', 'startup_msg_duration'))
+STARTUP_MSG_DURATION = float(safeget(config,'STARTUP', 'startup_msg_duration',0))
 
 # Display Parameters
 DISPLAY_DRIVER= safeget(config,'DISPLAY', 'display_driver')
-DISPLAY_WIDTH = int(safeget(config,'DISPLAY', 'display_width')) # the  width of the display in pixels
-DISPLAY_HEIGHT = int(safeget(config,'DISPLAY', 'display_height')) # the height of the display in pixels
+DISPLAY_WIDTH = int(safeget(config,'DISPLAY', 'display_width',0)) # the  width of the display in pixels
+DISPLAY_HEIGHT = int(safeget(config,'DISPLAY', 'display_height',0)) # the height of the display in pixels
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
-DISPLAY_PIN_RS = int(safeget(config,'DISPLAY', 'display_pin_rs'))
-DISPLAY_PIN_E = int(safeget(config,'DISPLAY', 'display_pin_e'))
-DISPLAY_PIN_D4 = int(safeget(config,'DISPLAY', 'display_pin_d4'))
-DISPLAY_PIN_D5 = int(safeget(config,'DISPLAY', 'display_pin_d5'))
-DISPLAY_PIN_D6 = int(safeget(config,'DISPLAY', 'display_pin_d6'))
-DISPLAY_PIN_D7 = int(safeget(config,'DISPLAY', 'display_pin_d7'))
+DISPLAY_PIN_RS = int(safeget(config,'DISPLAY', 'display_pin_rs',0))
+DISPLAY_PIN_E = int(safeget(config,'DISPLAY', 'display_pin_e',0))
+DISPLAY_PIN_D4 = int(safeget(config,'DISPLAY', 'display_pin_d4',0))
+DISPLAY_PIN_D5 = int(safeget(config,'DISPLAY', 'display_pin_d5',0))
+DISPLAY_PIN_D6 = int(safeget(config,'DISPLAY', 'display_pin_d6',0))
+DISPLAY_PIN_D7 = int(safeget(config,'DISPLAY', 'display_pin_d7',0))
 DISPLAY_PINS_DATA = [ DISPLAY_PIN_D4, DISPLAY_PIN_D5, DISPLAY_PIN_D6, DISPLAY_PIN_D7 ]
-i2c_address = safeget(config,'DISPLAY', 'display_i2c_address')
-DISPLAY_I2C_ADDRESS = int(i2c_address) if 'x' not in i2c_address else int(i2c_address,16)
-DISPLAY_I2C_PORT = int(safeget(config,'DISPLAY', 'display_i2c_port'))
-DISPLAY_ENABLE_DURATION = float(safeget(config,'DISPLAY', 'display_enable_duration')) # in microseconds.  Decrease to increase performance.  Increase to improve display stability
+i2c_address = safeget(config,'DISPLAY', 'display_i2c_address','0')
+DISPLAY_I2C_ADDRESS = int(i2c_address) if i2c_address and 'x' not in i2c_address else int(i2c_address,16)
+DISPLAY_I2C_PORT = int(safeget(config,'DISPLAY', 'display_i2c_port',0))
+DISPLAY_ENABLE_DURATION = float(safeget(config,'DISPLAY', 'display_enable_duration',0)) # in microseconds.  Decrease to increase performance.  Increase to improve display stability
 
 # Page Parameters
 PAGEFILE = safeget(config, 'DISPLAY', 'pagefile')
-ANIMATION_SMOOTHING = float(safeget(config,'DISPLAY', 'animation_smoothing')) # Amount of time in seconds to wait before repainting display
+ANIMATION_SMOOTHING = float(safeget(config,'DISPLAY', 'animation_smoothing',0)) # Amount of time in seconds to wait before repainting display
 
 # System Parameters
 # This is where the log file will be written
@@ -46,7 +46,7 @@ LOGLEVEL={'debug': logging.DEBUG, 'info': logging.INFO, 'warning': logging.WARNI
 # Localization Parameters
 # Adjust this setting to localize the time display to your region
 TIMEZONE=getsafe(config,'SYSTEM', 'timezone')
-TIME24HOUR=bool(getsafe(config, 'SYSTEM', 'time24hour'))
+TIME24HOUR=bool(getsafe(config, 'SYSTEM', 'time24hour',False))
 
 # Adjust this setting to localize temperature displays
 TEMPERATURE=safeget(config,'SYSTEM', 'temperature')

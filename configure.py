@@ -41,7 +41,7 @@ if __name__ == u'__main__':
                                 { 'prompt': 'Data 4 pin?', 'variable': 'DISPLAY_PIN_D4', 'default': '25', 'help': 'What GPIO pin is the display\'s data 4 line connected to'  },
                                 { 'prompt': 'Data 5 pin?', 'variable': 'DISPLAY_PIN_D5', 'default': '24', 'help': 'What GPIO pin is the display\'s data 5 line connected to'  },
                                 { 'prompt': 'Data 6 pin?', 'variable': 'DISPLAY_PIN_D6', 'default': '23', 'help': 'What GPIO pin is the display\'s data 6 line connected to'  },
-                                { 'prompt': 'Data 7 pin?', 'variable': 'DISPLAY_PIN_R7', 'default': '27', 'help': 'What GPIO pin is the display\'s data 7 line connected to'  }
+                                { 'prompt': 'Data 7 pin?', 'variable': 'DISPLAY_PIN_D7', 'default': '27', 'help': 'What GPIO pin is the display\'s data 7 line connected to'  }
                             ],
                         '^hd44780_i2c$|^luma_i2c$':
                             [
