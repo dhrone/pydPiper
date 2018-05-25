@@ -45,8 +45,8 @@ LOGLEVEL={'debug': logging.DEBUG, 'info': logging.INFO, 'warning': logging.WARNI
 
 # Localization Parameters
 # Adjust this setting to localize the time display to your region
-TIMEZONE=getsafe(config,'SYSTEM', 'timezone')
-TIME24HOUR=bool(getsafe(config, 'SYSTEM', 'time24hour',False))
+TIMEZONE=safeget(config,'SYSTEM', 'timezone')
+TIME24HOUR=bool(safeget(config, 'SYSTEM', 'time24hour',False))
 
 # Adjust this setting to localize temperature displays
 TEMPERATURE=safeget(config,'SYSTEM', 'temperature')
@@ -57,6 +57,7 @@ WUNDER_LOCATION = safeget(config,'SYSTEM', 'wunder_location')
 
 
 # Music Source Parameters
+MUSIC_SERVICE = safeget(config, 'SOURCE', 'source_type')
 
 # Used by Volumio V1 and Moode
 MPD_SERVER = safeget(config, 'SOURCE', 'mpd_server')

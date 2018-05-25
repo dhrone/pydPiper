@@ -314,40 +314,41 @@ class music_controller(threading.Thread):
 
 #
 
-			try:
-				wq = 'http://api.wunderground.com/api/' + pydPiper_config.WUNDER_API + '/geolookup/conditions/forecast/q/' + pydPiper_config.WUNDER_LOCATION + '.json'
-				response = urllib2.urlopen(wq)
-				json_result = response.read()
-
+			if pydPiper_config.WUNDER_API and pydPiper_config.WUNDER_LOCATION:
 				try:
-					parsed_json = json.loads(json_result)
+					wq = 'http://api.wunderground.com/api/' + pydPiper_config.WUNDER_API + '/geolookup/conditions/forecast/q/' + pydPiper_config.WUNDER_LOCATION + '.json'
+					response = urllib2.urlopen(wq)
+					json_result = response.read()
 
-					location = parsed_json['location']['city']
-					outside_tempf = parsed_json['current_observation']['temp_f']
-					outside_tempc = parsed_json['current_observation']['temp_c']
-					outside_temp_maxf = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['high']['fahrenheit'])
-					outside_temp_maxc = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['high']['celsius'])
-					outside_temp_minf = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['low']['fahrenheit'])
-					outside_temp_minc = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['low']['celsius'])
-					outside_conditions = parsed_json['current_observation']['weather']
+					try:
+						parsed_json = json.loads(json_result)
 
-					if pydPiper_config.TEMPERATURE.lower() == u'celsius':
-						outside_temp = outside_tempc
-						outside_temp_max = int(outside_temp_maxc)
-						outside_temp_min = int(outside_temp_minc)
-						outside_temp_formatted = u"{0}°C".format(int(outside_temp))
-						outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
-						outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
-					else:
-						outside_temp = outside_tempf
-						outside_temp_max = int(outside_temp_maxf)
-						outside_temp_min = int(outside_temp_minf)
-						outside_temp_formatted = u"{0}°F".format(int(outside_temp))
-						outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
-						outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
+						location = parsed_json['location']['city']
+						outside_tempf = parsed_json['current_observation']['temp_f']
+						outside_tempc = parsed_json['current_observation']['temp_c']
+						outside_temp_maxf = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['high']['fahrenheit'])
+						outside_temp_maxc = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['high']['celsius'])
+						outside_temp_minf = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['low']['fahrenheit'])
+						outside_temp_minc = float(parsed_json['forecast']['simpleforecast']['forecastday'][0]['low']['celsius'])
+						outside_conditions = parsed_json['current_observation']['weather']
 
-				except ValueError:
-					logging.warning('Failed to decode result from Weather Underground Query.  Query string was {0}.  Response was {1}'.format(wq,json_result))
+						if pydPiper_config.TEMPERATURE.lower() == u'celsius':
+							outside_temp = outside_tempc
+							outside_temp_max = int(outside_temp_maxc)
+							outside_temp_min = int(outside_temp_minc)
+							outside_temp_formatted = u"{0}°C".format(int(outside_temp))
+							outside_temp_max_formatted = u"{0}°C".format(int(outside_temp_max))
+							outside_temp_min_formatted = u"{0}°C".format(int(outside_temp_min))
+						else:
+							outside_temp = outside_tempf
+							outside_temp_max = int(outside_temp_maxf)
+							outside_temp_min = int(outside_temp_minf)
+							outside_temp_formatted = u"{0}°F".format(int(outside_temp))
+							outside_temp_max_formatted = u"{0}°F".format(int(outside_temp_max))
+							outside_temp_min_formatted = u"{0}°F".format(int(outside_temp_min))
+
+					except ValueError:
+						logging.warning('Failed to decode result from Weather Underground Query.  Query string was {0}.  Response was {1}'.format(wq,json_result))
 
 			except urllib2.HTTPError as e:
 				logging.warning('The Weather Underground server couldn\'t fulfill the request and responded with error code {0}'.format(e.code))
@@ -544,6 +545,10 @@ if __name__ == u'__main__':
 	i2c_address = pydPiper_config.DISPLAY_I2C_ADDRESS
 	i2c_port = pydPiper_config.DISPLAY_I2C_PORT
 	enable = pydPiper_config.DISPLAY_ENABLE_DURATION
+	driver = pydPiper_config.DISPLAY_DRIVER
+	pagefile = pydPiper_config.PAGEFILE
+	services_list.append(pydPiper_config.MUSIC_SERVICE)
+
 
 	for opt, arg in opts:
 		if opt == u'-h':
