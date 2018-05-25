@@ -663,7 +663,11 @@ if __name__ == u'__main__':
 		sys.exit()
 
 	lcd.clear()
+
+	logging.debug('Loading display controller')
 	dc = displays.display.display_controller(pydPiper_config.DISPLAY_SIZE)
+
+	logging.debug('Loading music controller')
 	mc = music_controller(services_list, dc, showupdates)
 	time.sleep(2)
 	mc.start()

@@ -84,3 +84,5 @@ LMS_PORT = safeget(config, 'SOURCE', 'lms_port')
 LMS_USER = safeget(config, 'SOURCE', 'lms_user')
 LMS_PASSWORD = safeget(config, 'SOURCE', 'lms_password')
 LMS_PLAYER = safeget(config, 'SOURCE', 'lms_player')
+
+del (safeget)

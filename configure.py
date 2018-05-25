@@ -65,8 +65,8 @@ if __name__ == u'__main__':
                                 },                            ],
                         '^hd44780$|^hd44780_i2c$':
                             [
-                                { 'prompt': 'Width of display (in characters)?', 'variable': 'DISPLAY_WIDTH', 'default': '16', 'help': 'How many characters can be displayed on a single line' },
-                                { 'prompt': 'Height of display (in lines)?', 'variable': 'DISPLAY_HEIGHT', 'default': '2', 'help': 'How many lines can fit on the display' },
+                                { 'prompt': 'Width of display (in characters)?', 'variable': 'DISPLAY_WIDTH', 'default': '80', 'help': 'What is the horizontal resolution of the display in pixels.  Note: even though the hd44780 is a character device, the value you enter should be in pixels.  For reference, a 16x2 character display has a horizontal resolution of 80' },
+                                { 'prompt': 'Height of display (in lines)?', 'variable': 'DISPLAY_HEIGHT', 'default': '16', 'help': 'What is the vertical resolution of the display in pixels.  Note: even though the hd44780 is a character device, the value you enter should be in pixels.  For reference, a 16x2 character display has a vertical resolution of 16' },
                                 {
                                     'prompt': 'Enable pulse duration (in microseconds)?',
                                     'variable': 'DISPLAY_ENABLE_DURATION',
