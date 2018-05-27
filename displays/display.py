@@ -1306,7 +1306,7 @@ class display_controller(object):
 				isdefault = v['default'] if 'default' in v else False
 				if fontfile:
 	#				try:
-					logging.debug('Loading font {0}'.format(k))
+#					logging.debug('Loading font {0}'.format(k))
 					v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
 					if isdefault:
 						self.defaultfontpkg = v['fontpkg']
@@ -1325,7 +1325,7 @@ class display_controller(object):
 				fontfile = v['file'] if 'file' in v else ''
 				fontsize = v['size'] if 'size' in v else 8
 				if fontfile:
-					logging.debug('Loading font {0}'.format(k))
+#					logging.debug('Loading font {0}'.format(k))
 					try:
 						v['fontpkg'] = ImageFont.truetype(font=fontfile, size=fontsize)
 					except IOError:
@@ -1376,7 +1376,7 @@ class display_controller(object):
 		for k,v in pageWidgets.iteritems():
 			typeval = v['type'].lower() if 'type' in v else ''
 
-			logging.debug('Loading widget {0}'.format(k))
+#			logging.debug('Loading widget {0}'.format(k))
 
 			if typeval not in ['canvas', 'text', 'ttext', 'progressbar', 'progressimagebar', 'line', 'rectangle', 'image' ]:
 				if typeval:
@@ -1578,7 +1578,7 @@ class display_controller(object):
 			name = value['name'] if 'name' in value else 'name not provided'
 			coordinates = value['coordinates'] if 'coordinates' in value else (0,0)
 
-			logging.debug('Loading sequence {0}'.format(name))
+#			logging.debug('Loading sequence {0}'.format(name))
 
 			newseq = sequence(name,conditional,self.db,self.dbp, coolingperiod, minimum, coordinates)
 			self.sequences.append(newseq)
