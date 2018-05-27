@@ -349,7 +349,7 @@ class music_controller(threading.Thread):
 
             if pydPiper_config.WEATHER_SERVICE == 'accuweather':
                 logging.debug('Requesting weather forecast from {0}'.format(pydPiper_config.WEATHER_SERVICE))
-                querystr = 'http://dataservice.accuweather.com/currentconditions/v1/' + pydPiper_config.WEATHER_LOCATION
+                querystr = 'http://dataservice.accuweather.com/forecasts/v1/daily/1day/' + pydPiper_config.WEATHER_LOCATION
                 r = requests.get(querystr, { 'apikey': pydPiper_config.WEATHER_API,  })
 
                 if self.checkaccuweatherreturn(r.status_code):

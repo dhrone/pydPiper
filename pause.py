@@ -9,13 +9,13 @@ def nextMinute(offset=0):
 
 def nextQuarterHour(offset=0):
     when = datetime.now()+timedelta(hours=0.25)
-    minute = math.floor(when.minute/15)*15
+    minute = int(math.floor(when.minute/15)*15)
     when = datetime(when.year, when.month, when.day, when.hour,minute)
     return (when-datetime.now()).total_seconds()+offset
 
 def nextHalfHour(offset=0):
     when = datetime.now()+timedelta(hours=0.5)
-    minute = math.floor(when.minute/30)*30
+    minute = int(math.floor(when.minute/30)*30)
     when = datetime(when.year, when.month, when.day, when.hour,minute)
     return (when-datetime.now()).total_seconds()+offset
 
@@ -26,7 +26,7 @@ def nextHour(offset=0):
 
 def nextHalfday(offset=0):
     when = datetime.now()+timedelta(days=0.5)
-    hour = math.floor(when.hour/12)*12
+    hour = int(math.floor(when.hour/12)*12)
     when = datetime(when.year, when.month, when.day, hour)
     return (when-datetime.now()).total_seconds()+offset
 
