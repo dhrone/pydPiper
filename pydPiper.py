@@ -144,9 +144,9 @@ class music_controller(threading.Thread):
 
         logging.debug(u"Music Controller Starting")
 
-        launch_update_thread(self.updatesystemvars)
-        launch_update_thread(self.updateconditions)
-        launch_update_thread(self.updateforecast)
+        self.launch_update_thread(self.updatesystemvars)
+        self.launch_update_thread(self.updateconditions)
+        self.launch_update_thread(self.updateforecast)
 
         timesongstarted = 0
 
@@ -350,7 +350,7 @@ class music_controller(threading.Thread):
                 querystr = 'http://dataservice.accuweather.com/currentconditions/v1/' + pydPiper_config.WEATHER_LOCATION
                 r = requests.get(querystr, { 'apikey': pydPiper_config.WEATHER_API,  })
 
-                if checkaccuweatherreturn(r.status_code):
+                if self.checkaccuweatherreturn(r.status_code):
                     try:
                         res = r.json()
                         todaysForecast = res['DailyForecasts'][0]
@@ -393,7 +393,7 @@ class music_controller(threading.Thread):
                 querystr = 'http://dataservice.accuweather.com/currentconditions/v1/' + pydPiper_config.WEATHER_LOCATION
                 r = requests.get(querystr, { 'apikey': pydPiper_config.WEATHER_API })
 
-                if checkaccuweatherreturn(r.status_code):
+                if self.checkaccuweatherreturn(r.status_code):
                     try:
                         res = r.json()
                         current_observation = res[0]
@@ -474,7 +474,7 @@ class music_controller(threading.Thread):
                 usedp = 0
                 used = 0
 
-            logging.debug('System status: Temp {0}, Disk space remaining {1}%, IP address {2}'.format(system_temp_formatted, disk_availp, current_ip.decode()))
+            logging.debug('System status: Temp {0}, Disk space remaining {1}%, IP address {2}'.format(system_temp_formatted, availp, current_ip.decode()))
             with self.musicdata_lock:
                 self.musicdata[u'system_temp'] = system_temp
                 self.musicdata[u'system_temp_formatted'] = system_temp_formatted
