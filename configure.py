@@ -134,19 +134,32 @@ if __name__ == u'__main__':
                     'prompt': 'Enable weather?',
                     'allowed': ['y','n','yes','no'],
                     'default': 'n',
-                    'help': 'Do you want to enable the weather system?  Requires a key from Weather Underground.  Unfortunately free keys are no longer available',
+                    'help': 'Do you want to enable the weather system?  Requires an API key from a supported weather provider.',
                     'casesensitive': False,
                     'followup_questions': {
                         '^y$|^yes$':
                             [
                                 {
-                                    'prompt': 'Weather Underground API key?',
-                                    'variable': 'WUNDER_API',
+                                    'prompt': 'Weather service?',
+                                    'variable': 'WEATHER_SERVICE',
+                                    'default': 'accuweather',
+                                    'allowed': ['accuweather', 'weatherunderground'],
+                                    'casesensitive': False,
+                                    'followup_questions': {
+                                        '^accuweather$':[
+                                            {
+                                                'prompt': 'API key?',
+                                                'variable': 'WEATHER_API',
+                                                'help': 'An API can be requested from http://developer.accuweather.com'
+                                            },
+                                            {
+                                                'prompt': 'Location?',
+                                                'variable': 'WEATHER_LOCATION',
+                                                'help': 'You much provide a valid AccuWeather location id.  These can be searched for using the API calls shown on https://developer.accuweather.com/accuweather-locations-api/apis'
+                                            }
+                                        ]
+                                    }
                                 },
-                                {
-                                    'prompt': 'Weather location?',
-                                    'variable': 'WUNDER_LOCATION'
-                                }
                             ]
                     }
                 }
