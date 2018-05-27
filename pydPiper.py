@@ -5,7 +5,7 @@
 # Written by: Ron Ritchey
 
 from __future__ import unicode_literals
-import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, imp, urllib2, datetime, math
+import json, threading, logging, Queue, time, sys, getopt, moment, signal, commands, os, copy, datetime, math, requests
 import pages
 import displays
 import sources
@@ -318,19 +318,20 @@ class music_controller(threading.Thread):
         if not pydPiper_config.WEATHER_LOCATION:
             logging.warning('Weather service requires that a location be specified.  Weather services will not be available until one is provided')
             return False
+        return True
 
     def checkaccuweatherreturn(self, status_code):
-        if r.status_code == 400:
+        if status_code == 400:
             logging.warning('Request had bad syntax or the parameters supplied were invalid.  Request was [{0}]'.format(querystr))
-        elif r.status_code == 401:
+        elif status_code == 401:
             logging.warning('Unauthorized. API authorization failed.  API key is [{0}]'.format(pydPiper_config.WEATHER_API))
-        elif r.status_code == 403:
+        elif status_code == 403:
             logging.warning('Unauthorized. You do not have permission to access this endpoint')
-        elif r.status_code == 404:
+        elif status_code == 404:
             logging.warning('Server has not found a route matching the given URI.  Request was [{0}]'.format(querystr))
-        elif r.status_code == 500:
+        elif status_code == 500:
             logging.warning('Server encountered an unexpected condition which prevented it from fulfilling the request.  Request was [{0}]'.format(querystr))
-        elif r.status_code == 200:
+        elif status_code == 200:
             return True
         else:
             logging.warning('An unexpected return value was provide.  Value was [{0}]. Request was [{1}]'.format(status_code,querystr))
