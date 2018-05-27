@@ -10,6 +10,7 @@ import pages
 import displays
 import sources
 import pydPiper_config
+import pause
 
 #try:
 #    import pyowm
@@ -337,7 +338,7 @@ class music_controller(threading.Thread):
 
 
     def updateforecast(self):
-        if not checkweatherconfiguration():
+        if not self.checkweatherconfiguration():
             return
 
         logging.debug('Initializing weather forecast update process.  Forecasts will update every 12 hours at noon and midnight')
@@ -380,7 +381,7 @@ class music_controller(threading.Thread):
 
 
     def updateconditions(self):
-        if not checkweatherconfiguration():
+        if not self.checkweatherconfiguration():
             return
 
         logging.debug('Initializing weather current conditions update process.  Current conditions will update every hour')
