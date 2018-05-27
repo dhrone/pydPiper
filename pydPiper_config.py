@@ -51,9 +51,10 @@ TIME24HOUR=bool(safeget(config, 'SYSTEM', 'time24hour',False))
 # Adjust this setting to localize temperature displays
 TEMPERATURE=safeget(config,'SYSTEM', 'temperature')
 
-# New weather source is Weather Underground
-WUNDER_API = safeget(config,'SYSTEM', 'wunder_api')
-WUNDER_LOCATION = safeget(config,'SYSTEM', 'wunder_location')
+# Weather related variables
+WEATHER_SERVICE = safeget(config,'SYSTEM', 'weather_service')
+WEATHER_API = safeget(config,'SYSTEM', 'weather_api')
+WEATHER_LOCATION = safeget(config,'SYSTEM', 'weather_location')
 
 
 # Music Source Parameters
