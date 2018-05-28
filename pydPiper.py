@@ -69,7 +69,7 @@ class music_controller(threading.Thread):
         'current_time_sec':u"",
         'current_time_formatted':u"",
         'current_ip':u"",
-        'outside_conditions':'No Data',
+        'outside_conditions':'No data',
         'outside_temp_min':0,
         'outside_temp_max':0,
         'outside_temp_formatted':'',

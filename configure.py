@@ -172,7 +172,7 @@ if __name__ == u'__main__':
                 {
                     'prompt': 'Name of distribution?',
                     'variable': 'SOURCE_TYPE',
-                    'allowed': ['volumio', 'rune', 'lms', 'mpd', 'spop'],
+                    'allowed': ['volumio', 'moode', 'rune', 'lms', 'mpd', 'spop'],
                     'casesensitive': False,
                     'followup_questions': {
                         '^volumio$':
@@ -226,7 +226,7 @@ if __name__ == u'__main__':
                                     'variable': 'LMS_PLAYER',
                                 }
                             ],
-                        '^mpd$':
+                        '^mpd$|^moode$':
                             [
                                 {
                                     'prompt': 'Server address?',
@@ -317,7 +317,7 @@ if __name__ == u'__main__':
                 if 'allowed' in question:
                     question['allowed'] = [allowed_value.lower() for allowed_value in question['allowed']]
 
-            if value == '?' or value.lower() == 'help' or not value:
+            if value == '?' or value.lower() == 'help':
                 if 'help' in question:
                     print (question['help'])
                 if 'allowed' in question:
@@ -367,6 +367,9 @@ if __name__ == u'__main__':
     if config.get('SOURCE', 'source_type') == 'volumio':
         serviceconfig.set('Unit', 'After', 'volumio.service')
         serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/volumio/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
+    elif config.get('SOURCE', 'source_type') == 'moode':
+        serviceconfig.set('Unit', 'After', 'mpd.service docker.service')
+        serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/pi/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
 
     with open('pydpiper.service', 'w') as fp:
         serviceconfig.write(fp)
