@@ -134,7 +134,7 @@ class widget:
 					elif transform_request == u'yesno':
 						retval = u'yes' if val else u'no'
 				else:
-					logging.debug(u"Request to perform boolean transform on {0} requires boolean input".format(name))
+#					logging.debug(u"Request to perform boolean transform on {0} requires boolean input".format(name))
 					return val
 			elif transform_request in [u'int']:
 				try:
@@ -1490,14 +1490,14 @@ class display_controller(object):
 
 				try:
 					etype = effect[0]
-					logging.debug('Adding effect {0} to {1} which is currently size {2}'.format(etype,k,widget.size))
+#					logging.debug('Adding effect {0} to {1} which is currently size {2}'.format(etype,k,widget.size))
 				except IndexError:
 					logging.debug('Tried to add effect {0} but effect type not specified'.format(k))
 					etype = ''
 				if etype in ['scroll', 'popup']:
 					if etype == 'scroll':
 						widget = gwidgetScroll(widget, *effect[1:])
-						logging.debug("Scroll added with widget size {0}".format(widget.image.size))
+#						logging.debug("Scroll added with widget size {0}".format(widget.image.size))
 
 						# if the actual size of the widget is greater than the requested size then place the scroll object in a canvas to limit its display size
 						tw, th = size
