@@ -143,19 +143,19 @@ if __name__ == u'__main__':
                                     'prompt': 'Weather service?',
                                     'variable': 'WEATHER_SERVICE',
                                     'default': 'accuweather',
-                                    'allowed': ['accuweather', 'weatherunderground'],
+                                    'allowed': ['accuweather', 'wunderground'],
                                     'casesensitive': False,
                                     'followup_questions': {
-                                        '^accuweather$':[
+                                        '^accuweather$|^wunderground$':[
                                             {
                                                 'prompt': 'API key?',
                                                 'variable': 'WEATHER_API',
-                                                'help': 'An API can be requested from http://developer.accuweather.com'
+                                                'help': 'If using accuweather, an API can be requested from http://developer.accuweather.com.  Note: Weather Underground no longer supports free API keys.'
                                             },
                                             {
                                                 'prompt': 'Location?',
                                                 'variable': 'WEATHER_LOCATION',
-                                                'help': 'You much provide a valid AccuWeather location id.  These can be searched for using the API calls shown on https://developer.accuweather.com/accuweather-locations-api/apis'
+                                                'help': 'You much provide a valid location.  If using Accuweather, these can be searched for using the API calls shown on https://developer.accuweather.com/accuweather-locations-api/apis'
                                             }
                                         ]
                                     }
