@@ -347,8 +347,8 @@ class music_controller(threading.Thread):
         while not exitapp[0]:
             updateFlag = False
 
+            logging.debug('Requesting weather forecast from {0}'.format(pydPiper_config.WEATHER_SERVICE))
             if pydPiper_config.WEATHER_SERVICE == 'accuweather':
-                logging.debug('Requesting weather forecast from {0}'.format(pydPiper_config.WEATHER_SERVICE))
                 querystr = 'http://dataservice.accuweather.com/forecasts/v1/daily/1day/' + pydPiper_config.WEATHER_LOCATION
                 r = requests.get(querystr, { 'apikey': pydPiper_config.WEATHER_API,  })
 
@@ -365,7 +365,7 @@ class music_controller(threading.Thread):
                         outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                         outside_conditions = todaysForecast['Day']['IconPhrase']
                         updateFlag = True
-                    except KeyError, IndexError:
+                    except KeyError, IndexError, ValueError:
                         logging.warning('AccuWeather provided a response in an unexpected format.  Received [{0}]'.format(res))
 
             if updateFlag:
@@ -387,9 +387,9 @@ class music_controller(threading.Thread):
 
         logging.debug('Initializing weather current conditions update process.  Current conditions will update every hour')
 
-        # Sample weather date every 30 minutes
         while not exitapp[0]:
             updateFlag = False
+            # If using accuweather, sample current condition date every hour
             if pydPiper_config.WEATHER_SERVICE == 'accuweather':
                 logging.debug('Requesting current conditions from {0}'.format(pydPiper_config.WEATHER_SERVICE))
                 querystr = 'http://dataservice.accuweather.com/currentconditions/v1/' + pydPiper_config.WEATHER_LOCATION
@@ -400,11 +400,42 @@ class music_controller(threading.Thread):
                         res = r.json()
                         current_observation = res[0]
 
-                        temp = current_observation['Temperature']['Metric']['Value'] if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else current_observation['Temperature']['Imperial']['Value']
+                        temp = current_observation['Temperature']['Imperial']['Value'] if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else current_observation['Temperature']['Metric']['Value']
                         temp_formatted = u"{0}°{1}".format(int(temp),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                         updateFlag = True
                     except KeyError, IndexError:
                         logging.warning('AccuWeather provided a response in an unexpected format.  Received [{0}]'.format(res))
+
+            # If using Weather Undergroun, sample current and forecast condition date every hour
+            elif pydPiper_config.WEATHER_SERVICE == 'wunderground':
+                querystr = 'http://api.wunderground.com/api/' + pydPiper_config.WEATHER_API + '/geolookup/conditions/forecast/q/' + pydPiper_config.WEATHER_LOCATION + '.json'
+                r = requests.get(querystr)
+
+                if self.checkaccuweatherreturn(r.status_code):
+                    try:
+                        res = r.json()
+                        if 'error' in res['response']:
+                            logging.warning('Error occured retrieving forecast from Weather Underground.  Problem type was [{0}]:[{1}]'.format(res['response']['error']['type'],res['response']['error']['description']))
+                        else:
+                            todaysForecast = res['forecast']['simpleforecast']['forecastday'][0]
+                            currentObservation = res['current_observation']
+
+                            temp = currentObservation['temp_f'] if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else currentObservation['temp_c']
+                            temp_formatted = u"{0}°{1}".format(int(temp),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+
+                            temp_max_f = round(float(todaysForecast['high']['fahrenheit']),1)
+                            temp_min_f = round(float(todaysForecast['low']['fahrenheit']),1)
+                            temp_max_c = round(float(todaysForecast['high']['celcius']),1)
+                            temp_min_c = round(float(todaysForecast['low']['celcius']),1)
+                            outside_temp_max = temp_max_f if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else temp_max_c
+                            outside_temp_min = temp_min_f if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else temp_min_c
+                            outside_temp_max_formatted = u"{0}°{1}".format(int(outside_temp_max),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                            outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                            outside_conditions = currentObservation['weather']
+                            updateFlag = True
+                    except KeyError, IndexError, ValueError:
+                        logging.warning('Weather Underground provided a response in an unexpected format.  Received [{0}]'.format(res))
+
 
             if updateFlag:
                 logging.debug('Current Temperature is {0}'.format(temp_formatted))
