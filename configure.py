@@ -128,7 +128,7 @@ if __name__ == u'__main__':
                     'default': 'fahrenheit',
                     'casesensitive': False,
                     'allowed': ['fahrenheit', 'celsius'],
-                    'help': 'Determines whether the temperature values will be shown in Fahrenheit or Celcius'
+                    'help': 'Determines whether the temperature values will be shown in Fahrenheit or Celsius'
                 },
                 {
                     'prompt': 'Enable weather?',

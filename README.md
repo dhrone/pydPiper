@@ -98,7 +98,7 @@ For parallel interface displays
 `<e>, <rs>, <d4>, <d5>, <d6>, <d7>` -- The GPIO pins your display is connected to
 
 timezone -- Sets what timezone is local for this system (e.g. 'US/Eastern', 'France/Paris')
-temperature -- Sets whether to use fahrenheit or celcius
+temperature -- Sets whether to use fahrenheit or celsius
 
 If using a logitech media server player
 lmsplayer -- The MAC address for the player.  Should be the localhost's MAC address if running Squeezeplayer on the same system as pydPiper.  Example: 'b8:27:eb:f9:88:1e'
@@ -112,7 +112,7 @@ Page files have been created for
   Winstar WEH style OLEDs (16x2 dimensions) -- pages_weh_80x16.py
   Winstar WEG style OLEDS (100x16 pixel dimensions) -- pages_weg_100x16.py
   SSD1306 style OLEDs (128x64 pixel dimensions) -- pages_ssd1306.py
- 
+
 <pagefile> -- The name of the pages file to use for your display
 
 Once you have finished editing the file, save it and exit.

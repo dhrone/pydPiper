@@ -27,7 +27,7 @@ Restart=always
 # <e>, <rs>, <d4>, <d5>, <d6>, <d7> -- The GPIO pins your display is connected to
 #
 # timezone -- Sets what timezone is local for this system (e.g. 'US/Eastern', 'France/Paris')
-# temperature -- Sets whether to use fahrenheit or celcius
+# temperature -- Sets whether to use fahrenheit or celsius
 #
 # If using a logitech media server player
 # lmsplayer -- The MAC address for the player.  Should be the localhost's MAC address if running Squeezeplayer on the same system as pydPiper.  Example: 'b8:27:eb:f9:88:1e'

@@ -307,7 +307,7 @@ class music_controller(threading.Thread):
             logging.debug('Weather service not enabled')
             return False
 
-        if pydPiper_config.WEATHER_SERVICE not in ['weatherunderground', 'accuweather']:
+        if pydPiper_config.WEATHER_SERVICE not in ['wunderground', 'accuweather']:
             logging.warning('{0} is not a valid weather service'.format(pydPiper_config.WEATHER_SERVICE))
             return False
 
@@ -361,8 +361,8 @@ class music_controller(threading.Thread):
                         temp_min_f = todaysForecast['Temperature']['Minimum']['Value'] if todaysForecast['Temperature']['Minimum']['Unit'] == 'F' else round((todaysForecast['Temperature']['Minimum']['Value']*1.8)+32,1)
                         outside_temp_max = temp_max_f if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else round((temp_max_f-32)*0.55555556,1)
                         outside_temp_min = temp_min_f if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else round((temp_min_f-32)*0.55555556,1)
-                        outside_temp_max_formatted = u"{0}°{1}".format(int(outside_temp_max),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
-                        outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                        outside_temp_max_formatted = u"{0}°{1}".format(int(outside_temp_max),{'fahrenheit':'F', 'celsius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                        outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celsius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                         outside_conditions = todaysForecast['Day']['IconPhrase']
                         updateFlag = True
                     except (KeyError, IndexError, ValueError):
@@ -401,7 +401,7 @@ class music_controller(threading.Thread):
                         current_observation = res[0]
 
                         temp = current_observation['Temperature']['Imperial']['Value'] if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else current_observation['Temperature']['Metric']['Value']
-                        temp_formatted = u"{0}°{1}".format(int(temp),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                        temp_formatted = u"{0}°{1}".format(int(temp),{'fahrenheit':'F', 'celsius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                         updateFlag = True
                     except (KeyError, IndexError, ValueError):
                         logging.warning('AccuWeather provided a response in an unexpected format.  Received [{0}]'.format(res))
@@ -421,16 +421,16 @@ class music_controller(threading.Thread):
                             currentObservation = res['current_observation']
 
                             temp = currentObservation['temp_f'] if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else currentObservation['temp_c']
-                            temp_formatted = u"{0}°{1}".format(int(temp),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                            temp_formatted = u"{0}°{1}".format(int(temp),{'fahrenheit':'F', 'celsius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
 
                             temp_max_f = round(float(todaysForecast['high']['fahrenheit']),1)
                             temp_min_f = round(float(todaysForecast['low']['fahrenheit']),1)
-                            temp_max_c = round(float(todaysForecast['high']['celcius']),1)
-                            temp_min_c = round(float(todaysForecast['low']['celcius']),1)
+                            temp_max_c = round(float(todaysForecast['high']['celsius']),1)
+                            temp_min_c = round(float(todaysForecast['low']['celsius']),1)
                             outside_temp_max = temp_max_f if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else temp_max_c
                             outside_temp_min = temp_min_f if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else temp_min_c
-                            outside_temp_max_formatted = u"{0}°{1}".format(int(outside_temp_max),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
-                            outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                            outside_temp_max_formatted = u"{0}°{1}".format(int(outside_temp_max),{'fahrenheit':'F', 'celsius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
+                            outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celsius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                             outside_conditions = currentObservation['weather']
                             updateFlag = True
                     except (KeyError, IndexError, ValueError):
@@ -577,7 +577,7 @@ if __name__ == u'__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:],u"d:",[u"driver=",u"devicetype=",u"width=",u"height=","rs=","e=","d4=","d5=","d6=","d7=","i2caddress=","i2cport=" ,u"wapi=", u"wlocale=", u"timezone=", u"temperature=", u"lms",u"mpd",u"spop",u"rune",u"volumio",u"pages=", u"lmsplayer=", u"showupdates"])
     except getopt.GetoptError:
-        print u'pydPiper.py -d <driver> --devicetype <devicetype (for LUMA devices)> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
+        print u'pydPiper.py -d <driver> --devicetype <devicetype (for LUMA devices)> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celsius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
         sys.exit(2)
 
     services_list = [ ]
@@ -601,7 +601,7 @@ if __name__ == u'__main__':
 
     for opt, arg in opts:
         if opt == u'-h':
-            print u'pydPiper.py -d <driver> --devicetype <devicetype e.g. ssd1306, sh1106> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --enable <enable duration> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celcius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
+            print u'pydPiper.py -d <driver> --devicetype <devicetype e.g. ssd1306, sh1106> --width <width in pixels> --height <height in pixels> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --i2caddress <i2c address> --i2cport <i2c port> --enable <enable duration> --wapi <weather underground api key> --wlocale <weather location> --timezone <timezone> --temperature <fahrenheit or celsius> --mpd --spop --lms --rune --volumio --pages <pagefile> --lmsplayer <mac address of lms player> --showupdates'
             sys.exit()
         elif opt in (u"-d", u"--driver"):
             driver = arg
