@@ -406,6 +406,12 @@ class music_controller(threading.Thread):
                     except (KeyError, IndexError, ValueError):
                         logging.warning('AccuWeather provided a response in an unexpected format.  Received [{0}]'.format(res))
 
+                    if updateFlag:
+                        logging.debug('Current Temperature is {0}'.format(temp_formatted))
+                        with self.musicdata_lock:
+                            self.musicdata[u'outside_temp'] = temp
+                            self.musicdata[u'outside_temp_formatted'] = temp_formatted
+
             # If using Weather Undergroun, sample current and forecast condition date every hour
             elif pydPiper_config.WEATHER_SERVICE == 'wunderground':
                 querystr = 'http://api.wunderground.com/api/' + pydPiper_config.WEATHER_API + '/geolookup/conditions/forecast/q/' + pydPiper_config.WEATHER_LOCATION + '.json'
@@ -436,12 +442,18 @@ class music_controller(threading.Thread):
                     except (KeyError, IndexError, ValueError):
                         logging.warning('Weather Underground provided a response in an unexpected format.  Received [{0}]'.format(res))
 
+                    if updateFlag:
+                        logging.debug('Current Temperature is {0}'.format(temp_formatted))
+                        with self.musicdata_lock:
+                            self.musicdata[u'outside_temp'] = temp
+                            self.musicdata[u'outside_temp_formatted'] = temp_formatted
+                            self.musicdata[u'outside_temp_max'] = outside_temp_max
+                            self.musicdata[u'outside_temp_min'] = outside_temp_min
+                            self.musicdata[u'outside_temp_max_formatted'] = outside_temp_max_formatted
+                            self.musicdata[u'outside_temp_min_formatted'] = outside_temp_min_formatted
+                            self.musicdata[u'outside_conditions'] = outside_conditions
 
-            if updateFlag:
-                logging.debug('Current Temperature is {0}'.format(temp_formatted))
-                with self.musicdata_lock:
-                    self.musicdata[u'outside_temp'] = temp
-                    self.musicdata[u'outside_temp_formatted'] = temp_formatted
+
 
             # Sleep until next update which occurs every hour
             pause.sleepUntil(time.time()+pause.nextHour(60), exitapp)
