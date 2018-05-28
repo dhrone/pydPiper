@@ -365,7 +365,7 @@ class music_controller(threading.Thread):
                         outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                         outside_conditions = todaysForecast['Day']['IconPhrase']
                         updateFlag = True
-                    except KeyError, IndexError, ValueError:
+                    except (KeyError, IndexError, ValueError):
                         logging.warning('AccuWeather provided a response in an unexpected format.  Received [{0}]'.format(res))
 
             if updateFlag:
@@ -403,7 +403,7 @@ class music_controller(threading.Thread):
                         temp = current_observation['Temperature']['Imperial']['Value'] if pydPiper_config.TEMPERATURE.lower() == 'fahrenheit' else current_observation['Temperature']['Metric']['Value']
                         temp_formatted = u"{0}°{1}".format(int(temp),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                         updateFlag = True
-                    except KeyError, IndexError:
+                    except (KeyError, IndexError, ValueError):
                         logging.warning('AccuWeather provided a response in an unexpected format.  Received [{0}]'.format(res))
 
             # If using Weather Undergroun, sample current and forecast condition date every hour
@@ -433,7 +433,7 @@ class music_controller(threading.Thread):
                             outside_temp_min_formatted = u"{0}°{1}".format(int(outside_temp_min),{'fahrenheit':'F', 'celcius': 'C'}.get(pydPiper_config.TEMPERATURE.lower()))
                             outside_conditions = currentObservation['weather']
                             updateFlag = True
-                    except KeyError, IndexError, ValueError:
+                    except (KeyError, IndexError, ValueError):
                         logging.warning('Weather Underground provided a response in an unexpected format.  Received [{0}]'.format(res))
 
 
