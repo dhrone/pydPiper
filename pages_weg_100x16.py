@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 # Load the fonts needed for this system
 FONTS = {
-	'small': { 'file':'latin1_5x8.fnt','size':(5,8) },
+	'small': { 'default':True, 'file':'latin1_5x8.fnt','size':(5,8) },
 	'large': { 'file':'Vintl01_10x16.fnt', 'size':(10,16) },
 	'tiny': { 'file':'upperascii_3x5.fnt', 'size':(5,5) }
 }
