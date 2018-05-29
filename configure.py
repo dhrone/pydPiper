@@ -371,6 +371,6 @@ if __name__ == u'__main__':
         serviceconfig.set('Unit', 'After', 'mpd.service docker.service')
         serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/pi/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
 
-    if config.get('SOURCE') in ['volumio', 'moode']:
+    if config.get('SOURCE', 'source_type') in ['volumio', 'moode']:
         with open('pydpiper.service', 'w') as fp:
             serviceconfig.write(fp)
