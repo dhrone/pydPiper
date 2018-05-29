@@ -211,7 +211,7 @@ if __name__ == u'__main__':
                                 {
                                     'prompt': 'Port?',
                                     'variable': 'LMS_PORT',
-                                    'default': '6379'
+                                    'default': '9090'
                                 },
                                 {
                                     'prompt': 'Username?',
@@ -370,9 +370,7 @@ if __name__ == u'__main__':
     elif config.get('SOURCE', 'source_type') == 'moode':
         serviceconfig.set('Unit', 'After', 'mpd.service docker.service')
         serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/pi/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
-    elif config.get('SOURCE', 'source_type') == 'rune':
-        serviceconfig.set('Unit', 'After', 'mpd.service docker.service')
-        serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /root/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
 
-    with open('pydpiper.service', 'w') as fp:
-        serviceconfig.write(fp)
+    if config.get('SOURCE') in ['volumio', 'moode']:
+        with open('pydpiper.service', 'w') as fp:
+            serviceconfig.write(fp)

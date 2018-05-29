@@ -68,6 +68,7 @@ class music_controller(threading.Thread):
         'localtime':moment.utcnow().timezone(pydPiper_config.TIMEZONE),
         'current_time_sec':u"",
         'current_time_formatted':u"",
+        'time_formatted':u"",
         'current_ip':u"",
         'outside_conditions':'No data',
         'outside_temp_min':0,
