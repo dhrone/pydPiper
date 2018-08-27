@@ -50,6 +50,7 @@ if __name__ == u'__main__':
                             ],
                         '^luma_i2c$':
                             [
+                                { 'prompt': 'Type of Display?', 'variable': 'DISPLAY_DEVICETYPE', 'allowed': ['ssd1306', 'sh1106', 'ssd1322', 'ssd1325', 'ssd1331'], 'default': 'ssd1306', 'help': 'What is the display device type' },
                                 { 'prompt': 'Width of display (in pixels)?', 'variable': 'DISPLAY_WIDTH', 'default': '128', 'help': 'What is the horizontal resolution of the display in pixels' },
                                 { 'prompt': 'Height of display (in pixels)?', 'variable': 'DISPLAY_HEIGHT', 'default': '64', 'help': 'What is the vertical resolution of the display in pixels' },
                             ],
@@ -174,6 +175,7 @@ if __name__ == u'__main__':
                     'variable': 'SOURCE_TYPE',
                     'allowed': ['volumio', 'moode', 'rune', 'lms', 'mpd', 'spop'],
                     'casesensitive': False,
+                    'mandatory': True,
                     'followup_questions': {
                         '^volumio$':
                             [
@@ -331,6 +333,10 @@ if __name__ == u'__main__':
                 if value not in question['allowed'] and value:
                     print ('{0} is not a valid value'.format(value))
                     continue
+
+            if 'mandatory' in question and question['mandatory'] is True and not value:
+                print ('This value can not be blank.  Please enter a valid value')
+                continue
 
             return value
 

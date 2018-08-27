@@ -17,6 +17,7 @@ STARTUP_MSG_DURATION = float(safeget(config,'STARTUP', 'startup_msg_duration',0)
 
 # Display Parameters
 DISPLAY_DRIVER= safeget(config,'DISPLAY', 'display_driver')
+DISPLAY_DEVICETYPE= safeget(config,'DISPLAY', 'display_devicetype')
 DISPLAY_WIDTH = int(safeget(config,'DISPLAY', 'display_width',0)) # the  width of the display in pixels
 DISPLAY_HEIGHT = int(safeget(config,'DISPLAY', 'display_height',0)) # the height of the display in pixels
 DISPLAY_SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
