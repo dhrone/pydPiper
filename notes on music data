@@ -1,0 +1,23 @@
+
+
+Song
+* Title (string)
+* Artist (string)
+* Album (string)
+* Albumart (string; uri to picture)
+* URI (string; uri to song)
+* Duration (float; seconds)
+* Encoding
+  - Codec (string; MP3; M4A etc.)
+  - SampleRate (float; Khz)
+  - BitDepth (int; number of bits per sample)
+  - Channels (string; number of channels in track e.g. 1, 2, 5, 5+1, 7+2)
+
+Play List
+* Songs (array of Song)
+* Length (float; seconds)
+
+PlayerState
+* Status (string enum: Play, Pause, Stop, Starting, Ending)
+* Playing (Song)
+* 
