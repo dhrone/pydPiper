@@ -1,10 +1,10 @@
 # pydPiper ![splash](displays/images/pydPiper_splash.png)
-A python program written for the Raspberry Pi that controls small LCD and OLED screens for music distributions like Volumio, RuneAudio, and Max2Play.
+A python program written for the Raspberry Pi that controls small LCD and OLED screens for music distributions like Volumio, MoodeAudio, and Max2Play.
 
 ![Playing Example](displays/images/example_playing_album.png)![Time Temp Example](displays/images/example_time.png)
 
 ## Features
-  * Supports multiple music distributions including Volumio (v1 and v2), RuneAudio, MoodeAudio, and Max2Play
+  * Supports multiple music distributions including Volumio (v1 and v2), MoodeAudio, and Max2Play
 	* Runs inside a Docker container to increase stability.  This decouples pydPiper from the distribution you run it on.
   * Screens are fully user definable
   * Supports a rich set of system and environmental variables including local weather
@@ -12,7 +12,8 @@ A python program written for the Raspberry Pi that controls small LCD and OLED s
   * Compatible with HD44780 style LCD displays (both I2C and Parallel interface)
 	* Compatible with SSD1306 style displays (I2C only)
   * Fully graphics based in its backend allowing any arbritrary font, character set, or image to be displayed if the hardware supports it.
-	* For LCD character based displays will dynamically generated custom characters to support characters missing from the font table.  This feature can also be used to display some graphical content on character-based displays though this is limited by the small amount of memory available for customer characters on HD44780 based displays.
+	* For LCD character based displays will dynamically generate custom characters to support characters missing from the font table.  This feature can also be used to display some graphical content on character-based displays though this is limited by the small amount of memory available for customer characters on HD44780 based displays.
+  * NEW! A configure function is not included to allow pydPiper to easily be set up for different displays and music distributions
 
 ## Display configuration
 

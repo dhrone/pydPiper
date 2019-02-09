@@ -63,7 +63,7 @@ CANVASES = {
 	'showrepeatall': { 'widgets': [ ('repeatallsymbol',0,0), ('repeatall', 15,0) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
 	'stoptime': { 'widgets': [ ('time',15,1), ('ampm',70,2) ], 'size':(100,16) },
-	'stoptimetemp_popup': { 'widgets': [ ('time',6,1), ('apmp',60,1), ('tempsmall',70,0), ('weather',0,17), ('temphilow',70,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
+	'stoptimetemp_popup': { 'widgets': [ ('time',6,1), ('ampm',60,1), ('tempsmall',70,0), ('weather',0,17), ('temphilow',70,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
 	'volume_changed': { 'widgets': [ ('volume',3,0), ('volumebar',0,8) ], 'size':(100,16) },
 }
 
