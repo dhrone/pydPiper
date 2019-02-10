@@ -31,7 +31,7 @@ if __name__ == u'__main__':
                 {
                     'prompt': 'Display type?',
                     'variable': 'DISPLAY_DRIVER',
-                    'allowed': [ 'winstar_weg', 'hd44780', 'hd44780_i2c', 'luma_i2c' ],
+                    'allowed': [ 'winstar_weg', 'hd44780', 'hd44780_i2c', 'hd44780_mcp23008', 'luma_i2c' ],
                     'help': 'Configures pydPiper for the display type you have installed',
                     'followup_questions': {
                         '^winstar_weg$|^hd44780$':
@@ -43,7 +43,7 @@ if __name__ == u'__main__':
                                 { 'prompt': 'Data 6 pin?', 'variable': 'DISPLAY_PIN_D6', 'default': '23', 'help': 'What GPIO pin is the display\'s data 6 line connected to'  },
                                 { 'prompt': 'Data 7 pin?', 'variable': 'DISPLAY_PIN_D7', 'default': '27', 'help': 'What GPIO pin is the display\'s data 7 line connected to'  }
                             ],
-                        '^hd44780_i2c$|^luma_i2c$':
+                        '^hd44780_i2c$|^hd44780_mcp23008$|^luma_i2c$':
                             [
                                 { 'prompt': 'I2C Port?', 'variable': 'DISPLAY_I2C_PORT', 'default': '1', 'help': 'What I2C bus is the display connected to' },
                                 { 'prompt': 'I2C Address?', 'variable': 'DISPLAY_I2C_ADDRESS', 'default': '0x3d', 'help': 'What is the display\'s I2C address' }
@@ -64,7 +64,7 @@ if __name__ == u'__main__':
                                     'default': '0.1',
                                     'help': 'Determines how long in microseconds the enable pulse should last.  This should be set as low as possible but setting it too low may cause display instability.  Recommended value is 1 ms for LCDs and 0.1 ms for OLEDs'
                                 },                            ],
-                        '^hd44780$|^hd44780_i2c$':
+                        '^hd44780$|^hd44780_i2c$|^hd44780_mcp23008$':
                             [
                                 { 'prompt': 'Width of display (in pixels)?', 'variable': 'DISPLAY_WIDTH', 'default': '80', 'help': 'What is the horizontal resolution of the display in pixels.  Note: even though the hd44780 is a character device, the value you enter should be in pixels.  For reference, a 16x2 character display has a horizontal resolution of 80' },
                                 { 'prompt': 'Height of display (in pixels)?', 'variable': 'DISPLAY_HEIGHT', 'default': '16', 'help': 'What is the vertical resolution of the display in pixels.  Note: even though the hd44780 is a character device, the value you enter should be in pixels.  For reference, a 16x2 character display has a vertical resolution of 16' },
