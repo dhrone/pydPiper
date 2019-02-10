@@ -360,11 +360,10 @@ if __name__ == u'__main__':
     with open('pydPiper.cfg', 'w') as fp:
         config.write(fp)
 
-    print ('Creating pydpiper.service file\n')
     serviceconfig.add_section('Unit')
     serviceconfig.add_section('Service')
     serviceconfig.add_section('Install')
-    serviceconfig.set('Unit', 'Description', 'pydPiper container')
+    serviceconfig.set('Unit', 'Description', 'pydPiper')
     serviceconfig.set('Unit', 'Requires', 'docker.service')
 
     serviceconfig.set('Service', 'Restart', 'always')
@@ -376,7 +375,12 @@ if __name__ == u'__main__':
     elif config.get('SOURCE', 'source_type') == 'moode':
         serviceconfig.set('Unit', 'After', 'mpd.service docker.service')
         serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/pi/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
+    elif config.get('SOURCE', 'source_type') == 'rune':
+        serviceconfig.set('Unit', 'After', 'network.target redis.target')
+        serviceconfig.set('Service', 'WorkingDirectory', '/root/pydPiper')
+        serviceconfig.set('Service', 'ExecStart', '/root/.local/bin/pipenv run python2 pydPiper.py')
 
-    if config.get('SOURCE', 'source_type') in ['volumio', 'moode']:
+    if config.get('SOURCE', 'source_type') in ['volumio', 'moode', 'rune']:
+        print ('Creating pydpiper.service file\n')
         with open('pydpiper.service', 'w') as fp:
             serviceconfig.write(fp)

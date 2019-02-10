@@ -1,0 +1,7 @@
+git clone https://github.com/dhrone/pydPiper
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python2 get-pip.py
+pip2 install --user pipenv
+~/.local/bin/pipenv install moment python-mpd2 pyLMS redis pyOWM luma.oled socketIO-client Pillow
+~/.local/bin/pipenv shell
+python2 configure.py
