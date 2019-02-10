@@ -1,3 +1,4 @@
+#!/bin/bash
 # Retrieve pydPiper
 git clone https://github.com/dhrone/pydPiper
 #
