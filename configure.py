@@ -364,15 +364,16 @@ if __name__ == u'__main__':
     serviceconfig.add_section('Service')
     serviceconfig.add_section('Install')
     serviceconfig.set('Unit', 'Description', 'pydPiper')
-    serviceconfig.set('Unit', 'Requires', 'docker.service')
 
     serviceconfig.set('Service', 'Restart', 'always')
     serviceconfig.set('Install', 'WantedBy', 'multi-user.target')
 
     if config.get('SOURCE', 'source_type') == 'volumio':
+        serviceconfig.set('Unit', 'Requires', 'docker.service')
         serviceconfig.set('Unit', 'After', 'volumio.service')
         serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/volumio/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
     elif config.get('SOURCE', 'source_type') == 'moode':
+        serviceconfig.set('Unit', 'Requires', 'docker.service')
         serviceconfig.set('Unit', 'After', 'mpd.service docker.service')
         serviceconfig.set('Service', 'ExecStart', '/usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/pi/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py')
     elif config.get('SOURCE', 'source_type') == 'rune':
