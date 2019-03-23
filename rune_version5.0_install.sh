@@ -10,7 +10,7 @@ sudo python2 get-pip.py
 pip2 install --user pipenv
 #
 # Use pipenv to install pydPiper dependencies
-~/.local/bin/pipenv install moment python-mpd2 pyLMS redis pyOWM luma.oled socketIO-client Pillow
+~/.local/bin/pipenv install moment python-mpd2 pyLMS redis pyOWM luma.oled socketIO-client Pillow smbus
 #
 # Run pydPiper configure script
 ~/.local/bin/pipenv run python2 configure.py
