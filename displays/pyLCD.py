@@ -44,99 +44,99 @@ class interfaceI2c(interface):
 
 class pyLCD(object):
     def __init__(self, interface=None, cols=16, rows=2, dotsize=8, charmap='A02'):
-        if interface.type='gpio':
+        if interface.type=='gpio':
             self.lcd = lcdGPIO(numbering_mode=interface.numbering_mode, pin_rs = interface.pin_rs, pin_rw = interface.pin_rw, pin_e = interface.pin_e, pins_data = interface.pins_data, pin_backlight = interface.pin_backlight, backlight_mode = interface.backlight_mode, backlight_enabled = interface.backlight_enabled, cols = cols, rows = rows, dotsize = dotsize, charmap = charmap, auto_linebreaks=False)
-        elif interface.type = 'i2c':
+        elif interface.type == 'i2c':
             self.lcd = lcdI2C(i2c_expander = interface.i2c_expander, address = interface.address, expander_params = interface.expander_params, port = interface.port, backlight_enabled = interface.backlight_enabled, cols = cols, rows = rows, dotsize = dotsize, charmap = charmap, auto_linebreaks = False)
         else:
             raise TypeError('Interface must be either gpio or i2c')
 
-	def processevent(self, events, starttime, prepost, db, dbp):
-		for evnt in events:
-			t,var,val = evnt
+    def processevent(self, events, starttime, prepost, db, dbp):
+        for evnt in events:
+            t,var,val = evnt
 
-			if time.time() - starttime >= t:
-				if prepost in ['pre']:
-					db[var] = val
-				elif prepost in ['post']:
-					dbp[var] = val
+            if time.time() - starttime >= t:
+                if prepost in ['pre']:
+                    db[var] = val
+                elif prepost in ['post']:
+                    dbp[var] = val
 
     def demo(self):
 
-    	db = {
-    			'actPlayer':'mpd',
-    			'playlist_position':1,
-    			'playlist_length':5,
-    	 		'title':"Nicotine & Gravy",
-    			'artist':"Beck",
-    			'album':'Midnight Vultures',
-    			'elapsed':0,
-    			'length':400,
-    			'volume':50,
-    			'stream':'Not webradio',
-    			'utc': 	moment.utcnow(),
-    			'outside_temp_formatted':'46\xb0F',
-    			'outside_temp_max':72,
-    			'outside_temp_min':48,
-    			'outside_conditions':'Windy',
-    			'system_temp_formatted':'98\xb0C',
-    			'state':'stop',
-    			'system_tempc':81.0
-    		}
+        db = {
+                'actPlayer':'mpd',
+                'playlist_position':1,
+                'playlist_length':5,
+                 'title':"Nicotine & Gravy",
+                'artist':"Beck",
+                'album':'Midnight Vultures',
+                'elapsed':0,
+                'length':400,
+                'volume':50,
+                'stream':'Not webradio',
+                'utc':     moment.utcnow(),
+                'outside_temp_formatted':'46\xb0F',
+                'outside_temp_max':72,
+                'outside_temp_min':48,
+                'outside_conditions':'Windy',
+                'system_temp_formatted':'98\xb0C',
+                'state':'stop',
+                'system_tempc':81.0
+            }
 
-    	dbp = {
-    			'actPlayer':'mpd',
-    			'playlist_position':1,
-    			'playlist_length':5,
-    	 		'title':"Nicotine & Gravy",
-    			'artist':"Beck",
-    			'album':'Midnight Vultures',
-    			'elapsed':0,
-    			'length':400,
-    			'volume':50,
-    			'stream':'Not webradio',
-    			'utc': 	moment.utcnow(),
-    			'outside_temp_formatted':'46\xb0F',
-    			'outside_temp_max':72,
-    			'outside_temp_min':48,
-    			'outside_conditions':'Windy',
-    			'system_temp_formatted':'98\xb0C',
-    			'state':'stop',
-    			'system_tempc':81.0
-    		}
+        dbp = {
+                'actPlayer':'mpd',
+                'playlist_position':1,
+                'playlist_length':5,
+                 'title':"Nicotine & Gravy",
+                'artist':"Beck",
+                'album':'Midnight Vultures',
+                'elapsed':0,
+                'length':400,
+                'volume':50,
+                'stream':'Not webradio',
+                'utc': moment.utcnow(),
+                'outside_temp_formatted':'46\xb0F',
+                'outside_temp_max':72,
+                'outside_temp_min':48,
+                'outside_conditions':'Windy',
+                'system_temp_formatted':'98\xb0C',
+                'state':'stop',
+                'system_tempc':81.0
+            }
 
-    	events = [
-    		(15, 'state', 'play'),
-    		(20, 'title', 'Mixed Bizness'),
-    		(30, 'volume', 80),
-    		(40, 'title', 'I Never Loved a Man (The Way I Love You)'),
-    		(40, 'artist', 'Aretha Franklin'),
-    		(40, 'album', 'The Queen Of Soul'),
-    		(70, 'state', 'stop'),
-    		(90, 'state', 'play'),
-    		(100, 'title', 'Do Right Woman, Do Right Man'),
-    		(120, 'volume', 100),
-    		(140, 'state', 'play' )
-    	]
+        events = [
+            (15, 'state', 'play'),
+            (20, 'title', 'Mixed Bizness'),
+            (30, 'volume', 80),
+            (40, 'title', 'I Never Loved a Man (The Way I Love You)'),
+            (40, 'artist', 'Aretha Franklin'),
+            (40, 'album', 'The Queen Of Soul'),
+            (70, 'state', 'stop'),
+            (90, 'state', 'play'),
+            (100, 'title', 'Do Right Woman, Do Right Man'),
+            (120, 'volume', 100),
+            (140, 'state', 'play' )
+        ]
 
-		starttime = time.time()
-		elapsed = int(time.time()-starttime)
-		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
+        starttime = time.time()
+        elapsed = int(time.time()-starttime)
+        timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-		dc = display.display_controller((80,16))
-		f_path = os.path.join(os.path.dirname(__file__), 'pages_test.py')
-		dc.load(f_path, db,dbp )
+        dc = display.display_controller((80,16))
+        f_path = os.path.join(os.path.dirname(__file__), 'pages_test.py')
+        dc.load(f_path, db,dbp )
 
-		starttime=time.time()
-		while True:
-			elapsed = int(time.time()-starttime)
-			db['elapsed']=elapsed
-			db['utc'] = moment.utcnow()
-			processevent(events, starttime, 'pre', db, dbp)
-			img = dc.next()
-			processevent(events, starttime, 'post', db, dbp)
-			lcd.update(img)
-			time.sleep(.1)
+        starttime=time.time()
+        while True:
+            elapsed = int(time.time()-starttime)
+            db['elapsed']=elapsed
+            db['utc'] = moment.utcnow()
+            processevent(events, starttime, 'pre', db, dbp)
+            img = dc.next()
+            processevent(events, starttime, 'post', db, dbp)
+            lcd.update(img)
+            time.sleep(.1)
 
     def simpleDemo(self):
         self.lcd.clear()
@@ -147,71 +147,71 @@ class pyLCD(object):
 class ws0010(pyLCD):
     def __init__(self, interface=None, cols=16, rows=2, dotsize=8, charmap='A02'):
         super(pyLCD, self).__init__(interface, cols, rows, dotsize, charmap)
-		# Initialize the default font
-		font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
-		self.fp = font.fontpkg
+        # Initialize the default font
+        font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
+        self.fp = font.fontpkg
 
         self.lcd.command(0b00011111) # Place display in graphics mode
 
     def write_string(self, value):
-		textwidget = display.gwidgetText(text, self.fp, {}, [], varwidth )
-		self.update(textwidget.image)
+        textwidget = display.gwidgetText(text, self.fp, {}, [], varwidth )
+        self.update(textwidget.image)
 
-	def update(self, image):
+    def update(self, image):
 
-		# Make image the same size as the display
-		img = image.crop( (0,0,self.cols, self.rows))
+        # Make image the same size as the display
+        img = image.crop( (0,0,self.cols, self.rows))
 
-		# Compute frame from image
-		frame = self.getframe( img, 0,0, self.cols,self.rows )
-		self.updateframe(frame)
+        # Compute frame from image
+        frame = self.getframe( img, 0,0, self.cols,self.rows )
+        self.updateframe(frame)
 
-	def updateframe(self, newbuf):
+    def updateframe(self, newbuf):
 
-		rows = int(math.ceil(self.rows/8.0))
-		for j in range(0, rows):
-			self.setCursor(j*8,0)
-			for i in range(0, self.cols):
-				try:
-					byte = newbuf[j][i]
-				except IndexError:
-					byte = 0
-				self.lcd.write(byte)
+        rows = int(math.ceil(self.rows/8.0))
+        for j in range(0, rows):
+            self.setCursor(j*8,0)
+            for i in range(0, self.cols):
+                try:
+                    byte = newbuf[j][i]
+                except IndexError:
+                    byte = 0
+                self.lcd.write(byte)
 
-	def setCursor(self, row, col):
+    def setCursor(self, row, col):
 
-		if row >= self.rows or col >= self.cols:
-			raise IndexError
+        if row >= self.rows or col >= self.cols:
+            raise IndexError
 
-		# Convert from pixels to bytes
-		row = int(math.ceil(row/8.0))
+        # Convert from pixels to bytes
+        row = int(math.ceil(row/8.0))
 
-		self.lcd.command(self.lcd.c.LCD_SETDDRAMADDR | col)
-		self.lcd.command(self.lcd.c.LCD_SETCGRAMADDR | row)
+        self.lcd.command(self.lcd.c.LCD_SETDDRAMADDR | col)
+        self.lcd.command(self.lcd.c.LCD_SETCGRAMADDR | row)
 
 
 #class hd44780(pyLCD):
 
 if __name__ == '__main__':
-    	# Set defaults
-    	# These are for the wiring used by a Raspdac V3
-    	rows = 16
-    	cols = 80
-    	rs = 7
-    	e = 8
-    	d4 = 25
-    	d5 = 24
-    	d6 = 23
-    	d7 = 27
+        # Set defaults
+        # These are for the wiring used by a Raspdac V3
+        rows = 16
+        cols = 80
+        rs = 7
+        e = 8
+        d4 = 25
+        d5 = 24
+        d6 = 23
+        d7 = 27
         pins = [ d4, d5, d6, d7 ]
 
         interface = interfaceGpio(pin_rs = rs, pin_rw = None, pin_e = e, pins_data = pins)
         lcd = ws0010(interface)
 
-		print "Winstar OLED Display Test"
-		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins)
+        print "Winstar OLED Display Test"
+        print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins)
 
-		lcd.lcd.clear()
-		lcd.lcd.write_string("pydPiper\nStarting")
-		time.sleep(2)
-		lcd.clear()
+        lcd.lcd.clear()
+        lcd.lcd.write_string("pydPiper\nStarting")
+        time.sleep(2)
+        lcd.clear()
