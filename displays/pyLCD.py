@@ -7,15 +7,17 @@
 
 from __future__ import unicode_literals
 
-import time, math, logging
+import time, math, logging, os
 import fonts
 import graphics as g
 import display
 import moment
+import RPi.GPIO as GPIO
 from PIL import Image
 
 from RPLCD.gpio import CharLCD as lcdGPIO
 from RPLCD.i2c import CharLCD as lcdI2C
+from RPLCD import common as c
 
 class interface(object):
     def __init__(self, type='base'):
@@ -132,11 +134,11 @@ class pyLCD(object):
             elapsed = int(time.time()-starttime)
             db['elapsed']=elapsed
             db['utc'] = moment.utcnow()
-            processevent(events, starttime, 'pre', db, dbp)
+            self.processevent(events, starttime, 'pre', db, dbp)
             img = dc.next()
-            processevent(events, starttime, 'post', db, dbp)
+            self.processevent(events, starttime, 'post', db, dbp)
             lcd.update(img)
-            time.sleep(.1)
+            time.sleep(.01)
 
     def simpleDemo(self):
         self.lcd.clear()
@@ -146,16 +148,27 @@ class pyLCD(object):
 
 class ws0010(pyLCD):
     def __init__(self, interface=None, cols=16, rows=2, dotsize=8, charmap='A02'):
-        super(pyLCD, self).__init__(interface, cols, rows, dotsize, charmap)
+        super(ws0010, self).__init__(interface, cols, rows, dotsize, charmap)
         # Initialize the default font
         font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
         self.fp = font.fontpkg
+	self.rows = rows*8
+	self.cols = cols*5
 
+        self.lcd.command(0b00001000) # Turn display off
+        self.lcd.command(0b00101001) # 4 bits, 2 lines, 5x8 font, Western European font
+        self.lcd.command(0b00000110) # Entry mode set to increment and no shift
         self.lcd.command(0b00011111) # Place display in graphics mode
+        self.lcd.command(0b00001100) # Turn on display
 
     def write_string(self, value):
-        textwidget = display.gwidgetText(text, self.fp, {}, [], varwidth )
+        textwidget = display.gwidgetText(value, self.fp, {}, [], True )
         self.update(textwidget.image)
+
+    def clear(self):
+        self.setCursor(0,0)
+        self.lcd.command(c.LCD_CLEARDISPLAY)
+	c.msleep(2000)
 
     def update(self, image):
 
@@ -163,7 +176,7 @@ class ws0010(pyLCD):
         img = image.crop( (0,0,self.cols, self.rows))
 
         # Compute frame from image
-        frame = self.getframe( img, 0,0, self.cols,self.rows )
+        frame = g.getframe( img, 0,0, self.cols,self.rows )
         self.updateframe(frame)
 
     def updateframe(self, newbuf):
@@ -180,14 +193,14 @@ class ws0010(pyLCD):
 
     def setCursor(self, row, col):
 
-        if row >= self.rows or col >= self.cols:
-            raise IndexError
+#        if row >= self.rows or col >= self.cols:
+#            raise IndexError
 
         # Convert from pixels to bytes
         row = int(math.ceil(row/8.0))
 
-        self.lcd.command(self.lcd.c.LCD_SETDDRAMADDR | col)
-        self.lcd.command(self.lcd.c.LCD_SETCGRAMADDR | row)
+        self.lcd.command(c.LCD_SETDDRAMADDR | col)
+        self.lcd.command(c.LCD_SETCGRAMADDR | row)
 
 
 #class hd44780(pyLCD):
@@ -197,12 +210,12 @@ if __name__ == '__main__':
         # These are for the wiring used by a Raspdac V3
         rows = 16
         cols = 80
-        rs = 7
-        e = 8
-        d4 = 25
-        d5 = 24
-        d6 = 23
-        d7 = 27
+        rs = 24 
+        e = 25 
+        d4 = 16
+        d5 = 26
+        d6 = 20
+        d7 = 21
         pins = [ d4, d5, d6, d7 ]
 
         interface = interfaceGpio(pin_rs = rs, pin_rw = None, pin_e = e, pins_data = pins)
@@ -211,7 +224,8 @@ if __name__ == '__main__':
         print "Winstar OLED Display Test"
         print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}".format(rows,cols,rs,e,pins)
 
-        lcd.lcd.clear()
-        lcd.lcd.write_string("pydPiper\nStarting")
-        time.sleep(2)
         lcd.clear()
+        lcd.write_string("pydPiper\nStarting")
+        time.sleep(5)
+        lcd.clear()
+        lcd.demo()
