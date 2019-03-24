@@ -14,8 +14,8 @@ import display
 import moment
 from PIL import Image
 
-import RPLCD.gpio.CharLCD as lcdGPIO
-import RPLCD.i2c.CharLCD as lcdI2C
+from RPLCD.gpio import CharLCD as lcdGPIO
+from RPLCD.i2c import CharLCD as lcdI2C
 
 class interface(object):
     def __init__(self, type='base'):
