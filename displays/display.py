@@ -283,7 +283,7 @@ class gwidget(widget):
 
 	def update(self, reset=False):
 
-		if self.type in ['text', 'ttest', 'progressbar']:
+		if self.type in ['text', 'ttext', 'progressbar']:
 			if not self.changed(self.variables):
 				return False
 
