@@ -21,6 +21,7 @@ pydPiper now has standard page files for the displays that it supports.  If the 
 
 pydPiper displays are configured based upon three key concepts.  The first concept is the widget.  Widgets are used to draw a particular type of content on onto the screen.  There are widgets for displaying text, drawing lines and rectangles, displaying images, or showing a progress bar.  The next concept is the  canvas.  Canvases are collections of widgets where each widget is placed at a particular place within the canvas.  You will typically create a set of canvases that are the same size as your display with each canvas dedicated to a particular display purpose (e.g. show artist, display time).  The last concept is sequences.  A sequence is an ordered list of canvases that are displayed in turn when the sequence is activated.  There should be a sequence for each mode that the music player uses (e.g. play, stop).  Sequences are controlled through conditional expressions which are boolean logic statements.  If the statement evaluates to True, the sequence is activated.  If it is false, the sequence remains dormant.  In addition, each canvas within a sequence can also have a conditional statement to control whether the canvas gets displayed when its turn within the sequence occurs.  Here is a short example.
 
+```
 FONTS = {
 	'normal': { 'default':True, 'file':'latin1_5x8_fixed.fnt','size':(5,8) },
 }
@@ -47,6 +48,7 @@ SEQUENCES = [
 		'conditional': "db['state']=='stop'"
   }
 ]
+```
 
 This simple example will display the artist on the top line and the title on the bottom line of the display if the system is playing a song.  If the player is stopped, it will display the current time centered on the display.  Full documentation for configuring the display will be found in docs/display.md once I've written it.
 
