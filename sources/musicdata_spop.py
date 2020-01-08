@@ -152,7 +152,7 @@ class musicdata_spop(musicdata.musicdata):
 		self.musicdata[u'current'] = self.musicdata[u'elapsed']
 		self.musicdata[u'duration'] = self.musicdata[u'length']
 
-		self.musicdata[u'actPlayer'] = u"SPOP"
+		self.musicdata[u'actPlayer'] = u"Spotify"
 		self.musicdata[u'musicdatasource'] = u"SPOP"
 
 		self.musicdata[u'bitrate'] = u""
