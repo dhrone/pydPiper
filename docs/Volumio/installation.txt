@@ -63,3 +63,13 @@ git https://github.com/dhrone/pydPiper
 
 cd /data/INTERNAL/pydPiper
 sudo docker build --network=host -t dhrone/pydpiper:v0.32-alpha .
+
+(Note: This takes about 15m30s to run on a Pi 3)
+
+9. Run configure script
+
+sudo docker run -ti --privileged -v /var/log:/var/log:rw -v /home/volumio/pydPiper:/app:rw dhrone/pydpiper:v0.32-alpha python /app/configure.py
+
+10. Run pydPiper
+
+sudo docker run --network=host --privileged -v /var/log:/var/log:rw -v /data/INTERNAL/pydPiper:/app:rw dhrone/pydpiper:v0.32-alpha python /app/pydPiper.py
