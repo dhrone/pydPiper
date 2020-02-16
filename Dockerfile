@@ -1,4 +1,4 @@
-FROM hypriot/rpi-python
+FROM raspbian/stretch
 
 WORKDIR /app
 ADD . /app

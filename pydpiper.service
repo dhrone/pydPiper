@@ -1,0 +1,12 @@
+[Unit]
+Description = pydPiper
+Requires = docker.service
+After = volumio.service
+
+[Service]
+Restart = always
+ExecStart = /usr/bin/docker run --network=host --privileged -v /var/log:/var/log:rw -v /home/volumio/pydPiper:/app:rw dhrone/pydpiper:v0.31-alpha python /app/pydPiper.py
+
+[Install]
+WantedBy = multi-user.target
+
