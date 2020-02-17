@@ -720,13 +720,14 @@ if __name__ == u'__main__':
         lcd = displays.ssd1306_i2c.ssd1306_i2c(rows, cols, i2c_address, i2c_port)
     elif driver == u"luma_i2c":
         lcd = displays.luma_i2c.luma_i2c(rows, cols, i2c_address, i2c_port, devicetype)
-    elif driver == u"curses":
-        lcd = displays.curses.curses(rows, cols)
+    elif driver == u"lcd_curses":
+        lcd = displays.lcd_curses.lcd_curses(rows, cols)
     else:
         logging.critical(u"No valid display found")
         sys.exit()
 
     lcd.clear()
+
 
     logging.debug('Loading display controller')
     dc = displays.display.display_controller(pydPiper_config.DISPLAY_SIZE)

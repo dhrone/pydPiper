@@ -29,7 +29,7 @@ WIDGETS = {
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','varwidth':True,'effect':('scroll','left',1,1,20,'onloop',3,100)},
 	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small', 'varwidth':True },
 	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8), 'varwidth':True },
-	'time': { 'type':'text', 'format':'{0}', 'variables':['localtime|strftime+%-I:%M'], 'font':'large', 'just':'left', 'size':(50,16) },
+	'time': { 'type':'text', 'format':'{0}', 'variables':['localtime|strftime+%-I:%M'], 'font':'large', 'just':'right', 'size':(50,16) },
 	'ampm': { 'type':'text', 'format':'{0}', 'variables':['localtime|strftime+%p'], 'font':'tiny', 'just':'left' },
 	'tempsmall': { 'type':'text', 'format':'Temp\n{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(30,16) },
 	'temphilow': { 'type':'text', 'format':'h {0}\nl {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(30,16) },
@@ -98,7 +98,7 @@ SEQUENCES = [
 	},
 	{
 		'name':'seqVolume',
-		'coordinates':(10,0),
+		'coordinates':(0,0),
 		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
 		'conditional': "db['volume'] != dbp['volume']",
 		'minimum':2,
