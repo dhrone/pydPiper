@@ -27,6 +27,7 @@ class widget:
 		self.variables = []					# Names of variables in to-be-used order
 		self.currentvardict = { }			# A record of any variables that have been used and their last value
 		self.variabledict = variabledict	# variabledict.  A pointer to the current active system variable db
+		self.curMsg = None					# If widget is derived from text, record the current message this widget was derived from
 
 	@abc.abstractmethod
 	def update(self):
@@ -283,25 +284,19 @@ class gwidget(widget):
 
 	def update(self, reset=False):
 
-		if self.type in ['text', 'ttext', 'progressbar']:
-			if not self.changed(self.variables):
-				return False
+		# Moved change detection into widget
+#		if self.type in ['text', 'ttext']:
+#			if not self.changed(self.variables):
+#				return False
 
 		if self.type == 'text':
-			self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
-			return True
+			return self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
 		if self.type == 'ttext':
-			self.ttext(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
-			return True
-		elif self.type == 'image':
-			# Images are static so no need to refresh
-			return False
+			return self.ttext(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
 		elif self.type == 'progressbar':
-			self.progressbar(self.value, self.rangeval, self.size, self.style)
-			return True
+			return self.progressbar(self.value, self.rangeval, self.size, self.style)
 		elif self.type == 'progressimagebar':
-			self.progressimagebar(self.maskimage, self.value, self.rangeval, self.direction)
-			return True
+			return self.progressimagebar(self.maskimage, self.value, self.rangeval, self.direction)
 		elif self.type == 'canvas':
 			retval = True if reset else False
 			for e in self.widgets:
@@ -310,9 +305,8 @@ class gwidget(widget):
 					retval = True
 			# If a widget has changed
 			if retval:
-				# Clear canvas
-				self.clear()
 				# Replace all of the widgets
+				self.clear()
 				for e in self.widgets:
 					widget,x,y,w,h = e
 					self.place(widget, (x,y), (w,h))
@@ -322,6 +316,7 @@ class gwidget(widget):
 		elif self.type == u'popup':
 			return self.popup(self.widget, self.dheight, self.duration, self.pduration)
 		else:
+			# Static content like images, lines, rectangles do not need to be refreshed
 			return False
 
 	# WIDGETS
@@ -440,6 +435,12 @@ class gwidget(widget):
 		msg = self.evaltext(formatstring, variables)
 		# initialize image
 
+		# If the evaluated text has not changed, skip processing
+		if msg == self.curMsg:
+			return False
+		else:
+			self.curMsg = msg
+
 		if msg == '':
 			msg = ' '
 
@@ -536,7 +537,7 @@ class gwidget(widget):
 
 		self.updatesize()
 
-		return self.image
+		return True
 
 	def ttext(self, formatstring, variables, fontpkg, varwidth = True, specifiedsize=8, just=u'left'):
 		# Input
@@ -568,6 +569,12 @@ class gwidget(widget):
 
 		msg = self.evaltext(formatstring, variables)
 		# initialize image
+
+		# If the evaluated text has not changed, skip processing
+		if msg == self.curMsg:
+			return False
+		else:
+			self.curMsg = msg
 
 		if msg == '':
 			msg = ' '
@@ -617,7 +624,7 @@ class gwidget(widget):
 
 		self.updatesize()
 
-		return self.image
+		return True
 
 
 	# Image widget function
@@ -642,7 +649,7 @@ class gwidget(widget):
 
 		self.updatesize()
 
-		return self.image
+		return True
 
 	# PROGRESSBAR widget function
 	def progressbar(self, value, rangeval, size, style=u'square'):
@@ -710,6 +717,12 @@ class gwidget(widget):
 		except ZeroDivisionError:
 			percent = 0
 
+		# If the evaluated value has not changed, skip processing
+		if percent == self.curMsg:
+			return False
+		else:
+			self.curMsg = percent
+
 		# make image to place progress bar
 		self.image = Image.new("1", size, 0)
 
@@ -736,7 +749,7 @@ class gwidget(widget):
 		self.style = style
 		self.type = 'progressbar'
 
-		return self.image
+		return True
 
 	# PROGRESSBAR widget function
 	def progressimagebar(self, maskimage, value, rangeval, direction='right'):
@@ -801,6 +814,12 @@ class gwidget(widget):
 
 		percent = (v - rvlow) / float((rvhigh - rvlow))
 
+		# If the evaluated value has not changed, skip processing
+		if percent == self.curMsg:
+			return False
+		else:
+			self.curMsg = percent
+
 		# make a copy of the image to make the progress bar
 		self.image = maskimage.copy()
 		width, height = self.image.size
@@ -839,7 +858,7 @@ class gwidget(widget):
 		self.maskimage = maskimage
 		self.type = 'progressimagebar'
 
-		return self.image
+		return True
 
 
 	# LINE widget function
@@ -865,7 +884,7 @@ class gwidget(widget):
 		self.xy = (x,y)
 		self.color = color
 
-		return self.image
+		return True
 
 	# RECTANGLE widget function
 	def rectangle(self, (x,y), fill=0, outline=1):
@@ -891,7 +910,7 @@ class gwidget(widget):
 		self.fill = fill
 		self.outline = outline
 
-		return self.image
+		return True
 
 	# POPUP widget function
 	def popup(self, widget, dheight, duration=15, pduration=10): # Set up for pop-up display
