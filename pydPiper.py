@@ -494,6 +494,10 @@ class music_controller(threading.Thread):
 
             try:
                 # Check if running on OSX.  If yes, adjust df command
+                with os.popen(u'cat /etc/os-release') as p:
+                    releaseName = p.readline()
+
+
                 if sys.platform == u"darwin":
                     with os.popen(u"df /") as p:
                         p = os.popen(u"df /")
@@ -502,17 +506,36 @@ class music_controller(threading.Thread):
 
                     va = line.split()
                     line = "{0} {1}".format(va[3], va[4])
+
+                    va = line.split()
+                    avail = int(va[3])
+                    usedp = int(va[4][:-1]) # Remove trailing % and convert to int
+                    used = int(va[2])
+                    availp = 100-usedp
+
+                elif releaseName[6:12] == 'Alpine':
+                    with os.popen(u"df /") as p:
+                        p = os.popen(u"df -B 1 /")
+                        line = p.readline()
+                        line = p.readline()
+                        line = p.readline()
+
+                        va = line.split()
+                        avail = int(va[2])
+                        usedp = int(va[3][:-1]) # Remove trailing % and convert to int
+                        used = int(va[1])
+                        availp = 100-usedp
                 else:
                     # assume running on Raspberry linux
                     with os.popen(u"df -B 1 /") as p:
                         line = p.readline()
                         line = p.readline().strip()
 
-                va = line.split()
-                avail = int(va[3])
-                usedp = int(va[4][:-1]) # Remove trailing % and convert to int
-                used = int(va[2])
-                availp = 100-usedp
+                    va = line.split()
+                    avail = int(va[3])
+                    usedp = int(va[4][:-1]) # Remove trailing % and convert to int
+                    used = int(va[2])
+                    availp = 100-usedp
 
             except AttributeError:
                 avail = 0

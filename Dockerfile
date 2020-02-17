@@ -1,18 +1,17 @@
-FROM raspbian/stretch
+FROM arm32v7/python:2-alpine
 
 WORKDIR /app
 ADD requirements.txt /app
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk add \
   python-dev \
-  python-pip \
-  python-smbus \
-  libfreetype6-dev \
-  libjpeg-dev \
-  ttf-dejavu-core \
-  build-essential \
+  py-pip \
+  py-smbus \
+  freetype-dev \
+  jpeg-dev \
+  ttf-dejavu \
+  build-base \
   gcc \
-  vim \
-  iputils-ping \
-  python-imaging && pip install --index-url=https://pypi.python.org/simple/ --upgrade pip && apt-get purge -y python-pip
+  linux-headers \ 
+  py-pillow && rm -rf /var/cache/apk/*
 RUN pip install -r requirements.txt
 CMD /bin/bash
