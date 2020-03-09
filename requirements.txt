@@ -5,3 +5,4 @@ redis
 pyOWM
 luma.oled
 socketIO-client
+ipaddress
