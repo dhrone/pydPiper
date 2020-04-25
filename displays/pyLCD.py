@@ -152,8 +152,8 @@ class ws0010(pyLCD):
         # Initialize the default font
         font = fonts.bmfont.bmfont('latin1_5x8_fixed.fnt')
         self.fp = font.fontpkg
-	self.rows = rows*8
-	self.cols = cols*5
+        self.rows = rows*8
+        self.cols = cols*5
 
         self.lcd.command(0b00001000) # Turn display off
         self.lcd.command(0b00101001) # 4 bits, 2 lines, 5x8 font, Western European font
@@ -168,7 +168,7 @@ class ws0010(pyLCD):
     def clear(self):
         self.setCursor(0,0)
         self.lcd.command(c.LCD_CLEARDISPLAY)
-	c.msleep(2000)
+        c.msleep(2000)
 
     def update(self, image):
 
@@ -210,8 +210,8 @@ if __name__ == '__main__':
         # These are for the wiring used by a Raspdac V3
         rows = 16
         cols = 80
-        rs = 24 
-        e = 25 
+        rs = 24
+        e = 25
         d4 = 16
         d5 = 26
         d6 = 20
