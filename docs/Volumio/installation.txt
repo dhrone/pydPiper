@@ -47,7 +47,7 @@ smbpasswd: volumio
 
 6. Set up docker
 
-curl -sSL https://getdocker.com/ | $SHELL
+curl -sSL https://get.docker.com/ | $SHELL
 sudo usermod -aG docker volumio
 sudo docker run hello-world
 
@@ -57,7 +57,7 @@ sudo docker run hello-world
 7.  Get pydPiper and place in /data/INTERNAL
 
 cd /data/INTERNAL
-git https://github.com/dhrone/pydPiper
+git clone https://github.com/dhrone/pydPiper
 
 8. Build docker image file (optional)
 
