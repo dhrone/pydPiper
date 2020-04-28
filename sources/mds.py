@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 import json, threading, logging, Queue, time, sys
 import abc,logging,urllib2,contextlib
 
+logger = logging.getLogger(__name__)
+#logger.addHandler(logging.StreamHandler())
+
 class mds:
 	__metaclass__ = abc.ABCMeta
 
@@ -22,8 +25,8 @@ class mds:
 	# Will allow command issuance to music service.
 
 
-	def __init__(self, name = 'Unknown', queue=None, playerComms = None, retriesAllowed = 0, exitApp = [1]):
-
+	def __init__(self, name = 'Unknown', queue=None, playerComms = None, retriesAllowed = 3, exitApp = [0]):
+		logger.info('Initializing MDS {0}'.format(name))
 		# Parameters
 		self.queue = queue # queue shared with master
 		self.playerComms = playerComms # settings needed to connect with the player being monitored
@@ -32,12 +35,16 @@ class mds:
 		self.name = name # Name of the mds (e.g. Volumio, Rune)
 
 		# Class Variables
-		self.lMDS = threading.Lock()
-		self.tMDS = threading.Thread(target=self.run)
 		self.playerState = {}
 		self.playerStateLastUpdate = {}
 		self.timers = {}
 		self.stopWatches = {}
+		self.lMDS = threading.Lock()
+		self.tMDS = threading.Thread(target=self.run)
+
+		# Start Thread
+		self.tMDS.daemon = True
+		self.tMDS.start()
 
 	@abc.abstractmethod
 	def establishConnection(self):
@@ -93,19 +100,18 @@ class mds:
 		# Main loop for MDS
 		# Initializes connection to MDS
 		# Enters loop that listens for updates calling sendUpdate when new data is available
-
-		logging.info(u"{0} musicdata service starting")
-		logging.info(u"Connecting to {0} on {1}".format(self.name, self.playerComms))
+		logger.info(u"{0} musicdata service starting")
+		logger.info(u"Connecting to {0} on {1}".format(self.name, self.playerComms))
 
 		self.establishConnection()
 
-		while not self.exitapp[0]:
+		while not self.exitApp[0]:
 			if self.listen():
 				self.sendUpdate()
 
 		self.shutdownConnection()
 
-		logging.info(u"{0} musicdata service shutting down")
+		logger.info(u"{0} musicdata service shutting down")
 
 class playerComms():
 	__metaclass__ = abc.ABCMeta

@@ -7,9 +7,11 @@ from __future__ import unicode_literals
 
 import mds
 
-import json, logging, time
-#Queue, time, sys
+import json, logging, time, sys, Queue
 from socketIO_client import SocketIO
+
+logger = logging.getLogger(__name__)
+logger.debug('mdsVolumio2 module loading')
 
 class mdsVolumio2Comms(mds.playerComms):
 	def __init__(self, ipaddr, port):
@@ -23,20 +25,20 @@ class mdsVolumio2Comms(mds.playerComms):
 class mdsVolumio2(mds.mds):
 
 	def establishConnection(self):
-		self.socketIO = None
 
 		for i in range(self.retriesAllowed):
+			self.socketIO = None
 			try:
-				with SocketIO(self.server, self.port) as socketIO:
-					self.socketIO = socketIO
-					socketIO.on(u'pushState', self.on_state_response)
-					socketIO.on(u'pushQueue', self.on_queue_response)
+				self.socketIO = SocketIO(self.playerComms.ipaddr, self.playerComms.port)
+				self.socketIO.on(u'pushState', self.on_state_response)
+				self.socketIO.on(u'pushQueue', self.on_queue_response)
 
-					# Request initial values
-					socketIO.emit(u'getQueue', '')
-					socketIO.emit(u'getState', '')
-					return
+				# Request initial values
+				self.socketIO.emit(u'getQueue', '')
+				self.socketIO.emit(u'getState', '')
+				return
 			except Exception as ex:
+				del(self.socketIO)
 				logging.exception('Error connecting on attempt {0}'.format(i+1))
 				time.sleep(0.5)
 				pass
@@ -72,8 +74,8 @@ if __name__ == u'__main__':
 
 	import moment, getopt
 
-	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(message)s', filename=u'mdsVolumio2.log', level=logging.DEBUG)
-	logging.getLogger().addHandler(logging.StreamHandler())
+	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(module)s:%(message)s', level=logging.DEBUG)
+#	logging.getLogger().addHandler(logging.StreamHandler())
 	logging.getLogger(u'socketIO-client').setLevel(logging.WARNING)
 
 	try:
@@ -100,13 +102,17 @@ if __name__ == u'__main__':
 
 	exitapp = [ False ]
 	q = Queue.Queue()
-	mdr = mdsVolumio2('Volumio2', q, mdsVolumio2Comms(server, port))
+	logging.info('Starting Volumio MDS')
+	mdr = mdsVolumio2(name = 'Volumio2', queue= q, playerComms = mdsVolumio2Comms(server, port), retriesAllowed=3, exitApp = exitapp)
 
 	try:
 		while True:
 			try:
+				logging.info('Waiting for queue data')
 				status = q.get(timeout=1000)
 				q.task_done()
+				logging.info('Processing queue data')
+				logging.info('status: {0}'.format(status))
 
 				ctime = moment.utcnow().timezone(u"US/Eastern").strftime(u"%-I:%M:%S %p").strip()
 				print u"\n\nStatus at time {0}".format(ctime)
