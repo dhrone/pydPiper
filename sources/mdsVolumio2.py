@@ -30,16 +30,20 @@ class mdsVolumio2(mds.mds):
 			self.socketIO = None
 			try:
 				self.socketIO = SocketIO(self.playerComms.ipaddr, self.playerComms.port)
-				self.socketIO.on(u'pushState', self.on_state_response)
-				self.socketIO.on(u'pushQueue', self.on_queue_response)
+
+				self.socketIO.on('pushQueue', self.pushQueue)
+				self.socketIO.on('pushState', self.pushState)
+
+#				self.socketIO.on(u'pushState', self.on_state_response)
+#				self.socketIO.on(u'pushQueue', self.on_queue_response)
 
 				# Request initial values
-				self.socketIO.emit(u'getQueue', '')
-				self.socketIO.emit(u'getState', '')
+				self.socketIO.emit(u'getQueue')
+				self.socketIO.emit(u'getState')
 				return
 			except Exception as ex:
 				del(self.socketIO)
-				logging.exception('Error connecting on attempt {0}'.format(i+1))
+				logger.exception('Error connecting on attempt {0}'.format(i+1))
 				time.sleep(0.5)
 				pass
 		raise RuntimeError('Unable to connect')
@@ -47,20 +51,22 @@ class mdsVolumio2(mds.mds):
 	def shutdownConnection(self):
 		if self.socketIO:
 			del(self.socketIO)
+		pass
 
 	def listen(self):
-		start = time.time()
-		self.socketIO.wait_for_callbacks(seconds=20)
-		self.socketIO.emit(u'getQueue', '')
-		self.socketIO.emit(u'getState', '')
+		logger.debug('LISTENING')
+		self.socketIO.wait(seconds=10)
+		self.socketIO.emit(u'getQueue')
+		self.socketIO.emit(u'getState')
+		return True
 
-	def on_queue_response(self,*args):
+	def pushQueue(self,*args):
 		list = args[0]
 		with self.lMDS:
 			self.playerState['queue'] = list
 		self.sendUpdate()
 
-	def on_state_response(self, *args):
+	def pushState(self, *args):
 		# Read musicplayer status and update musicdata
 
 		status = args[0]
@@ -102,17 +108,16 @@ if __name__ == u'__main__':
 
 	exitapp = [ False ]
 	q = Queue.Queue()
-	logging.info('Starting Volumio MDS')
+	logger.info('Starting Volumio MDS')
 	mdr = mdsVolumio2(name = 'Volumio2', queue= q, playerComms = mdsVolumio2Comms(server, port), retriesAllowed=3, exitApp = exitapp)
 
 	try:
 		while True:
 			try:
-				logging.info('Waiting for queue data')
+				logger.info('Waiting for queue data')
 				status = q.get(timeout=1000)
 				q.task_done()
-				logging.info('Processing queue data')
-				logging.info('status: {0}'.format(status))
+				logger.info('Processing queue data')
 
 				ctime = moment.utcnow().timezone(u"US/Eastern").strftime(u"%-I:%M:%S %p").strip()
 				print u"\n\nStatus at time {0}".format(ctime)

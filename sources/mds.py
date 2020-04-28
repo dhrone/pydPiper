@@ -84,7 +84,7 @@ class mds:
 
 		# Send md to queue if anything has changed
 		if len(md) > 0:
-			self.dataqueue.put(md)
+			self.queue.put(md)
 
 		# Capture current state to compare against at next sendUpdate
 		self.playerStateLastUpdate = self.playerState.copy()
@@ -100,7 +100,7 @@ class mds:
 		# Main loop for MDS
 		# Initializes connection to MDS
 		# Enters loop that listens for updates calling sendUpdate when new data is available
-		logger.info(u"{0} musicdata service starting")
+		logger.info(u"{0} musicdata service starting".format(self.name))
 		logger.info(u"Connecting to {0} on {1}".format(self.name, self.playerComms))
 
 		self.establishConnection()
@@ -111,7 +111,7 @@ class mds:
 
 		self.shutdownConnection()
 
-		logger.info(u"{0} musicdata service shutting down")
+		logger.info(u"{0} musicdata service shutting down".format(self.name))
 
 class playerComms():
 	__metaclass__ = abc.ABCMeta

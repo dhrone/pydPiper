@@ -105,7 +105,7 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata[u'state'] = state
 			else:
 				self.musicdata[u'state'] = u'stop'
-				
+
 			if state == u'play':
 				# Determine if the player is changing to playing.
 				if self.musicdata_prev[u'state'] != u"play":
