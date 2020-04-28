@@ -80,31 +80,38 @@ if __name__ == u'__main__':
 
 	import moment, getopt
 
-	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(module)s:%(message)s', level=logging.DEBUG)
-#	logging.getLogger().addHandler(logging.StreamHandler())
-	logging.getLogger(u'socketIO-client').setLevel(logging.WARNING)
-
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],u"hs:p:",[u"server=",u"port="])
+		opts, args = getopt.getopt(sys.argv[1:],u"hs:p:l:",[u"server=",u"port=", u"level="])
 	except getopt.GetoptError:
-		print u'musicdata_volumio2.py -s <server> -p <port>'
+		print u'musicdata_volumio2.py -s <server> -p <port> -l <debug level>'
 		sys.exit(2)
 
 	# Set defaults
 	server = u'localhost'
 	port = 3000
+	level = 30
 #	pwd= ''
 
 	for opt, arg in opts:
 		if opt == u'-h':
-			print u'mdsVolumio2.py -s <server> -p <port>'
+			print u'mdsVolumio2.py -s <server> -p <port> -l <debug level>'
 			sys.exit()
 		elif opt in (u"-s", u"--server"):
 			server = arg
 		elif opt in (u"-p", u"--port"):
 			port = arg
-#		elif opt in ("-w", "--pwd"):
-#			pwd = arg
+		elif opt in (u"-l", u"--level"):
+			try:
+				level = {'NOTSET': 0, 'DEBUG':10, 'INFO': 20, 'WARNING':30, 'ERROR':40, 'CRITICAL':50}[arg.upper()]
+			except KeyError:
+				try:
+					level = int(arg)
+				except ValueError:
+					pass
+
+	logging.basicConfig(format=u'%(asctime)s:%(levelname)s:%(module)s:%(message)s', level=level)
+#	logging.getLogger().addHandler(logging.StreamHandler())
+	logging.getLogger(u'socketIO-client').setLevel(logging.WARNING)
 
 	exitapp = [ False ]
 	q = Queue.Queue()
@@ -120,10 +127,9 @@ if __name__ == u'__main__':
 				logger.info('Processing queue data')
 
 				ctime = moment.utcnow().timezone(u"US/Eastern").strftime(u"%-I:%M:%S %p").strip()
-				print u"\n\nStatus at time {0}".format(ctime)
+				print u"\nStatus at time {0}".format(ctime)
 				for item,value in status.iteritems():
 					print u"    [{0}]={1} {2}".format(item,value, type(value))
-				print u"\n\n"
 
 			except Queue.Empty:
 				pass
