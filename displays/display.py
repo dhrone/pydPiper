@@ -525,12 +525,13 @@ class gwidget(widget):
 
 		# if this is a character mode display then we need to be careful not to split a character across the character boundary
 		elif just == u'centerchar':
-			# If the number of chars is even, then we should be ok
-			if cx % 2 == 0:
-				ax = (maxw-cx)/2
-			else:
-			# If it's odd though we'll get split so add another character worth of space to the calculation
-				ax = (maxw-cx-fx)/2
+			ax = int( fx * round((( maxw - cx) / 2) / fx))			
+			# # If the number of chars is even, then we should be ok
+			# if cx % 2 == 0:
+			# 	ax = (maxw-cx)/2
+			# else:
+			# # If it's odd though we'll get split so add another character worth of space to the calculation
+			# 	ax = (maxw-cx-fx)/2
 		elif just == u'right':
 			ax = (maxw-cx)
 		self.image.paste(lineimage, (ax, cy))
@@ -612,12 +613,13 @@ class gwidget(widget):
 
 		# if this is a character mode display then we need to be careful not to split a character across the character boundary
 		elif just == u'centerchar':
-			# If the number of chars is even, then we should be ok
-			if cx % 2 == 0:
-				ax = (maxw-cx)/2
-			else:
-			# If it's odd though we'll get split so add another character worth of space to the calculation
-				ax = (maxw-cx-fx)/2
+			ax = int( fx * round((( maxw - cx) / 2) / fx))	
+			# # If the number of chars is even, then we should be ok
+			# if cx % 2 == 0:
+			# 	ax = (maxw-cx)/2
+			# else:
+			# # If it's odd though we'll get split so add another character worth of space to the calculation
+			# 	ax = (maxw-cx-fx)/2
 		elif just == u'right':
 			ax = (maxw-cx)
 		self.image.paste(textimage, (ax, 0))
