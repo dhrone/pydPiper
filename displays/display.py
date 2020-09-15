@@ -526,7 +526,7 @@ class gwidget(widget):
 
 		# if this is a character mode display then we need to be careful not to split a character across the character boundary
 		elif just == u'centerchar':
-			ax = int( fx * round((( maxw - cx) / 2) / fx))			
+			ax = int( fx * round((( maxw - cx) / 2) / fx))
 			# # If the number of chars is even, then we should be ok
 			# if cx % 2 == 0:
 			# 	ax = (maxw-cx)/2
@@ -614,7 +614,7 @@ class gwidget(widget):
 
 		# if this is a character mode display then we need to be careful not to split a character across the character boundary
 		elif just == u'centerchar':
-			ax = int( fx * round((( maxw - cx) / 2) / fx))	
+			ax = int( fx * round((( maxw - cx) / 2) / fx))
 			# # If the number of chars is even, then we should be ok
 			# if cx % 2 == 0:
 			# 	ax = (maxw-cx)/2
@@ -1251,6 +1251,7 @@ class sequence(object): # Holds a sequence of widgets to display on the screen i
 
 		# Evaluate sequence conditional and check for cooling period.
 		if self.expires < time.time() and (not self.evalconditional(self.conditional) or self.coolingexpires > time.time()):
+			self.end = 0
 			return None
 
 		# If the condition is true and the sequence has already passed it's minimum time reset the timer
