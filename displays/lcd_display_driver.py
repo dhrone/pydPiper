@@ -21,7 +21,7 @@ class lcd_display_driver:
 
 	def __init__(self, rows, cols, enable_duration):
 		self.rows = rows
-		self.cols = columns
+		self.cols = cols
 		self.enable_duration = enable_duration
 		self._exec_time = 1e-6 * 50
 		self._pulse_time = 1e-6 * 50
