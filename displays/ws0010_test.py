@@ -87,6 +87,7 @@ def _reset():
     mode = c.DL4
     command(0x00, 0x00, 0x02, 0x29) # Sends five 0s followed a two to set into 4 bit mode and FUNCTIONSET (e.g. 0x29 for N=1, F=0, FT1=0, FT0=1) or Display lines 2, Char Font 5x8, font table 1 (European)
     command(c.DISPLAYOFF)
+    command(c.POWEROFF)
     command(c.ENTRY) # Set entry mode to direction right, no shift
     command(c.POWERON|c.GRAPHIC) # Turn internal power on and set into graphics mode
     command(c.CLEAR) # Clear Display

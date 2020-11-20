@@ -28,14 +28,14 @@ IMAGES = {
 WIDGETS = {
 	'xofy': { 'type':'text', 'format':'{0}/{1}', 'variables':['playlist_position', 'playlist_length'], 'font':'small', 'size':(58,16), 'varwidth':True },
 	'volume': { 'type':'text', 'format':'Volume: {0}', 'variables':['volume'], 'font':'small', 'just':'right', 'size':(60,16), 'varwidth':True },
-	'volumelarge': { 'type':'text', 'format':'Volume: {0}', 'variables':['volume'], 'font':'large', 'just':'left', 'varwidth':True },
+	'volumelarge': { 'type':'text', 'format':'Volume: {0}', 'variables':['volume'], 'font':'large', 'just':'center', 'size': (115,16), 'varwidth':True },
 	'volumebar': { 'type':'progressbar', 'value':'volume', 'rangeval':(0,100), 'size':(115,8) },
 	'artist': { 'type':'text', 'format':'{0}', 'variables':['artist'], 'font':'large','varwidth':True,'effect':('scroll','left',1,1,20,'onloop',3,125)},
 	'title': { 'type':'text', 'format':'{0}', 'variables':['title'], 'font':'small','varwidth':True,'effect':('scroll','left',1,1,20,'onloop',3,125)},
 	'samplerate': { 'type':'text', 'format':'{0}', 'variables':['samplerate'], 'font':'small', 'just':'center','varwidth':True},
 	'bitdepth': { 'type':'text', 'format':'{0}', 'variables':['bitdepth'], 'font':'small', 'just':'center','varwidth':True},
-	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed|strftime+%-M:%S'], 'font':'small','size':(30,8), 'varwidth':True},
-	'length': { 'type':'text', 'format':'{0}', 'variables':['length|strftime+%-M:%S'], 'font':'small','size':(30,8),'just':'right','varwidth':True},
+	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsedm|strftime+%-M:%S'], 'font':'small','size':(30,8), 'varwidth':True},
+	'length': { 'type':'text', 'format':'{0}', 'variables':['lengthm|strftime+%-M:%S'], 'font':'small','size':(30,8),'just':'right','varwidth':True},
 	'songprogress': { 'type':'progressbar', 'value':'elapsed', 'rangeval':(0,'length'), 'size':(62,8) },
 	'time': { 'type':'text', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'large', 'just':'right', 'varwidth':True, 'size':(45,16) },
 	'ttime': { 'type':'ttext', 'format':'{0}', 'variables':['utc|timezone+US/Eastern|strftime+%-I:%M'], 'font':'DejaVuSans28', 'just':'right', 'varwidth':True },
@@ -51,7 +51,7 @@ CANVASES = {
 	'playing': { 'widgets': [ ('xofy',3,0), ('volume',68,0), ('artist',3,10), ('title',3,26), ('bitdepth',22,45), ('samplerate',78,45), ('elapsed',3,56), ('length',98,56), ('songprogress',33,56) ], 'size':(128,64) },
 	'stoptime': { 'widgets': [ ('ttime',10,2) ], 'size':(128,64) },
 	'stoptimetemp_popup': { 'widgets': [ ('ttime',3,0), ('tempsmall',100,0), ('weather',8,47), ('temphilow',100,48) ], 'size':(128,64) },
-	'volume_changed': { 'widgets': [ ('volumelarge',8,0), ('volumebar',8,18) ], 'size':(128,64) }
+	'volume_changed': { 'widgets': [ ('volumelarge',8,0), ('volumebar',8,18) ], 'size':(128,26) }
 }
 
 # Place the canvases into sequences to display when their condition is met
@@ -80,7 +80,7 @@ SEQUENCES = [
         },
 	{
 		'name':'seqVolume',
-		'coordinates':(0,0),
+		'coordinates':(0,16),
 		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
 		'conditional': "db['volume'] != dbp['volume']",
 		'minimum':2,
