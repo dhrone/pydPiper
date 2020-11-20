@@ -102,15 +102,15 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 		GPIO.setup(self.pin_e, GPIO.OUT, initial=GPIO.LOW)
 		GPIO.setup(self.pin_rs, GPIO.OUT, initial=GPIO.LOW)
 
-		self.command([0x00, 0x00, 0x02, LCD_FUNCTIONSET])
-		self.command(LCD_DISPLAYOFF)  # Set Display Off
-		self.command(LCD_POWEROFF)
-		self.command(LCD_ENTRY)  # Set entry mode to direction right, no shift
-		self.command(LCD_POWERON | LCD_CHARMODECHAR)  # Turn internal power on and set into character mode
-		self.command(LCD_DISPLAYON)  # Turn Display back on
+		self.command([0x00, 0x00, 0x02, self.LCD_FUNCTIONSET])
+		self.command(self.LCD_DISPLAYOFF)  # Set Display Off
+		self.command(self.LCD_POWEROFF)
+		self.command(self.LCD_ENTRY)  # Set entry mode to direction right, no shift
+		self.command(self.LCD_POWERON | self.LCD_CHARMODECHAR)  # Turn internal power on and set into character mode
+		self.command(self.LCD_DISPLAYON)  # Turn Display back on
 
-		self.command(LCD_CLEAR)
-		self.command(LCD_HOME)
+		self.command(self.LCD_CLEAR)
+		self.command(self.LCD_HOME)
 
 
 	def createcustom(self, image):
