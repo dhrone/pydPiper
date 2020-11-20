@@ -70,6 +70,8 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 		self.pin_rs = rs
 		self.pin_e = e
 
+		super(weh002004, self).__init__(rows, cols, enable_duration)
+
 		self.rows = rows
 		self.cols = cols
 		self.rows_char = rows/8

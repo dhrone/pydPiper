@@ -55,7 +55,7 @@ class lcd_display_driver:
 
 		# Write result to display using command mode
 		self._write(cmd, GPIO.LOW)
-		sleep(exec_time or self._exec_time)
+		time.sleep(exec_time or self._exec_time)
 
 	def data(self, data):
 		"""
@@ -89,14 +89,14 @@ class lcd_display_driver:
 		return [f(x) for x in data for f in (lambda x: x >> 4, lambda x: 0x0F & x)]
 
 	def _write(self, data, mode):
-		GPIO.output(self._RS, mode)
-		GPIO.output(self._E, GPIO.LOW)
+		GPIO.output(self.pin_rs, mode)
+		GPIO.output(self.pin_e, GPIO.LOW)
 		for value in data:
 			for i in range(4):
 				GPIO.output(self.pins_db[i], (value >> i) & 0x01)
-			GPIO.output(self._E, GPIO.HIGH)
-			sleep(self._pulse_time)
-			GPIO.output(self._E, GPIO.LOW)
+			GPIO.output(self.pin_e, GPIO.HIGH)
+			time.sleep(self._pulse_time)
+			GPIO.output(self.pin_e, GPIO.LOW)
 
 	def write4bits(self, bits, char_mode=False):
 
@@ -190,14 +190,6 @@ class lcd_display_driver:
 
 		return retval
 
-	def switchcustomchars(self, fontpkg):
-		if self.FONTS_SUPPORTED:
-			try:
-				self.loadcustomchars(0, fontpkg)
-			except RuntimeError:
-				self.FONTS_SUPPORTED = False
-				pass
-
 	@abc.abstractmethod
 	def message(self, message, row, col):
 		# Sends a message for the dispay to show on row at col
@@ -210,46 +202,7 @@ class lcd_display_driver:
 		# clears the display
 		return
 
-
-	def command(self, cmd):
-		# Sends a command to the display
-		# Must support the following commands...
-			# CLEAR - Clears the display
-			# DISPLAYON - Turns display on
-			# DISPLAYOFF - Turns display off
-			# CURSORON - Turns the underine cursor on
-			# CURSOROFF - Turns the underline cursor off
-			# BLINKON - Turns blinking on
-			# BLINKOFF - Turns blinking off
-
-		if cmd == u"CLEAR":
-			self.clear()
-		elif cmd == u"DISPLAYON":
-			self.displayon()
-		elif cmd == u"DISPLAYOFF":
-			self.displayoff()
-		elif cmd == u"CURSORON":
-			self.cursoron()
-		elif cmd == u"CURSOROFF":
-			self.cursoroff()
-		elif cmd == u"BLINKON":
-			self.blinkon()
-		elif cmd == u"BLINKOFF":
-			self.blinkoff()
-		else:
-			raise RuntimeError(u'Command {0} not supported'.format(cmd))
-
 	@abc.abstractmethod
 	def cleanup(self):
 		# If there are any steps needed to restore system state on exit, this is the place to do it.
-		return
-
-	@abc.abstractmethod
-	def loadcustomchars(self, char, fontdata):
-		# Write an array of custom characters starting at position char within
-		# the CGRAM region.
-		# Char should be an integer between 0 and 255
-		# fontdata should be an array of fonts which is are arrays of font data
-		# Must throw RuntimeError('Command loadcustomchars not supported')
-		# if display doesn't allow custom characters
 		return
