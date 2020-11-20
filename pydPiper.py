@@ -733,6 +733,8 @@ if __name__ == u'__main__':
 
     if driver == u"winstar_weg":
         lcd = displays.winstar_weg.winstar_weg(rows, cols, pin_rs, pin_e, pins_data, enable)
+    if driver == u"winstar_weh":
+        lcd = displays.winstar_weh.winstar_weh(rows, cols, pin_rs, pin_e, pins_data, enable)
     elif driver == u"hd44780":
         lcd = displays.hd44780.hd44780(rows, cols, pin_rs, pin_e, pins_data, enable)
     elif driver == u"hd44780_i2c":

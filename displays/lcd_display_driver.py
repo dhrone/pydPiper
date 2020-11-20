@@ -19,9 +19,9 @@ class lcd_display_driver:
 
 	FONTS_SUPPORTED = True
 
-	def __init__(self, rows, columns, enable_duration):
+	def __init__(self, rows, cols, enable_duration):
 		self.rows = rows
-		self.columns = columns
+		self.cols = columns
 		self.enable_duration = enable_duration
 		self._exec_time = 1e-6 * 50
 		self._pulse_time = 1e-6 * 50
@@ -47,7 +47,7 @@ class lcd_display_driver:
 		try:
 			iterator = iter(cmd)
 		except TypeError:
-			cmd = list(cmd)
+			cmd = [cmd]
 
 		# Convert to nibbles unless only sending the low order bits
 		cmd = cmd if only_low_bits else \
@@ -69,14 +69,14 @@ class lcd_display_driver:
 		try:
 			iterator = iter(data)
 		except TypeError:
-			cmd = list(data)
+			data = [data]
 
 		# Convert to nibbles
 		data = self.bytes_to_nibbles(data)
 
 		self._write(data, GPIO.HIGH)
 
-	def bytes_to_nibbles(data):
+	def bytes_to_nibbles(self, data):
 		"""
 		Utility function to take a list of bytes (8 bit values) and turn it into
 		a list of nibbles (4 bit values)

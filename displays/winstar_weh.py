@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: UTF-8
 
-# Driver for WEH002004 OLED display on the RPi
+# Driver for Winstar WEH OLED display on the RPi
 # Written by: Ron Ritchey
 '''
 Variant of the HD44780 and Winstar drivers that leverages character mode
@@ -22,11 +22,11 @@ except:
 	logging.debug("RPi.GPIO not installed")
 
 
-class weh002004(lcd_display_driver.lcd_display_driver):
+class winstar_weh(lcd_display_driver.lcd_display_driver):
 
-	LCD_CLEARDISPLAY = 0x01
-	LCD_RETURNHOME = 0x02
-	LCD_ENTRYMODESET = 0x06
+	LCD_CLEAR = 0x01
+	LCD_HOME = 0x02
+	LCD_ENTRY = 0x06
 	LCD_DISPLAYOFF = 0x08
 	LCD_DISPLAYON = 0x0C
 	LCD_POWEROFF = 0x13
@@ -70,7 +70,7 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 		self.pin_rs = rs
 		self.pin_e = e
 
-		super(weh002004, self).__init__(rows, cols, enable_duration)
+		super(winstar_weh, self).__init__(rows, cols, enable_duration)
 
 		self.rows = rows
 		self.cols = cols
@@ -106,7 +106,7 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 		self.command(self.LCD_DISPLAYOFF)  # Set Display Off
 		self.command(self.LCD_POWEROFF)
 		self.command(self.LCD_ENTRY)  # Set entry mode to direction right, no shift
-		self.command(self.LCD_POWERON | self.LCD_CHARMODECHAR)  # Turn internal power on and set into character mode
+		self.command(self.LCD_POWERON | self.LCD_CHARMODE)  # Turn internal power on and set into character mode
 		self.command(self.LCD_DISPLAYON)  # Turn Display back on
 
 		self.command(self.LCD_CLEAR)
@@ -211,7 +211,7 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 		self.curimage = Image.new("1",(self.cols,self.rows))
 
 		# And then clear the screen
-		self.command(self.LCD_CLEARDISPLAY) # command to clear display
+		self.command(self.LCD_CLEAR) # command to clear display
 		self.delayMicroseconds(2000) # 2000 microsecond sleep, clearing the display takes a long time
 
 	def setCursor(self, col_char, row_char):
@@ -261,7 +261,7 @@ if __name__ == '__main__':
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
 	except getopt.GetoptError:
-		print 'weh002004.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
+		print 'winstar_weh.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
 		sys.exit(2)
 
 	# Set defaults
@@ -278,7 +278,7 @@ if __name__ == '__main__':
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'weh002004.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
+			print 'winstar_weh.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
 			sys.exit()
 		elif opt in ("-r", "--rows"):
 			rows = int(arg)
@@ -302,13 +302,13 @@ if __name__ == '__main__':
 	try:
 
 		pins = [d4, d5, d6, d7]
-		print "WEH002004 LCD Display Test"
+		print "Winstar WEH LCD Display Test"
 		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}, enable duration={5}".format(rows,cols,rs,e,pins,enable)
 
-		lcd = weh002004(rows,cols,rs,e,[d4, d5, d6, d7],enable)
+		lcd = winstar_weh(rows,cols,rs,e,[d4, d5, d6, d7],enable)
 		lcd.clear()
 
-		lcd.message("WEH002004 LCD\nPi Powered")
+		lcd.message("Winstar WEH LCD\nPi Powered")
 		time.sleep(4)
 
 		lcd.clear()
