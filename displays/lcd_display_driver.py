@@ -25,16 +25,9 @@ class lcd_display_driver:
 		self.enable_duration = enable_duration
 		self._exec_time = 1e-6 * 50
 		self._pulse_time = 1e-6 * 50
-		# Write custom fonts if the display supports them
-		# Fonts are currenty 5x8
-#		try:
-#			self.loadcustomchars(0, fonts.size5x8.player.fontpkg)
-#		except RuntimeError:
-#			# Custom fonts not supported
-#			self.FONTS_SUPPORTED = False
-#			pass
 
-	def command(self, *cmd, exec_time=None, only_low_bits=False):
+
+	def command(self, cmd, exec_time=None, only_low_bits=False):
 		"""
 		Sends a command or sequence of commands through to the serial interface.
 		If operating in four bit mode, expands each command from one byte
@@ -49,24 +42,38 @@ class lcd_display_driver:
 			will be sent.  This is necessary on some devices during initialization
 		:type only_low_bits: bool
 		"""
+
+		# Make cmd iterable if it is not
+		try:
+			iterator = iter(cmd)
+		except TypeError:
+			cmd = list(cmd)
+
+		# Convert to nibbles unless only sending the low order bits
 		cmd = cmd if only_low_bits else \
 			self.bytes_to_nibbles(cmd)
+
+		# Write result to display using command mode
 		self._write(cmd, GPIO.LOW)
 		sleep(exec_time or self._exec_time)
 
 	def data(self, data):
 		"""
 		Sends a data byte or sequence of data bytes through to the bus.
-		If the bus is in four bit mode, only the lowest 4 bits of the data
-		value will be sent.
-
-		This means that the device needs to send high and low bits separately
-		if the device is operating using a 4 bit bus (e.g. to send a 0x32 in
-		4 bit mode the device would use ``data([0x03, 0x02])``).
 
 		:param data: A data sequence.
 		:type data: list, bytearray
 		"""
+
+		# Make data iterable if it is not
+		try:
+			iterator = iter(data)
+		except TypeError:
+			cmd = list(data)
+
+		# Convert to nibbles
+		data = self.bytes_to_nibbles(data)
+
 		self._write(data, GPIO.HIGH)
 
 	def bytes_to_nibbles(data):

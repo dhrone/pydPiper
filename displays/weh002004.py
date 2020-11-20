@@ -100,7 +100,7 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 		GPIO.setup(self.pin_e, GPIO.OUT, initial=GPIO.LOW)
 		GPIO.setup(self.pin_rs, GPIO.OUT, initial=GPIO.LOW)
 
-		self.command(0x00, 0x00, 0x02, LCD_FUNCTIONSET)
+		self.command([0x00, 0x00, 0x02, LCD_FUNCTIONSET])
 		self.command(LCD_DISPLAYOFF)  # Set Display Off
 		self.command(LCD_POWEROFF)
 		self.command(LCD_ENTRY)  # Set entry mode to direction right, no shift
