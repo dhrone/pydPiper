@@ -27,16 +27,16 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 	LCD_CLEARDISPLAY = 0x01
 	LCD_RETURNHOME = 0x02
 	LCD_ENTRYMODESET = 0x06
-    LCD_DISPLAYOFF = 0x08
-    LCD_DISPLAYON = 0x0C
-    LCD_POWEROFF = 0x13
-    LCD_POWERON = 0x17
-    LCD_GRAPHICMODE = 0x08
-    LCD_CHARMODE = 0x00
-    LCD_FONT_JAPANESES = 0
-    LCD_FONT_WESTERN_EUROPEAN = 1
-    LCD_FONT_RUSSIAN = 2
-    LCD_FONT_WESTERN_EUROPEANII = 3
+	LCD_DISPLAYOFF = 0x08
+	LCD_DISPLAYON = 0x0C
+	LCD_POWEROFF = 0x13
+	LCD_POWERON = 0x17
+	LCD_GRAPHICMODE = 0x08
+	LCD_CHARMODE = 0x00
+	LCD_FONT_JAPANESES = 0
+	LCD_FONT_WESTERN_EUROPEAN = 1
+	LCD_FONT_RUSSIAN = 2
+	LCD_FONT_WESTERN_EUROPEANII = 3
 	LCD_FUNCTIONSET = 0x28 | LCD_FONT_WESTERN_EUROPEAN # 4 bit, 2 line, 5x8, Western European Font
 	LCD_SETCGRAMADDR = 0x40
 	LCD_SETDDRAMADDR = 0x80
@@ -100,15 +100,15 @@ class weh002004(lcd_display_driver.lcd_display_driver):
 		GPIO.setup(self.pin_e, GPIO.OUT, initial=GPIO.LOW)
 		GPIO.setup(self.pin_rs, GPIO.OUT, initial=GPIO.LOW)
 
-        self.command(0x00, 0x00, 0x02, LCD_FUNCTIONSET)
-        self.command(LCD_DISPLAYOFF)  # Set Display Off
-        self.command(LCD_POWEROFF)
-        self.command(LCD_ENTRY)  # Set entry mode to direction right, no shift
-        self.command(LCD_POWERON | LCD_CHARMODECHAR)  # Turn internal power on and set into character mode
-        self.command(LCD_DISPLAYON)  # Turn Display back on
+		self.command(0x00, 0x00, 0x02, LCD_FUNCTIONSET)
+		self.command(LCD_DISPLAYOFF)  # Set Display Off
+		self.command(LCD_POWEROFF)
+		self.command(LCD_ENTRY)  # Set entry mode to direction right, no shift
+		self.command(LCD_POWERON | LCD_CHARMODECHAR)  # Turn internal power on and set into character mode
+		self.command(LCD_DISPLAYON)  # Turn Display back on
 
-        self.command(LCD_CLEAR)
-        self.command(LCD_HOME)
+		self.command(LCD_CLEAR)
+		self.command(LCD_HOME)
 
 
 	def createcustom(self, image):

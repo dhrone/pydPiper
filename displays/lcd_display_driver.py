@@ -23,8 +23,8 @@ class lcd_display_driver:
 		self.rows = rows
 		self.columns = columns
 		self.enable_duration = enable_duration
-        self._exec_time = 1e-6 * 50
-        self._pulse_time = 1e-6 * 50
+		self._exec_time = 1e-6 * 50
+		self._pulse_time = 1e-6 * 50
 		# Write custom fonts if the display supports them
 		# Fonts are currenty 5x8
 #		try:
@@ -34,62 +34,62 @@ class lcd_display_driver:
 #			self.FONTS_SUPPORTED = False
 #			pass
 
-    def command(self, *cmd, exec_time=None, only_low_bits=False):
-        """
-        Sends a command or sequence of commands through to the serial interface.
-        If operating in four bit mode, expands each command from one byte
-        values (8 bits) to two nibble values (4 bits each)
+	def command(self, *cmd, exec_time=None, only_low_bits=False):
+		"""
+		Sends a command or sequence of commands through to the serial interface.
+		If operating in four bit mode, expands each command from one byte
+		values (8 bits) to two nibble values (4 bits each)
 
-        :param cmd: A spread of commands.
-        :type cmd: int
-        :param exec_time: Amount of time to wait for the command to finish
-            execution.  If not provided, the device default will be used instead
-        :type exec_time: float
-        :param only_low_bits: If ``True``, only the lowest four bits of the command
-            will be sent.  This is necessary on some devices during initialization
-        :type only_low_bits: bool
-        """
-        cmd = cmd if only_low_bits else \
-            self.bytes_to_nibbles(cmd)
-        self._write(cmd, GPIO.LOW)
-        sleep(exec_time or self._exec_time)
+		:param cmd: A spread of commands.
+		:type cmd: int
+		:param exec_time: Amount of time to wait for the command to finish
+			execution.  If not provided, the device default will be used instead
+		:type exec_time: float
+		:param only_low_bits: If ``True``, only the lowest four bits of the command
+			will be sent.  This is necessary on some devices during initialization
+		:type only_low_bits: bool
+		"""
+		cmd = cmd if only_low_bits else \
+			self.bytes_to_nibbles(cmd)
+		self._write(cmd, GPIO.LOW)
+		sleep(exec_time or self._exec_time)
 
-    def data(self, data):
-        """
-        Sends a data byte or sequence of data bytes through to the bus.
-        If the bus is in four bit mode, only the lowest 4 bits of the data
-        value will be sent.
+	def data(self, data):
+		"""
+		Sends a data byte or sequence of data bytes through to the bus.
+		If the bus is in four bit mode, only the lowest 4 bits of the data
+		value will be sent.
 
-        This means that the device needs to send high and low bits separately
-        if the device is operating using a 4 bit bus (e.g. to send a 0x32 in
-        4 bit mode the device would use ``data([0x03, 0x02])``).
+		This means that the device needs to send high and low bits separately
+		if the device is operating using a 4 bit bus (e.g. to send a 0x32 in
+		4 bit mode the device would use ``data([0x03, 0x02])``).
 
-        :param data: A data sequence.
-        :type data: list, bytearray
-        """
-        self._write(data, GPIO.HIGH)
+		:param data: A data sequence.
+		:type data: list, bytearray
+		"""
+		self._write(data, GPIO.HIGH)
 
-    def bytes_to_nibbles(data):
-        """
-        Utility function to take a list of bytes (8 bit values) and turn it into
-        a list of nibbles (4 bit values)
+	def bytes_to_nibbles(data):
+		"""
+		Utility function to take a list of bytes (8 bit values) and turn it into
+		a list of nibbles (4 bit values)
 
-        :param data: a list of 8 bit values that will be converted
-        :type data: list
-        :return: a list of 4 bit values
-        :rtype: list
-        """
-        return [f(x) for x in data for f in (lambda x: x >> 4, lambda x: 0x0F & x)]
+		:param data: a list of 8 bit values that will be converted
+		:type data: list
+		:return: a list of 4 bit values
+		:rtype: list
+		"""
+		return [f(x) for x in data for f in (lambda x: x >> 4, lambda x: 0x0F & x)]
 
-    def _write(self, data, mode):
-        GPIO.output(self._RS, mode)
-        GPIO.output(self._E, GPIO.LOW)
-        for value in data:
-            for i in range(4):
-                GPIO.output(self.pins_db[i], (value >> i) & 0x01)
-            GPIO.output(self._E, GPIO.HIGH)
-            sleep(self._pulse_time)
-            GPIO.output(self._E, GPIO.LOW)
+	def _write(self, data, mode):
+		GPIO.output(self._RS, mode)
+		GPIO.output(self._E, GPIO.LOW)
+		for value in data:
+			for i in range(4):
+				GPIO.output(self.pins_db[i], (value >> i) & 0x01)
+			GPIO.output(self._E, GPIO.HIGH)
+			sleep(self._pulse_time)
+			GPIO.output(self._E, GPIO.LOW)
 
 	def write4bits(self, bits, char_mode=False):
 
