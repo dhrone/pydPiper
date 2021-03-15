@@ -738,7 +738,7 @@ if __name__ == u'__main__':
     elif driver == u"hd44780_i2c":
         lcd = displays.hd44780_i2c.hd44780_i2c(rows, cols, i2c_address, i2c_port, enable)
     elif driver == u"hd44780_mcp23008":
-        lcd = displays.hd44780_i2c.hd44780_mcp23008(rows, cols, i2c_address, i2c_port, enable)
+        lcd = displays.hd44780_mcp23008.hd44780_mcp23008(rows, cols, i2c_address, i2c_port, enable)
     elif driver == u"ssd1306_i2c":
         lcd = displays.ssd1306_i2c.ssd1306_i2c(rows, cols, i2c_address, i2c_port)
     elif driver == u"luma_i2c":

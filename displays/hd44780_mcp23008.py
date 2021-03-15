@@ -15,6 +15,9 @@
 # More detail on initialization and timing
 # http://web.alfredstate.edu/weimandn/lcd/lcd_initialization/lcd_initialization_index.html
 #
+# 30 jan 2020 added pin initialization code and toggle_enable code from RPLCD - oisteink
+# https://github.com/dbrgn/RPLCD
+#
 
 import time, math,logging
 import fonts
@@ -71,9 +74,14 @@ class hd44780_mcp23008():
 	LCD_5x10s = 0x04
 	LCD_5x8DOTS = 0x00
 
-	LCD_BACKLIGHT  = 0x08  # On
+	LCD_BACKLIGHT  = 0x80  # On
 	#LCD_BACKLIGHT = 0x00  # Off
 
+	# MCP23008 Register addresses
+	MCP23008_IODIR = 0x00
+	MCP23008_GPIO = 0x09
+
+	ENABLE = 0b00000100 # Enable bit
 
 	character_translation = [
 		  0,  1,  2,  3,  4,  5,  6,  7,255, -1, -1, -1, -1, -1, -1, -1,	#0
@@ -97,8 +105,8 @@ class hd44780_mcp23008():
 
 
 
-	def __init__(self, rows=16, cols=80, i2c_addr=0x27, i2c_bus=1, enable_duration=1):
-		# Default arguments are appropriate for Raspdac V3 only!!!
+	def __init__(self, rows=16, cols=80, i2c_addr=0x20, i2c_bus=1, enable_duration=1):
+		# Default arguments are appropriate for my Adafruit Backpack
 
 		self.i2c_addr = i2c_addr
 
@@ -111,6 +119,9 @@ class hd44780_mcp23008():
 		self.enable_duration = enable_duration
 
 		self.bus = smbus.SMBus(i2c_bus)
+		## Code from RPLCD i2c _init_connection
+		# Set IO DIRection to output on all GPIOs (GP0-GP7)
+		self.bus.write_byte_data(i2c_addr, self.MCP23008_IODIR, 0)
 
 		# image buffer to hold current display contents.  Used to prevent unnecessary refreshes
 		self.curimage = Image.new("1", (self.cols, self.rows))
@@ -126,7 +137,6 @@ class hd44780_mcp23008():
 
 		# there is a good writeup on the HD44780 at Wikipedia
 		# https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller
-
 
 		self.write4bits(0x33,False)
 		self.write4bits(0x32,False)
@@ -150,34 +160,28 @@ class hd44780_mcp23008():
 		time.sleep(seconds)
 
 	def write4bits(self, bits, mode=False):
+		#pins: BL D7 D6 D5 D4 EN RS -
+		bits_high = (mode << 1) | ((bits & 0xF0) >> 1) | self.LCD_BACKLIGHT
+		bits_low = (mode << 1) | ((bits & 0x0F) << 3) | self.LCD_BACKLIGHT
 
 		# High bits
-		self.lcd_toggle_enable(bits>>4, mode)
+		self.lcd_toggle_enable(bits_high)
 
 		# Low bits
-		self.lcd_toggle_enable(bits&0x0F, mode)
+		self.lcd_toggle_enable(bits_low)
 
 
-	def lcd_toggle_enable(self, bits, mode=False):
-		# Pin mapping for MCP23008
-        #    7  | 6  | 5  | 4  | 3  | 2 | 1  | 0
-        #    BL | D7 | D6 | D5 | D4 | E | RS | -
-
-		# Mask out the high order bits, shift data left to fit it into the data pins, set the backlight on, and set RS if writing data (vs instruction)
-		v = (bits & 0x0F) << 3 | 0x80 | (0x02 if mode else 0)
-
-		# Write data to display
-		self.bus.write_byte(self.i2c_addr, v)
+	def lcd_toggle_enable(self, bits):
+		self.bus.write_byte_data(self.i2c_addr, self.MCP23008_GPIO, (bits & ~self.ENABLE)) 
 		self.delayMicroseconds(self.enable_duration)
 
 		# Pulse enable
-		self.bus.write_byte(self.i2c_addr, v | 0x04)
+		self.bus.write_byte_data(self.i2c_addr, self.MCP23008_GPIO, (bits | self.ENABLE))
 		self.delayMicroseconds(self.enable_duration)
 
 		# End enable pulse
-		self.bus.write_byte(self.i2c_addr, v)
-		self.delayMicroseconds(self.enable_duration)
-
+		self.bus.write_byte_data(self.i2c_addr, self.MCP23008_GPIO, (bits & ~self.ENABLE))
+		self.delayMicroseconds(self.enable_duration) #RPCLD uses 100 here
 
 	def createcustom(self, image):
 
@@ -430,10 +434,10 @@ if __name__ == '__main__':
 		sys.exit(2)
 
 	# Set defaults
-	# These are for the wiring used by a Raspdac V3
-	rows = 32
-	cols = 100
-	i2c_addr = 0x27
+	# These are for the default wiring used by my Adafruit Backpack in i2s mode
+	rows = 16
+	cols = 80
+	i2c_addr = 0x20
 	i2c_bus = 1
 	enable = 1
 
@@ -455,7 +459,7 @@ if __name__ == '__main__':
 	try:
 
 		print "HD44780 with MCP23008 I2C Backpack Display Test"
-		print "ROWS={0}, COLS={1}, I2C Addr={2}, I2C Bus={3} enable duraction={4}".format(rows,cols,i2c_addr,i2c_bus,enable)
+		print "ROWS={0}, COLS={1}, I2C Addr=0x{2:02x}, I2C Bus={3} enable duraction={4}".format(rows,cols,i2c_addr,i2c_bus,enable)
 
 		lcd = hd44780_mcp23008(rows,cols,i2c_addr, i2c_bus, enable)
 		lcd.clear()
@@ -467,7 +471,6 @@ if __name__ == '__main__':
 		elapsed = int(time.time()-starttime)
 		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
 
-		pathtotest = 'pages_test_lcd_20x4.py' if rows == 32 else 'pages_test_lcd_16x2.py'
 		dc = display.display_controller((cols,rows))
 		f_path = os.path.join(os.path.dirname(__file__), 'pages_test_lcd_20x4.py')
 		dc.load(f_path, db,dbp )
