@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 
 import json, mpd, threading, logging, Queue, time, sys, getopt
 import musicdata
+import re, ipaddress
 
 class musicdata_mpd(musicdata.musicdata):
 
@@ -157,10 +158,16 @@ class musicdata_mpd(musicdata.musicdata):
 		self.musicdata[u'actPlayer'] = u"MPD"
 		self.musicdata[u'musicdatasource'] = u"MPD"
 
-		if self.musicdata[u'uri'].split(u':')[0] == u'http':
-			encoding = u'webradio'
-		else:
-			encoding = self.musicdata[u'uri'].split(u':')[0]
+		itsip = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+
+                if self.musicdata[u'uri'].split(u':')[0] == u'http':
+                        url = self.musicdata[u'uri'].split(u'://')[1]
+                        if itsip.match(url) and ipaddress.ip_address(itsip.findall(url)[0]).is_private:
+                                encoding = u'localnetwork'
+                        else:
+                                encoding = u'webradio'
+                else:
+                        encoding = self.musicdata[u'uri'].split(u':')[0]
 
 		self.musicdata[u'encoding'] = encoding
 

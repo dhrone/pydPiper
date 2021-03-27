@@ -6,3 +6,4 @@ pyLMS
 redis
 pyOWM
 socketIO-client
+ipaddress
