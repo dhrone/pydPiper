@@ -1,0 +1,9 @@
+# Retrieve pydPiper
+git clone https://github.com/dhrone/pydPiper
+#
+# Enter pydPiper directory
+cd pydPiper
+#
+# Run install script
+chmod 755 rune_version5.0_install.sh
+./rune_version5.0_install.sh

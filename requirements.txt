@@ -1,7 +1,8 @@
+luma.core<=1.13.0
+luma.oled<=3.4.0
 moment
 python-mpd2
 pyLMS
 redis
 pyOWM
-luma.oled
 socketIO-client

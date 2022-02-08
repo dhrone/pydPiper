@@ -44,7 +44,7 @@ class ssd1306_i2c():
 		self.fp = font.fontpkg
 
 		serial = i2c(port=i2c_port, address=i2c_address)
-		self.device = ssd1306(serial)
+		self.device = ssd1306(serial, cols, rows)
 
 
 	def clear(self):

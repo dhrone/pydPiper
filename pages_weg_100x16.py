@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 # Load the fonts needed for this system
 FONTS = {
-	'small': { 'file':'latin1_5x8.fnt','size':(5,8) },
+	'small': { 'default':True, 'file':'latin1_5x8.fnt','size':(5,8) },
 	'large': { 'file':'Vintl01_10x16.fnt', 'size':(10,16) },
 	'tiny': { 'file':'upperascii_3x5.fnt', 'size':(5,5) }
 }
@@ -29,7 +29,7 @@ WIDGETS = {
 	'album': { 'type':'text', 'format':'{0}', 'variables':['album'], 'font':'small','varwidth':True,'effect':('scroll','left',1,1,20,'onloop',3,100)},
 	'playlist_display': { 'type':'text', 'format':'{0}', 'variables':['playlist_display'], 'font':'small', 'varwidth':True },
 	'elapsed': { 'type':'text', 'format':'{0}', 'variables':['elapsed_formatted'], 'font':'small', 'just':'right', 'size':(50,8), 'varwidth':True },
-	'time': { 'type':'text', 'format':'{0}', 'variables':['localtime|strftime+%-I:%M'], 'font':'large', 'just':'left', 'size':(50,16) },
+	'time': { 'type':'text', 'format':'{0}', 'variables':['localtime|strftime+%-I:%M'], 'font':'large', 'just':'right', 'size':(50,16) },
 	'ampm': { 'type':'text', 'format':'{0}', 'variables':['localtime|strftime+%p'], 'font':'tiny', 'just':'left' },
 	'tempsmall': { 'type':'text', 'format':'Temp\n{0}', 'variables':['outside_temp_formatted'], 'font':'small', 'just':'right', 'size':(30,16) },
 	'temphilow': { 'type':'text', 'format':'h {0}\nl {1}', 'variables':['outside_temp_max|int', 'outside_temp_min|int'], 'font':'small', 'just':'right', 'size':(30,16) },
@@ -63,7 +63,7 @@ CANVASES = {
 	'showrepeatall': { 'widgets': [ ('repeatallsymbol',0,0), ('repeatall', 15,0) ], 'size':(100,16) },
 	'blank': { 'widgets': [], 'size':(100,16) },
 	'stoptime': { 'widgets': [ ('time',15,1), ('ampm',70,2) ], 'size':(100,16) },
-	'stoptimetemp_popup': { 'widgets': [ ('time',6,1), ('apmp',60,1), ('tempsmall',70,0), ('weather',0,17), ('temphilow',70,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
+	'stoptimetemp_popup': { 'widgets': [ ('time',6,1), ('ampm',60,1), ('tempsmall',70,0), ('weather',0,17), ('temphilow',70,16) ], 'size':(100,32), 'effect': ('popup',16,15,10 ) },
 	'volume_changed': { 'widgets': [ ('volume',3,0), ('volumebar',0,8) ], 'size':(100,16) },
 }
 
@@ -76,6 +76,7 @@ CANVASES = {
 # To access system variables, refer to them within the db dictionary (e.g. db['title'])
 # To access the most recent previous state of a variable, refer to them within the dbp dictionary (e.g. dbp['title'])
 SEQUENCES = [
+	{	'name': 'seqSplash', 'canvases': [ { 'name':'splash', 'duration':4 } ], 'conditional': "db['state']=='starting'" },
 	{
 		'name': 'seqPlay',
 		'canvases': [
@@ -98,7 +99,7 @@ SEQUENCES = [
 	},
 	{
 		'name':'seqVolume',
-		'coordinates':(10,0),
+		'coordinates':(0,0),
 		'canvases': [ { 'name':'volume_changed', 'duration':2 } ],
 		'conditional': "db['volume'] != dbp['volume']",
 		'minimum':2,
