@@ -27,6 +27,7 @@ class widget:
 		self.variables = []					# Names of variables in to-be-used order
 		self.currentvardict = { }			# A record of any variables that have been used and their last value
 		self.variabledict = variabledict	# variabledict.  A pointer to the current active system variable db
+		self.curMsg = None					# If widget is derived from text, record the current message this widget was derived from
 
 	@abc.abstractmethod
 	def update(self):
@@ -134,7 +135,7 @@ class widget:
 					elif transform_request == u'yesno':
 						retval = u'yes' if val else u'no'
 				else:
-					logging.debug(u"Request to perform boolean transform on {0} requires boolean input".format(name))
+#					logging.debug(u"Request to perform boolean transform on {0} requires boolean input".format(name))
 					return val
 			elif transform_request in [u'int']:
 				try:
@@ -259,7 +260,7 @@ class widget:
 			segval = formatstring.format(*parms)
 		except:
 			logging.debug( u"Var Error Format {0}, Parms {1} Vars {2}".format(formatstring, parms, variables) )
-			print u"Var Error Format {0}, Parms {1} Vars {2}".format(formatstring, parms, variables) 
+			print u"Var Error Format {0}, Parms {1} Vars {2}".format(formatstring, parms, variables)
 			# Format doesn't match available variables
 			logging.debug(u"Var Error with parm type {0} and format type {1}".format(type(parms), type(formatstring)))
 			segval = u"VarErr"
@@ -283,25 +284,19 @@ class gwidget(widget):
 
 	def update(self, reset=False):
 
-		if self.type in ['text', 'ttest', 'progressbar']:
-			if not self.changed(self.variables):
-				return False
+		# Moved change detection into widget
+#		if self.type in ['text', 'ttext']:
+#			if not self.changed(self.variables):
+#				return False
 
 		if self.type == 'text':
-			self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
-			return True
+			return self.text(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
 		if self.type == 'ttext':
-			self.ttext(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
-			return True
-		elif self.type == 'image':
-			# Images are static so no need to refresh
-			return False
+			return self.ttext(self.formatstring, self.variables, self.fontpkg, self.varwidth, self.specifiedsize, self.just)
 		elif self.type == 'progressbar':
-			self.progressbar(self.value, self.rangeval, self.size, self.style)
-			return True
+			return self.progressbar(self.value, self.rangeval, self.size, self.style)
 		elif self.type == 'progressimagebar':
-			self.progressimagebar(self.maskimage, self.value, self.rangeval, self.direction)
-			return True
+			return self.progressimagebar(self.maskimage, self.value, self.rangeval, self.direction)
 		elif self.type == 'canvas':
 			retval = True if reset else False
 			for e in self.widgets:
@@ -310,9 +305,8 @@ class gwidget(widget):
 					retval = True
 			# If a widget has changed
 			if retval:
-				# Clear canvas
-				self.clear()
 				# Replace all of the widgets
+				self.clear()
 				for e in self.widgets:
 					widget,x,y,w,h = e
 					self.place(widget, (x,y), (w,h))
@@ -322,6 +316,7 @@ class gwidget(widget):
 		elif self.type == u'popup':
 			return self.popup(self.widget, self.dheight, self.duration, self.pduration)
 		else:
+			# Static content like images, lines, rectangles do not need to be refreshed
 			return False
 
 	# WIDGETS
@@ -440,6 +435,12 @@ class gwidget(widget):
 		msg = self.evaltext(formatstring, variables)
 		# initialize image
 
+		# If the evaluated text has not changed, skip processing
+		if msg == self.curMsg:
+			return False
+		else:
+			self.curMsg = msg
+
 		if msg == '':
 			msg = ' '
 
@@ -473,12 +474,13 @@ class gwidget(widget):
 
 				# if this is a character mode display then we need to be careful not to split a character across the character boundary
 				elif just == u'centerchar':
-					# If the number of chars is even, then we should be ok
-					if cx % 2 == 0:
-						ax = (maxw-cx)/2
-					else:
-					# If it's odd though we'll get split so add another character worth of space to the calculation
-						ax = (maxw-cx-fx)/2
+					ax = int( fx * round((( maxw - cx) / 2) / fx))
+					# # If the number of chars is even, then we should be ok
+					# if cx % 2 == 0:
+					# 	ax = (maxw-cx)/2
+					# else:
+					# # If it's odd though we'll get split so add another character worth of space to the calculation
+					# 	ax = (maxw-cx-fx)/2
 				elif just == u'right':
 					ax = (maxw-cx)
 				self.image.paste(lineimage, (ax, cy))
@@ -524,19 +526,20 @@ class gwidget(widget):
 
 		# if this is a character mode display then we need to be careful not to split a character across the character boundary
 		elif just == u'centerchar':
-			# If the number of chars is even, then we should be ok
-			if cx % 2 == 0:
-				ax = (maxw-cx)/2
-			else:
-			# If it's odd though we'll get split so add another character worth of space to the calculation
-				ax = (maxw-cx-fx)/2
+			ax = int( fx * round((( maxw - cx) / 2) / fx))			
+			# # If the number of chars is even, then we should be ok
+			# if cx % 2 == 0:
+			# 	ax = (maxw-cx)/2
+			# else:
+			# # If it's odd though we'll get split so add another character worth of space to the calculation
+			# 	ax = (maxw-cx-fx)/2
 		elif just == u'right':
 			ax = (maxw-cx)
 		self.image.paste(lineimage, (ax, cy))
 
 		self.updatesize()
 
-		return self.image
+		return True
 
 	def ttext(self, formatstring, variables, fontpkg, varwidth = True, specifiedsize=8, just=u'left'):
 		# Input
@@ -568,6 +571,12 @@ class gwidget(widget):
 
 		msg = self.evaltext(formatstring, variables)
 		# initialize image
+
+		# If the evaluated text has not changed, skip processing
+		if msg == self.curMsg:
+			return False
+		else:
+			self.curMsg = msg
 
 		if msg == '':
 			msg = ' '
@@ -605,19 +614,20 @@ class gwidget(widget):
 
 		# if this is a character mode display then we need to be careful not to split a character across the character boundary
 		elif just == u'centerchar':
-			# If the number of chars is even, then we should be ok
-			if cx % 2 == 0:
-				ax = (maxw-cx)/2
-			else:
-			# If it's odd though we'll get split so add another character worth of space to the calculation
-				ax = (maxw-cx-fx)/2
+			ax = int( fx * round((( maxw - cx) / 2) / fx))	
+			# # If the number of chars is even, then we should be ok
+			# if cx % 2 == 0:
+			# 	ax = (maxw-cx)/2
+			# else:
+			# # If it's odd though we'll get split so add another character worth of space to the calculation
+			# 	ax = (maxw-cx-fx)/2
 		elif just == u'right':
 			ax = (maxw-cx)
 		self.image.paste(textimage, (ax, 0))
 
 		self.updatesize()
 
-		return self.image
+		return True
 
 
 	# Image widget function
@@ -642,7 +652,7 @@ class gwidget(widget):
 
 		self.updatesize()
 
-		return self.image
+		return True
 
 	# PROGRESSBAR widget function
 	def progressbar(self, value, rangeval, size, style=u'square'):
@@ -710,6 +720,12 @@ class gwidget(widget):
 		except ZeroDivisionError:
 			percent = 0
 
+		# If the evaluated value has not changed, skip processing
+		if percent == self.curMsg:
+			return False
+		else:
+			self.curMsg = percent
+
 		# make image to place progress bar
 		self.image = Image.new("1", size, 0)
 
@@ -736,7 +752,7 @@ class gwidget(widget):
 		self.style = style
 		self.type = 'progressbar'
 
-		return self.image
+		return True
 
 	# PROGRESSBAR widget function
 	def progressimagebar(self, maskimage, value, rangeval, direction='right'):
@@ -801,6 +817,12 @@ class gwidget(widget):
 
 		percent = (v - rvlow) / float((rvhigh - rvlow))
 
+		# If the evaluated value has not changed, skip processing
+		if percent == self.curMsg:
+			return False
+		else:
+			self.curMsg = percent
+
 		# make a copy of the image to make the progress bar
 		self.image = maskimage.copy()
 		width, height = self.image.size
@@ -839,7 +861,7 @@ class gwidget(widget):
 		self.maskimage = maskimage
 		self.type = 'progressimagebar'
 
-		return self.image
+		return True
 
 
 	# LINE widget function
@@ -865,7 +887,7 @@ class gwidget(widget):
 		self.xy = (x,y)
 		self.color = color
 
-		return self.image
+		return True
 
 	# RECTANGLE widget function
 	def rectangle(self, (x,y), fill=0, outline=1):
@@ -891,7 +913,7 @@ class gwidget(widget):
 		self.fill = fill
 		self.outline = outline
 
-		return self.image
+		return True
 
 	# POPUP widget function
 	def popup(self, widget, dheight, duration=15, pduration=10): # Set up for pop-up display
@@ -1306,7 +1328,7 @@ class display_controller(object):
 				isdefault = v['default'] if 'default' in v else False
 				if fontfile:
 	#				try:
-					logging.debug('Loading font {0}'.format(k))
+#					logging.debug('Loading font {0}'.format(k))
 					v['fontpkg'] = fonts.bmfont.bmfont(fontfile).fontpkg
 					if isdefault:
 						self.defaultfontpkg = v['fontpkg']
@@ -1325,7 +1347,7 @@ class display_controller(object):
 				fontfile = v['file'] if 'file' in v else ''
 				fontsize = v['size'] if 'size' in v else 8
 				if fontfile:
-					logging.debug('Loading font {0}'.format(k))
+#					logging.debug('Loading font {0}'.format(k))
 					try:
 						v['fontpkg'] = ImageFont.truetype(font=fontfile, size=fontsize)
 					except IOError:
@@ -1376,7 +1398,7 @@ class display_controller(object):
 		for k,v in pageWidgets.iteritems():
 			typeval = v['type'].lower() if 'type' in v else ''
 
-			logging.debug('Loading widget {0}'.format(k))
+#			logging.debug('Loading widget {0}'.format(k))
 
 			if typeval not in ['canvas', 'text', 'ttext', 'progressbar', 'progressimagebar', 'line', 'rectangle', 'image' ]:
 				if typeval:
@@ -1490,14 +1512,14 @@ class display_controller(object):
 
 				try:
 					etype = effect[0]
-					logging.debug('Adding effect {0} to {1} which is currently size {2}'.format(etype,k,widget.size))
+#					logging.debug('Adding effect {0} to {1} which is currently size {2}'.format(etype,k,widget.size))
 				except IndexError:
 					logging.debug('Tried to add effect {0} but effect type not specified'.format(k))
 					etype = ''
 				if etype in ['scroll', 'popup']:
 					if etype == 'scroll':
 						widget = gwidgetScroll(widget, *effect[1:])
-						logging.debug("Scroll added with widget size {0}".format(widget.image.size))
+#						logging.debug("Scroll added with widget size {0}".format(widget.image.size))
 
 						# if the actual size of the widget is greater than the requested size then place the scroll object in a canvas to limit its display size
 						tw, th = size
@@ -1578,7 +1600,7 @@ class display_controller(object):
 			name = value['name'] if 'name' in value else 'name not provided'
 			coordinates = value['coordinates'] if 'coordinates' in value else (0,0)
 
-			logging.debug('Loading sequence {0}'.format(name))
+#			logging.debug('Loading sequence {0}'.format(name))
 
 			newseq = sequence(name,conditional,self.db,self.dbp, coolingperiod, minimum, coordinates)
 			self.sequences.append(newseq)

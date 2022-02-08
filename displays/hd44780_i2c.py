@@ -76,10 +76,6 @@ class hd44780_i2c():
 
 	ENABLE = 0b00000100 # Enable bit
 
-	# Timing constants
-	E_PULSE = 0.000001
-	E_DELAY = 0.000001
-
 	character_translation = [
 		  0,  1,  2,  3,  4,  5,  6,  7,255, -1, -1, -1, -1, -1, -1, -1,	#0
 		 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#16
@@ -102,7 +98,7 @@ class hd44780_i2c():
 
 
 
-	def __init__(self, rows=16, cols=80, i2c_addr=0x27, i2c_bus=1):
+	def __init__(self, rows=16, cols=80, i2c_addr=0x27, i2c_bus=1, enable_duration=1):
 		# Default arguments are appropriate for Raspdac V3 only!!!
 
 		self.i2c_addr = i2c_addr
@@ -112,6 +108,8 @@ class hd44780_i2c():
 		self.rows_char = rows/8
 		self.cols_char = cols/5
 		self.curposition = (0,0)
+
+		self.enable_duration = enable_duration
 
 		self.bus = smbus.SMBus(i2c_bus)
 
@@ -167,11 +165,11 @@ class hd44780_i2c():
 
 	def lcd_toggle_enable(self, bits):
 		# Toggle enable
-		time.sleep(self.E_DELAY)
+		self.delayMicroseconds(self.enable_duration)
 		self.bus.write_byte(self.i2c_addr, (bits | self.ENABLE))
-		time.sleep(self.E_PULSE)
+		self.delayMicroseconds(self.enable_duration)
 		self.bus.write_byte(self.i2c_addr,(bits & ~self.ENABLE))
-		time.sleep(self.E_DELAY)
+		self.delayMicroseconds(self.enable_duration)
 
 	def createcustom(self, image):
 
@@ -420,7 +418,7 @@ if __name__ == '__main__':
 	try:
 		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","addr=","bus="])
 	except getopt.GetoptError:
-		print 'hd44780_i2c.py -r <rows> -c <cols> --addr <i2c addr> --bus <i2c bus>'
+		print 'hd44780_i2c.py -r <rows> -c <cols> --addr <i2c addr> --bus <i2c bus> --enable <duration in microseconds>'
 		sys.exit(2)
 
 	# Set defaults
@@ -429,10 +427,11 @@ if __name__ == '__main__':
 	cols = 100
 	i2c_addr = 0x27
 	i2c_bus = 1
+	enable = 1
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'hd44780.py -r <rows> -c <cols> --addr <i2c addr> --bus <i2c bus>'
+			print 'hd44780.py -r <rows> -c <cols> --addr <i2c addr> --bus <i2c bus> --enable <duration in microseconds>'
 			sys.exit()
 		elif opt in ("-r", "--rows"):
 			rows = int(arg)
@@ -442,13 +441,15 @@ if __name__ == '__main__':
 			i2c_addr  = int(arg)
 		elif opt in ("--bus"):
 			i2c_bus  = int(arg)
+		elif opt in ("--enable"):
+			enable = int(arg)
 
 	try:
 
 		print "HD44780 I2C LCD Display Test"
-		print "ROWS={0}, COLS={1}, I2C Addr={2}, I2C Bus={3}".format(rows,cols,i2c_addr, i2c_bus)
+		print "ROWS={0}, COLS={1}, I2C Addr={2}, I2C Bus={3} enable duraction={4}".format(rows,cols,i2c_addr,i2c_bus,enable)
 
-		lcd = hd44780_i2c(rows,cols,i2c_addr, i2c_bus)
+		lcd = hd44780_i2c(rows,cols,i2c_addr, i2c_bus, enable)
 		lcd.clear()
 
 		lcd.message("HD44780 LCD\nPi Powered")

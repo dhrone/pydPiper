@@ -17,18 +17,17 @@
 #
 
 import time, math,logging
-import lcd_display_driver
 import fonts
 from PIL import Image
 
 import graphics
 try:
-	import RPi.GPIO as GPIO
+	import smbus
 except:
-	logging.debug("RPi.GPIO not installed")
+	logging.debug("smbus not installed")
 
 
-class hd44780(lcd_display_driver.lcd_display_driver):
+class hd44780_mcp23008():
 
 	# commands
 	LCD_CLEARDISPLAY = 0x01
@@ -72,6 +71,10 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 	LCD_5x10s = 0x04
 	LCD_5x8DOTS = 0x00
 
+	LCD_BACKLIGHT  = 0x08  # On
+	#LCD_BACKLIGHT = 0x00  # Off
+
+
 	character_translation = [
 		  0,  1,  2,  3,  4,  5,  6,  7,255, -1, -1, -1, -1, -1, -1, -1,	#0
 		 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,	#16
@@ -94,12 +97,10 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 
 
-	def __init__(self, rows=16, cols=80, rs=7, e=8, datalines=[25, 24, 23, 27], enable_duration=1):
+	def __init__(self, rows=16, cols=80, i2c_addr=0x27, i2c_bus=1, enable_duration=1):
 		# Default arguments are appropriate for Raspdac V3 only!!!
 
-		self.pins_db = datalines
-		self.pin_rs = rs
-		self.pin_e = e
+		self.i2c_addr = i2c_addr
 
 		self.rows = rows
 		self.cols = cols
@@ -108,6 +109,8 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.curposition = (0,0)
 
 		self.enable_duration = enable_duration
+
+		self.bus = smbus.SMBus(i2c_bus)
 
 		# image buffer to hold current display contents.  Used to prevent unnecessary refreshes
 		self.curimage = Image.new("1", (self.cols, self.rows))
@@ -120,16 +123,6 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 
 		# Sets the values to offset into DDRAM for different display lines
 		self.row_offsets = [ 0x00, 0x40, 0x14, 0x54 ]
-
-		# Set GPIO pins to handle communications to display
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setwarnings(False)
-
-		for pin in self.pins_db:
-		   GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
-
-		GPIO.setup(self.pin_e, GPIO.OUT, initial=GPIO.LOW)
-		GPIO.setup(self.pin_rs, GPIO.OUT, initial=GPIO.LOW)
 
 		# there is a good writeup on the HD44780 at Wikipedia
 		# https://en.wikipedia.org/wiki/Hitachi_HD44780_LCD_controller
@@ -150,7 +143,41 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 		self.clear()
 
 		# Set up parent class.
-		super(hd44780, self).__init__(rows,cols, self.enable_duration)
+		#super(hd44780_i2c, self).__init__(rows,cols)
+
+	def delayMicroseconds(self, microseconds):
+		seconds = microseconds / 1000000.0 # divide microseconds by 1 million for seconds
+		time.sleep(seconds)
+
+	def write4bits(self, bits, mode=False):
+
+		# High bits
+		self.lcd_toggle_enable(bits>>4, mode)
+
+		# Low bits
+		self.lcd_toggle_enable(bits&0x0F, mode)
+
+
+	def lcd_toggle_enable(self, bits, mode=False):
+		# Pin mapping for MCP23008
+        #    7  | 6  | 5  | 4  | 3  | 2 | 1  | 0
+        #    BL | D7 | D6 | D5 | D4 | E | RS | -
+
+		# Mask out the high order bits, shift data left to fit it into the data pins, set the backlight on, and set RS if writing data (vs instruction)
+		v = (bits & 0x0F) << 3 | 0x80 | (0x02 if mode else 0)
+
+		# Write data to display
+		self.bus.write_byte(self.i2c_addr, v)
+		self.delayMicroseconds(self.enable_duration)
+
+		# Pulse enable
+		self.bus.write_byte(self.i2c_addr, v | 0x04)
+		self.delayMicroseconds(self.enable_duration)
+
+		# End enable pulse
+		self.bus.write_byte(self.i2c_addr, v)
+		self.delayMicroseconds(self.enable_duration)
+
 
 	def createcustom(self, image):
 
@@ -311,80 +338,150 @@ class hd44780(lcd_display_driver.lcd_display_driver):
 				if ct > 0:
 					self.write4bits(self.character_translation[c], True)
 
-	def cleanup(self):
-		GPIO.cleanup()
 
 	def msgtest(self, text, wait=1.5):
 		self.clear()
 		lcd.message(text)
 		time.sleep(wait)
 
-	def pulseEnable(self):
-		# the pulse timing in the 16x2_oled_volumio 2.py file is 1000/500
-		# the pulse timing in the original version of this file is 10/10
-		# with a 100 post time for setting
-
-#		GPIO.output(self.pin_e, False)
-#		self.delayMicroseconds(.1) # 1 microsecond pause - enable pulse must be > 450ns
-		GPIO.output(self.pin_e, True)
-		self.delayMicroseconds(1) # 1 microsecond pause - enable pulse must be > 450ns
-		GPIO.output(self.pin_e, False)
-
 if __name__ == '__main__':
 
-	import getopt,sys
+	import getopt,sys, os
+	import graphics as g
+	import fonts
+	import display
+	import moment
+
+	def processevent(events, starttime, prepost, db, dbp):
+		for evnt in events:
+			t,var,val = evnt
+
+			if time.time() - starttime >= t:
+				if prepost in ['pre']:
+					db[var] = val
+				elif prepost in ['post']:
+					dbp[var] = val
+
+	db = {
+			'actPlayer':'mpd',
+			'playlist_position':1,
+			'playlist_length':5,
+	 		'title':"Nicotine & Gravy",
+			'artist':"Beck",
+			'album':'Midnight Vultures',
+			'elapsed':0,
+			'length':400,
+			'volume':50,
+			'stream':'Not webradio',
+			'utc': 	moment.utcnow(),
+			'outside_temp_formatted':u'46\xb0F',
+			'outside_temp_max':72,
+			'outside_temp_min':48,
+			'outside_conditions':'Windy',
+			'system_temp_formatted':u'98\xb0C',
+			'state':'stop',
+			'system_tempc':81.0
+		}
+
+	dbp = {
+			'actPlayer':'mpd',
+			'playlist_position':1,
+			'playlist_length':5,
+	 		'title':"Nicotine & Gravy",
+			'artist':"Beck",
+			'album':'Midnight Vultures',
+			'elapsed':0,
+			'length':400,
+			'volume':50,
+			'stream':'Not webradio',
+			'utc': 	moment.utcnow(),
+			'outside_temp_formatted':u'46\xb0F',
+			'outside_temp_max':72,
+			'outside_temp_min':48,
+			'outside_conditions':'Windy',
+			'system_temp_formatted':u'98\xb0C',
+			'state':'stop',
+			'system_tempc':81.0
+		}
+
+	events = [
+		(15, 'state', 'play'),
+		(20, 'title', 'Mixed Bizness'),
+		(30, 'volume', 80),
+		(40, 'title', 'I Never Loved a Man (The Way I Love You)'),
+		(40, 'artist', 'Aretha Franklin'),
+		(40, 'album', 'The Queen Of Soul'),
+		(40, 'playlist_position', 2),
+		(70, 'state', 'stop'),
+		(90, 'state', 'play'),
+		(100, 'title', 'Do Right Woman, Do Right Man'),
+		(100, 'playlist_position', 3),
+		(120, 'volume', 100),
+		(140, 'state', 'play' )
+	]
+
+
+
+
 	try:
-		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","rs=","e=","d4=","d5=","d6=", "d7="])
+		opts, args = getopt.getopt(sys.argv[1:],"hr:c:",["row=","col=","addr=","bus="])
 	except getopt.GetoptError:
-		print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
+		print 'hd44780_mcp23008.py -r <rows> -c <cols> --addr <i2c addr> --bus <i2c bus> --enable <duration in microseconds>'
 		sys.exit(2)
 
 	# Set defaults
 	# These are for the wiring used by a Raspdac V3
-	rows = 16
-	cols = 80
-	rs = 7
-	e = 8
-	d4 = 25
-	d5 = 24
-	d6 = 23
-	d7 = 27
+	rows = 32
+	cols = 100
+	i2c_addr = 0x27
+	i2c_bus = 1
 	enable = 1
 
 	for opt, arg in opts:
 		if opt == '-h':
-			print 'hd44780.py -r <rows> -c <cols> --rs <rs> --e <e> --d4 <d4> --d5 <d5> --d6 <d6> --d7 <d7> --enable <duration in microseconds>'
+			print 'hd44780_mcp23008.py -r <rows> -c <cols> --addr <i2c addr> --bus <i2c bus> --enable <duration in microseconds>'
 			sys.exit()
 		elif opt in ("-r", "--rows"):
 			rows = int(arg)
 		elif opt in ("-c", "--cols"):
 			cols = int(arg)
-		elif opt in ("--rs"):
-			rs  = int(arg)
-		elif opt in ("--e"):
-			e  = int(arg)
-		elif opt in ("--d4"):
-			d4  = int(arg)
-		elif opt in ("--d5"):
-			d5  = int(arg)
-		elif opt in ("--d6"):
-			d6  = int(arg)
-		elif opt in ("--d7"):
-			d7  = int(arg)
+		elif opt in ("--addr"):
+			i2c_addr  = int(arg)
+		elif opt in ("--bus"):
+			i2c_bus  = int(arg)
 		elif opt in ("--enable"):
 			enable = int(arg)
 
 	try:
 
-		pins = [d4, d5, d6, d7]
-		print "HD44780 LCD Display Test"
-		print "ROWS={0}, COLS={1}, RS={2}, E={3}, Pins={4}, enable duration={5}".format(rows,cols,rs,e,pins,enable)
+		print "HD44780 with MCP23008 I2C Backpack Display Test"
+		print "ROWS={0}, COLS={1}, I2C Addr={2}, I2C Bus={3} enable duraction={4}".format(rows,cols,i2c_addr,i2c_bus,enable)
 
-		lcd = hd44780(rows,cols,rs,e,[d4, d5, d6, d7],enable)
+		lcd = hd44780_mcp23008(rows,cols,i2c_addr, i2c_bus, enable)
 		lcd.clear()
 
-		lcd.message("HD44780 LCD\nPi Powered")
+		lcd.message("HD44780 MCP23008 LCD\nPi Powered")
 		time.sleep(4)
+
+		starttime = time.time()
+		elapsed = int(time.time()-starttime)
+		timepos = time.strftime(u"%-M:%S", time.gmtime(int(elapsed))) + "/" + time.strftime(u"%-M:%S", time.gmtime(int(254)))
+
+		pathtotest = 'pages_test_lcd_20x4.py' if rows == 32 else 'pages_test_lcd_16x2.py'
+		dc = display.display_controller((cols,rows))
+		f_path = os.path.join(os.path.dirname(__file__), 'pages_test_lcd_20x4.py')
+		dc.load(f_path, db,dbp )
+
+		starttime=time.time()
+		while True:
+			elapsed = int(time.time()-starttime)
+			db['elapsed']=elapsed
+			db['utc'] = moment.utcnow()
+			processevent(events, starttime, 'pre', db, dbp)
+			img = dc.next()
+			processevent(events, starttime, 'post', db, dbp)
+			lcd.update(img)
+			time.sleep(.1)
 
 		lcd.clear()
 
@@ -403,5 +500,4 @@ if __name__ == '__main__':
 		except:
 			pass
 		time.sleep(.5)
-		GPIO.cleanup()
 		print u"LCD Display Test Complete"

@@ -1,0 +1,75 @@
+Instructions for OSX
+
+1.  Get IMG file
+curl -O http://updates.volumio.org/pi/volumio/2.703/volumio-2.703-2020-02-15-pi.img.zip
+unzip http://updates.volumio.org/pi/volumio/2.703/volumio-2.703-2020-02-15-pi.img.zip
+
+(Will need to adjust URL for new versions)
+
+2. Burn IMG file to SD Card
+
+insert SD Card
+
+diskutil list
+
+(Note the device # associated with the card)
+(WARNING: If you get this wrong you can erase your system drive!!)
+
+sudo dd bs=1m if=volumio-2.703-2020-02-15-pi.img of=/dev/rdiskX conv=sync
+(replace X with correct device number)
+
+diskutil unmountDisk /dev/diskX
+(replace X with correct device number)
+
+3. Boot new Volumio install
+
+insert SD Card in Pi
+Apply power and wait for boot to finish
+New Wifi network named volumio should now be visible in your list of wifi networks
+Choose volumio in your wifi settings
+
+The volumio install screen should appear.  Follow instructions to get volumio up and running including moving it to your normal wifi network.
+
+Once your volumio install is switched to your normal network use your wifi settings to shift your computer back to your normal network.
+
+Use browser to navigate to https://volumio.local/dev
+Enable ssh
+
+4.  Log in to Volumio shell
+ssh volumio@volumio.local
+password: volumio
+
+5. Enable SMB
+sudo smbpasswd -a volumio
+password: volumio
+smbpasswd: volumio
+smbpasswd: volumio
+
+6. Set up docker
+
+curl -sSL https://get.docker.com/ | $SHELL
+sudo usermod -aG docker volumio
+sudo docker run hello-world
+
+(check to make sure that hello world runs successfully)
+
+
+7.  Get pydPiper and place in /data/INTERNAL
+
+cd /data/INTERNAL
+git clone https://github.com/dhrone/pydPiper
+
+8. Build docker image file (optional)
+
+cd /data/INTERNAL/pydPiper
+sudo docker build --network=host -t dhrone/pydpiper:v0.32-alpha .
+
+(Note: This takes about 15m30s to run on a Pi 3)
+
+9. Run configure script
+
+sudo docker run -ti --privileged -v /var/log:/var/log:rw -v /home/volumio/pydPiper:/app:rw dhrone/pydpiper:v0.32-alpha python /app/configure.py
+
+10. Run pydPiper
+
+sudo docker run --network=host --privileged -v /var/log:/var/log:rw -v /data/INTERNAL/pydPiper:/app:rw dhrone/pydpiper:v0.32-alpha python /app/pydPiper.py

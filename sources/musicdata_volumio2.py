@@ -105,7 +105,7 @@ class musicdata_volumio2(musicdata.musicdata):
 				self.musicdata[u'state'] = state
 			else:
 				self.musicdata[u'state'] = u'stop'
-				
+
 			if state == u'play':
 				# Determine if the player is changing to playing.
 				if self.musicdata_prev[u'state'] != u"play":
@@ -131,6 +131,7 @@ class musicdata_volumio2(musicdata.musicdata):
 			self.musicdata[u'bitdepth'] = status[u'bitdepth'] if u'bitdepth' in status else u""
 			self.musicdata[u'tracktype'] = status[u'trackType'] if u'trackType' in status else u""
 			self.musicdata[u'samplerate'] = status[u'samplerate'] if u'samplerate' in status else u""
+			self.musicdata[u'bitrate'] = status[u'bitrate'] if u'bitrate' in status else u""
 
 			# Numeric values
 			self.musicdata[u'elapsed'] = int(self.floatn(status[u'seek'])/1000) if u'seek' in status else 0
